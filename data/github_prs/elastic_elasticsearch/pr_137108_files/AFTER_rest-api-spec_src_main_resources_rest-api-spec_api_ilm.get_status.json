@@ -1,0 +1,25 @@
+{
+  "ilm.get_status": {
+    "documentation": {
+      "url": "https://www.elastic.co/guide/en/elasticsearch/reference/8.19/ilm-get-status.html",
+      "description": "Get the ILM status"
+    },
+    "stability": "stable",
+    "visibility": "public",
+    "headers": {
+      "accept": [
+        "application/json"
+      ]
+    },
+    "url": {
+      "paths": [
+        {
+          "path": "/_ilm/status",
+          "methods": [
+            "GET"
+          ]
+        }
+      ]
+    }
+  }
+}

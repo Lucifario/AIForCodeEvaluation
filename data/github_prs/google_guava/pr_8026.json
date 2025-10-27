@@ -1,0 +1,41 @@
+{
+  "id": 8026,
+  "repository": "google/guava",
+  "title": "Remove the claim that we'll delete `Files.append` in October 2019.",
+  "body": "Remove the claim that we'll delete `Files.append` in October 2019.\n\nJust as we didn't delete `TreeTraverser` in https://github.com/google/guava/commit/f827e52534ba44f6796b1c0e69313c757bc0701e, we're aren't going to remove this one. We still encourage people to migrate, but we continue to expect not to remove APIs from Guava, especially non-`@Beta` APIs like this one.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-25T20:24:19+00:00",
+  "created_at": "2025-09-25T20:00:36+00:00",
+  "updated_at": "2025-09-25T20:24:20+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "a84b5f3c319e7573909d6977755bf4ebe36368b2",
+  "head_sha": "c37d51edf0698129bb2eed5095277c392752cbb0",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava/src/com/google/common/io/Files.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -352,8 +352,7 @@ static void copy(File from, Charset charset, Appendable to) throws IOException {\n    * @param charset the charset used to encode the output stream; see {@link StandardCharsets} for\n    *     helpful predefined constants\n    * @throws IOException if an I/O error occurs\n-   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}. This\n-   *     method is scheduled to be removed in October 2019.\n+   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}.\n    */\n   @Deprecated\n   @InlineMe("
+    },
+    {
+      "filename": "guava/src/com/google/common/io/Files.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -352,8 +352,7 @@ static void copy(File from, Charset charset, Appendable to) throws IOException {\n    * @param charset the charset used to encode the output stream; see {@link StandardCharsets} for\n    *     helpful predefined constants\n    * @throws IOException if an I/O error occurs\n-   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}. This\n-   *     method is scheduled to be removed in October 2019.\n+   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}.\n    */\n   @Deprecated\n   @InlineMe("
+    }
+  ],
+  "diff": "diff --git a/android/guava/src/com/google/common/io/Files.java b/android/guava/src/com/google/common/io/Files.java\nindex 0e87a2ac3040..293e1980d598 100644\n--- a/android/guava/src/com/google/common/io/Files.java\n+++ b/android/guava/src/com/google/common/io/Files.java\n@@ -352,8 +352,7 @@ static void copy(File from, Charset charset, Appendable to) throws IOException {\n    * @param charset the charset used to encode the output stream; see {@link StandardCharsets} for\n    *     helpful predefined constants\n    * @throws IOException if an I/O error occurs\n-   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}. This\n-   *     method is scheduled to be removed in October 2019.\n+   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}.\n    */\n   @Deprecated\n   @InlineMe(\ndiff --git a/guava/src/com/google/common/io/Files.java b/guava/src/com/google/common/io/Files.java\nindex 0e87a2ac3040..293e1980d598 100644\n--- a/guava/src/com/google/common/io/Files.java\n+++ b/guava/src/com/google/common/io/Files.java\n@@ -352,8 +352,7 @@ static void copy(File from, Charset charset, Appendable to) throws IOException {\n    * @param charset the charset used to encode the output stream; see {@link StandardCharsets} for\n    *     helpful predefined constants\n    * @throws IOException if an I/O error occurs\n-   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}. This\n-   *     method is scheduled to be removed in October 2019.\n+   * @deprecated Prefer {@code asCharSink(to, charset, FileWriteMode.APPEND).write(from)}.\n    */\n   @Deprecated\n   @InlineMe(\n",
+  "additions": 2,
+  "deletions": 4,
+  "changed_files": 2,
+  "url": "https://github.com/google/guava/pull/8026",
+  "mined_at": "2025-10-25T12:54:59.622039"
+}

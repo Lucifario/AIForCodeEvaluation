@@ -1,0 +1,39 @@
+{
+  "id": 1430,
+  "repository": "apache/commons-lang",
+  "title": "Clean up pom.xml formatting",
+  "body": "fix indentation and remove unnecessary whitespace\r\n\r\nThis pull request improves the formatting of `pom.xml` by fixing inconsistent indentation and removing unnecessary whitespace.  \r\nNo functional changes were made.  \r\nThis helps maintain clarity and consistency for contributors working with the build configuration.",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-08-22T08:47:32+00:00",
+  "created_at": "2025-08-22T05:39:13+00:00",
+  "updated_at": "2025-08-22T09:15:08+00:00",
+  "author": "etoumasaaki",
+  "reviewers": [],
+  "base_sha": "d45f23e9579196e552afda6eb6baccf8d782c640",
+  "head_sha": "103cae350acf86796858e478f68d51ab9ad58a4b",
+  "review_comments": [],
+  "pr_comments": [
+    {
+      "user": "etoumasaaki",
+      "body": "Thanks a lot for merging, @aherbert !\r\nHappy to contribute — I’ll keep an eye out for more opportunities.",
+      "created_at": "2025-08-22T09:15:07+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "pom.xml",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "patch": "@@ -173,8 +173,8 @@\n   </properties>\n \n   <build>\n-   <defaultGoal>clean verify apache-rat:check checkstyle:check japicmp:cmp spotbugs:check pmd:check javadoc:javadoc</defaultGoal>\n-   <pluginManagement>\n+    <defaultGoal>clean verify apache-rat:check checkstyle:check japicmp:cmp spotbugs:check pmd:check javadoc:javadoc</defaultGoal>\n+    <pluginManagement>\n       <plugins>\n         <plugin>\n           <groupId>org.apache.maven.plugins</groupId>\n@@ -476,10 +476,10 @@\n             <artifactId>maven-surefire-plugin</artifactId>\n             <configuration>\n               <excludes>\n-                <exclude>org/apache/commons/lang3/time/Java15BugFastDateParserTest.java</exclude>               \n+                <exclude>org/apache/commons/lang3/time/Java15BugFastDateParserTest.java</exclude>\n               </excludes>\n             </configuration>\n-          </plugin>        \n+          </plugin>\n         </plugins>\n       </build>\n     </profile>"
+    }
+  ],
+  "diff": "diff --git a/pom.xml b/pom.xml\nindex 1c162134fcb..d3b782b411a 100644\n--- a/pom.xml\n+++ b/pom.xml\n@@ -173,8 +173,8 @@\n   </properties>\n \n   <build>\n-   <defaultGoal>clean verify apache-rat:check checkstyle:check japicmp:cmp spotbugs:check pmd:check javadoc:javadoc</defaultGoal>\n-   <pluginManagement>\n+    <defaultGoal>clean verify apache-rat:check checkstyle:check japicmp:cmp spotbugs:check pmd:check javadoc:javadoc</defaultGoal>\n+    <pluginManagement>\n       <plugins>\n         <plugin>\n           <groupId>org.apache.maven.plugins</groupId>\n@@ -476,10 +476,10 @@\n             <artifactId>maven-surefire-plugin</artifactId>\n             <configuration>\n               <excludes>\n-                <exclude>org/apache/commons/lang3/time/Java15BugFastDateParserTest.java</exclude>               \n+                <exclude>org/apache/commons/lang3/time/Java15BugFastDateParserTest.java</exclude>\n               </excludes>\n             </configuration>\n-          </plugin>        \n+          </plugin>\n         </plugins>\n       </build>\n     </profile>\n",
+  "additions": 4,
+  "deletions": 4,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1430",
+  "mined_at": "2025-10-25T12:47:21.067049"
+}

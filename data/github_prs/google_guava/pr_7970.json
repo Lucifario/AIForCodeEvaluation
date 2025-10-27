@@ -1,0 +1,73 @@
+{
+  "id": 7970,
+  "repository": "google/guava",
+  "title": "Bump deps.",
+  "body": "Bump deps.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-04T21:36:04+00:00",
+  "created_at": "2025-09-04T21:10:29+00:00",
+  "updated_at": "2025-09-04T21:36:04+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "3944ffa4f3c477f182baca9eaf3738a626ccddef",
+  "head_sha": "1176cdb86e23535934e9529876e4f317db72b3ce",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-tests/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -50,7 +50,7 @@\n     <dependency>\n       <groupId>com.google.jimfs</groupId>\n       <artifactId>jimfs</artifactId>\n-      <version>1.3.0</version>\n+      <version>1.3.1</version>\n       <scope>test</scope>\n     </dependency>\n     <dependency>"
+    },
+    {
+      "filename": "android/pom.xml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -21,8 +21,8 @@\n     <test.include>%regex[.*.class]</test.include>\n     <truth.version>1.4.4</truth.version>\n     <jspecify.version>1.0.0</jspecify.version>\n-    <errorprone.version>2.36.0</errorprone.version>\n-    <j2objc.version>3.0.0</j2objc.version>\n+    <errorprone.version>2.41.0</errorprone.version>\n+    <j2objc.version>3.1</j2objc.version>\n     <project.build.outputTimestamp>2025-01-02T00:00:00Z</project.build.outputTimestamp>\n     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n     <!--"
+    },
+    {
+      "filename": "guava-gwt/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -17,7 +17,7 @@\n     This project includes GWT-friendly sources.\n   </description>\n   <properties>\n-    <gwt.version>2.12.1</gwt.version>\n+    <gwt.version>2.12.2</gwt.version>\n     <gwt.plugin.version>2.10.0</gwt.plugin.version>\n     <gwt.logLevel>WARN</gwt.logLevel>\n   </properties>"
+    },
+    {
+      "filename": "guava-tests/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -56,7 +56,7 @@\n     <dependency>\n       <groupId>com.google.jimfs</groupId>\n       <artifactId>jimfs</artifactId>\n-      <version>1.3.0</version>\n+      <version>1.3.1</version>\n       <scope>test</scope>\n     </dependency>\n     <dependency>"
+    },
+    {
+      "filename": "integration-tests/gradle/build.gradle.kts",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "patch": "@@ -8,18 +8,18 @@ val expectedReducedRuntimeClasspathAndroidVersion =\n   setOf(\n     \"guava-${guavaVersionJre.replace(\"jre\", \"android\")}.jar\",\n     \"failureaccess-1.0.3.jar\",\n-    \"j2objc-annotations-3.0.0.jar\",\n+    \"j2objc-annotations-3.1.jar\",\n     \"jspecify-1.0.0.jar\",\n-    \"error_prone_annotations-2.36.0.jar\",\n+    \"error_prone_annotations-2.41.0.jar\",\n     \"listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar\"\n   )\n val expectedReducedRuntimeClasspathJreVersion =\n   setOf(\n     \"guava-$guavaVersionJre.jar\",\n     \"failureaccess-1.0.3.jar\",\n-    \"j2objc-annotations-3.0.0.jar\",\n+    \"j2objc-annotations-3.1.jar\",\n     \"jspecify-1.0.0.jar\",\n-    \"error_prone_annotations-2.36.0.jar\",\n+    \"error_prone_annotations-2.41.0.jar\",\n     \"listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar\"\n   )\n val expectedCompileClasspathAndroidVersion = expectedReducedRuntimeClasspathAndroidVersion"
+    },
+    {
+      "filename": "pom.xml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -21,8 +21,8 @@\n     <test.include>%regex[.*.class]</test.include>\n     <truth.version>1.4.4</truth.version>\n     <jspecify.version>1.0.0</jspecify.version>\n-    <errorprone.version>2.36.0</errorprone.version>\n-    <j2objc.version>3.0.0</j2objc.version>\n+    <errorprone.version>2.41.0</errorprone.version>\n+    <j2objc.version>3.1</j2objc.version>\n     <project.build.outputTimestamp>2025-01-02T00:00:00Z</project.build.outputTimestamp>\n     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n     <!--"
+    }
+  ],
+  "diff": "diff --git a/android/guava-tests/pom.xml b/android/guava-tests/pom.xml\nindex 850dbfb4205e..ad5835cb303a 100644\n--- a/android/guava-tests/pom.xml\n+++ b/android/guava-tests/pom.xml\n@@ -50,7 +50,7 @@\n     <dependency>\n       <groupId>com.google.jimfs</groupId>\n       <artifactId>jimfs</artifactId>\n-      <version>1.3.0</version>\n+      <version>1.3.1</version>\n       <scope>test</scope>\n     </dependency>\n     <dependency>\ndiff --git a/android/pom.xml b/android/pom.xml\nindex 03f9fc37863e..32eccbe4510e 100644\n--- a/android/pom.xml\n+++ b/android/pom.xml\n@@ -21,8 +21,8 @@\n     <test.include>%regex[.*.class]</test.include>\n     <truth.version>1.4.4</truth.version>\n     <jspecify.version>1.0.0</jspecify.version>\n-    <errorprone.version>2.36.0</errorprone.version>\n-    <j2objc.version>3.0.0</j2objc.version>\n+    <errorprone.version>2.41.0</errorprone.version>\n+    <j2objc.version>3.1</j2objc.version>\n     <project.build.outputTimestamp>2025-01-02T00:00:00Z</project.build.outputTimestamp>\n     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n     <!--\ndiff --git a/guava-gwt/pom.xml b/guava-gwt/pom.xml\nindex db9b0fedca72..24632ba7d2cb 100644\n--- a/guava-gwt/pom.xml\n+++ b/guava-gwt/pom.xml\n@@ -17,7 +17,7 @@\n     This project includes GWT-friendly sources.\n   </description>\n   <properties>\n-    <gwt.version>2.12.1</gwt.version>\n+    <gwt.version>2.12.2</gwt.version>\n     <gwt.plugin.version>2.10.0</gwt.plugin.version>\n     <gwt.logLevel>WARN</gwt.logLevel>\n   </properties>\ndiff --git a/guava-tests/pom.xml b/guava-tests/pom.xml\nindex fd0d5dd6b7ef..b7fe0d5aaf5d 100644\n--- a/guava-tests/pom.xml\n+++ b/guava-tests/pom.xml\n@@ -56,7 +56,7 @@\n     <dependency>\n       <groupId>com.google.jimfs</groupId>\n       <artifactId>jimfs</artifactId>\n-      <version>1.3.0</version>\n+      <version>1.3.1</version>\n       <scope>test</scope>\n     </dependency>\n     <dependency>\ndiff --git a/integration-tests/gradle/build.gradle.kts b/integration-tests/gradle/build.gradle.kts\nindex 4b633a7f340e..f0b294c74808 100644\n--- a/integration-tests/gradle/build.gradle.kts\n+++ b/integration-tests/gradle/build.gradle.kts\n@@ -8,18 +8,18 @@ val expectedReducedRuntimeClasspathAndroidVersion =\n   setOf(\n     \"guava-${guavaVersionJre.replace(\"jre\", \"android\")}.jar\",\n     \"failureaccess-1.0.3.jar\",\n-    \"j2objc-annotations-3.0.0.jar\",\n+    \"j2objc-annotations-3.1.jar\",\n     \"jspecify-1.0.0.jar\",\n-    \"error_prone_annotations-2.36.0.jar\",\n+    \"error_prone_annotations-2.41.0.jar\",\n     \"listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar\"\n   )\n val expectedReducedRuntimeClasspathJreVersion =\n   setOf(\n     \"guava-$guavaVersionJre.jar\",\n     \"failureaccess-1.0.3.jar\",\n-    \"j2objc-annotations-3.0.0.jar\",\n+    \"j2objc-annotations-3.1.jar\",\n     \"jspecify-1.0.0.jar\",\n-    \"error_prone_annotations-2.36.0.jar\",\n+    \"error_prone_annotations-2.41.0.jar\",\n     \"listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar\"\n   )\n val expectedCompileClasspathAndroidVersion = expectedReducedRuntimeClasspathAndroidVersion\ndiff --git a/pom.xml b/pom.xml\nindex d1eaee8aae32..0e7ebcb1458a 100644\n--- a/pom.xml\n+++ b/pom.xml\n@@ -21,8 +21,8 @@\n     <test.include>%regex[.*.class]</test.include>\n     <truth.version>1.4.4</truth.version>\n     <jspecify.version>1.0.0</jspecify.version>\n-    <errorprone.version>2.36.0</errorprone.version>\n-    <j2objc.version>3.0.0</j2objc.version>\n+    <errorprone.version>2.41.0</errorprone.version>\n+    <j2objc.version>3.1</j2objc.version>\n     <project.build.outputTimestamp>2025-01-02T00:00:00Z</project.build.outputTimestamp>\n     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n     <!--\n",
+  "additions": 11,
+  "deletions": 11,
+  "changed_files": 6,
+  "url": "https://github.com/google/guava/pull/7970",
+  "mined_at": "2025-10-25T13:05:27.578268"
+}

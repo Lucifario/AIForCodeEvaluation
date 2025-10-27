@@ -1,0 +1,212 @@
+diff --git a/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/FeatureUpgradeApiIT.java b/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/FeatureUpgradeApiIT.java
+index 62bc23ee4ad87..548e61199b7d7 100644
+--- a/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/FeatureUpgradeApiIT.java
++++ b/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/FeatureUpgradeApiIT.java
+@@ -29,7 +29,7 @@ public class FeatureUpgradeApiIT extends AbstractSystemIndicesIT {
+ 
+     @After
+     public void resetFeatures() throws Exception {
+-        client().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(client());
+     }
+ 
+     public void testCreatingSystemIndex() throws Exception {
+diff --git a/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/NetNewSystemIndicesIT.java b/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/NetNewSystemIndicesIT.java
+index 1f497322647d4..d2ce68101be49 100644
+--- a/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/NetNewSystemIndicesIT.java
++++ b/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/NetNewSystemIndicesIT.java
+@@ -94,6 +94,6 @@ public void testSearch() throws Exception {
+ 
+     @After
+     public void resetFeatures() throws Exception {
+-        client().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(client());
+     }
+ }
+diff --git a/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/SystemAliasIT.java b/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/SystemAliasIT.java
+index 1a724fcab2b07..bec0d1dbae4ac 100644
+--- a/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/SystemAliasIT.java
++++ b/qa/system-indices/src/javaRestTest/java/org/elasticsearch/system/indices/SystemAliasIT.java
+@@ -26,7 +26,7 @@ public class SystemAliasIT extends AbstractSystemIndicesIT {
+ 
+     @After
+     public void resetFeatures() throws Exception {
+-        client().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(client());
+     }
+ 
+     public void testCreatingSystemIndexWithAlias() throws Exception {
+diff --git a/test/framework/src/main/java/org/elasticsearch/test/rest/ESRestTestCase.java b/test/framework/src/main/java/org/elasticsearch/test/rest/ESRestTestCase.java
+index 5ddd925e4e803..aa6ad7fd31f4b 100644
+--- a/test/framework/src/main/java/org/elasticsearch/test/rest/ESRestTestCase.java
++++ b/test/framework/src/main/java/org/elasticsearch/test/rest/ESRestTestCase.java
+@@ -925,6 +925,16 @@ protected boolean preserveSearchableSnapshotsIndicesUponCompletion() {
+         return false;
+     }
+ 
++    /**
++     * Invoke {@code POST /_features/_reset?error_trace&master_timeout=-1} with the given {@link RestClient}.
++     */
++    public static void performPostFeaturesReset(RestClient restClient) throws IOException {
++        final var request = new Request(HttpPost.METHOD_NAME, "/_features/_reset");
++        request.addParameter("error_trace", "true");
++        request.addParameter("master_timeout", "-1");
++        assertOK(restClient.performRequest(request));
++    }
++
+     private void wipeCluster() throws Exception {
+         waitForClusterUpdates();
+ 
+@@ -951,8 +961,7 @@ private void wipeCluster() throws Exception {
+         wipeSnapshots();
+ 
+         if (resetFeatureStates()) {
+-            final Request postRequest = new Request("POST", "/_features/_reset");
+-            cleanupClient().performRequest(postRequest);
++            performPostFeaturesReset(cleanupClient());
+         }
+ 
+         // wipe data streams before indices so that the backing indices for data streams are handled properly
+diff --git a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/integration/MlRestTestStateCleaner.java b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/integration/MlRestTestStateCleaner.java
+index 25d9509ecdc7a..a8916a7455448 100644
+--- a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/integration/MlRestTestStateCleaner.java
++++ b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/integration/MlRestTestStateCleaner.java
+@@ -17,6 +17,7 @@
+ import java.util.List;
+ import java.util.Map;
+ 
++import static org.elasticsearch.test.rest.ESRestTestCase.performPostFeaturesReset;
+ import static org.hamcrest.MatcherAssert.assertThat;
+ import static org.hamcrest.Matchers.hasSize;
+ 
+@@ -33,7 +34,7 @@ public MlRestTestStateCleaner(Logger logger, RestClient adminClient) {
+     public void resetFeatures() throws IOException {
+         deletePipelinesWithInferenceProcessors();
+         // This resets all features, not just ML, but they should have been getting reset between tests anyway so it shouldn't matter
+-        adminClient.performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(adminClient);
+     }
+ 
+     @SuppressWarnings("unchecked")
+diff --git a/x-pack/plugin/deprecation/qa/src/javaRestTest/java/org/elasticsearch/xpack/deprecation/MlDeprecationIT.java b/x-pack/plugin/deprecation/qa/src/javaRestTest/java/org/elasticsearch/xpack/deprecation/MlDeprecationIT.java
+index 4ee5f39e8df55..11f8140485187 100644
+--- a/x-pack/plugin/deprecation/qa/src/javaRestTest/java/org/elasticsearch/xpack/deprecation/MlDeprecationIT.java
++++ b/x-pack/plugin/deprecation/qa/src/javaRestTest/java/org/elasticsearch/xpack/deprecation/MlDeprecationIT.java
+@@ -59,8 +59,7 @@ protected String getTestRestCluster() {
+ 
+     @After
+     public void resetFeatures() throws IOException {
+-        Response response = adminClient().performRequest(new Request("POST", "/_features/_reset"));
+-        assertOK(response);
++        performPostFeaturesReset(adminClient());
+     }
+ 
+     @Override
+diff --git a/x-pack/plugin/ml/qa/disabled/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlPluginDisabledIT.java b/x-pack/plugin/ml/qa/disabled/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlPluginDisabledIT.java
+index a518e0d496868..e9405074b5645 100644
+--- a/x-pack/plugin/ml/qa/disabled/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlPluginDisabledIT.java
++++ b/x-pack/plugin/ml/qa/disabled/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlPluginDisabledIT.java
+@@ -75,8 +75,7 @@ public void testActionsFail() throws Exception {
+     }
+ 
+     public void testMlFeatureReset() throws IOException {
+-        Request request = new Request("POST", "/_features/_reset");
+-        assertOK(client().performRequest(request));
++        performPostFeaturesReset(client());
+     }
+ 
+     @SuppressWarnings("unchecked")
+diff --git a/x-pack/plugin/ml/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/InferenceTestCase.java b/x-pack/plugin/ml/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/InferenceTestCase.java
+index 5adcf649f6e02..0551884261d82 100644
+--- a/x-pack/plugin/ml/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/InferenceTestCase.java
++++ b/x-pack/plugin/ml/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/InferenceTestCase.java
+@@ -33,7 +33,7 @@ public void cleanup() throws Exception {
+         }
+         createdPipelines.clear();
+         waitForStats();
+-        adminClient().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(adminClient());
+     }
+ 
+     void deletePipeline(String pipelineId) throws IOException {
+diff --git a/x-pack/plugin/transform/qa/multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TestFeatureResetIT.java b/x-pack/plugin/transform/qa/multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TestFeatureResetIT.java
+index 60bb04fe6cb8a..7fd4ee88c7714 100644
+--- a/x-pack/plugin/transform/qa/multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TestFeatureResetIT.java
++++ b/x-pack/plugin/transform/qa/multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TestFeatureResetIT.java
+@@ -6,7 +6,6 @@
+  */
+ package org.elasticsearch.xpack.transform.integration;
+ 
+-import org.apache.http.client.methods.HttpPost;
+ import org.elasticsearch.client.Request;
+ import org.elasticsearch.client.RequestOptions;
+ import org.elasticsearch.client.Response;
+@@ -95,7 +94,7 @@ public void testTransformFeatureReset() throws Exception {
+ 
+         startTransform(continuousTransformId, RequestOptions.DEFAULT);
+ 
+-        assertOK(client().performRequest(new Request(HttpPost.METHOD_NAME, "/_features/_reset")));
++        performPostFeaturesReset(client());
+ 
+         Response response = adminClient().performRequest(new Request("GET", "/_cluster/state?metric=metadata"));
+         Map<String, Object> metadata = (Map<String, Object>) ESRestTestCase.entityAsMap(response).get("metadata");
+diff --git a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformGetAndGetStatsIT.java b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformGetAndGetStatsIT.java
+index 4c7ab877cbc65..aa3488b575ad6 100644
+--- a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformGetAndGetStatsIT.java
++++ b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformGetAndGetStatsIT.java
+@@ -66,7 +66,7 @@ public void createIndexes() throws IOException {
+ 
+     @After
+     public void clearOutTransforms() throws Exception {
+-        adminClient().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(adminClient());
+     }
+ 
+     @SuppressWarnings("unchecked")
+diff --git a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformRestTestCase.java b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformRestTestCase.java
+index 96478f5576107..0eb48ea896afc 100644
+--- a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformRestTestCase.java
++++ b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformRestTestCase.java
+@@ -648,7 +648,7 @@ public void waitForTransform() throws Exception {
+         ensureNoInitializingShards();
+         logAudits();
+         if (preserveClusterUponCompletion() == false) {
+-            adminClient().performRequest(new Request("POST", "/_features/_reset"));
++            performPostFeaturesReset(adminClient());
+         }
+     }
+ 
+diff --git a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformTaskFailedStateIT.java b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformTaskFailedStateIT.java
+index 5ab65ca023506..cff760565087b 100644
+--- a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformTaskFailedStateIT.java
++++ b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformTaskFailedStateIT.java
+@@ -54,7 +54,7 @@ public void setClusterSettings() throws IOException {
+ 
+     @After
+     public void cleanUpPotentiallyFailedTransform() throws Exception {
+-        adminClient().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(adminClient());
+     }
+ 
+     public void testForceStopFailedTransform() throws Exception {
+diff --git a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformUpgradeModeIT.java b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformUpgradeModeIT.java
+index 437d7aa5e26d9..e1b0b0473c554 100644
+--- a/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformUpgradeModeIT.java
++++ b/x-pack/plugin/transform/qa/single-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/transform/integration/TransformUpgradeModeIT.java
+@@ -7,7 +7,6 @@
+ 
+ package org.elasticsearch.xpack.transform.integration;
+ 
+-import org.elasticsearch.client.Request;
+ import org.elasticsearch.client.Response;
+ import org.elasticsearch.client.ResponseException;
+ import org.elasticsearch.common.xcontent.support.XContentMapValues;
+@@ -53,7 +52,7 @@ public void createIndexes() throws IOException {
+ 
+     @After
+     public void clearOutTransforms() throws Exception {
+-        adminClient().performRequest(new Request("POST", "/_features/_reset"));
++        performPostFeaturesReset(adminClient());
+     }
+ 
+     public void testUpgradeMode() throws Exception {

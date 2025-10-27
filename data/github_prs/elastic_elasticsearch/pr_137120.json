@@ -1,0 +1,49 @@
+{
+  "id": 137120,
+  "repository": "elastic/elasticsearch",
+  "title": "[9.2] Remove `auto_expand_replicas` setting during index clone in `searchable_snapshot` (#137111)",
+  "body": "Backports the following commits to 9.2:\n - Remove `auto_expand_replicas` setting during index clone in `searchable_snapshot` (#137111)",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T18:08:55+00:00",
+  "created_at": "2025-10-24T16:16:45+00:00",
+  "updated_at": "2025-10-24T18:09:19+00:00",
+  "author": "nielsbauman",
+  "reviewers": [],
+  "base_sha": "8c89c268b2e474fc36c728054396022b2a8f1a1a",
+  "head_sha": "a0cd277ccb689f285076abde0eb407300c424d9d",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "docs/changelog/137111.yaml",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "patch": "@@ -0,0 +1,5 @@\n+pr: 137111\n+summary: Remove `auto_expand_replicas` setting during index clone in `searchable_snapshot`\n+area: ILM+SLM\n+type: bug\n+issues: []"
+    },
+    {
+      "filename": "x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ilm/SearchableSnapshotAction.java",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 1,
+      "changes": 6,
+      "patch": "@@ -78,7 +78,11 @@ public class SearchableSnapshotAction implements LifecycleAction {\n         indexName,\n         state) -> state.forceMergeCloneIndexName() != null ? state.forceMergeCloneIndexName() : indexName;\n \n-    private static final Settings CLONE_SETTINGS = Settings.builder().put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 0).build();\n+    /** The cloned index should have 0 replicas, so we also need to remove the auto_expand_replicas setting if present. */\n+    private static final Settings CLONE_SETTINGS = Settings.builder()\n+        .put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 0)\n+        .put(IndexMetadata.SETTING_AUTO_EXPAND_REPLICAS, (String) null)\n+        .build();\n     private static final Function<IndexMetadata, Settings> CLONE_SETTINGS_SUPPLIER = indexMetadata -> CLONE_SETTINGS;\n \n     private static final ConstructingObjectParser<SearchableSnapshotAction, Void> PARSER = new ConstructingObjectParser<>("
+    },
+    {
+      "filename": "x-pack/plugin/ilm/qa/multi-node/src/javaRestTest/java/org/elasticsearch/xpack/ilm/actions/SearchableSnapshotActionIT.java",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 1,
+      "changes": 8,
+      "patch": "@@ -1033,11 +1033,17 @@ private String prepareDataStreamWithDocs(String phase, int numberOfPrimaries, in\n         createSnapshotRepo(client(), snapshotRepo, randomBoolean());\n         createNewSingletonPolicy(client(), policy, phase, new SearchableSnapshotAction(snapshotRepo, true));\n \n+        final var indexSettings = indexSettings(numberOfPrimaries, numberOfReplicas);\n+        // Randomly enable auto-expand replicas to test that we remove the setting for the clone with 0 replicas.\n+        if (numberOfReplicas > 0 && randomBoolean()) {\n+            logger.info(\"--> enabling auto-expand replicas on backing index\");\n+            indexSettings.put(IndexMetadata.SETTING_AUTO_EXPAND_REPLICAS, \"1-all\");\n+        }\n         createComposableTemplate(\n             client(),\n             randomAlphaOfLengthBetween(5, 10).toLowerCase(Locale.ROOT),\n             dataStream,\n-            new Template(indexSettings(numberOfPrimaries, numberOfReplicas).build(), null, null)\n+            new Template(indexSettings.build(), null, null)\n         );\n         for (int i = 0; i < randomIntBetween(5, 10); i++) {\n             indexDocument(client(), dataStream, true);"
+    }
+  ],
+  "diff": "diff --git a/docs/changelog/137111.yaml b/docs/changelog/137111.yaml\nnew file mode 100644\nindex 0000000000000..3122a54e673ed\n--- /dev/null\n+++ b/docs/changelog/137111.yaml\n@@ -0,0 +1,5 @@\n+pr: 137111\n+summary: Remove `auto_expand_replicas` setting during index clone in `searchable_snapshot`\n+area: ILM+SLM\n+type: bug\n+issues: []\ndiff --git a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ilm/SearchableSnapshotAction.java b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ilm/SearchableSnapshotAction.java\nindex ca33370ef09db..ae699a91e5ab5 100644\n--- a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ilm/SearchableSnapshotAction.java\n+++ b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ilm/SearchableSnapshotAction.java\n@@ -78,7 +78,11 @@ public class SearchableSnapshotAction implements LifecycleAction {\n         indexName,\n         state) -> state.forceMergeCloneIndexName() != null ? state.forceMergeCloneIndexName() : indexName;\n \n-    private static final Settings CLONE_SETTINGS = Settings.builder().put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 0).build();\n+    /** The cloned index should have 0 replicas, so we also need to remove the auto_expand_replicas setting if present. */\n+    private static final Settings CLONE_SETTINGS = Settings.builder()\n+        .put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 0)\n+        .put(IndexMetadata.SETTING_AUTO_EXPAND_REPLICAS, (String) null)\n+        .build();\n     private static final Function<IndexMetadata, Settings> CLONE_SETTINGS_SUPPLIER = indexMetadata -> CLONE_SETTINGS;\n \n     private static final ConstructingObjectParser<SearchableSnapshotAction, Void> PARSER = new ConstructingObjectParser<>(\ndiff --git a/x-pack/plugin/ilm/qa/multi-node/src/javaRestTest/java/org/elasticsearch/xpack/ilm/actions/SearchableSnapshotActionIT.java b/x-pack/plugin/ilm/qa/multi-node/src/javaRestTest/java/org/elasticsearch/xpack/ilm/actions/SearchableSnapshotActionIT.java\nindex 63108dd3cbcf6..df04dbc6a8a6c 100644\n--- a/x-pack/plugin/ilm/qa/multi-node/src/javaRestTest/java/org/elasticsearch/xpack/ilm/actions/SearchableSnapshotActionIT.java\n+++ b/x-pack/plugin/ilm/qa/multi-node/src/javaRestTest/java/org/elasticsearch/xpack/ilm/actions/SearchableSnapshotActionIT.java\n@@ -1033,11 +1033,17 @@ private String prepareDataStreamWithDocs(String phase, int numberOfPrimaries, in\n         createSnapshotRepo(client(), snapshotRepo, randomBoolean());\n         createNewSingletonPolicy(client(), policy, phase, new SearchableSnapshotAction(snapshotRepo, true));\n \n+        final var indexSettings = indexSettings(numberOfPrimaries, numberOfReplicas);\n+        // Randomly enable auto-expand replicas to test that we remove the setting for the clone with 0 replicas.\n+        if (numberOfReplicas > 0 && randomBoolean()) {\n+            logger.info(\"--> enabling auto-expand replicas on backing index\");\n+            indexSettings.put(IndexMetadata.SETTING_AUTO_EXPAND_REPLICAS, \"1-all\");\n+        }\n         createComposableTemplate(\n             client(),\n             randomAlphaOfLengthBetween(5, 10).toLowerCase(Locale.ROOT),\n             dataStream,\n-            new Template(indexSettings(numberOfPrimaries, numberOfReplicas).build(), null, null)\n+            new Template(indexSettings.build(), null, null)\n         );\n         for (int i = 0; i < randomIntBetween(5, 10); i++) {\n             indexDocument(client(), dataStream, true);\n",
+  "additions": 17,
+  "deletions": 2,
+  "changed_files": 3,
+  "url": "https://github.com/elastic/elasticsearch/pull/137120",
+  "mined_at": "2025-10-25T13:15:12.715137"
+}

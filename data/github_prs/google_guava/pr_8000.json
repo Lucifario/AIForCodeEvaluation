@@ -1,0 +1,41 @@
+{
+  "id": 8000,
+  "repository": "google/guava",
+  "title": "Test `Iterables.mergeSorted()` for stability.",
+  "body": "Test `Iterables.mergeSorted()` for stability.\n\nFixes #7999\nRelevant to https://github.com/google/guava/issues/5773\nFollowup to https://github.com/google/guava/pull/7989 / https://github.com/google/guava/pull/7996\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-16T20:17:11+00:00",
+  "created_at": "2025-09-16T19:54:35+00:00",
+  "updated_at": "2025-09-16T20:17:13+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "c1e6de293c8fab89088c0dec0da9b17455d6deed",
+  "head_sha": "eeced9088d3bc84284fca8a052633fe7eac93da5",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-tests/test/com/google/common/collect/IterablesTest.java",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "patch": "@@ -54,6 +54,7 @@\n import java.util.Arrays;\n import java.util.Collection;\n import java.util.Collections;\n+import java.util.Comparator;\n import java.util.ConcurrentModificationException;\n import java.util.HashSet;\n import java.util.Iterator;\n@@ -1336,4 +1337,14 @@ private static void verifyMergeSorted(\n \n     assertEquals(Lists.newLinkedList(expected), Lists.newLinkedList(mergedIterator));\n   }\n+\n+  public void testMergeSorted_stable_allEqual() {\n+    ImmutableList<Integer> first = ImmutableList.of(0, 2, 4, 6, 8);\n+    ImmutableList<Integer> second = ImmutableList.of(1, 3, 5, 7, 9);\n+\n+    Comparator<Object> comparator = Ordering.allEqual();\n+    Iterable<Integer> merged = Iterables.mergeSorted(ImmutableList.of(first, second), comparator);\n+\n+    assertThat(merged).containsExactly(0, 2, 4, 6, 8, 1, 3, 5, 7, 9).inOrder();\n+  }\n }"
+    },
+    {
+      "filename": "guava-tests/test/com/google/common/collect/IterablesTest.java",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "patch": "@@ -54,6 +54,7 @@\n import java.util.Arrays;\n import java.util.Collection;\n import java.util.Collections;\n+import java.util.Comparator;\n import java.util.ConcurrentModificationException;\n import java.util.HashSet;\n import java.util.Iterator;\n@@ -1373,4 +1374,14 @@ private static void verifyMergeSorted(\n \n     assertEquals(Lists.newLinkedList(expected), Lists.newLinkedList(mergedIterator));\n   }\n+\n+  public void testMergeSorted_stable_allEqual() {\n+    ImmutableList<Integer> first = ImmutableList.of(0, 2, 4, 6, 8);\n+    ImmutableList<Integer> second = ImmutableList.of(1, 3, 5, 7, 9);\n+\n+    Comparator<Object> comparator = Ordering.allEqual();\n+    Iterable<Integer> merged = Iterables.mergeSorted(ImmutableList.of(first, second), comparator);\n+\n+    assertThat(merged).containsExactly(0, 2, 4, 6, 8, 1, 3, 5, 7, 9).inOrder();\n+  }\n }"
+    }
+  ],
+  "diff": "diff --git a/android/guava-tests/test/com/google/common/collect/IterablesTest.java b/android/guava-tests/test/com/google/common/collect/IterablesTest.java\nindex d2a6de43f7b5..71fa3928c6a0 100644\n--- a/android/guava-tests/test/com/google/common/collect/IterablesTest.java\n+++ b/android/guava-tests/test/com/google/common/collect/IterablesTest.java\n@@ -54,6 +54,7 @@\n import java.util.Arrays;\n import java.util.Collection;\n import java.util.Collections;\n+import java.util.Comparator;\n import java.util.ConcurrentModificationException;\n import java.util.HashSet;\n import java.util.Iterator;\n@@ -1336,4 +1337,14 @@ private static void verifyMergeSorted(\n \n     assertEquals(Lists.newLinkedList(expected), Lists.newLinkedList(mergedIterator));\n   }\n+\n+  public void testMergeSorted_stable_allEqual() {\n+    ImmutableList<Integer> first = ImmutableList.of(0, 2, 4, 6, 8);\n+    ImmutableList<Integer> second = ImmutableList.of(1, 3, 5, 7, 9);\n+\n+    Comparator<Object> comparator = Ordering.allEqual();\n+    Iterable<Integer> merged = Iterables.mergeSorted(ImmutableList.of(first, second), comparator);\n+\n+    assertThat(merged).containsExactly(0, 2, 4, 6, 8, 1, 3, 5, 7, 9).inOrder();\n+  }\n }\ndiff --git a/guava-tests/test/com/google/common/collect/IterablesTest.java b/guava-tests/test/com/google/common/collect/IterablesTest.java\nindex 5a5b9ca55e73..03bf30d244f6 100644\n--- a/guava-tests/test/com/google/common/collect/IterablesTest.java\n+++ b/guava-tests/test/com/google/common/collect/IterablesTest.java\n@@ -54,6 +54,7 @@\n import java.util.Arrays;\n import java.util.Collection;\n import java.util.Collections;\n+import java.util.Comparator;\n import java.util.ConcurrentModificationException;\n import java.util.HashSet;\n import java.util.Iterator;\n@@ -1373,4 +1374,14 @@ private static void verifyMergeSorted(\n \n     assertEquals(Lists.newLinkedList(expected), Lists.newLinkedList(mergedIterator));\n   }\n+\n+  public void testMergeSorted_stable_allEqual() {\n+    ImmutableList<Integer> first = ImmutableList.of(0, 2, 4, 6, 8);\n+    ImmutableList<Integer> second = ImmutableList.of(1, 3, 5, 7, 9);\n+\n+    Comparator<Object> comparator = Ordering.allEqual();\n+    Iterable<Integer> merged = Iterables.mergeSorted(ImmutableList.of(first, second), comparator);\n+\n+    assertThat(merged).containsExactly(0, 2, 4, 6, 8, 1, 3, 5, 7, 9).inOrder();\n+  }\n }\n",
+  "additions": 22,
+  "deletions": 0,
+  "changed_files": 2,
+  "url": "https://github.com/google/guava/pull/8000",
+  "mined_at": "2025-10-25T13:02:34.113698"
+}

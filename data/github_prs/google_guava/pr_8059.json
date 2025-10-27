@@ -1,0 +1,105 @@
+{
+  "id": 8059,
+  "repository": "google/guava",
+  "title": "Automated Code Change",
+  "body": "Automated Code Change\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-22T18:14:54+00:00",
+  "created_at": "2025-10-22T17:51:04+00:00",
+  "updated_at": "2025-10-22T18:14:55+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "5a93c576dafe5f91413250e93f474c8e5b534b5b",
+  "head_sha": "21cdcf6d9a49c1a498acb422471d8d71f9219865",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava/src/com/google/common/primitives/Doubles.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -58,8 +58,6 @@ private Doubles() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Double.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/primitives/Floats.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -56,8 +56,6 @@ private Floats() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Float.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/primitives/Ints.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -56,8 +56,6 @@ private Ints() {}\n    *\n    * <p>Prefer {@link Integer#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Integer.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/primitives/Longs.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -55,8 +55,6 @@ private Longs() {}\n    *\n    * <p>Prefer {@link Long#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Long.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/primitives/Shorts.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -54,8 +54,6 @@ private Shorts() {}\n    *\n    * <p>Prefer {@link Short#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Short.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "guava/src/com/google/common/primitives/Doubles.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -58,8 +58,6 @@ private Doubles() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Double.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "guava/src/com/google/common/primitives/Floats.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -56,8 +56,6 @@ private Floats() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Float.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "guava/src/com/google/common/primitives/Ints.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -56,8 +56,6 @@ private Ints() {}\n    *\n    * <p>Prefer {@link Integer#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Integer.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "guava/src/com/google/common/primitives/Longs.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -55,8 +55,6 @@ private Longs() {}\n    *\n    * <p>Prefer {@link Long#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Long.BYTES;\n \n   /**"
+    },
+    {
+      "filename": "guava/src/com/google/common/primitives/Shorts.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 2,
+      "changes": 2,
+      "patch": "@@ -54,8 +54,6 @@ private Shorts() {}\n    *\n    * <p>Prefer {@link Short#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Short.BYTES;\n \n   /**"
+    }
+  ],
+  "diff": "diff --git a/android/guava/src/com/google/common/primitives/Doubles.java b/android/guava/src/com/google/common/primitives/Doubles.java\nindex ce43ea648910..ec1cbe019b7f 100644\n--- a/android/guava/src/com/google/common/primitives/Doubles.java\n+++ b/android/guava/src/com/google/common/primitives/Doubles.java\n@@ -58,8 +58,6 @@ private Doubles() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Double.BYTES;\n \n   /**\ndiff --git a/android/guava/src/com/google/common/primitives/Floats.java b/android/guava/src/com/google/common/primitives/Floats.java\nindex de0b7abda209..5266e20d9ac6 100644\n--- a/android/guava/src/com/google/common/primitives/Floats.java\n+++ b/android/guava/src/com/google/common/primitives/Floats.java\n@@ -56,8 +56,6 @@ private Floats() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Float.BYTES;\n \n   /**\ndiff --git a/android/guava/src/com/google/common/primitives/Ints.java b/android/guava/src/com/google/common/primitives/Ints.java\nindex 9fd547e29197..f474a72d9ed5 100644\n--- a/android/guava/src/com/google/common/primitives/Ints.java\n+++ b/android/guava/src/com/google/common/primitives/Ints.java\n@@ -56,8 +56,6 @@ private Ints() {}\n    *\n    * <p>Prefer {@link Integer#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Integer.BYTES;\n \n   /**\ndiff --git a/android/guava/src/com/google/common/primitives/Longs.java b/android/guava/src/com/google/common/primitives/Longs.java\nindex 49aa2ce338f5..9cc9972decf5 100644\n--- a/android/guava/src/com/google/common/primitives/Longs.java\n+++ b/android/guava/src/com/google/common/primitives/Longs.java\n@@ -55,8 +55,6 @@ private Longs() {}\n    *\n    * <p>Prefer {@link Long#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Long.BYTES;\n \n   /**\ndiff --git a/android/guava/src/com/google/common/primitives/Shorts.java b/android/guava/src/com/google/common/primitives/Shorts.java\nindex 3a54130d8169..1e95a081b701 100644\n--- a/android/guava/src/com/google/common/primitives/Shorts.java\n+++ b/android/guava/src/com/google/common/primitives/Shorts.java\n@@ -54,8 +54,6 @@ private Shorts() {}\n    *\n    * <p>Prefer {@link Short#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Short.BYTES;\n \n   /**\ndiff --git a/guava/src/com/google/common/primitives/Doubles.java b/guava/src/com/google/common/primitives/Doubles.java\nindex 821832b96f31..1fc33f9b1d68 100644\n--- a/guava/src/com/google/common/primitives/Doubles.java\n+++ b/guava/src/com/google/common/primitives/Doubles.java\n@@ -58,8 +58,6 @@ private Doubles() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Double.BYTES;\n \n   /**\ndiff --git a/guava/src/com/google/common/primitives/Floats.java b/guava/src/com/google/common/primitives/Floats.java\nindex de0b7abda209..5266e20d9ac6 100644\n--- a/guava/src/com/google/common/primitives/Floats.java\n+++ b/guava/src/com/google/common/primitives/Floats.java\n@@ -56,8 +56,6 @@ private Floats() {}\n    *\n    * @since 10.0\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Float.BYTES;\n \n   /**\ndiff --git a/guava/src/com/google/common/primitives/Ints.java b/guava/src/com/google/common/primitives/Ints.java\nindex 22da95e63389..11611a804ab7 100644\n--- a/guava/src/com/google/common/primitives/Ints.java\n+++ b/guava/src/com/google/common/primitives/Ints.java\n@@ -56,8 +56,6 @@ private Ints() {}\n    *\n    * <p>Prefer {@link Integer#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Integer.BYTES;\n \n   /**\ndiff --git a/guava/src/com/google/common/primitives/Longs.java b/guava/src/com/google/common/primitives/Longs.java\nindex f4ee31a73a4a..b253d45ed4f8 100644\n--- a/guava/src/com/google/common/primitives/Longs.java\n+++ b/guava/src/com/google/common/primitives/Longs.java\n@@ -55,8 +55,6 @@ private Longs() {}\n    *\n    * <p>Prefer {@link Long#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Long.BYTES;\n \n   /**\ndiff --git a/guava/src/com/google/common/primitives/Shorts.java b/guava/src/com/google/common/primitives/Shorts.java\nindex 3a54130d8169..1e95a081b701 100644\n--- a/guava/src/com/google/common/primitives/Shorts.java\n+++ b/guava/src/com/google/common/primitives/Shorts.java\n@@ -54,8 +54,6 @@ private Shorts() {}\n    *\n    * <p>Prefer {@link Short#BYTES} instead.\n    */\n-  // The constants value gets inlined here.\n-  @SuppressWarnings(\"AndroidJdkLibsChecker\")\n   public static final int BYTES = Short.BYTES;\n \n   /**\n",
+  "additions": 0,
+  "deletions": 20,
+  "changed_files": 10,
+  "url": "https://github.com/google/guava/pull/8059",
+  "mined_at": "2025-10-25T12:48:52.190184"
+}

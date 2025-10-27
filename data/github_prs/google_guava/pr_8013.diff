@@ -1,0 +1,498 @@
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java b/android/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java
+index 453ef743d267..5c20e3fcff3e 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java
+@@ -49,7 +49,7 @@ public abstract class AbstractCollectionTestSuiteBuilder<
+   @SuppressWarnings("rawtypes") // class literals
+   @Override
+   protected List<Class<? extends AbstractTester>> getTesters() {
+-    return Arrays.<Class<? extends AbstractTester>>asList(
++    return Arrays.asList(
+         CollectionAddAllTester.class,
+         CollectionAddTester.class,
+         CollectionClearTester.class,
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java b/android/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java
+index baa8371cf10e..5bf3a0975b04 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java
+@@ -242,7 +242,7 @@ protected MinimalCollection<E> createDisjointCollection() {
+   }
+ 
+   protected MinimalCollection<E> emptyCollection() {
+-    return MinimalCollection.<E>of();
++    return MinimalCollection.of();
+   }
+ 
+   protected final E e0() {
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java b/android/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java
+index 010d5f30a6f3..416f934cb4e4 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java
+@@ -100,7 +100,7 @@ protected IteratorTester(
+       Iterable<? extends IteratorFeature> features,
+       Iterable<E> expectedElements,
+       KnownOrder knownOrder) {
+-    super(steps, Collections.<E>singleton(null), features, expectedElements, knownOrder, 0);
++    super(steps, Collections.singleton(null), features, expectedElements, knownOrder, 0);
+   }
+ 
+   @Override
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java b/android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java
+index 95f8d137f22b..7ebe6f489579 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java
+@@ -66,7 +66,7 @@ public static <K, V> MapTestSuiteBuilder<K, V> using(TestMapGenerator<K, V> gene
+   @SuppressWarnings("rawtypes") // class literals
+   @Override
+   protected List<Class<? extends AbstractTester>> getTesters() {
+-    return Arrays.<Class<? extends AbstractTester>>asList(
++    return Arrays.asList(
+         MapClearTester.class,
+         MapContainsKeyTester.class,
+         MapContainsValueTester.class,
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java b/android/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java
+index eac7cd96c6f3..34dfd3c67ba4 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java
+@@ -67,7 +67,7 @@ public TestSuite createTestSuite() {
+     logger.fine(" Testing: " + name);
+ 
+     // Split out all the specified sizes.
+-    Set<Feature<?>> sizesToTest = Helpers.<Feature<?>>copyToSet(CollectionSize.values());
++    Set<Feature<?>> sizesToTest = Helpers.copyToSet(CollectionSize.values());
+     sizesToTest.retainAll(features);
+     features.removeAll(sizesToTest);
+ 
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java b/android/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java
+index 6b848afa4586..260c2b6feb14 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java
+@@ -46,7 +46,7 @@ public TesterRequirements(TesterRequirements tr) {
+   }
+ 
+   public TesterRequirements() {
+-    this(Collections.<Feature<?>>emptySet(), Collections.<Feature<?>>emptySet());
++    this(Collections.emptySet(), Collections.emptySet());
+   }
+ 
+   public final Set<Feature<?>> getPresentFeatures() {
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java b/android/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java
+index fe7229ff8159..e6e18a93e1fc 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java
+@@ -53,7 +53,7 @@ protected List<String> create(String[] elements) {
+   public static class BuilderAddListGenerator extends TestStringListGenerator {
+     @Override
+     protected List<String> create(String[] elements) {
+-      ImmutableList.Builder<String> builder = ImmutableList.<String>builder();
++      ImmutableList.Builder<String> builder = ImmutableList.builder();
+       for (String element : elements) {
+         builder.add(element);
+       }
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java
+index db751f49f58c..207fd54dd87e 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java
+@@ -148,7 +148,7 @@ public void testPutAllNullForbidden() {
+   @SuppressWarnings("EmptyList") // ImmutableList doesn't support nullable element types
+   @MapFeature.Require(SUPPORTS_PUT)
+   public void testPutAllEmptyCollectionOnAbsentKey() {
+-    assertFalse(multimap().putAll(k3(), Collections.<V>emptyList()));
++    assertFalse(multimap().putAll(k3(), Collections.emptyList()));
+     expectUnchanged();
+   }
+ 
+@@ -162,7 +162,7 @@ public void testPutAllEmptyIterableOnAbsentKey() {
+   @CollectionSize.Require(absent = ZERO)
+   @MapFeature.Require(SUPPORTS_PUT)
+   public void testPutAllEmptyIterableOnPresentKey() {
+-    multimap().putAll(k0(), Collections.<V>emptyList());
++    multimap().putAll(k0(), Collections.emptyList());
+     expectUnchanged();
+   }
+ 
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java
+index b25763d4aa21..7702a167cb70 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java
+@@ -62,7 +62,7 @@ public void testPutUnsupported() {
+   public void testPutEmpty() {
+     int size = getNumElements();
+ 
+-    assertGet(k3(), ImmutableList.<V>of());
++    assertGet(k3(), ImmutableList.of());
+ 
+     assertTrue(multimap().put(k3(), v3()));
+ 
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java
+index 20300f09bd62..69f86c16ad80 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java
+@@ -62,7 +62,7 @@ public void testRemovePresent() {
+     assertFalse(multimap().containsEntry(k0(), v0()));
+     expectMissing(e0());
+     assertEquals(getNumElements() - 1, multimap().size());
+-    assertGet(k0(), ImmutableList.<V>of());
++    assertGet(k0(), ImmutableList.of());
+   }
+ 
+   @CollectionSize.Require(absent = ZERO)
+@@ -73,7 +73,7 @@ public void testRemoveNullKeyPresent() {
+     assertTrue(multimap().remove(null, getValueForNullKey()));
+ 
+     expectMissing(mapEntry((K) null, getValueForNullKey()));
+-    assertGet(getKeyForNullValue(), ImmutableList.<V>of());
++    assertGet(getKeyForNullValue(), ImmutableList.of());
+   }
+ 
+   @CollectionSize.Require(absent = ZERO)
+@@ -84,7 +84,7 @@ public void testRemoveNullValuePresent() {
+     assertTrue(multimap().remove(getKeyForNullValue(), null));
+ 
+     expectMissing(mapEntry(getKeyForNullValue(), (V) null));
+-    assertGet(getKeyForNullValue(), ImmutableList.<V>of());
++    assertGet(getKeyForNullValue(), ImmutableList.of());
+   }
+ 
+   @MapFeature.Require({SUPPORTS_REMOVE, ALLOWS_NULL_KEY_QUERIES})
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java
+index 2c1951522697..e6cf6e8e3d5c 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java
+@@ -77,7 +77,7 @@ public static <K, V, M extends Multimap<K, V>> MultimapTestSuiteBuilder<K, V, M>
+   @SuppressWarnings("rawtypes") // class literals
+   @Override
+   protected List<Class<? extends AbstractTester>> getTesters() {
+-    return ImmutableList.<Class<? extends AbstractTester>>of(
++    return ImmutableList.of(
+         MultimapAsMapGetTester.class,
+         MultimapAsMapTester.class,
+         MultimapSizeTester.class,
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java b/android/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java
+index b7ad8d8a3b25..d0f702fae9d8 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java
+@@ -90,7 +90,7 @@ public void testAddTooMany() {
+ 
+   @CollectionFeature.Require(SUPPORTS_ADD)
+   public void testAddAll_emptySet() {
+-    assertFalse(getMultiset().addAll(Collections.<E>emptySet()));
++    assertFalse(getMultiset().addAll(Collections.emptySet()));
+     expectUnchanged();
+   }
+ 
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java b/android/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java
+index f860fa5554fd..dca1c75129b9 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java
+@@ -89,7 +89,7 @@ public void setUp() throws Exception {
+     containsDuplicates =
+         new Target(MinimalCollection.of(e0(), e0(), e3(), e3()), "containsDuplicates");
+     partialOverlap = new Target(MinimalCollection.of(e2(), e3()), "partialOverlap");
+-    nullSingleton = new Target(Collections.<E>singleton(null), "nullSingleton");
++    nullSingleton = new Target(Collections.singleton(null), "nullSingleton");
+   }
+ 
+   // retainAll(empty)
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java b/android/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java
+index e9a0de2f04ed..8d79dce3b0be 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java
+@@ -63,7 +63,7 @@ public void setUp() throws Exception {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+ 
+     // some tests assume SEVERAL == 3
+     if (entries.size() >= 1) {
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java b/android/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java
+index 17a2908dbbd6..2de44f32cbc1 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java
+@@ -61,7 +61,7 @@ public void setUp() throws Exception {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+ 
+     // some tests assume SEVERAL == 3
+     if (entries.size() >= 1) {
+@@ -117,7 +117,7 @@ public void testHeadMap() {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+     for (int i = 0; i < entries.size(); i++) {
+       assertEqualInOrder(
+           entries.subList(0, i), navigableMap.headMap(entries.get(i).getKey()).entrySet());
+@@ -129,7 +129,7 @@ public void testTailMap() {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+     for (int i = 0; i < entries.size(); i++) {
+       assertEqualInOrder(
+           entries.subList(i, entries.size()),
+@@ -142,7 +142,7 @@ public void testSubMap() {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+     for (int i = 0; i < entries.size(); i++) {
+       for (int j = i + 1; j < entries.size(); j++) {
+         assertEqualInOrder(
+diff --git a/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java b/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java
+index 37d7b59d0226..d97e5d183482 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java
++++ b/guava-testlib/src/com/google/common/collect/testing/AbstractCollectionTestSuiteBuilder.java
+@@ -53,7 +53,7 @@ public abstract class AbstractCollectionTestSuiteBuilder<
+   @SuppressWarnings("rawtypes") // class literals
+   @Override
+   protected List<Class<? extends AbstractTester>> getTesters() {
+-    return Arrays.<Class<? extends AbstractTester>>asList(
++    return Arrays.asList(
+         CollectionAddAllTester.class,
+         CollectionAddTester.class,
+         CollectionClearTester.class,
+diff --git a/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java b/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java
+index baa8371cf10e..5bf3a0975b04 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java
+@@ -242,7 +242,7 @@ protected MinimalCollection<E> createDisjointCollection() {
+   }
+ 
+   protected MinimalCollection<E> emptyCollection() {
+-    return MinimalCollection.<E>of();
++    return MinimalCollection.of();
+   }
+ 
+   protected final E e0() {
+diff --git a/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java b/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java
+index 010d5f30a6f3..416f934cb4e4 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/IteratorTester.java
+@@ -100,7 +100,7 @@ protected IteratorTester(
+       Iterable<? extends IteratorFeature> features,
+       Iterable<E> expectedElements,
+       KnownOrder knownOrder) {
+-    super(steps, Collections.<E>singleton(null), features, expectedElements, knownOrder, 0);
++    super(steps, Collections.singleton(null), features, expectedElements, knownOrder, 0);
+   }
+ 
+   @Override
+diff --git a/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java b/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java
+index ba0bf3bbc710..2526d6f3289e 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java
++++ b/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java
+@@ -77,7 +77,7 @@ public static <K, V> MapTestSuiteBuilder<K, V> using(TestMapGenerator<K, V> gene
+   @SuppressWarnings("rawtypes") // class literals
+   @Override
+   protected List<Class<? extends AbstractTester>> getTesters() {
+-    return Arrays.<Class<? extends AbstractTester>>asList(
++    return Arrays.asList(
+         MapClearTester.class,
+         MapComputeTester.class,
+         MapComputeIfAbsentTester.class,
+diff --git a/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java b/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java
+index eac7cd96c6f3..34dfd3c67ba4 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java
++++ b/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java
+@@ -67,7 +67,7 @@ public TestSuite createTestSuite() {
+     logger.fine(" Testing: " + name);
+ 
+     // Split out all the specified sizes.
+-    Set<Feature<?>> sizesToTest = Helpers.<Feature<?>>copyToSet(CollectionSize.values());
++    Set<Feature<?>> sizesToTest = Helpers.copyToSet(CollectionSize.values());
+     sizesToTest.retainAll(features);
+     features.removeAll(sizesToTest);
+ 
+diff --git a/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java b/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java
+index 6b848afa4586..260c2b6feb14 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java
++++ b/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java
+@@ -46,7 +46,7 @@ public TesterRequirements(TesterRequirements tr) {
+   }
+ 
+   public TesterRequirements() {
+-    this(Collections.<Feature<?>>emptySet(), Collections.<Feature<?>>emptySet());
++    this(Collections.emptySet(), Collections.emptySet());
+   }
+ 
+   public final Set<Feature<?>> getPresentFeatures() {
+diff --git a/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java b/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java
+index fe7229ff8159..e6e18a93e1fc 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java
++++ b/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java
+@@ -53,7 +53,7 @@ protected List<String> create(String[] elements) {
+   public static class BuilderAddListGenerator extends TestStringListGenerator {
+     @Override
+     protected List<String> create(String[] elements) {
+-      ImmutableList.Builder<String> builder = ImmutableList.<String>builder();
++      ImmutableList.Builder<String> builder = ImmutableList.builder();
+       for (String element : elements) {
+         builder.add(element);
+       }
+diff --git a/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java b/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java
+index db751f49f58c..207fd54dd87e 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutIterableTester.java
+@@ -148,7 +148,7 @@ public void testPutAllNullForbidden() {
+   @SuppressWarnings("EmptyList") // ImmutableList doesn't support nullable element types
+   @MapFeature.Require(SUPPORTS_PUT)
+   public void testPutAllEmptyCollectionOnAbsentKey() {
+-    assertFalse(multimap().putAll(k3(), Collections.<V>emptyList()));
++    assertFalse(multimap().putAll(k3(), Collections.emptyList()));
+     expectUnchanged();
+   }
+ 
+@@ -162,7 +162,7 @@ public void testPutAllEmptyIterableOnAbsentKey() {
+   @CollectionSize.Require(absent = ZERO)
+   @MapFeature.Require(SUPPORTS_PUT)
+   public void testPutAllEmptyIterableOnPresentKey() {
+-    multimap().putAll(k0(), Collections.<V>emptyList());
++    multimap().putAll(k0(), Collections.emptyList());
+     expectUnchanged();
+   }
+ 
+diff --git a/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java b/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java
+index b25763d4aa21..7702a167cb70 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/google/MultimapPutTester.java
+@@ -62,7 +62,7 @@ public void testPutUnsupported() {
+   public void testPutEmpty() {
+     int size = getNumElements();
+ 
+-    assertGet(k3(), ImmutableList.<V>of());
++    assertGet(k3(), ImmutableList.of());
+ 
+     assertTrue(multimap().put(k3(), v3()));
+ 
+diff --git a/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java b/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java
+index 20300f09bd62..69f86c16ad80 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/google/MultimapRemoveEntryTester.java
+@@ -62,7 +62,7 @@ public void testRemovePresent() {
+     assertFalse(multimap().containsEntry(k0(), v0()));
+     expectMissing(e0());
+     assertEquals(getNumElements() - 1, multimap().size());
+-    assertGet(k0(), ImmutableList.<V>of());
++    assertGet(k0(), ImmutableList.of());
+   }
+ 
+   @CollectionSize.Require(absent = ZERO)
+@@ -73,7 +73,7 @@ public void testRemoveNullKeyPresent() {
+     assertTrue(multimap().remove(null, getValueForNullKey()));
+ 
+     expectMissing(mapEntry((K) null, getValueForNullKey()));
+-    assertGet(getKeyForNullValue(), ImmutableList.<V>of());
++    assertGet(getKeyForNullValue(), ImmutableList.of());
+   }
+ 
+   @CollectionSize.Require(absent = ZERO)
+@@ -84,7 +84,7 @@ public void testRemoveNullValuePresent() {
+     assertTrue(multimap().remove(getKeyForNullValue(), null));
+ 
+     expectMissing(mapEntry(getKeyForNullValue(), (V) null));
+-    assertGet(getKeyForNullValue(), ImmutableList.<V>of());
++    assertGet(getKeyForNullValue(), ImmutableList.of());
+   }
+ 
+   @MapFeature.Require({SUPPORTS_REMOVE, ALLOWS_NULL_KEY_QUERIES})
+diff --git a/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java b/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java
+index 99268849c600..d6ee3da8f98a 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java
++++ b/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java
+@@ -77,7 +77,7 @@ public static <K, V, M extends Multimap<K, V>> MultimapTestSuiteBuilder<K, V, M>
+   @SuppressWarnings("rawtypes") // class literals
+   @Override
+   protected List<Class<? extends AbstractTester>> getTesters() {
+-    return ImmutableList.<Class<? extends AbstractTester>>of(
++    return ImmutableList.of(
+         MultimapAsMapGetTester.class,
+         MultimapAsMapTester.class,
+         MultimapSizeTester.class,
+diff --git a/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java b/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java
+index b7ad8d8a3b25..d0f702fae9d8 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/google/MultisetAddTester.java
+@@ -90,7 +90,7 @@ public void testAddTooMany() {
+ 
+   @CollectionFeature.Require(SUPPORTS_ADD)
+   public void testAddAll_emptySet() {
+-    assertFalse(getMultiset().addAll(Collections.<E>emptySet()));
++    assertFalse(getMultiset().addAll(Collections.emptySet()));
+     expectUnchanged();
+   }
+ 
+diff --git a/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java b/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java
+index f860fa5554fd..dca1c75129b9 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/testers/CollectionRetainAllTester.java
+@@ -89,7 +89,7 @@ public void setUp() throws Exception {
+     containsDuplicates =
+         new Target(MinimalCollection.of(e0(), e0(), e3(), e3()), "containsDuplicates");
+     partialOverlap = new Target(MinimalCollection.of(e2(), e3()), "partialOverlap");
+-    nullSingleton = new Target(Collections.<E>singleton(null), "nullSingleton");
++    nullSingleton = new Target(Collections.singleton(null), "nullSingleton");
+   }
+ 
+   // retainAll(empty)
+diff --git a/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java b/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java
+index e9a0de2f04ed..8d79dce3b0be 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/testers/NavigableMapNavigationTester.java
+@@ -63,7 +63,7 @@ public void setUp() throws Exception {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+ 
+     // some tests assume SEVERAL == 3
+     if (entries.size() >= 1) {
+diff --git a/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java b/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java
+index 17a2908dbbd6..2de44f32cbc1 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/testers/SortedMapNavigationTester.java
+@@ -61,7 +61,7 @@ public void setUp() throws Exception {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+ 
+     // some tests assume SEVERAL == 3
+     if (entries.size() >= 1) {
+@@ -117,7 +117,7 @@ public void testHeadMap() {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+     for (int i = 0; i < entries.size(); i++) {
+       assertEqualInOrder(
+           entries.subList(0, i), navigableMap.headMap(entries.get(i).getKey()).entrySet());
+@@ -129,7 +129,7 @@ public void testTailMap() {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+     for (int i = 0; i < entries.size(); i++) {
+       assertEqualInOrder(
+           entries.subList(i, entries.size()),
+@@ -142,7 +142,7 @@ public void testSubMap() {
+         copyToList(
+             getSubjectGenerator()
+                 .getSampleElements(getSubjectGenerator().getCollectionSize().getNumElements()));
+-    sort(entries, Helpers.<K, V>entryComparator(navigableMap.comparator()));
++    sort(entries, Helpers.entryComparator(navigableMap.comparator()));
+     for (int i = 0; i < entries.size(); i++) {
+       for (int j = i + 1; j < entries.size(); j++) {
+         assertEqualInOrder(

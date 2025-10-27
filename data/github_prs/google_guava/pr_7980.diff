@@ -1,0 +1,50 @@
+diff --git a/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java b/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java
+index 54d8ae55ade5..0ca0a13f746c 100644
+--- a/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java
++++ b/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java
+@@ -139,7 +139,7 @@ public void testComputeIfPresent_error() {
+                       throw new Error();
+                     }));
+     assertThat(cache.getIfPresent(key)).isEqualTo("1");
+-    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> "2")).isEqualTo(null);
++    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> "2")).isEqualTo("2");
+   }
+ 
+   public void testUpdates() {
+diff --git a/guava/src/com/google/common/cache/LocalCache.java b/guava/src/com/google/common/cache/LocalCache.java
+index 40a5f9bc6c1a..3fa8b8a599e6 100644
+--- a/guava/src/com/google/common/cache/LocalCache.java
++++ b/guava/src/com/google/common/cache/LocalCache.java
+@@ -2259,6 +2259,9 @@ V waitForLoadingValue(ReferenceEntry<K, V> e, K key, ValueReference<K, V> valueR
+         // the value for the key is already being computed.
+         computingValueReference = new ComputingValueReference<>(valueReference);
+ 
++        // Compute the value now, so if it throws an exception we don't change anything.
++        newValue = computingValueReference.compute(key, function);
++
+         if (e == null) {
+           createNewEntry = true;
+           e = newEntry(key, hash, first);
+@@ -2268,7 +2271,6 @@ V waitForLoadingValue(ReferenceEntry<K, V> e, K key, ValueReference<K, V> valueR
+           e.setValueReference(computingValueReference);
+         }
+ 
+-        newValue = computingValueReference.compute(key, function);
+         if (newValue != null) {
+           if (valueReference != null && newValue == valueReference.get()) {
+             computingValueReference.set(newValue);
+@@ -3585,13 +3587,7 @@ public ListenableFuture<V> loadFuture(K key, CacheLoader<? super K, V> loader) {
+       } catch (ExecutionException e) {
+         previousValue = null;
+       }
+-      V newValue;
+-      try {
+-        newValue = function.apply(key, previousValue);
+-      } catch (Throwable th) {
+-        this.setException(th);
+-        throw th;
+-      }
++      V newValue = function.apply(key, previousValue);
+       this.set(newValue);
+       return newValue;
+     }

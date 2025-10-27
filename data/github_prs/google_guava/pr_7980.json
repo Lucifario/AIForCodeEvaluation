@@ -1,0 +1,41 @@
+{
+  "id": 7980,
+  "repository": "google/guava",
+  "title": "Improve exception handling in `cache.asMap().computeIfAbsent` etc.",
+  "body": "Improve exception handling in `cache.asMap().computeIfAbsent` etc.\n\nDon't store an exception thrown by the compute function. It doesn't appear that the stored exception is ever used. Tests still pass after this deletion.\n\nAlso move the evaluation of the compute function to before the possible creation of a new entry, so if it throws an exception then no entry is created.\n\nFixes https://github.com/google/guava/issues/5438, fixes https://github.com/google/guava/issues/7625, fixes https://github.com/google/guava/issues/7975.\n\nRELNOTES=Handling of exceptions from compute functions in `Cache.asMap().computeIfAbsent` and the like has been improved. (We do still recommend using Caffeine rather than `com.google.common.cache`.)\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-11T19:35:17+00:00",
+  "created_at": "2025-09-11T14:36:13+00:00",
+  "updated_at": "2025-09-11T19:35:17+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "233d873dbbcfbc555a613173a9addd45b34613d6",
+  "head_sha": "087f2c4a8012fb1256f80f6f776df0e8706af683",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -139,7 +139,7 @@ public void testComputeIfPresent_error() {\n                       throw new Error();\n                     }));\n     assertThat(cache.getIfPresent(key)).isEqualTo(\"1\");\n-    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> \"2\")).isEqualTo(null);\n+    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> \"2\")).isEqualTo(\"2\");\n   }\n \n   public void testUpdates() {"
+    },
+    {
+      "filename": "guava/src/com/google/common/cache/LocalCache.java",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 8,
+      "changes": 12,
+      "patch": "@@ -2259,6 +2259,9 @@ V waitForLoadingValue(ReferenceEntry<K, V> e, K key, ValueReference<K, V> valueR\n         // the value for the key is already being computed.\n         computingValueReference = new ComputingValueReference<>(valueReference);\n \n+        // Compute the value now, so if it throws an exception we don't change anything.\n+        newValue = computingValueReference.compute(key, function);\n+\n         if (e == null) {\n           createNewEntry = true;\n           e = newEntry(key, hash, first);\n@@ -2268,7 +2271,6 @@ V waitForLoadingValue(ReferenceEntry<K, V> e, K key, ValueReference<K, V> valueR\n           e.setValueReference(computingValueReference);\n         }\n \n-        newValue = computingValueReference.compute(key, function);\n         if (newValue != null) {\n           if (valueReference != null && newValue == valueReference.get()) {\n             computingValueReference.set(newValue);\n@@ -3585,13 +3587,7 @@ public ListenableFuture<V> loadFuture(K key, CacheLoader<? super K, V> loader) {\n       } catch (ExecutionException e) {\n         previousValue = null;\n       }\n-      V newValue;\n-      try {\n-        newValue = function.apply(key, previousValue);\n-      } catch (Throwable th) {\n-        this.setException(th);\n-        throw th;\n-      }\n+      V newValue = function.apply(key, previousValue);\n       this.set(newValue);\n       return newValue;\n     }"
+    }
+  ],
+  "diff": "diff --git a/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java b/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java\nindex 54d8ae55ade5..0ca0a13f746c 100644\n--- a/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java\n+++ b/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java\n@@ -139,7 +139,7 @@ public void testComputeIfPresent_error() {\n                       throw new Error();\n                     }));\n     assertThat(cache.getIfPresent(key)).isEqualTo(\"1\");\n-    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> \"2\")).isEqualTo(null);\n+    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> \"2\")).isEqualTo(\"2\");\n   }\n \n   public void testUpdates() {\ndiff --git a/guava/src/com/google/common/cache/LocalCache.java b/guava/src/com/google/common/cache/LocalCache.java\nindex 40a5f9bc6c1a..3fa8b8a599e6 100644\n--- a/guava/src/com/google/common/cache/LocalCache.java\n+++ b/guava/src/com/google/common/cache/LocalCache.java\n@@ -2259,6 +2259,9 @@ V waitForLoadingValue(ReferenceEntry<K, V> e, K key, ValueReference<K, V> valueR\n         // the value for the key is already being computed.\n         computingValueReference = new ComputingValueReference<>(valueReference);\n \n+        // Compute the value now, so if it throws an exception we don't change anything.\n+        newValue = computingValueReference.compute(key, function);\n+\n         if (e == null) {\n           createNewEntry = true;\n           e = newEntry(key, hash, first);\n@@ -2268,7 +2271,6 @@ V waitForLoadingValue(ReferenceEntry<K, V> e, K key, ValueReference<K, V> valueR\n           e.setValueReference(computingValueReference);\n         }\n \n-        newValue = computingValueReference.compute(key, function);\n         if (newValue != null) {\n           if (valueReference != null && newValue == valueReference.get()) {\n             computingValueReference.set(newValue);\n@@ -3585,13 +3587,7 @@ public ListenableFuture<V> loadFuture(K key, CacheLoader<? super K, V> loader) {\n       } catch (ExecutionException e) {\n         previousValue = null;\n       }\n-      V newValue;\n-      try {\n-        newValue = function.apply(key, previousValue);\n-      } catch (Throwable th) {\n-        this.setException(th);\n-        throw th;\n-      }\n+      V newValue = function.apply(key, previousValue);\n       this.set(newValue);\n       return newValue;\n     }\n",
+  "additions": 5,
+  "deletions": 9,
+  "changed_files": 2,
+  "url": "https://github.com/google/guava/pull/7980",
+  "mined_at": "2025-10-25T13:03:24.378924"
+}

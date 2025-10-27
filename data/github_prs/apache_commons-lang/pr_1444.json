@@ -1,0 +1,33 @@
+{
+  "id": 1444,
+  "repository": "apache/commons-lang",
+  "title": "Corrected the method name in Javadoc examples for CharUtils.isHex()",
+  "body": null,
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-06T14:25:46+00:00",
+  "created_at": "2025-09-06T12:47:28+00:00",
+  "updated_at": "2025-09-06T14:26:23+00:00",
+  "author": "mymde",
+  "reviewers": [],
+  "base_sha": "8262fd82f0bd775f11bc70d7184498cdd80fea87",
+  "head_sha": "bea1e2181fb3ca271f9c8cc5f11ff0efd3bca1a3",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "src/main/java/org/apache/commons/lang3/CharUtils.java",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 12,
+      "changes": 24,
+      "patch": "@@ -229,18 +229,18 @@ public static boolean isAsciiPrintable(final char ch) {\n      * Tests whether a character is a hexadecimal character.\n      *\n      * <pre>\n-     *   CharUtils.isAsciiPrintable('0')  = true\n-     *   CharUtils.isAsciiPrintable('9')  = true\n-     *   CharUtils.isAsciiPrintable('a')  = true\n-     *   CharUtils.isAsciiPrintable('f')  = true\n-     *   CharUtils.isAsciiPrintable('g')  = false\n-     *   CharUtils.isAsciiPrintable('A')  = true\n-     *   CharUtils.isAsciiPrintable('F')  = true\n-     *   CharUtils.isAsciiPrintable('G')  = false\n-     *   CharUtils.isAsciiPrintable('3')  = false\n-     *   CharUtils.isAsciiPrintable('-')  = false\n-     *   CharUtils.isAsciiPrintable('\\n') = false\n-     *   CharUtils.isAsciiPrintable('&copy;') = false\n+     *   CharUtils.isHex('0')  = true\n+     *   CharUtils.isHex('9')  = true\n+     *   CharUtils.isHex('a')  = true\n+     *   CharUtils.isHex('f')  = true\n+     *   CharUtils.isHex('g')  = false\n+     *   CharUtils.isHex('A')  = true\n+     *   CharUtils.isHex('F')  = true\n+     *   CharUtils.isHex('G')  = false\n+     *   CharUtils.isHex('3')  = false\n+     *   CharUtils.isHex('-')  = false\n+     *   CharUtils.isHex('\\n') = false\n+     *   CharUtils.isHex('&copy;') = false\n      * </pre>\n      *\n      * @param ch  the character to test."
+    }
+  ],
+  "diff": "diff --git a/src/main/java/org/apache/commons/lang3/CharUtils.java b/src/main/java/org/apache/commons/lang3/CharUtils.java\nindex 51765655fb8..aeebe2d4f3b 100644\n--- a/src/main/java/org/apache/commons/lang3/CharUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/CharUtils.java\n@@ -229,18 +229,18 @@ public static boolean isAsciiPrintable(final char ch) {\n      * Tests whether a character is a hexadecimal character.\n      *\n      * <pre>\n-     *   CharUtils.isAsciiPrintable('0')  = true\n-     *   CharUtils.isAsciiPrintable('9')  = true\n-     *   CharUtils.isAsciiPrintable('a')  = true\n-     *   CharUtils.isAsciiPrintable('f')  = true\n-     *   CharUtils.isAsciiPrintable('g')  = false\n-     *   CharUtils.isAsciiPrintable('A')  = true\n-     *   CharUtils.isAsciiPrintable('F')  = true\n-     *   CharUtils.isAsciiPrintable('G')  = false\n-     *   CharUtils.isAsciiPrintable('3')  = false\n-     *   CharUtils.isAsciiPrintable('-')  = false\n-     *   CharUtils.isAsciiPrintable('\\n') = false\n-     *   CharUtils.isAsciiPrintable('&copy;') = false\n+     *   CharUtils.isHex('0')  = true\n+     *   CharUtils.isHex('9')  = true\n+     *   CharUtils.isHex('a')  = true\n+     *   CharUtils.isHex('f')  = true\n+     *   CharUtils.isHex('g')  = false\n+     *   CharUtils.isHex('A')  = true\n+     *   CharUtils.isHex('F')  = true\n+     *   CharUtils.isHex('G')  = false\n+     *   CharUtils.isHex('3')  = false\n+     *   CharUtils.isHex('-')  = false\n+     *   CharUtils.isHex('\\n') = false\n+     *   CharUtils.isHex('&copy;') = false\n      * </pre>\n      *\n      * @param ch  the character to test.\n",
+  "additions": 12,
+  "deletions": 12,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1444",
+  "mined_at": "2025-10-25T12:46:09.496641"
+}

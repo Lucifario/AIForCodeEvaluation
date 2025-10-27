@@ -1,0 +1,67 @@
+{
+  "id": 137086,
+  "repository": "elastic/elasticsearch",
+  "title": "[ML] Fix DatafeedJobsIT#testDatafeedTimingStats_DatafeedRecreated",
+  "body": "Fixes #63973\r\n\r\n**Problem**:\r\n\r\nThe test was failing intermittently with `AssertionError: Expected: a value greater than <0L> but: <0L> was equal to <0L>` due to a race condition between data processing completion and asynchronous datafeed timing stats persistence.\r\n\r\n**Root Cause**:\r\nDatafeed timing stats are persisted asynchronously. The test's single assertBusy() block checked both data processing completion AND timing stats simultaneously. Data processing could complete before timing stats persistence finished, causing search_count to still appear as 0.\r\n\r\n**Solution**:\r\nSplit the assertion into two phases:\r\n- Phase 1: Wait for data processing to complete (processedRecordCount == numDocs)\r\n- Phase 2: Wait for timing stats to be persisted (search_count > 0)\r\nThis eliminates the race condition while maintaining the test's validation goals and testing realistic client-observable behavior.",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T13:27:04+00:00",
+  "created_at": "2025-10-24T09:19:25+00:00",
+  "updated_at": "2025-10-24T13:30:15+00:00",
+  "author": "valeriy42",
+  "reviewers": [
+    "copilot-pull-request-reviewer[bot]",
+    "valeriy42",
+    "prwhelan"
+  ],
+  "base_sha": "70e7fa4da0b10dd2f32792b92fcafdc8bafc3b4a",
+  "head_sha": "59a7a38d3945a1c4cbc1087d31d23aaba5c25e90",
+  "review_comments": [
+    {
+      "user": "copilot-pull-request-reviewer[bot]",
+      "state": "COMMENTED",
+      "body": "## Pull Request Overview\n\nThis PR fixes an intermittent test failure in `DatafeedJobsIT#testDatafeedTimingStats_DatafeedRecreated` caused by a race condition between data processing completion and asynchronous datafeed timing stats persistence.\n\n**Key Changes:**\n- Split a single `assertBusy()` block into two sequential phases to eliminate the race condition\n- Removed the `@AwaitsFix` annotation from the now-fixed test\n- Removed an unrelated `@AwaitsFix` annotation from another test\n\n\n\n\n\n---\n\n<sub>**Tip:** Customize your code reviews with copilot-instructions.md. <a href=\"/elastic/elasticsearch/new/main/.github?filename=copilot-instructions.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Create the file</a> or <a href=\"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">learn how to get started</a>.</sub>",
+      "submitted_at": "2025-10-24T09:22:36+00:00"
+    },
+    {
+      "user": "valeriy42",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-24T09:23:10+00:00"
+    },
+    {
+      "user": "prwhelan",
+      "state": "APPROVED",
+      "body": "",
+      "submitted_at": "2025-10-24T13:22:14+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/ml-core (Team:ML)",
+      "created_at": "2025-10-24T09:27:03+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "## 💚 Backport successful\n| Status | Branch | Result |\n|:------:|:------:|:------:|\n| ✅ |  [9.2](https://github.com/elastic/elasticsearch/pull/137105)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137105\">](https://github.com/elastic/elasticsearch/pull/137105) |\n| ✅ |  [9.1](https://github.com/elastic/elasticsearch/pull/137106)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137106\">](https://github.com/elastic/elasticsearch/pull/137106) |",
+      "created_at": "2025-10-24T13:30:15+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/DatafeedJobsIT.java",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 8,
+      "changes": 19,
+      "patch": "@@ -7,7 +7,6 @@\n package org.elasticsearch.xpack.ml.integration;\n \n import org.apache.logging.log4j.Level;\n-import org.apache.lucene.tests.util.LuceneTestCase;\n import org.elasticsearch.ElasticsearchException;\n import org.elasticsearch.ElasticsearchStatusException;\n import org.elasticsearch.ResourceNotFoundException;\n@@ -232,7 +231,6 @@ public void testLookbackOnlyRuntimeMapping() throws Exception {\n         waitUntilJobIsClosed(jobBuilder.getId());\n     }\n \n-    @AwaitsFix(bugUrl = \"https://github.com/elastic/elasticsearch/issues/63973\")\n     public void testDatafeedTimingStats_DatafeedRecreated() throws Exception {\n         client().admin().indices().prepareCreate(\"data\").setMapping(\"time\", \"type=date\").get();\n         long numDocs = randomIntBetween(32, 2048);\n@@ -254,11 +252,17 @@ public void testDatafeedTimingStats_DatafeedRecreated() throws Exception {\n             // Datafeed did not do anything yet, hence search_count is equal to 0.\n             assertDatafeedStats(datafeedId, DatafeedState.STOPPED, job.getId(), equalTo(0L));\n             startDatafeed(datafeedId, 0L, now.toEpochMilli());\n-            assertBusy(() -> {\n-                assertThat(getDataCounts(job.getId()).getProcessedRecordCount(), equalTo(numDocs));\n-                // Datafeed processed numDocs documents so search_count must be greater than 0.\n-                assertDatafeedStats(datafeedId, DatafeedState.STOPPED, job.getId(), greaterThan(0L));\n-            }, 60, TimeUnit.SECONDS);\n+\n+            // First, wait for data processing to complete\n+            assertBusy(() -> { assertThat(getDataCounts(job.getId()).getProcessedRecordCount(), equalTo(numDocs)); }, 60, TimeUnit.SECONDS);\n+            // Then, wait for datafeed timing stats to be persisted\n+            // Datafeed processed numDocs documents so search_count must be greater than 0.\n+            assertBusy(\n+                () -> { assertDatafeedStats(datafeedId, DatafeedState.STOPPED, job.getId(), greaterThan(0L)); },\n+                30,\n+                TimeUnit.SECONDS\n+            );\n+\n             deleteDatafeed(datafeedId);\n             waitUntilJobIsClosed(job.getId());\n         };\n@@ -788,7 +792,6 @@ private void startRealtime(String jobId, Integer maxEmptySearches) throws Except\n         }, 30, TimeUnit.SECONDS);\n     }\n \n-    @LuceneTestCase.AwaitsFix(bugUrl = \"https://github.com/elastic/elasticsearch/issues/105239\")\n     public void testStartDatafeed_GivenTimeout_Returns408() throws Exception {\n         client().admin().indices().prepareCreate(\"data-1\").setMapping(\"time\", \"type=date\").get();\n         long numDocs = 100;"
+    }
+  ],
+  "diff": "diff --git a/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/DatafeedJobsIT.java b/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/DatafeedJobsIT.java\nindex caba356f82ee2..185547926c817 100644\n--- a/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/DatafeedJobsIT.java\n+++ b/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/DatafeedJobsIT.java\n@@ -7,7 +7,6 @@\n package org.elasticsearch.xpack.ml.integration;\n \n import org.apache.logging.log4j.Level;\n-import org.apache.lucene.tests.util.LuceneTestCase;\n import org.elasticsearch.ElasticsearchException;\n import org.elasticsearch.ElasticsearchStatusException;\n import org.elasticsearch.ResourceNotFoundException;\n@@ -232,7 +231,6 @@ public void testLookbackOnlyRuntimeMapping() throws Exception {\n         waitUntilJobIsClosed(jobBuilder.getId());\n     }\n \n-    @AwaitsFix(bugUrl = \"https://github.com/elastic/elasticsearch/issues/63973\")\n     public void testDatafeedTimingStats_DatafeedRecreated() throws Exception {\n         client().admin().indices().prepareCreate(\"data\").setMapping(\"time\", \"type=date\").get();\n         long numDocs = randomIntBetween(32, 2048);\n@@ -254,11 +252,17 @@ public void testDatafeedTimingStats_DatafeedRecreated() throws Exception {\n             // Datafeed did not do anything yet, hence search_count is equal to 0.\n             assertDatafeedStats(datafeedId, DatafeedState.STOPPED, job.getId(), equalTo(0L));\n             startDatafeed(datafeedId, 0L, now.toEpochMilli());\n-            assertBusy(() -> {\n-                assertThat(getDataCounts(job.getId()).getProcessedRecordCount(), equalTo(numDocs));\n-                // Datafeed processed numDocs documents so search_count must be greater than 0.\n-                assertDatafeedStats(datafeedId, DatafeedState.STOPPED, job.getId(), greaterThan(0L));\n-            }, 60, TimeUnit.SECONDS);\n+\n+            // First, wait for data processing to complete\n+            assertBusy(() -> { assertThat(getDataCounts(job.getId()).getProcessedRecordCount(), equalTo(numDocs)); }, 60, TimeUnit.SECONDS);\n+            // Then, wait for datafeed timing stats to be persisted\n+            // Datafeed processed numDocs documents so search_count must be greater than 0.\n+            assertBusy(\n+                () -> { assertDatafeedStats(datafeedId, DatafeedState.STOPPED, job.getId(), greaterThan(0L)); },\n+                30,\n+                TimeUnit.SECONDS\n+            );\n+\n             deleteDatafeed(datafeedId);\n             waitUntilJobIsClosed(job.getId());\n         };\n@@ -788,7 +792,6 @@ private void startRealtime(String jobId, Integer maxEmptySearches) throws Except\n         }, 30, TimeUnit.SECONDS);\n     }\n \n-    @LuceneTestCase.AwaitsFix(bugUrl = \"https://github.com/elastic/elasticsearch/issues/105239\")\n     public void testStartDatafeed_GivenTimeout_Returns408() throws Exception {\n         client().admin().indices().prepareCreate(\"data-1\").setMapping(\"time\", \"type=date\").get();\n         long numDocs = 100;\n",
+  "additions": 11,
+  "deletions": 8,
+  "changed_files": 1,
+  "url": "https://github.com/elastic/elasticsearch/pull/137086",
+  "mined_at": "2025-10-25T13:23:53.763154"
+}

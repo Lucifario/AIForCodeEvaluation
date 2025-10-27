@@ -1,0 +1,39 @@
+{
+  "id": 1463,
+  "repository": "apache/commons-lang",
+  "title": "Fix typo in StringUtils.trunctate() IllegalArgumentException message",
+  "body": null,
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-10T10:59:23+00:00",
+  "created_at": "2025-10-10T10:10:45+00:00",
+  "updated_at": "2025-10-10T10:59:46+00:00",
+  "author": "mymde",
+  "reviewers": [],
+  "base_sha": "f2f204d94025db09d39da3dbbaf3789b29c1f7f6",
+  "head_sha": "e7bc0398c14905191192fdc58f8175c24824072e",
+  "review_comments": [],
+  "pr_comments": [
+    {
+      "user": "garydgregory",
+      "body": "Thank you @mymde \r\n\r\nPR merged.\r\n",
+      "created_at": "2025-10-10T10:59:46+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "src/main/java/org/apache/commons/lang3/StringUtils.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -8866,7 +8866,7 @@ public static String truncate(final String str, final int offset, final int maxW\n             throw new IllegalArgumentException(\"offset cannot be negative\");\n         }\n         if (maxWidth < 0) {\n-            throw new IllegalArgumentException(\"maxWith cannot be negative\");\n+            throw new IllegalArgumentException(\"maxWidth cannot be negative\");\n         }\n         if (str == null) {\n             return null;"
+    }
+  ],
+  "diff": "diff --git a/src/main/java/org/apache/commons/lang3/StringUtils.java b/src/main/java/org/apache/commons/lang3/StringUtils.java\nindex 024f958a9ce..751896e1213 100644\n--- a/src/main/java/org/apache/commons/lang3/StringUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/StringUtils.java\n@@ -8866,7 +8866,7 @@ public static String truncate(final String str, final int offset, final int maxW\n             throw new IllegalArgumentException(\"offset cannot be negative\");\n         }\n         if (maxWidth < 0) {\n-            throw new IllegalArgumentException(\"maxWith cannot be negative\");\n+            throw new IllegalArgumentException(\"maxWidth cannot be negative\");\n         }\n         if (str == null) {\n             return null;\n",
+  "additions": 1,
+  "deletions": 1,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1463",
+  "mined_at": "2025-10-25T12:44:41.361053"
+}

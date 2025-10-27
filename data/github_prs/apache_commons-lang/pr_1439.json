@@ -1,0 +1,33 @@
+{
+  "id": 1439,
+  "repository": "apache/commons-lang",
+  "title": "Remove extra whitespace in string comparison logic",
+  "body": "Removed the extra space in - 1 when handling null str2, changing it to -1 for consistent syntax.",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-01T11:21:04+00:00",
+  "created_at": "2025-09-01T09:14:43+00:00",
+  "updated_at": "2025-09-01T11:21:04+00:00",
+  "author": "mymde",
+  "reviewers": [],
+  "base_sha": "15a6578049a241b4596b35947b1d7746ffe6b3bc",
+  "head_sha": "ab9b47b55983da8890ab2d224888495c90a2c744",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "src/main/java/org/apache/commons/lang3/StringUtils.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -859,7 +859,7 @@ public static int compare(final String str1, final String str2, final boolean nu\n             return nullIsLess ? -1 : 1;\n         }\n         if (str2 == null) {\n-            return nullIsLess ? 1 : - 1;\n+            return nullIsLess ? 1 : -1;\n         }\n         return str1.compareTo(str2);\n     }"
+    }
+  ],
+  "diff": "diff --git a/src/main/java/org/apache/commons/lang3/StringUtils.java b/src/main/java/org/apache/commons/lang3/StringUtils.java\nindex 691724aefd9..1ef06f00b88 100644\n--- a/src/main/java/org/apache/commons/lang3/StringUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/StringUtils.java\n@@ -859,7 +859,7 @@ public static int compare(final String str1, final String str2, final boolean nu\n             return nullIsLess ? -1 : 1;\n         }\n         if (str2 == null) {\n-            return nullIsLess ? 1 : - 1;\n+            return nullIsLess ? 1 : -1;\n         }\n         return str1.compareTo(str2);\n     }\n",
+  "additions": 1,
+  "deletions": 1,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1439",
+  "mined_at": "2025-10-25T12:46:44.016243"
+}

@@ -1,0 +1,65 @@
+{
+  "id": 8041,
+  "repository": "google/guava",
+  "title": "Standardize on the ID \"`attach-javadocs`\" for `maven-javadoc-plugin`.",
+  "body": "Standardize on the ID \"`attach-javadocs`\" for `maven-javadoc-plugin`.\n\nCurrently, our projects use a mix of that and \"`attach-docs`.\" I think that the choice of ID is unlikely to make a difference in practice as long as we're consistent between a project and its parent (as was _not_ the case in jimfs prior to cl/814204365), but it's not hard to imagine messing things up someday if we copy and paste across projects.\n\n\"`attach-javadocs`\" does seem to be at least [some kind of recommendation](https://maven.apache.org/plugins/maven-javadoc-plugin/faq.html#:~:text=attach%2Djavadocs).\n\nAlso, in Guava: In the `future` projects, remove some probably needless differences in configuration that we'd carried over from the main Guava projects back in the day:\n\n```\n<id>generate-javadoc-site-report</id>\n<phase>site</phase>\n```\n\nI already removed that configuration from the main Guava projects back in https://github.com/google/guava/commit/6736cad8d092650d881ef0bada406ba843549ef1.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-02T19:27:32+00:00",
+  "created_at": "2025-10-02T19:03:27+00:00",
+  "updated_at": "2025-10-02T19:27:33+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "201c9504f1c37858c41c93e4291f0e3f72b123e3",
+  "head_sha": "4dada61c337cf92c2bedf402507237d7484b2cae",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -322,7 +322,7 @@\n           </configuration>\n           <executions>\n             <execution>\n-              <id>attach-docs</id>\n+              <id>attach-javadocs</id>\n               <goals><goal>jar</goal></goals>\n             </execution>\n           </executions>"
+    },
+    {
+      "filename": "futures/failureaccess/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4,
+      "patch": "@@ -119,11 +119,9 @@\n         <artifactId>maven-javadoc-plugin</artifactId>\n         <executions>\n           <execution>\n-            <id>attach-docs</id>\n+            <id>attach-javadocs</id>\n           </execution>\n           <execution>\n-            <id>generate-javadoc-site-report</id>\n-            <phase>site</phase>\n             <goals><goal>javadoc</goal></goals>\n           </execution>\n         </executions>"
+    },
+    {
+      "filename": "futures/listenablefuture1/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4,
+      "patch": "@@ -42,11 +42,9 @@\n         <artifactId>maven-javadoc-plugin</artifactId>\n         <executions>\n           <execution>\n-            <id>attach-docs</id>\n+            <id>attach-javadocs</id>\n           </execution>\n           <execution>\n-            <id>generate-javadoc-site-report</id>\n-            <phase>site</phase>\n             <goals><goal>javadoc</goal></goals>\n           </execution>\n         </executions>"
+    },
+    {
+      "filename": "futures/listenablefuture9999/pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 3,
+      "changes": 4,
+      "patch": "@@ -42,11 +42,9 @@\n         <artifactId>maven-javadoc-plugin</artifactId>\n         <executions>\n           <execution>\n-            <id>attach-docs</id>\n+            <id>attach-javadocs</id>\n           </execution>\n           <execution>\n-            <id>generate-javadoc-site-report</id>\n-            <phase>site</phase>\n             <goals><goal>javadoc</goal></goals>\n           </execution>\n         </executions>"
+    },
+    {
+      "filename": "pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -323,7 +323,7 @@\n           </configuration>\n           <executions>\n             <execution>\n-              <id>attach-docs</id>\n+              <id>attach-javadocs</id>\n               <goals><goal>jar</goal></goals>\n             </execution>\n           </executions>"
+    }
+  ],
+  "diff": "diff --git a/android/pom.xml b/android/pom.xml\nindex 04c76f62ee09..0fff32d7042c 100644\n--- a/android/pom.xml\n+++ b/android/pom.xml\n@@ -322,7 +322,7 @@\n           </configuration>\n           <executions>\n             <execution>\n-              <id>attach-docs</id>\n+              <id>attach-javadocs</id>\n               <goals><goal>jar</goal></goals>\n             </execution>\n           </executions>\ndiff --git a/futures/failureaccess/pom.xml b/futures/failureaccess/pom.xml\nindex 25bc789bec7b..74ba2b24059a 100644\n--- a/futures/failureaccess/pom.xml\n+++ b/futures/failureaccess/pom.xml\n@@ -119,11 +119,9 @@\n         <artifactId>maven-javadoc-plugin</artifactId>\n         <executions>\n           <execution>\n-            <id>attach-docs</id>\n+            <id>attach-javadocs</id>\n           </execution>\n           <execution>\n-            <id>generate-javadoc-site-report</id>\n-            <phase>site</phase>\n             <goals><goal>javadoc</goal></goals>\n           </execution>\n         </executions>\ndiff --git a/futures/listenablefuture1/pom.xml b/futures/listenablefuture1/pom.xml\nindex 3bd8c01db211..7277316863b6 100644\n--- a/futures/listenablefuture1/pom.xml\n+++ b/futures/listenablefuture1/pom.xml\n@@ -42,11 +42,9 @@\n         <artifactId>maven-javadoc-plugin</artifactId>\n         <executions>\n           <execution>\n-            <id>attach-docs</id>\n+            <id>attach-javadocs</id>\n           </execution>\n           <execution>\n-            <id>generate-javadoc-site-report</id>\n-            <phase>site</phase>\n             <goals><goal>javadoc</goal></goals>\n           </execution>\n         </executions>\ndiff --git a/futures/listenablefuture9999/pom.xml b/futures/listenablefuture9999/pom.xml\nindex ad3f23ec6585..6e1e15d52b53 100644\n--- a/futures/listenablefuture9999/pom.xml\n+++ b/futures/listenablefuture9999/pom.xml\n@@ -42,11 +42,9 @@\n         <artifactId>maven-javadoc-plugin</artifactId>\n         <executions>\n           <execution>\n-            <id>attach-docs</id>\n+            <id>attach-javadocs</id>\n           </execution>\n           <execution>\n-            <id>generate-javadoc-site-report</id>\n-            <phase>site</phase>\n             <goals><goal>javadoc</goal></goals>\n           </execution>\n         </executions>\ndiff --git a/pom.xml b/pom.xml\nindex a980f27ead3a..69d257c16f90 100644\n--- a/pom.xml\n+++ b/pom.xml\n@@ -323,7 +323,7 @@\n           </configuration>\n           <executions>\n             <execution>\n-              <id>attach-docs</id>\n+              <id>attach-javadocs</id>\n               <goals><goal>jar</goal></goals>\n             </execution>\n           </executions>\n",
+  "additions": 5,
+  "deletions": 11,
+  "changed_files": 5,
+  "url": "https://github.com/google/guava/pull/8041",
+  "mined_at": "2025-10-25T12:51:20.059799"
+}

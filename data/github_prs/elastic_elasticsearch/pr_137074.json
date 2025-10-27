@@ -1,0 +1,95 @@
+{
+  "id": 137074,
+  "repository": "elastic/elasticsearch",
+  "title": "Adjust GPU graph building params",
+  "body": "cuvs 2025.12 will provide an [API](https://github.com/rapidsai/cuvs/pull/1448) for converting HNSW CPU Params to Cagra params.\r\n\r\n But for current ES that uses 2025.10 version, we need to adjust params\r\n ourselves. This PR adjust params based on the code from the cuvs library.\r\n\r\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T10:13:56+00:00",
+  "created_at": "2025-10-23T22:56:29+00:00",
+  "updated_at": "2025-10-24T10:15:07+00:00",
+  "author": "mayya-sharipova",
+  "reviewers": [
+    "ChrisHegarty"
+  ],
+  "base_sha": "ef8672300415896990d7682df9b3805aa15a945c",
+  "head_sha": "eeec1c8ba1b349571a791ae6a1d8174f145ecb97",
+  "review_comments": [
+    {
+      "user": "ChrisHegarty",
+      "state": "APPROVED",
+      "body": "Awesome! LGTM",
+      "submitted_at": "2025-10-24T08:26:59+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/es-search-relevance (Team:Search Relevance)",
+      "created_at": "2025-10-23T22:56:53+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "Hi @mayya-sharipova, I've created a changelog YAML for you.",
+      "created_at": "2025-10-23T22:56:54+00:00"
+    },
+    {
+      "user": "mayya-sharipova",
+      "body": "New cagra params for GPU index building based on this [PR](https://github.com/rapidsai/cuvs/pull/1448/files)\r\nparams.graph_degree    = 2 + M * 2 / 3;\r\nparams.intermediate_graph_degree = M + M * ef_construction / 256\r\nKnnIndexTester: 8 indexing threads ; Nvidia GeForce RTX 4060,  8Gb memory\r\n\r\n----\r\nWith this adjustments, we can make GPU indexing/merging up to **3x faster ** than before\r\n\r\ngist: 1_000_000 docs; 960 dims; euclidean metric\r\nindex_type | index_time(ms) | force_merge_time (ms) | QPS multiple segs | recall multiple segs | QPS single seg | recall single seg\r\n-- | --: | --: | --: | --: | --: | --:\r\ncpu | 200730 | 130129 | 140 | 0.94 | 421 | 0.91\r\ngpu old | 58743 | 65363 | 155 | 0.98 | 358 | 0.97\r\ngpu PR | 22119 | 20643 | 177 | 0.96 | 467 | 0.92\r\n\r\ncohere-wikipedia_v2: 934_024 docs; 768 dims; cosine metric\r\nindex_type | index_time(ms) | force_merge_time (ms) | QPS multiple segs | recall multiple segs | QPS single seg | recall single seg\r\n-- | --: | --: | --: | --: | --: | --:\r\ncpu | 101200 | 146709 | 171 | 0.94 | 471 | 0.80\r\ngpu old | 44364 | 48228 | 172 | 0.99 | 367 | 1\r\ngpu  PR | 16298 | 15961 | 245 | 0.99 | 532 | 0.98\r\n\r\nquora-E5-small: 522931 docs; 384 dims; cosine metric\r\nindex_type | index_time(ms) | force_merge_time (ms) | QPS multiple segs | recall multiple segs | QPS single seg | recall single seg\r\n-- | --: | --: | --: | --: | --: | --:\r\ncpu | 41025 | 66514 | 301 | 0.98 | 792 | 0.93\r\ngpu old | 21338 | 22459 | 238 | 0.98 | 546 | 1\r\ngpu PR | 9270 | 6532 | 323 | 1 | 769 | 1\r\n\r\n\r\nopeanai: 2.6M docs; 1536 dims; dot_product (cosine for GPU)\r\nindex_type | index_time(ms) | force_merge_time (ms) | QPS multiple segs | recall multiple segs | QPS single seg | recall single seg\r\n-- | --: | --: | --: | --: | --: | --:\r\ncpu | 702350 | 149302 | 99 | 0.85 | 148 | 0.84\r\ngpu old | 283954 | 46015 | 123 | 0.99 | 160 | 0.96\r\ngpu PR | 94886 | 15343 | 194 | 0.97 | 224 | 0.97\r\n\r\n\r\n",
+      "created_at": "2025-10-23T23:33:19+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "## 💚 Backport successful\n| Status | Branch | Result |\n|:------:|:------:|:------:|\n| ✅ |  [9.2](https://github.com/elastic/elasticsearch/pull/137093)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137093\">](https://github.com/elastic/elasticsearch/pull/137093) |",
+      "created_at": "2025-10-24T10:15:07+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/changelog/137074.yaml",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "patch": "@@ -0,0 +1,5 @@\n+pr: 137074\n+summary: Adjust GPU graph building params\n+area: Search\n+type: enhancement\n+issues: []"
+    },
+    {
+      "filename": "x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 15,
+      "changes": 24,
+      "patch": "@@ -7,7 +7,6 @@\n package org.elasticsearch.xpack.gpu;\n \n import org.apache.lucene.codecs.KnnVectorsFormat;\n-import org.apache.lucene.util.hnsw.HnswGraphBuilder;\n import org.elasticsearch.common.settings.Setting;\n import org.elasticsearch.common.util.FeatureFlag;\n import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper;\n@@ -94,13 +93,14 @@ private static KnnVectorsFormat getVectorsFormat(\n         DenseVectorFieldMapper.DenseVectorIndexOptions indexOptions,\n         DenseVectorFieldMapper.VectorSimilarity similarity\n     ) {\n+        // TODO: cuvs 2025.12 will provide an API for converting HNSW CPU Params to Cagra params; use that instead\n         if (indexOptions.getType() == DenseVectorFieldMapper.VectorIndexType.HNSW) {\n             DenseVectorFieldMapper.HnswIndexOptions hnswIndexOptions = (DenseVectorFieldMapper.HnswIndexOptions) indexOptions;\n             int efConstruction = hnswIndexOptions.efConstruction();\n-            if (efConstruction == HnswGraphBuilder.DEFAULT_BEAM_WIDTH) {\n-                efConstruction = ES92GpuHnswVectorsFormat.DEFAULT_BEAM_WIDTH; // default value for GPU graph construction is 128\n-            }\n-            return new ES92GpuHnswVectorsFormat(hnswIndexOptions.m(), efConstruction);\n+            int m = hnswIndexOptions.m();\n+            int gpuM = 2 + m * 2 / 3;\n+            int gpuEfConstruction = m + m * efConstruction / 256;\n+            return new ES92GpuHnswVectorsFormat(gpuM, gpuEfConstruction);\n         } else if (indexOptions.getType() == DenseVectorFieldMapper.VectorIndexType.INT8_HNSW) {\n             if (similarity == DenseVectorFieldMapper.VectorSimilarity.MAX_INNER_PRODUCT) {\n                 throw new IllegalArgumentException(\n@@ -115,16 +115,10 @@ private static KnnVectorsFormat getVectorsFormat(\n             }\n             DenseVectorFieldMapper.Int8HnswIndexOptions int8HnswIndexOptions = (DenseVectorFieldMapper.Int8HnswIndexOptions) indexOptions;\n             int efConstruction = int8HnswIndexOptions.efConstruction();\n-            if (efConstruction == HnswGraphBuilder.DEFAULT_BEAM_WIDTH) {\n-                efConstruction = ES92GpuHnswVectorsFormat.DEFAULT_BEAM_WIDTH; // default value for GPU graph construction is 128\n-            }\n-            return new ES92GpuHnswSQVectorsFormat(\n-                int8HnswIndexOptions.m(),\n-                efConstruction,\n-                int8HnswIndexOptions.confidenceInterval(),\n-                7,\n-                false\n-            );\n+            int m = int8HnswIndexOptions.m();\n+            int gpuM = 2 + m * 2 / 3;\n+            int gpuEfConstruction = m + m * efConstruction / 256;\n+            return new ES92GpuHnswSQVectorsFormat(gpuM, gpuEfConstruction, int8HnswIndexOptions.confidenceInterval(), 7, false);\n         } else {\n             throw new IllegalArgumentException(\n                 \"GPU vector indexing is not supported on this vector type: [\" + indexOptions.getType() + \"]\""
+    },
+    {
+      "filename": "x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsFormat.java",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "patch": "@@ -13,6 +13,7 @@\n import org.apache.lucene.codecs.hnsw.FlatVectorScorerUtil;\n import org.apache.lucene.codecs.hnsw.FlatVectorsFormat;\n import org.apache.lucene.codecs.lucene99.Lucene99FlatVectorsFormat;\n+import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat;\n import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsReader;\n import org.apache.lucene.index.SegmentReadState;\n import org.apache.lucene.index.SegmentWriteState;\n@@ -36,8 +37,9 @@ public class ES92GpuHnswVectorsFormat extends KnnVectorsFormat {\n     static final String LUCENE99_HNSW_VECTOR_INDEX_EXTENSION = \"vex\";\n     static final int LUCENE99_VERSION_CURRENT = VERSION_GROUPVARINT;\n \n-    static final int DEFAULT_MAX_CONN = 16; // graph degree\n-    public static final int DEFAULT_BEAM_WIDTH = 128; // intermediate graph degree\n+    public static final int DEFAULT_MAX_CONN = (2 + Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN * 2 / 3); // graph degree\n+    public static final int DEFAULT_BEAM_WIDTH = Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN + Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN\n+        * Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH / 256; // intermediate graph degree\n     static final int MIN_NUM_VECTORS_FOR_GPU_BUILD = 2;\n \n     private static final FlatVectorsFormat flatVectorsFormat = new Lucene99FlatVectorsFormat("
+    },
+    {
+      "filename": "x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "patch": "@@ -332,6 +332,7 @@ private CagraIndex buildGPUIndex(\n             .withCagraGraphBuildAlgo(CagraIndexParams.CagraGraphBuildAlgo.NN_DESCENT)\n             .withGraphDegree(M)\n             .withIntermediateGraphDegree(beamWidth)\n+            .withNNDescentNumIterations(5)\n             .withMetric(distanceType)\n             .build();\n "
+    },
+    {
+      "filename": "x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/GPUDenseVectorFieldMapperTests.java",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -44,7 +44,7 @@ public void testKnnVectorsFormat() throws IOException {\n         // TODO improve test with custom parameters\n         KnnVectorsFormat knnVectorsFormat = getKnnVectorsFormat(\"hnsw\");\n         String expectedStr = \"Lucene99HnswVectorsFormat(name=Lucene99HnswVectorsFormat, \"\n-            + \"maxConn=16, beamWidth=128, flatVectorFormat=Lucene99FlatVectorsFormat)\";\n+            + \"maxConn=12, beamWidth=22, flatVectorFormat=Lucene99FlatVectorsFormat)\";\n         assertEquals(expectedStr, knnVectorsFormat.toString());\n     }\n \n@@ -53,7 +53,7 @@ public void testKnnQuantizedHNSWVectorsFormat() throws IOException {\n         // TOD improve the test with custom parameters\n         KnnVectorsFormat knnVectorsFormat = getKnnVectorsFormat(\"int8_hnsw\");\n         String expectedStr = \"Lucene99HnswVectorsFormat(name=Lucene99HnswVectorsFormat, \"\n-            + \"maxConn=16, beamWidth=128, flatVectorFormat=ES814ScalarQuantizedVectorsFormat\";\n+            + \"maxConn=12, beamWidth=22, flatVectorFormat=ES814ScalarQuantizedVectorsFormat\";\n         assertTrue(knnVectorsFormat.toString().startsWith(expectedStr));\n     }\n "
+    }
+  ],
+  "diff": "diff --git a/docs/changelog/137074.yaml b/docs/changelog/137074.yaml\nnew file mode 100644\nindex 0000000000000..9757191264179\n--- /dev/null\n+++ b/docs/changelog/137074.yaml\n@@ -0,0 +1,5 @@\n+pr: 137074\n+summary: Adjust GPU graph building params\n+area: Search\n+type: enhancement\n+issues: []\ndiff --git a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java\nindex 4dd1e574b6da8..bcd5e34ed8b6e 100644\n--- a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java\n+++ b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java\n@@ -7,7 +7,6 @@\n package org.elasticsearch.xpack.gpu;\n \n import org.apache.lucene.codecs.KnnVectorsFormat;\n-import org.apache.lucene.util.hnsw.HnswGraphBuilder;\n import org.elasticsearch.common.settings.Setting;\n import org.elasticsearch.common.util.FeatureFlag;\n import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper;\n@@ -94,13 +93,14 @@ private static KnnVectorsFormat getVectorsFormat(\n         DenseVectorFieldMapper.DenseVectorIndexOptions indexOptions,\n         DenseVectorFieldMapper.VectorSimilarity similarity\n     ) {\n+        // TODO: cuvs 2025.12 will provide an API for converting HNSW CPU Params to Cagra params; use that instead\n         if (indexOptions.getType() == DenseVectorFieldMapper.VectorIndexType.HNSW) {\n             DenseVectorFieldMapper.HnswIndexOptions hnswIndexOptions = (DenseVectorFieldMapper.HnswIndexOptions) indexOptions;\n             int efConstruction = hnswIndexOptions.efConstruction();\n-            if (efConstruction == HnswGraphBuilder.DEFAULT_BEAM_WIDTH) {\n-                efConstruction = ES92GpuHnswVectorsFormat.DEFAULT_BEAM_WIDTH; // default value for GPU graph construction is 128\n-            }\n-            return new ES92GpuHnswVectorsFormat(hnswIndexOptions.m(), efConstruction);\n+            int m = hnswIndexOptions.m();\n+            int gpuM = 2 + m * 2 / 3;\n+            int gpuEfConstruction = m + m * efConstruction / 256;\n+            return new ES92GpuHnswVectorsFormat(gpuM, gpuEfConstruction);\n         } else if (indexOptions.getType() == DenseVectorFieldMapper.VectorIndexType.INT8_HNSW) {\n             if (similarity == DenseVectorFieldMapper.VectorSimilarity.MAX_INNER_PRODUCT) {\n                 throw new IllegalArgumentException(\n@@ -115,16 +115,10 @@ private static KnnVectorsFormat getVectorsFormat(\n             }\n             DenseVectorFieldMapper.Int8HnswIndexOptions int8HnswIndexOptions = (DenseVectorFieldMapper.Int8HnswIndexOptions) indexOptions;\n             int efConstruction = int8HnswIndexOptions.efConstruction();\n-            if (efConstruction == HnswGraphBuilder.DEFAULT_BEAM_WIDTH) {\n-                efConstruction = ES92GpuHnswVectorsFormat.DEFAULT_BEAM_WIDTH; // default value for GPU graph construction is 128\n-            }\n-            return new ES92GpuHnswSQVectorsFormat(\n-                int8HnswIndexOptions.m(),\n-                efConstruction,\n-                int8HnswIndexOptions.confidenceInterval(),\n-                7,\n-                false\n-            );\n+            int m = int8HnswIndexOptions.m();\n+            int gpuM = 2 + m * 2 / 3;\n+            int gpuEfConstruction = m + m * efConstruction / 256;\n+            return new ES92GpuHnswSQVectorsFormat(gpuM, gpuEfConstruction, int8HnswIndexOptions.confidenceInterval(), 7, false);\n         } else {\n             throw new IllegalArgumentException(\n                 \"GPU vector indexing is not supported on this vector type: [\" + indexOptions.getType() + \"]\"\ndiff --git a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsFormat.java b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsFormat.java\nindex 8761b9e12f22a..2ecdd9da828dd 100644\n--- a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsFormat.java\n+++ b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsFormat.java\n@@ -13,6 +13,7 @@\n import org.apache.lucene.codecs.hnsw.FlatVectorScorerUtil;\n import org.apache.lucene.codecs.hnsw.FlatVectorsFormat;\n import org.apache.lucene.codecs.lucene99.Lucene99FlatVectorsFormat;\n+import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat;\n import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsReader;\n import org.apache.lucene.index.SegmentReadState;\n import org.apache.lucene.index.SegmentWriteState;\n@@ -36,8 +37,9 @@ public class ES92GpuHnswVectorsFormat extends KnnVectorsFormat {\n     static final String LUCENE99_HNSW_VECTOR_INDEX_EXTENSION = \"vex\";\n     static final int LUCENE99_VERSION_CURRENT = VERSION_GROUPVARINT;\n \n-    static final int DEFAULT_MAX_CONN = 16; // graph degree\n-    public static final int DEFAULT_BEAM_WIDTH = 128; // intermediate graph degree\n+    public static final int DEFAULT_MAX_CONN = (2 + Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN * 2 / 3); // graph degree\n+    public static final int DEFAULT_BEAM_WIDTH = Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN + Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN\n+        * Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH / 256; // intermediate graph degree\n     static final int MIN_NUM_VECTORS_FOR_GPU_BUILD = 2;\n \n     private static final FlatVectorsFormat flatVectorsFormat = new Lucene99FlatVectorsFormat(\ndiff --git a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java\nindex 6cccda6333f2b..2f4ee6180af1d 100644\n--- a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java\n+++ b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java\n@@ -332,6 +332,7 @@ private CagraIndex buildGPUIndex(\n             .withCagraGraphBuildAlgo(CagraIndexParams.CagraGraphBuildAlgo.NN_DESCENT)\n             .withGraphDegree(M)\n             .withIntermediateGraphDegree(beamWidth)\n+            .withNNDescentNumIterations(5)\n             .withMetric(distanceType)\n             .build();\n \ndiff --git a/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/GPUDenseVectorFieldMapperTests.java b/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/GPUDenseVectorFieldMapperTests.java\nindex 2648691d03eec..b8b76491bb069 100644\n--- a/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/GPUDenseVectorFieldMapperTests.java\n+++ b/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/GPUDenseVectorFieldMapperTests.java\n@@ -44,7 +44,7 @@ public void testKnnVectorsFormat() throws IOException {\n         // TODO improve test with custom parameters\n         KnnVectorsFormat knnVectorsFormat = getKnnVectorsFormat(\"hnsw\");\n         String expectedStr = \"Lucene99HnswVectorsFormat(name=Lucene99HnswVectorsFormat, \"\n-            + \"maxConn=16, beamWidth=128, flatVectorFormat=Lucene99FlatVectorsFormat)\";\n+            + \"maxConn=12, beamWidth=22, flatVectorFormat=Lucene99FlatVectorsFormat)\";\n         assertEquals(expectedStr, knnVectorsFormat.toString());\n     }\n \n@@ -53,7 +53,7 @@ public void testKnnQuantizedHNSWVectorsFormat() throws IOException {\n         // TOD improve the test with custom parameters\n         KnnVectorsFormat knnVectorsFormat = getKnnVectorsFormat(\"int8_hnsw\");\n         String expectedStr = \"Lucene99HnswVectorsFormat(name=Lucene99HnswVectorsFormat, \"\n-            + \"maxConn=16, beamWidth=128, flatVectorFormat=ES814ScalarQuantizedVectorsFormat\";\n+            + \"maxConn=12, beamWidth=22, flatVectorFormat=ES814ScalarQuantizedVectorsFormat\";\n         assertTrue(knnVectorsFormat.toString().startsWith(expectedStr));\n     }\n \n",
+  "additions": 21,
+  "deletions": 19,
+  "changed_files": 5,
+  "url": "https://github.com/elastic/elasticsearch/pull/137074",
+  "mined_at": "2025-10-25T13:31:27.724560"
+}

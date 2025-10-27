@@ -1,0 +1,3611 @@
+diff --git a/modules/mapper-extras/src/main/java/org/elasticsearch/index/mapper/extras/ScaledFloatFieldMapper.java b/modules/mapper-extras/src/main/java/org/elasticsearch/index/mapper/extras/ScaledFloatFieldMapper.java
+index 826ca3bb89811..40fd851b98793 100644
+--- a/modules/mapper-extras/src/main/java/org/elasticsearch/index/mapper/extras/ScaledFloatFieldMapper.java
++++ b/modules/mapper-extras/src/main/java/org/elasticsearch/index/mapper/extras/ScaledFloatFieldMapper.java
+@@ -31,7 +31,6 @@
+ import org.elasticsearch.index.fielddata.SourceValueFetcherSortedDoubleIndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.LeafDoubleFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.BlockSourceReader;
+ import org.elasticsearch.index.mapper.CompositeSyntheticFieldLoader;
+@@ -51,6 +50,7 @@
+ import org.elasticsearch.index.mapper.TextSearchInfo;
+ import org.elasticsearch.index.mapper.TimeSeriesParams;
+ import org.elasticsearch.index.mapper.ValueFetcher;
++import org.elasticsearch.index.mapper.blockloader.docvalues.DoublesBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.field.DocValuesScriptFieldFactory;
+ import org.elasticsearch.script.field.ScaledFloatDocValuesField;
+@@ -382,7 +382,7 @@ public BlockLoader blockLoader(BlockLoaderContext blContext) {
+                 return BlockLoader.CONSTANT_NULLS;
+             }
+             if (hasDocValues() && (blContext.fieldExtractPreference() != FieldExtractPreference.STORED || isSyntheticSource)) {
+-                return new BlockDocValuesReader.DoublesBlockLoader(name(), l -> l / scalingFactor);
++                return new DoublesBlockLoader(name(), l -> l / scalingFactor);
+             }
+             // Multi fields don't have fallback synthetic source.
+             if (isSyntheticSource && blContext.parentField(name()) == null) {
+diff --git a/server/src/main/java/module-info.java b/server/src/main/java/module-info.java
+index fd50628539ebd..e7bf0c83a1123 100644
+--- a/server/src/main/java/module-info.java
++++ b/server/src/main/java/module-info.java
+@@ -499,4 +499,5 @@
+     exports org.elasticsearch.index.codec.vectors.cluster to org.elasticsearch.test.knn;
+     exports org.elasticsearch.index.codec.vectors.es93 to org.elasticsearch.test.knn;
+     exports org.elasticsearch.search.crossproject;
++    exports org.elasticsearch.index.mapper.blockloader.docvalues;
+ }
+diff --git a/server/src/main/java/org/elasticsearch/index/codec/tsdb/es819/ES819TSDBDocValuesProducer.java b/server/src/main/java/org/elasticsearch/index/codec/tsdb/es819/ES819TSDBDocValuesProducer.java
+index 5d90f2814853d..df83845a69370 100644
+--- a/server/src/main/java/org/elasticsearch/index/codec/tsdb/es819/ES819TSDBDocValuesProducer.java
++++ b/server/src/main/java/org/elasticsearch/index/codec/tsdb/es819/ES819TSDBDocValuesProducer.java
+@@ -46,8 +46,8 @@
+ import org.elasticsearch.core.Assertions;
+ import org.elasticsearch.core.IOUtils;
+ import org.elasticsearch.index.codec.tsdb.TSDBDocValuesEncoder;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ 
+ import java.io.IOException;
+ 
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/AbstractShapeGeometryFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/AbstractShapeGeometryFieldMapper.java
+index d6ed620fde016..ae7c888490d61 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/AbstractShapeGeometryFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/AbstractShapeGeometryFieldMapper.java
+@@ -12,6 +12,7 @@
+ import org.apache.lucene.index.LeafReaderContext;
+ import org.elasticsearch.common.Explicit;
+ import org.elasticsearch.common.geo.Orientation;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.lucene.spatial.Extent;
+ import org.elasticsearch.lucene.spatial.GeometryDocValueReader;
+ 
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/BlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/BlockDocValuesReader.java
+deleted file mode 100644
+index 457c90383b5d2..0000000000000
+--- a/server/src/main/java/org/elasticsearch/index/mapper/BlockDocValuesReader.java
++++ /dev/null
+@@ -1,1302 +0,0 @@
+-/*
+- * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+- * or more contributor license agreements. Licensed under the "Elastic License
+- * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
+- * Public License v 1"; you may not use this file except in compliance with, at
+- * your election, the "Elastic License 2.0", the "GNU Affero General Public
+- * License v3.0 only", or the "Server Side Public License, v 1".
+- */
+-
+-package org.elasticsearch.index.mapper;
+-
+-import org.apache.lucene.index.BinaryDocValues;
+-import org.apache.lucene.index.ByteVectorValues;
+-import org.apache.lucene.index.DocValues;
+-import org.apache.lucene.index.FloatVectorValues;
+-import org.apache.lucene.index.KnnVectorValues;
+-import org.apache.lucene.index.LeafReaderContext;
+-import org.apache.lucene.index.NumericDocValues;
+-import org.apache.lucene.index.SortedDocValues;
+-import org.apache.lucene.index.SortedNumericDocValues;
+-import org.apache.lucene.index.SortedSetDocValues;
+-import org.apache.lucene.util.BytesRef;
+-import org.elasticsearch.common.io.stream.ByteArrayStreamInput;
+-import org.elasticsearch.index.IndexVersion;
+-import org.elasticsearch.index.mapper.BlockLoader.BlockFactory;
+-import org.elasticsearch.index.mapper.BlockLoader.BooleanBuilder;
+-import org.elasticsearch.index.mapper.BlockLoader.Builder;
+-import org.elasticsearch.index.mapper.BlockLoader.BytesRefBuilder;
+-import org.elasticsearch.index.mapper.BlockLoader.Docs;
+-import org.elasticsearch.index.mapper.BlockLoader.DoubleBuilder;
+-import org.elasticsearch.index.mapper.BlockLoader.IntBuilder;
+-import org.elasticsearch.index.mapper.BlockLoader.LongBuilder;
+-import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper;
+-import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper.ElementType;
+-import org.elasticsearch.index.mapper.vectors.VectorEncoderDecoder;
+-import org.elasticsearch.search.fetch.StoredFieldsSpec;
+-
+-import java.io.IOException;
+-
+-import static org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper.COSINE_MAGNITUDE_FIELD_SUFFIX;
+-
+-/**
+- * A reader that supports reading doc-values from a Lucene segment in Block fashion.
+- */
+-public abstract class BlockDocValuesReader implements BlockLoader.AllReader {
+-    private final Thread creationThread;
+-
+-    public BlockDocValuesReader() {
+-        this.creationThread = Thread.currentThread();
+-    }
+-
+-    protected abstract int docId();
+-
+-    /**
+-     * Checks if the reader can be used to read a range documents starting with the given docID by the current thread.
+-     */
+-    @Override
+-    public final boolean canReuse(int startingDocID) {
+-        return creationThread == Thread.currentThread() && docId() <= startingDocID;
+-    }
+-
+-    @Override
+-    public abstract String toString();
+-
+-    public abstract static class DocValuesBlockLoader implements BlockLoader {
+-        public abstract AllReader reader(LeafReaderContext context) throws IOException;
+-
+-        @Override
+-        public final ColumnAtATimeReader columnAtATimeReader(LeafReaderContext context) throws IOException {
+-            return reader(context);
+-        }
+-
+-        @Override
+-        public final RowStrideReader rowStrideReader(LeafReaderContext context) throws IOException {
+-            return reader(context);
+-        }
+-
+-        @Override
+-        public final StoredFieldsSpec rowStrideStoredFieldSpec() {
+-            return StoredFieldsSpec.NO_REQUIREMENTS;
+-        }
+-
+-        @Override
+-        public boolean supportsOrdinals() {
+-            return false;
+-        }
+-
+-        @Override
+-        public SortedSetDocValues ordinals(LeafReaderContext context) throws IOException {
+-            throw new UnsupportedOperationException();
+-        }
+-
+-    }
+-
+-    public static class LongsBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-
+-        public LongsBlockLoader(String fieldName) {
+-            this.fieldName = fieldName;
+-        }
+-
+-        @Override
+-        public Builder builder(BlockFactory factory, int expectedCount) {
+-            return factory.longs(expectedCount);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
+-            if (docValues != null) {
+-                NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
+-                if (singleton != null) {
+-                    return new SingletonLongs(singleton);
+-                }
+-                return new Longs(docValues);
+-            }
+-            NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
+-            if (singleton != null) {
+-                return new SingletonLongs(singleton);
+-            }
+-            return new ConstantNullsReader();
+-        }
+-    }
+-
+-    // Used for testing.
+-    interface NumericDocValuesAccessor {
+-        NumericDocValues numericDocValues();
+-    }
+-
+-    static class SingletonLongs extends BlockDocValuesReader implements NumericDocValuesAccessor {
+-        final NumericDocValues numericDocValues;
+-
+-        SingletonLongs(NumericDocValues numericDocValues) {
+-            this.numericDocValues = numericDocValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            if (numericDocValues instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
+-                BlockLoader.Block result = direct.tryRead(factory, docs, offset, nullsFiltered, null, false);
+-                if (result != null) {
+-                    return result;
+-                }
+-            }
+-            try (BlockLoader.LongBuilder builder = factory.longsFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    if (numericDocValues.advanceExact(doc)) {
+-                        builder.appendLong(numericDocValues.longValue());
+-                    } else {
+-                        builder.appendNull();
+-                    }
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            BlockLoader.LongBuilder blockBuilder = (BlockLoader.LongBuilder) builder;
+-            if (numericDocValues.advanceExact(docId)) {
+-                blockBuilder.appendLong(numericDocValues.longValue());
+-            } else {
+-                blockBuilder.appendNull();
+-            }
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return numericDocValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.SingletonLongs";
+-        }
+-
+-        @Override
+-        public NumericDocValues numericDocValues() {
+-            return numericDocValues;
+-        }
+-    }
+-
+-    static class Longs extends BlockDocValuesReader {
+-        private final SortedNumericDocValues numericDocValues;
+-
+-        Longs(SortedNumericDocValues numericDocValues) {
+-            this.numericDocValues = numericDocValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.LongBuilder builder = factory.longsFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    read(doc, builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (LongBuilder) builder);
+-        }
+-
+-        private void read(int doc, LongBuilder builder) throws IOException {
+-            if (false == numericDocValues.advanceExact(doc)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            int count = numericDocValues.docValueCount();
+-            if (count == 1) {
+-                builder.appendLong(numericDocValues.nextValue());
+-                return;
+-            }
+-            builder.beginPositionEntry();
+-            for (int v = 0; v < count; v++) {
+-                builder.appendLong(numericDocValues.nextValue());
+-            }
+-            builder.endPositionEntry();
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return numericDocValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.Longs";
+-        }
+-    }
+-
+-    public static class IntsBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-
+-        public IntsBlockLoader(String fieldName) {
+-            this.fieldName = fieldName;
+-        }
+-
+-        @Override
+-        public Builder builder(BlockFactory factory, int expectedCount) {
+-            return factory.ints(expectedCount);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
+-            if (docValues != null) {
+-                NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
+-                if (singleton != null) {
+-                    return new SingletonInts(singleton);
+-                }
+-                return new Ints(docValues);
+-            }
+-            NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
+-            if (singleton != null) {
+-                return new SingletonInts(singleton);
+-            }
+-            return new ConstantNullsReader();
+-        }
+-    }
+-
+-    static class SingletonInts extends BlockDocValuesReader implements NumericDocValuesAccessor {
+-        private final NumericDocValues numericDocValues;
+-
+-        SingletonInts(NumericDocValues numericDocValues) {
+-            this.numericDocValues = numericDocValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            if (numericDocValues instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
+-                BlockLoader.Block result = direct.tryRead(factory, docs, offset, nullsFiltered, null, true);
+-                if (result != null) {
+-                    return result;
+-                }
+-            }
+-            try (BlockLoader.IntBuilder builder = factory.intsFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    if (numericDocValues.advanceExact(doc)) {
+-                        builder.appendInt(Math.toIntExact(numericDocValues.longValue()));
+-                    } else {
+-                        builder.appendNull();
+-                    }
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            IntBuilder blockBuilder = (IntBuilder) builder;
+-            if (numericDocValues.advanceExact(docId)) {
+-                blockBuilder.appendInt(Math.toIntExact(numericDocValues.longValue()));
+-            } else {
+-                blockBuilder.appendNull();
+-            }
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return numericDocValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.SingletonInts";
+-        }
+-
+-        @Override
+-        public NumericDocValues numericDocValues() {
+-            return numericDocValues;
+-        }
+-    }
+-
+-    static class Ints extends BlockDocValuesReader {
+-        private final SortedNumericDocValues numericDocValues;
+-
+-        Ints(SortedNumericDocValues numericDocValues) {
+-            this.numericDocValues = numericDocValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.IntBuilder builder = factory.intsFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    read(doc, builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (IntBuilder) builder);
+-        }
+-
+-        private void read(int doc, IntBuilder builder) throws IOException {
+-            if (false == numericDocValues.advanceExact(doc)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            int count = numericDocValues.docValueCount();
+-            if (count == 1) {
+-                builder.appendInt(Math.toIntExact(numericDocValues.nextValue()));
+-                return;
+-            }
+-            builder.beginPositionEntry();
+-            for (int v = 0; v < count; v++) {
+-                builder.appendInt(Math.toIntExact(numericDocValues.nextValue()));
+-            }
+-            builder.endPositionEntry();
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return numericDocValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.Ints";
+-        }
+-    }
+-
+-    /**
+-     * Convert from the stored {@link long} into the {@link double} to load.
+-     * Sadly, this will go megamorphic pretty quickly and slow us down,
+-     * but it gets the job done for now.
+-     */
+-    public interface ToDouble {
+-        double convert(long v);
+-    }
+-
+-    public static class DoublesBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-        private final ToDouble toDouble;
+-
+-        public DoublesBlockLoader(String fieldName, ToDouble toDouble) {
+-            this.fieldName = fieldName;
+-            this.toDouble = toDouble;
+-        }
+-
+-        @Override
+-        public Builder builder(BlockFactory factory, int expectedCount) {
+-            return factory.doubles(expectedCount);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
+-            if (docValues != null) {
+-                NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
+-                if (singleton != null) {
+-                    return new SingletonDoubles(singleton, toDouble);
+-                }
+-                return new Doubles(docValues, toDouble);
+-            }
+-            NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
+-            if (singleton != null) {
+-                return new SingletonDoubles(singleton, toDouble);
+-            }
+-            return new ConstantNullsReader();
+-        }
+-    }
+-
+-    static class SingletonDoubles extends BlockDocValuesReader implements NumericDocValuesAccessor {
+-        private final NumericDocValues docValues;
+-        private final ToDouble toDouble;
+-
+-        SingletonDoubles(NumericDocValues docValues, ToDouble toDouble) {
+-            this.docValues = docValues;
+-            this.toDouble = toDouble;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            if (docValues instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
+-                BlockLoader.Block result = direct.tryRead(factory, docs, offset, nullsFiltered, toDouble, false);
+-                if (result != null) {
+-                    return result;
+-                }
+-            }
+-            try (BlockLoader.DoubleBuilder builder = factory.doublesFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    if (docValues.advanceExact(doc)) {
+-                        builder.appendDouble(toDouble.convert(docValues.longValue()));
+-                    } else {
+-                        builder.appendNull();
+-                    }
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            DoubleBuilder blockBuilder = (DoubleBuilder) builder;
+-            if (docValues.advanceExact(docId)) {
+-                blockBuilder.appendDouble(toDouble.convert(docValues.longValue()));
+-            } else {
+-                blockBuilder.appendNull();
+-            }
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return docValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.SingletonDoubles";
+-        }
+-
+-        @Override
+-        public NumericDocValues numericDocValues() {
+-            return docValues;
+-        }
+-    }
+-
+-    static class Doubles extends BlockDocValuesReader {
+-        private final SortedNumericDocValues docValues;
+-        private final ToDouble toDouble;
+-
+-        Doubles(SortedNumericDocValues docValues, ToDouble toDouble) {
+-            this.docValues = docValues;
+-            this.toDouble = toDouble;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.DoubleBuilder builder = factory.doublesFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    read(doc, builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (DoubleBuilder) builder);
+-        }
+-
+-        private void read(int doc, DoubleBuilder builder) throws IOException {
+-            if (false == docValues.advanceExact(doc)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            int count = docValues.docValueCount();
+-            if (count == 1) {
+-                builder.appendDouble(toDouble.convert(docValues.nextValue()));
+-                return;
+-            }
+-            builder.beginPositionEntry();
+-            for (int v = 0; v < count; v++) {
+-                builder.appendDouble(toDouble.convert(docValues.nextValue()));
+-            }
+-            builder.endPositionEntry();
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return docValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.Doubles";
+-        }
+-    }
+-
+-    public static class DenseVectorBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-        private final int dimensions;
+-        private final DenseVectorFieldMapper.DenseVectorFieldType fieldType;
+-
+-        public DenseVectorBlockLoader(String fieldName, int dimensions, DenseVectorFieldMapper.DenseVectorFieldType fieldType) {
+-            this.fieldName = fieldName;
+-            this.dimensions = dimensions;
+-            this.fieldType = fieldType;
+-        }
+-
+-        @Override
+-        public Builder builder(BlockFactory factory, int expectedCount) {
+-            return factory.denseVectors(expectedCount, dimensions);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            switch (fieldType.getElementType()) {
+-                case FLOAT -> {
+-                    FloatVectorValues floatVectorValues = context.reader().getFloatVectorValues(fieldName);
+-                    if (floatVectorValues != null) {
+-                        if (fieldType.isNormalized()) {
+-                            NumericDocValues magnitudeDocValues = context.reader()
+-                                .getNumericDocValues(fieldType.name() + COSINE_MAGNITUDE_FIELD_SUFFIX);
+-                            return new FloatDenseVectorNormalizedValuesBlockReader(floatVectorValues, dimensions, magnitudeDocValues);
+-                        }
+-                        return new FloatDenseVectorValuesBlockReader(floatVectorValues, dimensions);
+-                    }
+-                }
+-                case BYTE -> {
+-                    ByteVectorValues byteVectorValues = context.reader().getByteVectorValues(fieldName);
+-                    if (byteVectorValues != null) {
+-                        return new ByteDenseVectorValuesBlockReader(byteVectorValues, dimensions);
+-                    }
+-                }
+-                case BIT -> {
+-                    ByteVectorValues byteVectorValues = context.reader().getByteVectorValues(fieldName);
+-                    if (byteVectorValues != null) {
+-                        return new BitDenseVectorValuesBlockReader(byteVectorValues, dimensions);
+-                    }
+-                }
+-            }
+-
+-            return new ConstantNullsReader();
+-        }
+-    }
+-
+-    private abstract static class DenseVectorValuesBlockReader<T extends KnnVectorValues> extends BlockDocValuesReader {
+-
+-        protected final T vectorValues;
+-        protected final KnnVectorValues.DocIndexIterator iterator;
+-        protected final int dimensions;
+-
+-        DenseVectorValuesBlockReader(T vectorValues, int dimensions) {
+-            this.vectorValues = vectorValues;
+-            iterator = vectorValues.iterator();
+-            this.dimensions = dimensions;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            // Doubles from doc values ensures that the values are in order
+-            try (BlockLoader.FloatBuilder builder = factory.denseVectors(docs.count() - offset, dimensions)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    read(docs.get(i), builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (BlockLoader.FloatBuilder) builder);
+-        }
+-
+-        private void read(int doc, BlockLoader.FloatBuilder builder) throws IOException {
+-            assertDimensions();
+-
+-            if (iterator.docID() > doc) {
+-                builder.appendNull();
+-            } else if (iterator.docID() == doc || iterator.advance(doc) == doc) {
+-                builder.beginPositionEntry();
+-                appendDoc(builder);
+-                builder.endPositionEntry();
+-            } else {
+-                builder.appendNull();
+-            }
+-        }
+-
+-        protected abstract void appendDoc(BlockLoader.FloatBuilder builder) throws IOException;
+-
+-        @Override
+-        public int docId() {
+-            return iterator.docID();
+-        }
+-
+-        protected void assertDimensions() {
+-            assert vectorValues.dimension() == dimensions
+-                : "unexpected dimensions for vector value; expected " + dimensions + " but got " + vectorValues.dimension();
+-        }
+-    }
+-
+-    private static class FloatDenseVectorValuesBlockReader extends DenseVectorValuesBlockReader<FloatVectorValues> {
+-
+-        FloatDenseVectorValuesBlockReader(FloatVectorValues floatVectorValues, int dimensions) {
+-            super(floatVectorValues, dimensions);
+-        }
+-
+-        protected void appendDoc(BlockLoader.FloatBuilder builder) throws IOException {
+-            float[] floats = vectorValues.vectorValue(iterator.index());
+-            for (float aFloat : floats) {
+-                builder.appendFloat(aFloat);
+-            }
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.FloatDenseVectorValuesBlockReader";
+-        }
+-    }
+-
+-    private static class FloatDenseVectorNormalizedValuesBlockReader extends DenseVectorValuesBlockReader<FloatVectorValues> {
+-        private final NumericDocValues magnitudeDocValues;
+-
+-        FloatDenseVectorNormalizedValuesBlockReader(
+-            FloatVectorValues floatVectorValues,
+-            int dimensions,
+-            NumericDocValues magnitudeDocValues
+-        ) {
+-            super(floatVectorValues, dimensions);
+-            this.magnitudeDocValues = magnitudeDocValues;
+-        }
+-
+-        @Override
+-        protected void appendDoc(BlockLoader.FloatBuilder builder) throws IOException {
+-            float magnitude = 1.0f;
+-            // If all vectors are normalized, no doc values will be present. The vector may be normalized already, so we may not have a
+-            // stored magnitude for all docs
+-            if ((magnitudeDocValues != null) && magnitudeDocValues.advanceExact(iterator.docID())) {
+-                magnitude = Float.intBitsToFloat((int) magnitudeDocValues.longValue());
+-            }
+-            float[] floats = vectorValues.vectorValue(iterator.index());
+-            for (float aFloat : floats) {
+-                builder.appendFloat(aFloat * magnitude);
+-            }
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.FloatDenseVectorNormalizedValuesBlockReader";
+-        }
+-    }
+-
+-    private static class ByteDenseVectorValuesBlockReader extends DenseVectorValuesBlockReader<ByteVectorValues> {
+-        ByteDenseVectorValuesBlockReader(ByteVectorValues floatVectorValues, int dimensions) {
+-            super(floatVectorValues, dimensions);
+-        }
+-
+-        protected void appendDoc(BlockLoader.FloatBuilder builder) throws IOException {
+-            byte[] bytes = vectorValues.vectorValue(iterator.index());
+-            for (byte aFloat : bytes) {
+-                builder.appendFloat(aFloat);
+-            }
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.ByteDenseVectorValuesBlockReader";
+-        }
+-    }
+-
+-    private static class BitDenseVectorValuesBlockReader extends ByteDenseVectorValuesBlockReader {
+-
+-        BitDenseVectorValuesBlockReader(ByteVectorValues floatVectorValues, int dimensions) {
+-            super(floatVectorValues, dimensions);
+-        }
+-
+-        @Override
+-        protected void assertDimensions() {
+-            assert vectorValues.dimension() * Byte.SIZE == dimensions
+-                : "unexpected dimensions for vector value; expected " + dimensions + " but got " + vectorValues.dimension() * Byte.SIZE;
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.BitDenseVectorValuesBlockReader";
+-        }
+-    }
+-
+-    public static class BytesRefsFromOrdsBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-
+-        public BytesRefsFromOrdsBlockLoader(String fieldName) {
+-            this.fieldName = fieldName;
+-        }
+-
+-        @Override
+-        public BytesRefBuilder builder(BlockFactory factory, int expectedCount) {
+-            return factory.bytesRefs(expectedCount);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            SortedSetDocValues docValues = context.reader().getSortedSetDocValues(fieldName);
+-            if (docValues != null) {
+-                SortedDocValues singleton = DocValues.unwrapSingleton(docValues);
+-                if (singleton != null) {
+-                    return new SingletonOrdinals(singleton);
+-                }
+-                return new Ordinals(docValues);
+-            }
+-            SortedDocValues singleton = context.reader().getSortedDocValues(fieldName);
+-            if (singleton != null) {
+-                return new SingletonOrdinals(singleton);
+-            }
+-            return new ConstantNullsReader();
+-        }
+-
+-        @Override
+-        public boolean supportsOrdinals() {
+-            return true;
+-        }
+-
+-        @Override
+-        public SortedSetDocValues ordinals(LeafReaderContext context) throws IOException {
+-            return DocValues.getSortedSet(context.reader(), fieldName);
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BytesRefsFromOrds[" + fieldName + "]";
+-        }
+-    }
+-
+-    private static class SingletonOrdinals extends BlockDocValuesReader {
+-        private final SortedDocValues ordinals;
+-
+-        SingletonOrdinals(SortedDocValues ordinals) {
+-            this.ordinals = ordinals;
+-        }
+-
+-        private BlockLoader.Block readSingleDoc(BlockFactory factory, int docId) throws IOException {
+-            if (ordinals.advanceExact(docId)) {
+-                BytesRef v = ordinals.lookupOrd(ordinals.ordValue());
+-                // the returned BytesRef can be reused
+-                return factory.constantBytes(BytesRef.deepCopyOf(v), 1);
+-            } else {
+-                return factory.constantNulls(1);
+-            }
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            if (docs.count() - offset == 1) {
+-                return readSingleDoc(factory, docs.get(offset));
+-            }
+-            if (ordinals instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
+-                BlockLoader.Block block = direct.tryRead(factory, docs, offset, nullsFiltered, null, false);
+-                if (block != null) {
+-                    return block;
+-                }
+-            }
+-            try (var builder = factory.singletonOrdinalsBuilder(ordinals, docs.count() - offset, false)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    if (ordinals.advanceExact(doc)) {
+-                        builder.appendOrd(ordinals.ordValue());
+-                    } else {
+-                        builder.appendNull();
+-                    }
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            if (ordinals.advanceExact(docId)) {
+-                ((BytesRefBuilder) builder).appendBytesRef(ordinals.lookupOrd(ordinals.ordValue()));
+-            } else {
+-                builder.appendNull();
+-            }
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return ordinals.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.SingletonOrdinals";
+-        }
+-    }
+-
+-    private static class Ordinals extends BlockDocValuesReader {
+-        private final SortedSetDocValues ordinals;
+-
+-        Ordinals(SortedSetDocValues ordinals) {
+-            this.ordinals = ordinals;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            if (docs.count() - offset == 1) {
+-                return readSingleDoc(factory, docs.get(offset));
+-            }
+-            try (var builder = factory.sortedSetOrdinalsBuilder(ordinals, docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    if (doc < ordinals.docID()) {
+-                        throw new IllegalStateException("docs within same block must be in order");
+-                    }
+-                    if (ordinals.advanceExact(doc) == false) {
+-                        builder.appendNull();
+-                        continue;
+-                    }
+-                    int count = ordinals.docValueCount();
+-                    if (count == 1) {
+-                        builder.appendOrd(Math.toIntExact(ordinals.nextOrd()));
+-                    } else {
+-                        builder.beginPositionEntry();
+-                        for (int c = 0; c < count; c++) {
+-                            builder.appendOrd(Math.toIntExact(ordinals.nextOrd()));
+-                        }
+-                        builder.endPositionEntry();
+-                    }
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (BytesRefBuilder) builder);
+-        }
+-
+-        private BlockLoader.Block readSingleDoc(BlockFactory factory, int docId) throws IOException {
+-            if (ordinals.advanceExact(docId) == false) {
+-                return factory.constantNulls(1);
+-            }
+-            int count = ordinals.docValueCount();
+-            if (count == 1) {
+-                BytesRef v = ordinals.lookupOrd(ordinals.nextOrd());
+-                return factory.constantBytes(BytesRef.deepCopyOf(v), 1);
+-            }
+-            try (var builder = factory.bytesRefsFromDocValues(count)) {
+-                builder.beginPositionEntry();
+-                for (int c = 0; c < count; c++) {
+-                    BytesRef v = ordinals.lookupOrd(ordinals.nextOrd());
+-                    builder.appendBytesRef(v);
+-                }
+-                builder.endPositionEntry();
+-                return builder.build();
+-            }
+-        }
+-
+-        private void read(int docId, BytesRefBuilder builder) throws IOException {
+-            if (false == ordinals.advanceExact(docId)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            int count = ordinals.docValueCount();
+-            if (count == 1) {
+-                builder.appendBytesRef(ordinals.lookupOrd(ordinals.nextOrd()));
+-                return;
+-            }
+-            builder.beginPositionEntry();
+-            for (int v = 0; v < count; v++) {
+-                builder.appendBytesRef(ordinals.lookupOrd(ordinals.nextOrd()));
+-            }
+-            builder.endPositionEntry();
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return ordinals.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.Ordinals";
+-        }
+-    }
+-
+-    public static class BytesRefsFromCustomBinaryBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-
+-        public BytesRefsFromCustomBinaryBlockLoader(String fieldName) {
+-            this.fieldName = fieldName;
+-        }
+-
+-        @Override
+-        public Builder builder(BlockFactory factory, int expectedCount) {
+-            return factory.bytesRefs(expectedCount);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            BinaryDocValues docValues = context.reader().getBinaryDocValues(fieldName);
+-            if (docValues == null) {
+-                return new ConstantNullsReader();
+-            }
+-            return new BytesRefsFromCustomBinary(docValues);
+-        }
+-    }
+-
+-    abstract static class AbstractBytesRefsFromBinary extends BlockDocValuesReader {
+-        protected final BinaryDocValues docValues;
+-
+-        AbstractBytesRefsFromBinary(BinaryDocValues docValues) {
+-            this.docValues = docValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.BytesRefBuilder builder = factory.bytesRefs(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    read(doc, builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (BytesRefBuilder) builder);
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return docValues.docID();
+-        }
+-
+-        abstract void read(int docId, BytesRefBuilder builder) throws IOException;
+-    }
+-
+-    /**
+-     * Read BinaryDocValues encoded by {@link BinaryFieldMapper.CustomBinaryDocValuesField}
+-     */
+-    static class BytesRefsFromCustomBinary extends AbstractBytesRefsFromBinary {
+-        private final ByteArrayStreamInput in = new ByteArrayStreamInput();
+-        private final BytesRef scratch = new BytesRef();
+-
+-        BytesRefsFromCustomBinary(BinaryDocValues docValues) {
+-            super(docValues);
+-        }
+-
+-        @Override
+-        void read(int doc, BytesRefBuilder builder) throws IOException {
+-            if (false == docValues.advanceExact(doc)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            BytesRef bytes = docValues.binaryValue();
+-            assert bytes.length > 0;
+-            in.reset(bytes.bytes, bytes.offset, bytes.length);
+-            int count = in.readVInt();
+-            scratch.bytes = bytes.bytes;
+-
+-            if (count == 1) {
+-                scratch.length = in.readVInt();
+-                scratch.offset = in.getPosition();
+-                builder.appendBytesRef(scratch);
+-                return;
+-            }
+-            builder.beginPositionEntry();
+-            for (int v = 0; v < count; v++) {
+-                scratch.length = in.readVInt();
+-                scratch.offset = in.getPosition();
+-                in.setPosition(scratch.offset + scratch.length);
+-                builder.appendBytesRef(scratch);
+-            }
+-            builder.endPositionEntry();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.BytesCustom";
+-        }
+-    }
+-
+-    /**
+-     * Read BinaryDocValues with no additional structure in the BytesRefs.
+-     * Each BytesRef from the doc values maps directly to a value in the block loader.
+-     */
+-    public static class BytesRefsFromBinary extends AbstractBytesRefsFromBinary {
+-        public BytesRefsFromBinary(BinaryDocValues docValues) {
+-            super(docValues);
+-        }
+-
+-        @Override
+-        void read(int doc, BytesRefBuilder builder) throws IOException {
+-            if (false == docValues.advanceExact(doc)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            BytesRef bytes = docValues.binaryValue();
+-            builder.appendBytesRef(bytes);
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.Bytes";
+-        }
+-    }
+-
+-    public static class DenseVectorFromBinaryBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-        private final int dims;
+-        private final IndexVersion indexVersion;
+-        private final ElementType elementType;
+-
+-        public DenseVectorFromBinaryBlockLoader(String fieldName, int dims, IndexVersion indexVersion, ElementType elementType) {
+-            this.fieldName = fieldName;
+-            this.dims = dims;
+-            this.indexVersion = indexVersion;
+-            this.elementType = elementType;
+-        }
+-
+-        @Override
+-        public Builder builder(BlockFactory factory, int expectedCount) {
+-            return factory.denseVectors(expectedCount, dims);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            BinaryDocValues docValues = context.reader().getBinaryDocValues(fieldName);
+-            if (docValues == null) {
+-                return new ConstantNullsReader();
+-            }
+-            return switch (elementType) {
+-                case FLOAT -> new FloatDenseVectorFromBinary(docValues, dims, indexVersion);
+-                case BYTE -> new ByteDenseVectorFromBinary(docValues, dims, indexVersion);
+-                case BIT -> new BitDenseVectorFromBinary(docValues, dims, indexVersion);
+-            };
+-        }
+-    }
+-
+-    // Abstract base for dense vector readers
+-    private abstract static class AbstractDenseVectorFromBinary<T> extends BlockDocValuesReader {
+-        protected final BinaryDocValues docValues;
+-        protected final IndexVersion indexVersion;
+-        protected final int dimensions;
+-        protected final T scratch;
+-
+-        AbstractDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion, T scratch) {
+-            this.docValues = docValues;
+-            this.indexVersion = indexVersion;
+-            this.dimensions = dims;
+-            this.scratch = scratch;
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return docValues.docID();
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (BlockLoader.FloatBuilder) builder);
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.FloatBuilder builder = factory.denseVectors(docs.count() - offset, dimensions)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    read(doc, builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        private void read(int doc, BlockLoader.FloatBuilder builder) throws IOException {
+-            if (docValues.advanceExact(doc) == false) {
+-                builder.appendNull();
+-                return;
+-            }
+-            BytesRef bytesRef = docValues.binaryValue();
+-            assert bytesRef.length > 0;
+-            decodeDenseVector(bytesRef, scratch);
+-
+-            builder.beginPositionEntry();
+-            writeScratchToBuilder(scratch, builder);
+-            builder.endPositionEntry();
+-        }
+-
+-        protected abstract void decodeDenseVector(BytesRef bytesRef, T scratch);
+-
+-        protected abstract void writeScratchToBuilder(T scratch, BlockLoader.FloatBuilder builder);
+-    }
+-
+-    private static class FloatDenseVectorFromBinary extends AbstractDenseVectorFromBinary<float[]> {
+-        FloatDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion) {
+-            super(docValues, dims, indexVersion, new float[dims]);
+-        }
+-
+-        @Override
+-        protected void writeScratchToBuilder(float[] scratch, BlockLoader.FloatBuilder builder) {
+-            for (float value : scratch) {
+-                builder.appendFloat(value);
+-            }
+-        }
+-
+-        @Override
+-        protected void decodeDenseVector(BytesRef bytesRef, float[] scratch) {
+-            VectorEncoderDecoder.decodeDenseVector(indexVersion, bytesRef, scratch);
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "FloatDenseVectorFromBinary.Bytes";
+-        }
+-    }
+-
+-    private static class ByteDenseVectorFromBinary extends AbstractDenseVectorFromBinary<byte[]> {
+-        ByteDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion) {
+-            this(docValues, dims, indexVersion, dims);
+-        }
+-
+-        protected ByteDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion, int readScratchSize) {
+-            super(docValues, dims, indexVersion, new byte[readScratchSize]);
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "ByteDenseVectorFromBinary.Bytes";
+-        }
+-
+-        protected void writeScratchToBuilder(byte[] scratch, BlockLoader.FloatBuilder builder) {
+-            for (byte value : scratch) {
+-                builder.appendFloat(value);
+-            }
+-        }
+-
+-        protected void decodeDenseVector(BytesRef bytesRef, byte[] scratch) {
+-            VectorEncoderDecoder.decodeDenseVector(indexVersion, bytesRef, scratch);
+-        }
+-    }
+-
+-    private static class BitDenseVectorFromBinary extends ByteDenseVectorFromBinary {
+-        BitDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion) {
+-            super(docValues, dims, indexVersion, dims / Byte.SIZE);
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BitDenseVectorFromBinary.Bytes";
+-        }
+-    }
+-
+-    public static class BooleansBlockLoader extends DocValuesBlockLoader {
+-        private final String fieldName;
+-
+-        public BooleansBlockLoader(String fieldName) {
+-            this.fieldName = fieldName;
+-        }
+-
+-        @Override
+-        public BooleanBuilder builder(BlockFactory factory, int expectedCount) {
+-            return factory.booleans(expectedCount);
+-        }
+-
+-        @Override
+-        public AllReader reader(LeafReaderContext context) throws IOException {
+-            SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
+-            if (docValues != null) {
+-                NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
+-                if (singleton != null) {
+-                    return new SingletonBooleans(singleton);
+-                }
+-                return new Booleans(docValues);
+-            }
+-            NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
+-            if (singleton != null) {
+-                return new SingletonBooleans(singleton);
+-            }
+-            return new ConstantNullsReader();
+-        }
+-    }
+-
+-    private static class SingletonBooleans extends BlockDocValuesReader {
+-        private final NumericDocValues numericDocValues;
+-
+-        SingletonBooleans(NumericDocValues numericDocValues) {
+-            this.numericDocValues = numericDocValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.BooleanBuilder builder = factory.booleansFromDocValues(docs.count() - offset)) {
+-                int lastDoc = -1;
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    if (doc < lastDoc) {
+-                        throw new IllegalStateException("docs within same block must be in order");
+-                    }
+-                    if (numericDocValues.advanceExact(doc)) {
+-                        builder.appendBoolean(numericDocValues.longValue() != 0);
+-                    } else {
+-                        builder.appendNull();
+-                    }
+-                    lastDoc = doc;
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            BooleanBuilder blockBuilder = (BooleanBuilder) builder;
+-            if (numericDocValues.advanceExact(docId)) {
+-                blockBuilder.appendBoolean(numericDocValues.longValue() != 0);
+-            } else {
+-                blockBuilder.appendNull();
+-            }
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return numericDocValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.SingletonBooleans";
+-        }
+-    }
+-
+-    private static class Booleans extends BlockDocValuesReader {
+-        private final SortedNumericDocValues numericDocValues;
+-
+-        Booleans(SortedNumericDocValues numericDocValues) {
+-            this.numericDocValues = numericDocValues;
+-        }
+-
+-        @Override
+-        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
+-            try (BlockLoader.BooleanBuilder builder = factory.booleansFromDocValues(docs.count() - offset)) {
+-                for (int i = offset; i < docs.count(); i++) {
+-                    int doc = docs.get(i);
+-                    read(doc, builder);
+-                }
+-                return builder.build();
+-            }
+-        }
+-
+-        @Override
+-        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
+-            read(docId, (BooleanBuilder) builder);
+-        }
+-
+-        private void read(int doc, BooleanBuilder builder) throws IOException {
+-            if (false == numericDocValues.advanceExact(doc)) {
+-                builder.appendNull();
+-                return;
+-            }
+-            int count = numericDocValues.docValueCount();
+-            if (count == 1) {
+-                builder.appendBoolean(numericDocValues.nextValue() != 0);
+-                return;
+-            }
+-            builder.beginPositionEntry();
+-            for (int v = 0; v < count; v++) {
+-                builder.appendBoolean(numericDocValues.nextValue() != 0);
+-            }
+-            builder.endPositionEntry();
+-        }
+-
+-        @Override
+-        public int docId() {
+-            return numericDocValues.docID();
+-        }
+-
+-        @Override
+-        public String toString() {
+-            return "BlockDocValuesReader.Booleans";
+-        }
+-    }
+-}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/BlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/BlockLoader.java
+index 5f2bd15abaa34..1186b481b2208 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/BlockLoader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/BlockLoader.java
+@@ -15,6 +15,7 @@
+ import org.apache.lucene.util.BytesRef;
+ import org.elasticsearch.core.Nullable;
+ import org.elasticsearch.core.Releasable;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.search.fetch.StoredFieldsSpec;
+ import org.elasticsearch.search.lookup.Source;
+ 
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/BlockStoredFieldsReader.java b/server/src/main/java/org/elasticsearch/index/mapper/BlockStoredFieldsReader.java
+index a1f5dc4381f50..12584577b561a 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/BlockStoredFieldsReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/BlockStoredFieldsReader.java
+@@ -14,6 +14,7 @@
+ import org.apache.lucene.index.SortedSetDocValues;
+ import org.apache.lucene.util.BytesRef;
+ import org.elasticsearch.index.mapper.BlockLoader.BytesRefBuilder;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.search.fetch.StoredFieldsSpec;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/BooleanFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/BooleanFieldMapper.java
+index 804c5157bd9ce..e9fdf24133ecf 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/BooleanFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/BooleanFieldMapper.java
+@@ -35,6 +35,7 @@
+ import org.elasticsearch.index.fielddata.IndexNumericFieldData.NumericType;
+ import org.elasticsearch.index.fielddata.SourceValueFetcherSortedBooleanIndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BooleansBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.BooleanFieldScript;
+ import org.elasticsearch.script.Script;
+@@ -351,7 +352,7 @@ public Boolean valueForDisplay(Object value) {
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             if (hasDocValues()) {
+-                return new BlockDocValuesReader.BooleansBlockLoader(name());
++                return new BooleansBlockLoader(name());
+             }
+ 
+             // Multi fields don't have fallback synthetic source.
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/BooleanScriptBlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/BooleanScriptBlockDocValuesReader.java
+index aff36af3948a9..3ce6bdcf9bea6 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/BooleanScriptBlockDocValuesReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/BooleanScriptBlockDocValuesReader.java
+@@ -10,6 +10,7 @@
+ package org.elasticsearch.index.mapper;
+ 
+ import org.apache.lucene.index.LeafReaderContext;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.script.BooleanFieldScript;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/DateFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/DateFieldMapper.java
+index d16045e709d15..20f1c0dadd592 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/DateFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/DateFieldMapper.java
+@@ -46,6 +46,7 @@
+ import org.elasticsearch.index.fielddata.SortedNumericLongValues;
+ import org.elasticsearch.index.fielddata.SourceValueFetcherSortedNumericIndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.DateRangeIncludingNowQuery;
+ import org.elasticsearch.index.query.QueryRewriteContext;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+@@ -927,7 +928,7 @@ public Function<byte[], Number> pointReaderIfPossible() {
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             if (hasDocValues()) {
+-                return new BlockDocValuesReader.LongsBlockLoader(name());
++                return new LongsBlockLoader(name());
+             }
+ 
+             // Multi fields don't have fallback synthetic source.
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/DateScriptBlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/DateScriptBlockDocValuesReader.java
+index 6f56c90fa67e0..b14fd65714425 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/DateScriptBlockDocValuesReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/DateScriptBlockDocValuesReader.java
+@@ -10,6 +10,7 @@
+ package org.elasticsearch.index.mapper;
+ 
+ import org.apache.lucene.index.LeafReaderContext;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.script.DateFieldScript;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/DoubleScriptBlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/DoubleScriptBlockDocValuesReader.java
+index aeb9f8856527f..8f40f6f1b580b 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/DoubleScriptBlockDocValuesReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/DoubleScriptBlockDocValuesReader.java
+@@ -10,6 +10,7 @@
+ package org.elasticsearch.index.mapper;
+ 
+ import org.apache.lucene.index.LeafReaderContext;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.script.DoubleFieldScript;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java
+index 958439bddd329..9557d5fbf2936 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java
+@@ -42,6 +42,8 @@
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.SourceValueFetcherMultiGeoPointIndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.LatLonPointIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.GeoPointFieldScript;
+ import org.elasticsearch.script.Script;
+@@ -553,7 +555,7 @@ public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             // load from doc values
+             if (hasDocValues()) {
+                 if (blContext.fieldExtractPreference() == DOC_VALUES) {
+-                    return new BlockDocValuesReader.LongsBlockLoader(name());
++                    return new LongsBlockLoader(name());
+                 } else if (blContext.fieldExtractPreference() == NONE && isSyntheticSource) {
+                     // when the preference is not explicitly set to DOC_VALUES, we expect a BytesRef -> see PlannerUtils.toElementType()
+                     return new BytesRefFromLongsBlockLoader(name());
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/IgnoredFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/IgnoredFieldMapper.java
+index d82c76e4d37a3..70b43d202b3d6 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/IgnoredFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/IgnoredFieldMapper.java
+@@ -22,6 +22,7 @@
+ import org.elasticsearch.index.fielddata.FieldDataContext;
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedSetOrdinalsIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromOrdsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.field.KeywordDocValuesField;
+ import org.elasticsearch.search.aggregations.support.CoreValuesSourceType;
+@@ -97,7 +98,7 @@ public String typeName() {
+ 
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+-            return new BlockDocValuesReader.BytesRefsFromOrdsBlockLoader(NAME);
++            return new BytesRefsFromOrdsBlockLoader(NAME);
+         }
+ 
+         @Override
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/IpFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/IpFieldMapper.java
+index 644ab73a0217b..b47928d48e83a 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/IpFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/IpFieldMapper.java
+@@ -33,6 +33,7 @@
+ import org.elasticsearch.index.fielddata.FieldDataContext;
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedSetOrdinalsIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromOrdsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.IpFieldScript;
+ import org.elasticsearch.script.Script;
+@@ -469,7 +470,7 @@ public static Query rangeQuery(
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             if (hasDocValues() && (blContext.fieldExtractPreference() != FieldExtractPreference.STORED || isSyntheticSource)) {
+-                return new BlockDocValuesReader.BytesRefsFromOrdsBlockLoader(name());
++                return new BytesRefsFromOrdsBlockLoader(name());
+             }
+ 
+             if (isStored()) {
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/IpScriptBlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/IpScriptBlockDocValuesReader.java
+index 75dbb3e2ce223..36595d0805b3d 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/IpScriptBlockDocValuesReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/IpScriptBlockDocValuesReader.java
+@@ -10,6 +10,7 @@
+ package org.elasticsearch.index.mapper;
+ 
+ import org.apache.lucene.index.LeafReaderContext;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.script.IpFieldScript;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java
+index 13b5bf71ebe61..57c0de6c82983 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java
+@@ -55,6 +55,7 @@
+ import org.elasticsearch.index.fielddata.SourceValueFetcherSortedBinaryIndexFieldData;
+ import org.elasticsearch.index.fielddata.StoredFieldSortedBinaryIndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedSetOrdinalsIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromOrdsBlockLoader;
+ import org.elasticsearch.index.query.AutomatonQueryWithDescription;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.index.similarity.SimilarityProvider;
+@@ -812,7 +813,7 @@ NamedAnalyzer normalizer() {
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             if (hasDocValues() && (blContext.fieldExtractPreference() != FieldExtractPreference.STORED || isSyntheticSourceEnabled())) {
+-                return new BlockDocValuesReader.BytesRefsFromOrdsBlockLoader(name());
++                return new BytesRefsFromOrdsBlockLoader(name());
+             }
+             if (isStored()) {
+                 return new BlockStoredFieldsReader.BytesFromBytesRefsBlockLoader(name());
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/KeywordScriptBlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/KeywordScriptBlockDocValuesReader.java
+index bb6e7c22bd8b2..7f98da1a6b6d4 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/KeywordScriptBlockDocValuesReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/KeywordScriptBlockDocValuesReader.java
+@@ -11,6 +11,7 @@
+ 
+ import org.apache.lucene.index.LeafReaderContext;
+ import org.apache.lucene.util.BytesRefBuilder;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.script.StringFieldScript;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/LongScriptBlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/LongScriptBlockDocValuesReader.java
+index 950bb4e8388e6..e2b94083f0c9c 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/LongScriptBlockDocValuesReader.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/LongScriptBlockDocValuesReader.java
+@@ -10,6 +10,7 @@
+ package org.elasticsearch.index.mapper;
+ 
+ import org.apache.lucene.index.LeafReaderContext;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.script.LongFieldScript;
+ 
+ import java.io.IOException;
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/NumberFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/NumberFieldMapper.java
+index 46098f22bfc7a..3c6d1c68553e4 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/NumberFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/NumberFieldMapper.java
+@@ -47,6 +47,9 @@
+ import org.elasticsearch.index.fielddata.plain.SortedDoublesIndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
+ import org.elasticsearch.index.mapper.TimeSeriesParams.MetricType;
++import org.elasticsearch.index.mapper.blockloader.docvalues.DoublesBlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.IntsBlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.DoubleFieldScript;
+ import org.elasticsearch.script.LongFieldScript;
+@@ -491,7 +494,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.DoublesBlockLoader(fieldName, l -> HalfFloatPoint.sortableShortToHalfFloat((short) l));
++                return new DoublesBlockLoader(fieldName, l -> HalfFloatPoint.sortableShortToHalfFloat((short) l));
+             }
+ 
+             @Override
+@@ -685,7 +688,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.DoublesBlockLoader(fieldName, l -> NumericUtils.sortableIntToFloat((int) l));
++                return new DoublesBlockLoader(fieldName, l -> NumericUtils.sortableIntToFloat((int) l));
+             }
+ 
+             @Override
+@@ -845,7 +848,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.DoublesBlockLoader(fieldName, NumericUtils::sortableLongToDouble);
++                return new DoublesBlockLoader(fieldName, NumericUtils::sortableLongToDouble);
+             }
+ 
+             @Override
+@@ -973,7 +976,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.IntsBlockLoader(fieldName);
++                return new IntsBlockLoader(fieldName);
+             }
+ 
+             @Override
+@@ -1101,7 +1104,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.IntsBlockLoader(fieldName);
++                return new IntsBlockLoader(fieldName);
+             }
+ 
+             @Override
+@@ -1303,7 +1306,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.IntsBlockLoader(fieldName);
++                return new IntsBlockLoader(fieldName);
+             }
+ 
+             @Override
+@@ -1465,7 +1468,7 @@ public void writeValue(XContentBuilder b, long value) throws IOException {
+ 
+             @Override
+             BlockLoader blockLoaderFromDocValues(String fieldName) {
+-                return new BlockDocValuesReader.LongsBlockLoader(fieldName);
++                return new LongsBlockLoader(fieldName);
+             }
+ 
+             @Override
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/TimeSeriesIdFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/TimeSeriesIdFieldMapper.java
+index 79a3342d1e4a4..953d94b2624e3 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/TimeSeriesIdFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/TimeSeriesIdFieldMapper.java
+@@ -27,6 +27,7 @@
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.ScriptDocValues;
+ import org.elasticsearch.index.fielddata.plain.SortedOrdinalsIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromOrdsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.field.DelegateDocValuesField;
+ import org.elasticsearch.search.DocValueFormat;
+@@ -150,7 +151,7 @@ public Object valueForDisplay(Object value) {
+ 
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+-            return new BlockDocValuesReader.BytesRefsFromOrdsBlockLoader(name());
++            return new BytesRefsFromOrdsBlockLoader(name());
+         }
+     }
+ 
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/VersionFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/VersionFieldMapper.java
+index 072e845a155ec..e05f21f2fbea0 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/VersionFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/VersionFieldMapper.java
+@@ -16,6 +16,7 @@
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.IndexNumericFieldData.NumericType;
+ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.QueryShardException;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.field.VersionDocValuesField;
+@@ -66,7 +67,7 @@ public ValueFetcher valueFetcher(SearchExecutionContext context, String format)
+ 
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+-            return new BlockDocValuesReader.LongsBlockLoader(name());
++            return new LongsBlockLoader(name());
+         }
+ 
+         @Override
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BlockDocValuesReader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BlockDocValuesReader.java
+new file mode 100644
+index 0000000000000..735cf598b502e
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BlockDocValuesReader.java
+@@ -0,0 +1,86 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.NumericDocValues;
++import org.apache.lucene.index.SortedSetDocValues;
++import org.elasticsearch.index.mapper.BlockLoader;
++import org.elasticsearch.search.fetch.StoredFieldsSpec;
++
++import java.io.IOException;
++
++/**
++ * A reader that supports reading doc-values from a Lucene segment in Block fashion.
++ */
++public abstract class BlockDocValuesReader implements BlockLoader.AllReader {
++    private final Thread creationThread;
++
++    public BlockDocValuesReader() {
++        this.creationThread = Thread.currentThread();
++    }
++
++    protected abstract int docId();
++
++    /**
++     * Checks if the reader can be used to read a range documents starting with the given docID by the current thread.
++     */
++    @Override
++    public final boolean canReuse(int startingDocID) {
++        return creationThread == Thread.currentThread() && docId() <= startingDocID;
++    }
++
++    @Override
++    public abstract String toString();
++
++    public abstract static class DocValuesBlockLoader implements BlockLoader {
++        public abstract AllReader reader(LeafReaderContext context) throws IOException;
++
++        @Override
++        public final ColumnAtATimeReader columnAtATimeReader(LeafReaderContext context) throws IOException {
++            return reader(context);
++        }
++
++        @Override
++        public final RowStrideReader rowStrideReader(LeafReaderContext context) throws IOException {
++            return reader(context);
++        }
++
++        @Override
++        public final StoredFieldsSpec rowStrideStoredFieldSpec() {
++            return StoredFieldsSpec.NO_REQUIREMENTS;
++        }
++
++        @Override
++        public boolean supportsOrdinals() {
++            return false;
++        }
++
++        @Override
++        public SortedSetDocValues ordinals(LeafReaderContext context) throws IOException {
++            throw new UnsupportedOperationException();
++        }
++
++    }
++
++    // Used for testing.
++    public interface NumericDocValuesAccessor {
++        NumericDocValues numericDocValues();
++    }
++
++    /**
++     * Convert from the stored {@link long} into the {@link double} to load.
++     * Sadly, this will go megamorphic pretty quickly and slow us down,
++     * but it gets the job done for now.
++     */
++    public interface ToDouble {
++        double convert(long v);
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BooleansBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BooleansBlockLoader.java
+new file mode 100644
+index 0000000000000..c82a91ccb9dd7
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BooleansBlockLoader.java
+@@ -0,0 +1,147 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.DocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.NumericDocValues;
++import org.apache.lucene.index.SortedNumericDocValues;
++import org.elasticsearch.index.mapper.BlockLoader;
++
++import java.io.IOException;
++
++public class BooleansBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++
++    public BooleansBlockLoader(String fieldName) {
++        this.fieldName = fieldName;
++    }
++
++    @Override
++    public BooleanBuilder builder(BlockFactory factory, int expectedCount) {
++        return factory.booleans(expectedCount);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
++        if (docValues != null) {
++            NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
++            if (singleton != null) {
++                return new SingletonBooleans(singleton);
++            }
++            return new Booleans(docValues);
++        }
++        NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
++        if (singleton != null) {
++            return new SingletonBooleans(singleton);
++        }
++        return new ConstantNullsReader();
++    }
++
++    private static class SingletonBooleans extends BlockDocValuesReader {
++        private final NumericDocValues numericDocValues;
++
++        SingletonBooleans(NumericDocValues numericDocValues) {
++            this.numericDocValues = numericDocValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.BooleanBuilder builder = factory.booleansFromDocValues(docs.count() - offset)) {
++                int lastDoc = -1;
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    if (doc < lastDoc) {
++                        throw new IllegalStateException("docs within same block must be in order");
++                    }
++                    if (numericDocValues.advanceExact(doc)) {
++                        builder.appendBoolean(numericDocValues.longValue() != 0);
++                    } else {
++                        builder.appendNull();
++                    }
++                    lastDoc = doc;
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            BooleanBuilder blockBuilder = (BooleanBuilder) builder;
++            if (numericDocValues.advanceExact(docId)) {
++                blockBuilder.appendBoolean(numericDocValues.longValue() != 0);
++            } else {
++                blockBuilder.appendNull();
++            }
++        }
++
++        @Override
++        public int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.SingletonBooleans";
++        }
++    }
++
++    private static class Booleans extends BlockDocValuesReader {
++        private final SortedNumericDocValues numericDocValues;
++
++        Booleans(SortedNumericDocValues numericDocValues) {
++            this.numericDocValues = numericDocValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.BooleanBuilder builder = factory.booleansFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (BooleanBuilder) builder);
++        }
++
++        private void read(int doc, BooleanBuilder builder) throws IOException {
++            if (false == numericDocValues.advanceExact(doc)) {
++                builder.appendNull();
++                return;
++            }
++            int count = numericDocValues.docValueCount();
++            if (count == 1) {
++                builder.appendBoolean(numericDocValues.nextValue() != 0);
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                builder.appendBoolean(numericDocValues.nextValue() != 0);
++            }
++            builder.endPositionEntry();
++        }
++
++        @Override
++        public int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.Booleans";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BytesRefsFromCustomBinaryBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BytesRefsFromCustomBinaryBlockLoader.java
+new file mode 100644
+index 0000000000000..86ce0dba56f8a
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BytesRefsFromCustomBinaryBlockLoader.java
+@@ -0,0 +1,117 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.BinaryDocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.util.BytesRef;
++import org.elasticsearch.common.io.stream.ByteArrayStreamInput;
++import org.elasticsearch.index.mapper.BinaryFieldMapper;
++import org.elasticsearch.index.mapper.BlockLoader;
++
++import java.io.IOException;
++
++public class BytesRefsFromCustomBinaryBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++
++    public BytesRefsFromCustomBinaryBlockLoader(String fieldName) {
++        this.fieldName = fieldName;
++    }
++
++    @Override
++    public Builder builder(BlockFactory factory, int expectedCount) {
++        return factory.bytesRefs(expectedCount);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        BinaryDocValues docValues = context.reader().getBinaryDocValues(fieldName);
++        if (docValues == null) {
++            return new ConstantNullsReader();
++        }
++        return new BytesRefsFromCustomBinary(docValues);
++    }
++
++    public abstract static class AbstractBytesRefsFromBinary extends BlockDocValuesReader {
++        protected final BinaryDocValues docValues;
++
++        public AbstractBytesRefsFromBinary(BinaryDocValues docValues) {
++            this.docValues = docValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.BytesRefBuilder builder = factory.bytesRefs(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (BytesRefBuilder) builder);
++        }
++
++        @Override
++        public int docId() {
++            return docValues.docID();
++        }
++
++        public abstract void read(int docId, BytesRefBuilder builder) throws IOException;
++    }
++
++    /**
++     * Read BinaryDocValues encoded by {@link BinaryFieldMapper.CustomBinaryDocValuesField}
++     */
++    static class BytesRefsFromCustomBinary extends AbstractBytesRefsFromBinary {
++        private final ByteArrayStreamInput in = new ByteArrayStreamInput();
++        private final BytesRef scratch = new BytesRef();
++
++        BytesRefsFromCustomBinary(BinaryDocValues docValues) {
++            super(docValues);
++        }
++
++        @Override
++        public void read(int doc, BytesRefBuilder builder) throws IOException {
++            if (false == docValues.advanceExact(doc)) {
++                builder.appendNull();
++                return;
++            }
++            BytesRef bytes = docValues.binaryValue();
++            assert bytes.length > 0;
++            in.reset(bytes.bytes, bytes.offset, bytes.length);
++            int count = in.readVInt();
++            scratch.bytes = bytes.bytes;
++
++            if (count == 1) {
++                scratch.length = in.readVInt();
++                scratch.offset = in.getPosition();
++                builder.appendBytesRef(scratch);
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                scratch.length = in.readVInt();
++                scratch.offset = in.getPosition();
++                in.setPosition(scratch.offset + scratch.length);
++                builder.appendBytesRef(scratch);
++            }
++            builder.endPositionEntry();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.BytesCustom";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BytesRefsFromOrdsBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BytesRefsFromOrdsBlockLoader.java
+new file mode 100644
+index 0000000000000..f6b3daf536d8d
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/BytesRefsFromOrdsBlockLoader.java
+@@ -0,0 +1,218 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.DocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.SortedDocValues;
++import org.apache.lucene.index.SortedSetDocValues;
++import org.apache.lucene.util.BytesRef;
++import org.elasticsearch.index.mapper.BlockLoader;
++
++import java.io.IOException;
++
++/**
++ * Loads {@code keyword} style fields that are stored as a lookup table and ordinals.
++ */
++public class BytesRefsFromOrdsBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++
++    public BytesRefsFromOrdsBlockLoader(String fieldName) {
++        this.fieldName = fieldName;
++    }
++
++    @Override
++    public BytesRefBuilder builder(BlockFactory factory, int expectedCount) {
++        return factory.bytesRefs(expectedCount);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        SortedSetDocValues docValues = context.reader().getSortedSetDocValues(fieldName);
++        if (docValues != null) {
++            SortedDocValues singleton = DocValues.unwrapSingleton(docValues);
++            if (singleton != null) {
++                return new SingletonOrdinals(singleton);
++            }
++            return new Ordinals(docValues);
++        }
++        SortedDocValues singleton = context.reader().getSortedDocValues(fieldName);
++        if (singleton != null) {
++            return new SingletonOrdinals(singleton);
++        }
++        return new ConstantNullsReader();
++    }
++
++    @Override
++    public boolean supportsOrdinals() {
++        return true;
++    }
++
++    @Override
++    public SortedSetDocValues ordinals(LeafReaderContext context) throws IOException {
++        return DocValues.getSortedSet(context.reader(), fieldName);
++    }
++
++    @Override
++    public String toString() {
++        return "BytesRefsFromOrds[" + fieldName + "]";
++    }
++
++    private static class SingletonOrdinals extends BlockDocValuesReader {
++        private final SortedDocValues ordinals;
++
++        SingletonOrdinals(SortedDocValues ordinals) {
++            this.ordinals = ordinals;
++        }
++
++        private BlockLoader.Block readSingleDoc(BlockFactory factory, int docId) throws IOException {
++            if (ordinals.advanceExact(docId)) {
++                BytesRef v = ordinals.lookupOrd(ordinals.ordValue());
++                // the returned BytesRef can be reused
++                return factory.constantBytes(BytesRef.deepCopyOf(v), 1);
++            } else {
++                return factory.constantNulls(1);
++            }
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            if (docs.count() - offset == 1) {
++                return readSingleDoc(factory, docs.get(offset));
++            }
++            if (ordinals instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
++                BlockLoader.Block block = direct.tryRead(factory, docs, offset, nullsFiltered, null, false);
++                if (block != null) {
++                    return block;
++                }
++            }
++            try (var builder = factory.singletonOrdinalsBuilder(ordinals, docs.count() - offset, false)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    if (ordinals.advanceExact(doc)) {
++                        builder.appendOrd(ordinals.ordValue());
++                    } else {
++                        builder.appendNull();
++                    }
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            if (ordinals.advanceExact(docId)) {
++                ((BytesRefBuilder) builder).appendBytesRef(ordinals.lookupOrd(ordinals.ordValue()));
++            } else {
++                builder.appendNull();
++            }
++        }
++
++        @Override
++        public int docId() {
++            return ordinals.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.SingletonOrdinals";
++        }
++    }
++
++    private static class Ordinals extends BlockDocValuesReader {
++        private final SortedSetDocValues ordinals;
++
++        Ordinals(SortedSetDocValues ordinals) {
++            this.ordinals = ordinals;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            if (docs.count() - offset == 1) {
++                return readSingleDoc(factory, docs.get(offset));
++            }
++            try (var builder = factory.sortedSetOrdinalsBuilder(ordinals, docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    if (doc < ordinals.docID()) {
++                        throw new IllegalStateException("docs within same block must be in order");
++                    }
++                    if (ordinals.advanceExact(doc) == false) {
++                        builder.appendNull();
++                        continue;
++                    }
++                    int count = ordinals.docValueCount();
++                    if (count == 1) {
++                        builder.appendOrd(Math.toIntExact(ordinals.nextOrd()));
++                    } else {
++                        builder.beginPositionEntry();
++                        for (int c = 0; c < count; c++) {
++                            builder.appendOrd(Math.toIntExact(ordinals.nextOrd()));
++                        }
++                        builder.endPositionEntry();
++                    }
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (BytesRefBuilder) builder);
++        }
++
++        private BlockLoader.Block readSingleDoc(BlockFactory factory, int docId) throws IOException {
++            if (ordinals.advanceExact(docId) == false) {
++                return factory.constantNulls(1);
++            }
++            int count = ordinals.docValueCount();
++            if (count == 1) {
++                BytesRef v = ordinals.lookupOrd(ordinals.nextOrd());
++                return factory.constantBytes(BytesRef.deepCopyOf(v), 1);
++            }
++            try (var builder = factory.bytesRefsFromDocValues(count)) {
++                builder.beginPositionEntry();
++                for (int c = 0; c < count; c++) {
++                    BytesRef v = ordinals.lookupOrd(ordinals.nextOrd());
++                    builder.appendBytesRef(v);
++                }
++                builder.endPositionEntry();
++                return builder.build();
++            }
++        }
++
++        private void read(int docId, BytesRefBuilder builder) throws IOException {
++            if (false == ordinals.advanceExact(docId)) {
++                builder.appendNull();
++                return;
++            }
++            int count = ordinals.docValueCount();
++            if (count == 1) {
++                builder.appendBytesRef(ordinals.lookupOrd(ordinals.nextOrd()));
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                builder.appendBytesRef(ordinals.lookupOrd(ordinals.nextOrd()));
++            }
++            builder.endPositionEntry();
++        }
++
++        @Override
++        public int docId() {
++            return ordinals.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.Ordinals";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DenseVectorBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DenseVectorBlockLoader.java
+new file mode 100644
+index 0000000000000..2fe188a2c38ac
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DenseVectorBlockLoader.java
+@@ -0,0 +1,211 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.ByteVectorValues;
++import org.apache.lucene.index.FloatVectorValues;
++import org.apache.lucene.index.KnnVectorValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.NumericDocValues;
++import org.elasticsearch.index.mapper.BlockLoader;
++import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper;
++
++import java.io.IOException;
++
++import static org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper.COSINE_MAGNITUDE_FIELD_SUFFIX;
++
++public class DenseVectorBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++    private final int dimensions;
++    private final DenseVectorFieldMapper.DenseVectorFieldType fieldType;
++
++    public DenseVectorBlockLoader(String fieldName, int dimensions, DenseVectorFieldMapper.DenseVectorFieldType fieldType) {
++        this.fieldName = fieldName;
++        this.dimensions = dimensions;
++        this.fieldType = fieldType;
++    }
++
++    @Override
++    public Builder builder(BlockFactory factory, int expectedCount) {
++        return factory.denseVectors(expectedCount, dimensions);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        switch (fieldType.getElementType()) {
++            case FLOAT -> {
++                FloatVectorValues floatVectorValues = context.reader().getFloatVectorValues(fieldName);
++                if (floatVectorValues != null) {
++                    if (fieldType.isNormalized()) {
++                        NumericDocValues magnitudeDocValues = context.reader()
++                            .getNumericDocValues(fieldType.name() + COSINE_MAGNITUDE_FIELD_SUFFIX);
++                        return new FloatDenseVectorNormalizedValuesBlockReader(floatVectorValues, dimensions, magnitudeDocValues);
++                    }
++                    return new FloatDenseVectorValuesBlockReader(floatVectorValues, dimensions);
++                }
++            }
++            case BYTE -> {
++                ByteVectorValues byteVectorValues = context.reader().getByteVectorValues(fieldName);
++                if (byteVectorValues != null) {
++                    return new ByteDenseVectorValuesBlockReader(byteVectorValues, dimensions);
++                }
++            }
++            case BIT -> {
++                ByteVectorValues byteVectorValues = context.reader().getByteVectorValues(fieldName);
++                if (byteVectorValues != null) {
++                    return new BitDenseVectorValuesBlockReader(byteVectorValues, dimensions);
++                }
++            }
++        }
++
++        return new ConstantNullsReader();
++    }
++
++    private abstract static class DenseVectorValuesBlockReader<T extends KnnVectorValues> extends BlockDocValuesReader {
++        protected final T vectorValues;
++        protected final KnnVectorValues.DocIndexIterator iterator;
++        protected final int dimensions;
++
++        DenseVectorValuesBlockReader(T vectorValues, int dimensions) {
++            this.vectorValues = vectorValues;
++            iterator = vectorValues.iterator();
++            this.dimensions = dimensions;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            // Doubles from doc values ensures that the values are in order
++            try (BlockLoader.FloatBuilder builder = factory.denseVectors(docs.count() - offset, dimensions)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    read(docs.get(i), builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (BlockLoader.FloatBuilder) builder);
++        }
++
++        private void read(int doc, BlockLoader.FloatBuilder builder) throws IOException {
++            assertDimensions();
++
++            if (iterator.docID() > doc) {
++                builder.appendNull();
++            } else if (iterator.docID() == doc || iterator.advance(doc) == doc) {
++                builder.beginPositionEntry();
++                appendDoc(builder);
++                builder.endPositionEntry();
++            } else {
++                builder.appendNull();
++            }
++        }
++
++        protected abstract void appendDoc(BlockLoader.FloatBuilder builder) throws IOException;
++
++        @Override
++        public int docId() {
++            return iterator.docID();
++        }
++
++        protected void assertDimensions() {
++            assert vectorValues.dimension() == dimensions
++                : "unexpected dimensions for vector value; expected " + dimensions + " but got " + vectorValues.dimension();
++        }
++    }
++
++    private static class FloatDenseVectorValuesBlockReader extends DenseVectorValuesBlockReader<FloatVectorValues> {
++
++        FloatDenseVectorValuesBlockReader(FloatVectorValues floatVectorValues, int dimensions) {
++            super(floatVectorValues, dimensions);
++        }
++
++        protected void appendDoc(BlockLoader.FloatBuilder builder) throws IOException {
++            float[] floats = vectorValues.vectorValue(iterator.index());
++            for (float aFloat : floats) {
++                builder.appendFloat(aFloat);
++            }
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.FloatDenseVectorValuesBlockReader";
++        }
++    }
++
++    private static class FloatDenseVectorNormalizedValuesBlockReader extends DenseVectorValuesBlockReader<FloatVectorValues> {
++        private final NumericDocValues magnitudeDocValues;
++
++        FloatDenseVectorNormalizedValuesBlockReader(
++            FloatVectorValues floatVectorValues,
++            int dimensions,
++            NumericDocValues magnitudeDocValues
++        ) {
++            super(floatVectorValues, dimensions);
++            this.magnitudeDocValues = magnitudeDocValues;
++        }
++
++        @Override
++        protected void appendDoc(BlockLoader.FloatBuilder builder) throws IOException {
++            float magnitude = 1.0f;
++            // If all vectors are normalized, no doc values will be present. The vector may be normalized already, so we may not have a
++            // stored magnitude for all docs
++            if ((magnitudeDocValues != null) && magnitudeDocValues.advanceExact(iterator.docID())) {
++                magnitude = Float.intBitsToFloat((int) magnitudeDocValues.longValue());
++            }
++            float[] floats = vectorValues.vectorValue(iterator.index());
++            for (float aFloat : floats) {
++                builder.appendFloat(aFloat * magnitude);
++            }
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.FloatDenseVectorNormalizedValuesBlockReader";
++        }
++    }
++
++    private static class ByteDenseVectorValuesBlockReader extends DenseVectorValuesBlockReader<ByteVectorValues> {
++        ByteDenseVectorValuesBlockReader(ByteVectorValues floatVectorValues, int dimensions) {
++            super(floatVectorValues, dimensions);
++        }
++
++        protected void appendDoc(BlockLoader.FloatBuilder builder) throws IOException {
++            byte[] bytes = vectorValues.vectorValue(iterator.index());
++            for (byte aFloat : bytes) {
++                builder.appendFloat(aFloat);
++            }
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.ByteDenseVectorValuesBlockReader";
++        }
++    }
++
++    private static class BitDenseVectorValuesBlockReader extends ByteDenseVectorValuesBlockReader {
++
++        BitDenseVectorValuesBlockReader(ByteVectorValues floatVectorValues, int dimensions) {
++            super(floatVectorValues, dimensions);
++        }
++
++        @Override
++        protected void assertDimensions() {
++            assert vectorValues.dimension() * Byte.SIZE == dimensions
++                : "unexpected dimensions for vector value; expected " + dimensions + " but got " + vectorValues.dimension() * Byte.SIZE;
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.BitDenseVectorValuesBlockReader";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DenseVectorFromBinaryBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DenseVectorFromBinaryBlockLoader.java
+new file mode 100644
+index 0000000000000..f5f9e8dc88295
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DenseVectorFromBinaryBlockLoader.java
+@@ -0,0 +1,170 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.BinaryDocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.util.BytesRef;
++import org.elasticsearch.index.IndexVersion;
++import org.elasticsearch.index.mapper.BlockLoader;
++import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper;
++import org.elasticsearch.index.mapper.vectors.VectorEncoderDecoder;
++
++import java.io.IOException;
++
++public class DenseVectorFromBinaryBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++    private final int dims;
++    private final IndexVersion indexVersion;
++    private final DenseVectorFieldMapper.ElementType elementType;
++
++    public DenseVectorFromBinaryBlockLoader(
++        String fieldName,
++        int dims,
++        IndexVersion indexVersion,
++        DenseVectorFieldMapper.ElementType elementType
++    ) {
++        this.fieldName = fieldName;
++        this.dims = dims;
++        this.indexVersion = indexVersion;
++        this.elementType = elementType;
++    }
++
++    @Override
++    public Builder builder(BlockFactory factory, int expectedCount) {
++        return factory.denseVectors(expectedCount, dims);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        BinaryDocValues docValues = context.reader().getBinaryDocValues(fieldName);
++        if (docValues == null) {
++            return new ConstantNullsReader();
++        }
++        return switch (elementType) {
++            case FLOAT -> new FloatDenseVectorFromBinary(docValues, dims, indexVersion);
++            case BYTE -> new ByteDenseVectorFromBinary(docValues, dims, indexVersion);
++            case BIT -> new BitDenseVectorFromBinary(docValues, dims, indexVersion);
++        };
++    }
++
++    // Abstract base for dense vector readers
++    private abstract static class AbstractDenseVectorFromBinary<T> extends BlockDocValuesReader {
++        protected final BinaryDocValues docValues;
++        protected final IndexVersion indexVersion;
++        protected final int dimensions;
++        protected final T scratch;
++
++        AbstractDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion, T scratch) {
++            this.docValues = docValues;
++            this.indexVersion = indexVersion;
++            this.dimensions = dims;
++            this.scratch = scratch;
++        }
++
++        @Override
++        public int docId() {
++            return docValues.docID();
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (BlockLoader.FloatBuilder) builder);
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.FloatBuilder builder = factory.denseVectors(docs.count() - offset, dimensions)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        private void read(int doc, BlockLoader.FloatBuilder builder) throws IOException {
++            if (docValues.advanceExact(doc) == false) {
++                builder.appendNull();
++                return;
++            }
++            BytesRef bytesRef = docValues.binaryValue();
++            assert bytesRef.length > 0;
++            decodeDenseVector(bytesRef, scratch);
++
++            builder.beginPositionEntry();
++            writeScratchToBuilder(scratch, builder);
++            builder.endPositionEntry();
++        }
++
++        protected abstract void decodeDenseVector(BytesRef bytesRef, T scratch);
++
++        protected abstract void writeScratchToBuilder(T scratch, BlockLoader.FloatBuilder builder);
++    }
++
++    private static class FloatDenseVectorFromBinary extends AbstractDenseVectorFromBinary<float[]> {
++        FloatDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion) {
++            super(docValues, dims, indexVersion, new float[dims]);
++        }
++
++        @Override
++        protected void writeScratchToBuilder(float[] scratch, BlockLoader.FloatBuilder builder) {
++            for (float value : scratch) {
++                builder.appendFloat(value);
++            }
++        }
++
++        @Override
++        protected void decodeDenseVector(BytesRef bytesRef, float[] scratch) {
++            VectorEncoderDecoder.decodeDenseVector(indexVersion, bytesRef, scratch);
++        }
++
++        @Override
++        public String toString() {
++            return "FloatDenseVectorFromBinary.Bytes";
++        }
++    }
++
++    private static class ByteDenseVectorFromBinary extends AbstractDenseVectorFromBinary<byte[]> {
++        ByteDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion) {
++            this(docValues, dims, indexVersion, dims);
++        }
++
++        protected ByteDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion, int readScratchSize) {
++            super(docValues, dims, indexVersion, new byte[readScratchSize]);
++        }
++
++        @Override
++        public String toString() {
++            return "ByteDenseVectorFromBinary.Bytes";
++        }
++
++        protected void writeScratchToBuilder(byte[] scratch, BlockLoader.FloatBuilder builder) {
++            for (byte value : scratch) {
++                builder.appendFloat(value);
++            }
++        }
++
++        protected void decodeDenseVector(BytesRef bytesRef, byte[] scratch) {
++            VectorEncoderDecoder.decodeDenseVector(indexVersion, bytesRef, scratch);
++        }
++    }
++
++    private static class BitDenseVectorFromBinary extends ByteDenseVectorFromBinary {
++        BitDenseVectorFromBinary(BinaryDocValues docValues, int dims, IndexVersion indexVersion) {
++            super(docValues, dims, indexVersion, dims / Byte.SIZE);
++        }
++
++        @Override
++        public String toString() {
++            return "BitDenseVectorFromBinary.Bytes";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DoublesBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DoublesBlockLoader.java
+new file mode 100644
+index 0000000000000..7e6a700f156ba
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/DoublesBlockLoader.java
+@@ -0,0 +1,159 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.DocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.NumericDocValues;
++import org.apache.lucene.index.SortedNumericDocValues;
++import org.elasticsearch.index.mapper.BlockLoader;
++
++import java.io.IOException;
++
++public class DoublesBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++    private final BlockDocValuesReader.ToDouble toDouble;
++
++    public DoublesBlockLoader(String fieldName, BlockDocValuesReader.ToDouble toDouble) {
++        this.fieldName = fieldName;
++        this.toDouble = toDouble;
++    }
++
++    @Override
++    public Builder builder(BlockFactory factory, int expectedCount) {
++        return factory.doubles(expectedCount);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
++        if (docValues != null) {
++            NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
++            if (singleton != null) {
++                return new SingletonDoubles(singleton, toDouble);
++            }
++            return new Doubles(docValues, toDouble);
++        }
++        NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
++        if (singleton != null) {
++            return new SingletonDoubles(singleton, toDouble);
++        }
++        return new ConstantNullsReader();
++    }
++
++    public static class SingletonDoubles extends BlockDocValuesReader implements BlockDocValuesReader.NumericDocValuesAccessor {
++        private final NumericDocValues docValues;
++        private final ToDouble toDouble;
++
++        SingletonDoubles(NumericDocValues docValues, ToDouble toDouble) {
++            this.docValues = docValues;
++            this.toDouble = toDouble;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            if (docValues instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
++                BlockLoader.Block result = direct.tryRead(factory, docs, offset, nullsFiltered, toDouble, false);
++                if (result != null) {
++                    return result;
++                }
++            }
++            try (BlockLoader.DoubleBuilder builder = factory.doublesFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    if (docValues.advanceExact(doc)) {
++                        builder.appendDouble(toDouble.convert(docValues.longValue()));
++                    } else {
++                        builder.appendNull();
++                    }
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            DoubleBuilder blockBuilder = (DoubleBuilder) builder;
++            if (docValues.advanceExact(docId)) {
++                blockBuilder.appendDouble(toDouble.convert(docValues.longValue()));
++            } else {
++                blockBuilder.appendNull();
++            }
++        }
++
++        @Override
++        public int docId() {
++            return docValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.SingletonDoubles";
++        }
++
++        @Override
++        public NumericDocValues numericDocValues() {
++            return docValues;
++        }
++    }
++
++    public static class Doubles extends BlockDocValuesReader {
++        private final SortedNumericDocValues docValues;
++        private final ToDouble toDouble;
++
++        Doubles(SortedNumericDocValues docValues, ToDouble toDouble) {
++            this.docValues = docValues;
++            this.toDouble = toDouble;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.DoubleBuilder builder = factory.doublesFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (DoubleBuilder) builder);
++        }
++
++        private void read(int doc, DoubleBuilder builder) throws IOException {
++            if (false == docValues.advanceExact(doc)) {
++                builder.appendNull();
++                return;
++            }
++            int count = docValues.docValueCount();
++            if (count == 1) {
++                builder.appendDouble(toDouble.convert(docValues.nextValue()));
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                builder.appendDouble(toDouble.convert(docValues.nextValue()));
++            }
++            builder.endPositionEntry();
++        }
++
++        @Override
++        public int docId() {
++            return docValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.Doubles";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/IntsBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/IntsBlockLoader.java
+new file mode 100644
+index 0000000000000..9f0bc40f02845
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/IntsBlockLoader.java
+@@ -0,0 +1,153 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.DocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.NumericDocValues;
++import org.apache.lucene.index.SortedNumericDocValues;
++import org.elasticsearch.index.mapper.BlockLoader;
++
++import java.io.IOException;
++
++public class IntsBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++
++    public IntsBlockLoader(String fieldName) {
++        this.fieldName = fieldName;
++    }
++
++    @Override
++    public Builder builder(BlockFactory factory, int expectedCount) {
++        return factory.ints(expectedCount);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
++        if (docValues != null) {
++            NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
++            if (singleton != null) {
++                return new SingletonInts(singleton);
++            }
++            return new Ints(docValues);
++        }
++        NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
++        if (singleton != null) {
++            return new SingletonInts(singleton);
++        }
++        return new ConstantNullsReader();
++    }
++
++    public static class SingletonInts extends BlockDocValuesReader implements BlockDocValuesReader.NumericDocValuesAccessor {
++        private final NumericDocValues numericDocValues;
++
++        SingletonInts(NumericDocValues numericDocValues) {
++            this.numericDocValues = numericDocValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            if (numericDocValues instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
++                BlockLoader.Block result = direct.tryRead(factory, docs, offset, nullsFiltered, null, true);
++                if (result != null) {
++                    return result;
++                }
++            }
++            try (BlockLoader.IntBuilder builder = factory.intsFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    if (numericDocValues.advanceExact(doc)) {
++                        builder.appendInt(Math.toIntExact(numericDocValues.longValue()));
++                    } else {
++                        builder.appendNull();
++                    }
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            IntBuilder blockBuilder = (IntBuilder) builder;
++            if (numericDocValues.advanceExact(docId)) {
++                blockBuilder.appendInt(Math.toIntExact(numericDocValues.longValue()));
++            } else {
++                blockBuilder.appendNull();
++            }
++        }
++
++        @Override
++        public int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.SingletonInts";
++        }
++
++        @Override
++        public NumericDocValues numericDocValues() {
++            return numericDocValues;
++        }
++    }
++
++    public static class Ints extends BlockDocValuesReader {
++        private final SortedNumericDocValues numericDocValues;
++
++        Ints(SortedNumericDocValues numericDocValues) {
++            this.numericDocValues = numericDocValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.IntBuilder builder = factory.intsFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (IntBuilder) builder);
++        }
++
++        private void read(int doc, IntBuilder builder) throws IOException {
++            if (false == numericDocValues.advanceExact(doc)) {
++                builder.appendNull();
++                return;
++            }
++            int count = numericDocValues.docValueCount();
++            if (count == 1) {
++                builder.appendInt(Math.toIntExact(numericDocValues.nextValue()));
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                builder.appendInt(Math.toIntExact(numericDocValues.nextValue()));
++            }
++            builder.endPositionEntry();
++        }
++
++        @Override
++        public int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.Ints";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/LongsBlockLoader.java b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/LongsBlockLoader.java
+new file mode 100644
+index 0000000000000..16425fb8a7ead
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/index/mapper/blockloader/docvalues/LongsBlockLoader.java
+@@ -0,0 +1,153 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.index.mapper.blockloader.docvalues;
++
++import org.apache.lucene.index.DocValues;
++import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.NumericDocValues;
++import org.apache.lucene.index.SortedNumericDocValues;
++import org.elasticsearch.index.mapper.BlockLoader;
++
++import java.io.IOException;
++
++public class LongsBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++    private final String fieldName;
++
++    public LongsBlockLoader(String fieldName) {
++        this.fieldName = fieldName;
++    }
++
++    @Override
++    public Builder builder(BlockFactory factory, int expectedCount) {
++        return factory.longs(expectedCount);
++    }
++
++    @Override
++    public AllReader reader(LeafReaderContext context) throws IOException {
++        SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
++        if (docValues != null) {
++            NumericDocValues singleton = DocValues.unwrapSingleton(docValues);
++            if (singleton != null) {
++                return new SingletonLongs(singleton);
++            }
++            return new Longs(docValues);
++        }
++        NumericDocValues singleton = context.reader().getNumericDocValues(fieldName);
++        if (singleton != null) {
++            return new SingletonLongs(singleton);
++        }
++        return new ConstantNullsReader();
++    }
++
++    public static class SingletonLongs extends BlockDocValuesReader implements BlockDocValuesReader.NumericDocValuesAccessor {
++        final NumericDocValues numericDocValues;
++
++        SingletonLongs(NumericDocValues numericDocValues) {
++            this.numericDocValues = numericDocValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            if (numericDocValues instanceof BlockLoader.OptionalColumnAtATimeReader direct) {
++                BlockLoader.Block result = direct.tryRead(factory, docs, offset, nullsFiltered, null, false);
++                if (result != null) {
++                    return result;
++                }
++            }
++            try (BlockLoader.LongBuilder builder = factory.longsFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    if (numericDocValues.advanceExact(doc)) {
++                        builder.appendLong(numericDocValues.longValue());
++                    } else {
++                        builder.appendNull();
++                    }
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            BlockLoader.LongBuilder blockBuilder = (BlockLoader.LongBuilder) builder;
++            if (numericDocValues.advanceExact(docId)) {
++                blockBuilder.appendLong(numericDocValues.longValue());
++            } else {
++                blockBuilder.appendNull();
++            }
++        }
++
++        @Override
++        public int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.SingletonLongs";
++        }
++
++        @Override
++        public NumericDocValues numericDocValues() {
++            return numericDocValues;
++        }
++    }
++
++    public static class Longs extends BlockDocValuesReader {
++        private final SortedNumericDocValues numericDocValues;
++
++        Longs(SortedNumericDocValues numericDocValues) {
++            this.numericDocValues = numericDocValues;
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockFactory factory, Docs docs, int offset, boolean nullsFiltered) throws IOException {
++            try (BlockLoader.LongBuilder builder = factory.longsFromDocValues(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, Builder builder) throws IOException {
++            read(docId, (LongBuilder) builder);
++        }
++
++        private void read(int doc, LongBuilder builder) throws IOException {
++            if (false == numericDocValues.advanceExact(doc)) {
++                builder.appendNull();
++                return;
++            }
++            int count = numericDocValues.docValueCount();
++            if (count == 1) {
++                builder.appendLong(numericDocValues.nextValue());
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                builder.appendLong(numericDocValues.nextValue());
++            }
++            builder.endPositionEntry();
++        }
++
++        @Override
++        public int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.Longs";
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java
+index 0fcb5a60c95bd..74af0eb222775 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java
+@@ -58,7 +58,6 @@
+ import org.elasticsearch.index.fielddata.FieldDataContext;
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.mapper.ArraySourceValueFetcher;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.BlockSourceReader;
+ import org.elasticsearch.index.mapper.DocumentParserContext;
+@@ -74,6 +73,8 @@
+ import org.elasticsearch.index.mapper.SourceLoader;
+ import org.elasticsearch.index.mapper.SourceValueFetcher;
+ import org.elasticsearch.index.mapper.ValueFetcher;
++import org.elasticsearch.index.mapper.blockloader.docvalues.DenseVectorBlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.DenseVectorFromBinaryBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.search.DocValueFormat;
+ import org.elasticsearch.search.aggregations.support.CoreValuesSourceType;
+@@ -2689,11 +2690,11 @@ public BlockLoader blockLoader(MappedFieldType.BlockLoaderContext blContext) {
+             }
+ 
+             if (indexed) {
+-                return new BlockDocValuesReader.DenseVectorBlockLoader(name(), dims, this);
++                return new DenseVectorBlockLoader(name(), dims, this);
+             }
+ 
+             if (hasDocValues() && (blContext.fieldExtractPreference() != FieldExtractPreference.STORED || isSyntheticSource)) {
+-                return new BlockDocValuesReader.DenseVectorFromBinaryBlockLoader(name(), dims, indexVersionCreated, element.elementType());
++                return new DenseVectorFromBinaryBlockLoader(name(), dims, indexVersionCreated, element.elementType());
+             }
+             BlockSourceReader.LeafIteratorLookup lookup = BlockSourceReader.lookupMatchingAll();
+             return new BlockSourceReader.DenseVectorBlockLoader(
+diff --git a/server/src/test/java/org/elasticsearch/index/mapper/DateFieldMapperTests.java b/server/src/test/java/org/elasticsearch/index/mapper/DateFieldMapperTests.java
+index 6ded77738ec9b..4d6368b712f98 100644
+--- a/server/src/test/java/org/elasticsearch/index/mapper/DateFieldMapperTests.java
++++ b/server/src/test/java/org/elasticsearch/index/mapper/DateFieldMapperTests.java
+@@ -33,6 +33,7 @@
+ import org.elasticsearch.index.IndexVersions;
+ import org.elasticsearch.index.codec.tsdb.es819.ES819TSDBDocValuesFormat;
+ import org.elasticsearch.index.mapper.DateFieldMapper.DateFieldType;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.script.DateFieldScript;
+ import org.elasticsearch.script.ScriptService;
+ import org.elasticsearch.search.DocValueFormat;
+@@ -854,8 +855,8 @@ public void testSingletonLongBulkBlockReadingManyValues() throws Exception {
+                 LeafReaderContext context = reader.leaves().get(0);
+                 {
+                     // One big doc block
+-                    var columnReader = (BlockDocValuesReader.SingletonLongs) blockLoader.columnAtATimeReader(context);
+-                    assertThat(columnReader.numericDocValues, instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
++                    var columnReader = (LongsBlockLoader.SingletonLongs) blockLoader.columnAtATimeReader(context);
++                    assertThat(columnReader.numericDocValues(), instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
+                     var docBlock = TestBlock.docs(IntStream.range(from, to).toArray());
+                     var block = (TestBlock) columnReader.read(TestBlock.factory(), docBlock, 0, false);
+                     assertThat(block.size(), equalTo(to - from));
+@@ -866,8 +867,8 @@ public void testSingletonLongBulkBlockReadingManyValues() throws Exception {
+                 {
+                     // Smaller doc blocks
+                     int docBlockSize = 1000;
+-                    var columnReader = (BlockDocValuesReader.SingletonLongs) blockLoader.columnAtATimeReader(context);
+-                    assertThat(columnReader.numericDocValues, instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
++                    var columnReader = (LongsBlockLoader.SingletonLongs) blockLoader.columnAtATimeReader(context);
++                    assertThat(columnReader.numericDocValues(), instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
+                     for (int i = from; i < to; i += docBlockSize) {
+                         var docBlock = TestBlock.docs(IntStream.range(i, i + docBlockSize).toArray());
+                         var block = (TestBlock) columnReader.read(TestBlock.factory(), docBlock, 0, false);
+@@ -880,8 +881,8 @@ public void testSingletonLongBulkBlockReadingManyValues() throws Exception {
+                 }
+                 {
+                     // One smaller doc block:
+-                    var columnReader = (BlockDocValuesReader.SingletonLongs) blockLoader.columnAtATimeReader(context);
+-                    assertThat(columnReader.numericDocValues, instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
++                    var columnReader = (LongsBlockLoader.SingletonLongs) blockLoader.columnAtATimeReader(context);
++                    assertThat(columnReader.numericDocValues(), instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
+                     var docBlock = TestBlock.docs(IntStream.range(1010, 2020).toArray());
+                     var block = (TestBlock) columnReader.read(TestBlock.factory(), docBlock, 0, false);
+                     assertThat(block.size(), equalTo(1010));
+@@ -892,8 +893,8 @@ public void testSingletonLongBulkBlockReadingManyValues() throws Exception {
+                 }
+                 {
+                     // Read two tiny blocks:
+-                    var columnReader = (BlockDocValuesReader.SingletonLongs) blockLoader.columnAtATimeReader(context);
+-                    assertThat(columnReader.numericDocValues, instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
++                    var columnReader = (LongsBlockLoader.SingletonLongs) blockLoader.columnAtATimeReader(context);
++                    assertThat(columnReader.numericDocValues(), instanceOf(BlockLoader.OptionalColumnAtATimeReader.class));
+                     var docBlock = TestBlock.docs(IntStream.range(32, 64).toArray());
+                     var block = (TestBlock) columnReader.read(TestBlock.factory(), docBlock, 0, false);
+                     assertThat(block.size(), equalTo(32));
+diff --git a/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java b/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java
+index f3cd0cdaa33e2..833cddd6622c5 100644
+--- a/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java
++++ b/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java
+@@ -19,6 +19,7 @@
+ import org.elasticsearch.index.IndexMode;
+ import org.elasticsearch.index.IndexSettings;
+ import org.elasticsearch.index.IndexVersion;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.script.ScriptCompiler;
+ 
+ import java.io.IOException;
+@@ -166,7 +167,7 @@ public void testBlockLoaderWhenDocValuesAreEnabledAndThePreferenceIsToUseDocValu
+ 
+         // then
+         // verify that we use the correct block value reader
+-        assertThat(loader, instanceOf(BlockDocValuesReader.LongsBlockLoader.class));
++        assertThat(loader, instanceOf(LongsBlockLoader.class));
+     }
+ 
+     public void testBlockLoaderWhenDocValuesAreEnabledAndThereIsNoPreference() {
+diff --git a/test/framework/src/main/java/org/elasticsearch/index/mapper/MapperTestCase.java b/test/framework/src/main/java/org/elasticsearch/index/mapper/MapperTestCase.java
+index a2967973fb102..3ef66cebc1f14 100644
+--- a/test/framework/src/main/java/org/elasticsearch/index/mapper/MapperTestCase.java
++++ b/test/framework/src/main/java/org/elasticsearch/index/mapper/MapperTestCase.java
+@@ -51,6 +51,10 @@
+ import org.elasticsearch.index.fielddata.LeafFieldData;
+ import org.elasticsearch.index.fieldvisitor.LeafStoredFieldLoader;
+ import org.elasticsearch.index.fieldvisitor.StoredFieldLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.DoublesBlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.IntsBlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.index.termvectors.TermVectorsService;
+ import org.elasticsearch.index.translog.Translog;
+@@ -1523,17 +1527,17 @@ protected Object[] getThreeEncodedSampleValues() {
+ 
+     public void testSingletonIntBulkBlockReading() throws IOException {
+         assumeTrue("field type supports bulk singleton int reading", supportsBulkIntBlockReading());
+-        testSingletonBulkBlockReading(columnAtATimeReader -> (BlockDocValuesReader.SingletonInts) columnAtATimeReader);
++        testSingletonBulkBlockReading(columnAtATimeReader -> (IntsBlockLoader.SingletonInts) columnAtATimeReader);
+     }
+ 
+     public void testSingletonLongBulkBlockReading() throws IOException {
+         assumeTrue("field type supports bulk singleton long reading", supportsBulkLongBlockReading());
+-        testSingletonBulkBlockReading(columnAtATimeReader -> (BlockDocValuesReader.SingletonLongs) columnAtATimeReader);
++        testSingletonBulkBlockReading(columnAtATimeReader -> (LongsBlockLoader.SingletonLongs) columnAtATimeReader);
+     }
+ 
+     public void testSingletonDoubleBulkBlockReading() throws IOException {
+         assumeTrue("field type supports bulk singleton double reading", supportsBulkDoubleBlockReading());
+-        testSingletonBulkBlockReading(columnAtATimeReader -> (BlockDocValuesReader.SingletonDoubles) columnAtATimeReader);
++        testSingletonBulkBlockReading(columnAtATimeReader -> (DoublesBlockLoader.SingletonDoubles) columnAtATimeReader);
+     }
+ 
+     private void testSingletonBulkBlockReading(Function<BlockLoader.ColumnAtATimeReader, BlockDocValuesReader> readerCast)
+@@ -1637,9 +1641,9 @@ private void testSingletonBulkBlockReading(Function<BlockLoader.ColumnAtATimeRea
+                 assertThat(
+                     columnReader,
+                     anyOf(
+-                        instanceOf(BlockDocValuesReader.Longs.class),
+-                        instanceOf(BlockDocValuesReader.Doubles.class),
+-                        instanceOf(BlockDocValuesReader.Ints.class)
++                        instanceOf(LongsBlockLoader.Longs.class),
++                        instanceOf(DoublesBlockLoader.Doubles.class),
++                        instanceOf(IntsBlockLoader.Ints.class)
+                     )
+                 );
+                 var docBlock = TestBlock.docs(IntStream.range(0, 3).toArray());
+diff --git a/test/framework/src/main/java/org/elasticsearch/index/mapper/TestBlock.java b/test/framework/src/main/java/org/elasticsearch/index/mapper/TestBlock.java
+index 278da8c1ce5c9..1e82ffb31be32 100644
+--- a/test/framework/src/main/java/org/elasticsearch/index/mapper/TestBlock.java
++++ b/test/framework/src/main/java/org/elasticsearch/index/mapper/TestBlock.java
+@@ -13,6 +13,7 @@
+ import org.apache.lucene.index.SortedDocValues;
+ import org.apache.lucene.index.SortedSetDocValues;
+ import org.apache.lucene.util.BytesRef;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.hamcrest.Matcher;
+ 
+ import java.io.IOException;
+diff --git a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/lucene/read/SingletonDoubleBuilder.java b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/lucene/read/SingletonDoubleBuilder.java
+index d1166c2008916..280306e8c2bbc 100644
+--- a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/lucene/read/SingletonDoubleBuilder.java
++++ b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/lucene/read/SingletonDoubleBuilder.java
+@@ -10,8 +10,8 @@
+ import org.elasticsearch.compute.data.Block;
+ import org.elasticsearch.compute.data.BlockFactory;
+ import org.elasticsearch.core.Releasable;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ 
+ /**
+  * Like {@link org.elasticsearch.compute.data.DoubleBlockBuilder} but optimized for collecting dense single valued values.
+diff --git a/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/OperatorTests.java b/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/OperatorTests.java
+index 84db6369ce011..fd738a4b39c04 100644
+--- a/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/OperatorTests.java
++++ b/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/OperatorTests.java
+@@ -66,12 +66,12 @@
+ import org.elasticsearch.core.CheckedConsumer;
+ import org.elasticsearch.core.Releasables;
+ import org.elasticsearch.index.IndexSettings;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.FieldNamesFieldMapper;
+ import org.elasticsearch.index.mapper.KeywordFieldMapper;
+ import org.elasticsearch.index.mapper.MappedFieldType;
+ import org.elasticsearch.index.mapper.MapperServiceTestCase;
+ import org.elasticsearch.index.mapper.Uid;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.indices.breaker.NoneCircuitBreakerService;
+ import org.elasticsearch.search.lookup.SearchLookup;
+ 
+@@ -183,14 +183,7 @@ public void testPushRoundToToQuery() throws IOException {
+             );
+             ValuesSourceReaderOperator.Factory load = new ValuesSourceReaderOperator.Factory(
+                 ByteSizeValue.ofGb(1),
+-                List.of(
+-                    new ValuesSourceReaderOperator.FieldInfo(
+-                        "v",
+-                        ElementType.LONG,
+-                        false,
+-                        f -> new BlockDocValuesReader.LongsBlockLoader("v")
+-                    )
+-                ),
++                List.of(new ValuesSourceReaderOperator.FieldInfo("v", ElementType.LONG, false, f -> new LongsBlockLoader("v"))),
+                 new IndexedByShardIdFromSingleton<>(new ValuesSourceReaderOperator.ShardContext(reader, (sourcePaths) -> {
+                     throw new UnsupportedOperationException();
+                 }, 0.8)),
+diff --git a/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/lucene/LuceneQueryEvaluatorTests.java b/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/lucene/LuceneQueryEvaluatorTests.java
+index 5c2cd244f36c5..2a905253cc0f0 100644
+--- a/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/lucene/LuceneQueryEvaluatorTests.java
++++ b/x-pack/plugin/esql/compute/src/test/java/org/elasticsearch/compute/lucene/LuceneQueryEvaluatorTests.java
+@@ -42,7 +42,7 @@
+ import org.elasticsearch.compute.test.TestDriverFactory;
+ import org.elasticsearch.compute.test.TestResultPageSinkOperator;
+ import org.elasticsearch.core.CheckedFunction;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromOrdsBlockLoader;
+ 
+ import java.io.IOException;
+ import java.util.ArrayList;
+@@ -207,7 +207,7 @@ private List<Page> runQuery(Set<String> values, Query query, boolean shuffleDocs
+                             FIELD,
+                             ElementType.BYTES_REF,
+                             false,
+-                            unused -> new BlockDocValuesReader.BytesRefsFromOrdsBlockLoader(FIELD)
++                            unused -> new BytesRefsFromOrdsBlockLoader(FIELD)
+                         )
+                     ),
+                     new IndexedByShardIdFromSingleton<>(new ValuesSourceReaderOperator.ShardContext(reader, (sourcePaths) -> {
+diff --git a/x-pack/plugin/logsdb/src/main/java/org/elasticsearch/xpack/logsdb/patterntext/PatternTextBlockLoader.java b/x-pack/plugin/logsdb/src/main/java/org/elasticsearch/xpack/logsdb/patterntext/PatternTextBlockLoader.java
+index b6dc2e7b20aa9..ae7c07b2fb948 100644
+--- a/x-pack/plugin/logsdb/src/main/java/org/elasticsearch/xpack/logsdb/patterntext/PatternTextBlockLoader.java
++++ b/x-pack/plugin/logsdb/src/main/java/org/elasticsearch/xpack/logsdb/patterntext/PatternTextBlockLoader.java
+@@ -7,8 +7,11 @@
+ 
+ package org.elasticsearch.xpack.logsdb.patterntext;
+ 
++import org.apache.lucene.index.BinaryDocValues;
+ import org.apache.lucene.index.LeafReaderContext;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
++import org.apache.lucene.util.BytesRef;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromCustomBinaryBlockLoader;
+ 
+ import java.io.IOException;
+ 
+@@ -31,6 +34,31 @@ public AllReader reader(LeafReaderContext context) throws IOException {
+         if (docValues == null) {
+             return new ConstantNullsReader();
+         }
+-        return new BlockDocValuesReader.BytesRefsFromBinary(docValues);
++        return new BytesRefsFromBinary(docValues);
++    }
++
++    /**
++     * Read BinaryDocValues with no additional structure in the BytesRefs.
++     * Each BytesRef from the doc values maps directly to a value in the block loader.
++     */
++    public static class BytesRefsFromBinary extends BytesRefsFromCustomBinaryBlockLoader.AbstractBytesRefsFromBinary {
++        public BytesRefsFromBinary(BinaryDocValues docValues) {
++            super(docValues);
++        }
++
++        @Override
++        public void read(int doc, BytesRefBuilder builder) throws IOException {
++            if (false == docValues.advanceExact(doc)) {
++                builder.appendNull();
++                return;
++            }
++            BytesRef bytes = docValues.binaryValue();
++            builder.appendBytesRef(bytes);
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.Bytes";
++        }
+     }
+ }
+diff --git a/x-pack/plugin/mapper-aggregate-metric/src/main/java/org/elasticsearch/xpack/aggregatemetric/mapper/AggregateMetricDoubleFieldMapper.java b/x-pack/plugin/mapper-aggregate-metric/src/main/java/org/elasticsearch/xpack/aggregatemetric/mapper/AggregateMetricDoubleFieldMapper.java
+index 09f91209f922f..6cbe65f7c31f8 100644
+--- a/x-pack/plugin/mapper-aggregate-metric/src/main/java/org/elasticsearch/xpack/aggregatemetric/mapper/AggregateMetricDoubleFieldMapper.java
++++ b/x-pack/plugin/mapper-aggregate-metric/src/main/java/org/elasticsearch/xpack/aggregatemetric/mapper/AggregateMetricDoubleFieldMapper.java
+@@ -28,7 +28,6 @@
+ import org.elasticsearch.index.fielddata.ScriptDocValues.DoublesSupplier;
+ import org.elasticsearch.index.fielddata.SortedBinaryDocValues;
+ import org.elasticsearch.index.fielddata.SortedNumericDoubleValues;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.CompositeSyntheticFieldLoader;
+ import org.elasticsearch.index.mapper.DocumentParserContext;
+@@ -46,6 +45,7 @@
+ import org.elasticsearch.index.mapper.TimeSeriesParams;
+ import org.elasticsearch.index.mapper.TimeSeriesParams.MetricType;
+ import org.elasticsearch.index.mapper.ValueFetcher;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BlockDocValuesReader;
+ import org.elasticsearch.index.query.QueryRewriteContext;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.script.ScriptCompiler;
+diff --git a/x-pack/plugin/mapper-unsigned-long/src/main/java/org/elasticsearch/xpack/unsignedlong/UnsignedLongFieldMapper.java b/x-pack/plugin/mapper-unsigned-long/src/main/java/org/elasticsearch/xpack/unsignedlong/UnsignedLongFieldMapper.java
+index 5184aa10c5591..bfa3f7575e980 100644
+--- a/x-pack/plugin/mapper-unsigned-long/src/main/java/org/elasticsearch/xpack/unsignedlong/UnsignedLongFieldMapper.java
++++ b/x-pack/plugin/mapper-unsigned-long/src/main/java/org/elasticsearch/xpack/unsignedlong/UnsignedLongFieldMapper.java
+@@ -27,7 +27,6 @@
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.IndexNumericFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedNumericIndexFieldData;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.BlockSourceReader;
+ import org.elasticsearch.index.mapper.CompositeSyntheticFieldLoader;
+@@ -50,6 +49,7 @@
+ import org.elasticsearch.index.mapper.TimeSeriesParams;
+ import org.elasticsearch.index.mapper.TimeSeriesParams.MetricType;
+ import org.elasticsearch.index.mapper.ValueFetcher;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.search.DocValueFormat;
+ import org.elasticsearch.search.aggregations.support.TimeSeriesValuesSourceType;
+@@ -383,7 +383,7 @@ public BlockLoader blockLoader(BlockLoaderContext blContext) {
+                 return BlockLoader.CONSTANT_NULLS;
+             }
+             if (hasDocValues() && (blContext.fieldExtractPreference() != FieldExtractPreference.STORED || isSyntheticSource)) {
+-                return new BlockDocValuesReader.LongsBlockLoader(name());
++                return new LongsBlockLoader(name());
+             }
+             // Multi fields don't have fallback synthetic source.
+             if (isSyntheticSource && blContext.parentField(name()) == null) {
+diff --git a/x-pack/plugin/mapper-version/src/main/java/org/elasticsearch/xpack/versionfield/VersionStringFieldMapper.java b/x-pack/plugin/mapper-version/src/main/java/org/elasticsearch/xpack/versionfield/VersionStringFieldMapper.java
+index f4031601022da..155cbd88cfcdd 100644
+--- a/x-pack/plugin/mapper-version/src/main/java/org/elasticsearch/xpack/versionfield/VersionStringFieldMapper.java
++++ b/x-pack/plugin/mapper-version/src/main/java/org/elasticsearch/xpack/versionfield/VersionStringFieldMapper.java
+@@ -39,7 +39,6 @@
+ import org.elasticsearch.index.fielddata.FieldDataContext;
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.SortedSetOrdinalsIndexFieldData;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.CompositeSyntheticFieldLoader;
+ import org.elasticsearch.index.mapper.DocumentParserContext;
+@@ -53,6 +52,7 @@
+ import org.elasticsearch.index.mapper.TermBasedFieldType;
+ import org.elasticsearch.index.mapper.TextSearchInfo;
+ import org.elasticsearch.index.mapper.ValueFetcher;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromOrdsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.search.DocValueFormat;
+ import org.elasticsearch.search.aggregations.support.CoreValuesSourceType;
+@@ -305,7 +305,7 @@ protected BytesRef indexedValueForSearch(Object value) {
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             failIfNoDocValues();
+-            return new BlockDocValuesReader.BytesRefsFromOrdsBlockLoader(name());
++            return new BytesRefsFromOrdsBlockLoader(name());
+         }
+ 
+         @Override
+diff --git a/x-pack/plugin/spatial/src/main/java/org/elasticsearch/xpack/spatial/index/mapper/PointFieldMapper.java b/x-pack/plugin/spatial/src/main/java/org/elasticsearch/xpack/spatial/index/mapper/PointFieldMapper.java
+index 021b89c2c2ab9..774860aedcd69 100644
+--- a/x-pack/plugin/spatial/src/main/java/org/elasticsearch/xpack/spatial/index/mapper/PointFieldMapper.java
++++ b/x-pack/plugin/spatial/src/main/java/org/elasticsearch/xpack/spatial/index/mapper/PointFieldMapper.java
+@@ -26,13 +26,13 @@
+ import org.elasticsearch.index.fielddata.FieldDataContext;
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.mapper.AbstractPointGeometryFieldMapper;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.DocumentParserContext;
+ import org.elasticsearch.index.mapper.FieldMapper;
+ import org.elasticsearch.index.mapper.IndexType;
+ import org.elasticsearch.index.mapper.MappedFieldType;
+ import org.elasticsearch.index.mapper.MapperBuilderContext;
++import org.elasticsearch.index.mapper.blockloader.docvalues.LongsBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.lucene.spatial.XYQueriesUtils;
+ import org.elasticsearch.xcontent.XContentBuilder;
+@@ -243,7 +243,7 @@ protected Function<List<CartesianPoint>, List<Object>> getFormatter(String forma
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             if (blContext.fieldExtractPreference() == DOC_VALUES && hasDocValues()) {
+-                return new BlockDocValuesReader.LongsBlockLoader(name());
++                return new LongsBlockLoader(name());
+             }
+ 
+             // Multi fields don't have fallback synthetic source.s
+diff --git a/x-pack/plugin/wildcard/src/main/java/org/elasticsearch/xpack/wildcard/mapper/WildcardFieldMapper.java b/x-pack/plugin/wildcard/src/main/java/org/elasticsearch/xpack/wildcard/mapper/WildcardFieldMapper.java
+index a537e71d27d77..fdb6148018465 100644
+--- a/x-pack/plugin/wildcard/src/main/java/org/elasticsearch/xpack/wildcard/mapper/WildcardFieldMapper.java
++++ b/x-pack/plugin/wildcard/src/main/java/org/elasticsearch/xpack/wildcard/mapper/WildcardFieldMapper.java
+@@ -59,7 +59,6 @@
+ import org.elasticsearch.index.fielddata.IndexFieldData;
+ import org.elasticsearch.index.fielddata.plain.StringBinaryIndexFieldData;
+ import org.elasticsearch.index.mapper.BinaryFieldMapper.CustomBinaryDocValuesField;
+-import org.elasticsearch.index.mapper.BlockDocValuesReader;
+ import org.elasticsearch.index.mapper.BlockLoader;
+ import org.elasticsearch.index.mapper.CompositeSyntheticFieldLoader;
+ import org.elasticsearch.index.mapper.DocumentParserContext;
+@@ -73,6 +72,7 @@
+ import org.elasticsearch.index.mapper.SourceValueFetcher;
+ import org.elasticsearch.index.mapper.TextSearchInfo;
+ import org.elasticsearch.index.mapper.ValueFetcher;
++import org.elasticsearch.index.mapper.blockloader.docvalues.BytesRefsFromCustomBinaryBlockLoader;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.search.aggregations.support.CoreValuesSourceType;
+ import org.elasticsearch.xcontent.XContentBuilder;
+@@ -958,7 +958,7 @@ public Query prefixQuery(
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+             if (hasDocValues()) {
+-                return new BlockDocValuesReader.BytesRefsFromCustomBinaryBlockLoader(name());
++                return new BytesRefsFromCustomBinaryBlockLoader(name());
+             }
+             return null;
+         }

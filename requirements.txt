@@ -1,0 +1,10 @@
+PyGithub==2.1.1
+requests==2.31.0
+PyYAML==6.0.1
+gitpython==3.1.40
+pandas>=2.2.0
+mutpy==0.6.1
+radon==6.0.1
+python-dateutil==2.8.2
+schedule==1.2.0
+tqdm==4.66.1

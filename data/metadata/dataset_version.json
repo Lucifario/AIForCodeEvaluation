@@ -1,0 +1,27 @@
+{
+  "version": "1.1.0",
+  "created_at": "2025-10-25T12:43:51.976120",
+  "updates": [
+    {
+      "timestamp": "2025-10-25T13:43:19.778454",
+      "source": "github_prs",
+      "count": 211,
+      "version": "1.1.0",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-10-25T14:08:46.083551",
+      "source": "defects4j",
+      "count": 80,
+      "version": "1.1.0",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-10-25T14:08:46.084320",
+      "source": "synthetic_bugs",
+      "count": 0,
+      "version": "1.1.0",
+      "details": {}
+    }
+  ]
+}

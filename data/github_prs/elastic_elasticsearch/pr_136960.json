@@ -1,0 +1,53 @@
+{
+  "id": 136960,
+  "repository": "elastic/elasticsearch",
+  "title": "[DOCS]: Add connectors release notes 8.19.6",
+  "body": "This PR adds the connectors release notes for 8.19.6 to the documentation. \r\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T15:30:54+00:00",
+  "created_at": "2025-10-22T13:48:40+00:00",
+  "updated_at": "2025-10-24T15:30:57+00:00",
+  "author": "charlotte-hoblik",
+  "reviewers": [
+    "mridula-s109"
+  ],
+  "base_sha": "058d03818e3eebae6391336802da5d77dad02878",
+  "head_sha": "f3d4acfcf5ba5e05593c46e3e7513300e3cba123",
+  "review_comments": [
+    {
+      "user": "mridula-s109",
+      "state": "APPROVED",
+      "body": "",
+      "submitted_at": "2025-10-22T13:50:07+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "github-actions[bot]",
+      "body": "Documentation preview:\n  - ✨ [Changed pages](https://elasticsearch_bk_136960.docs-preview.app.elstc.co/diff)",
+      "created_at": "2025-10-22T13:48:56+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/core-docs (Team:Docs)",
+      "created_at": "2025-10-22T13:49:05+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/reference/connector/docs/connectors-release-notes.asciidoc",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "patch": "@@ -9,6 +9,12 @@\n Prior to version *8.16.0*, the connector release notes were published as part of the {enterprise-search-ref}/changelog.html[Enterprise Search documentation].\n ====\n \n+[discrete]\n+[[es-connectors-release-notes-8-19-6]]\n+=== 8.19.6\n+\n+There are no new features, enhancements, fixes, known issues, or deprecations associated with this release.\n+\n [discrete]\n [[es-connectors-release-notes-8-19-5]]\n === 8.19.5"
+    }
+  ],
+  "diff": "diff --git a/docs/reference/connector/docs/connectors-release-notes.asciidoc b/docs/reference/connector/docs/connectors-release-notes.asciidoc\nindex daa4b9954a83d..e6dbbc1a8ae6c 100644\n--- a/docs/reference/connector/docs/connectors-release-notes.asciidoc\n+++ b/docs/reference/connector/docs/connectors-release-notes.asciidoc\n@@ -9,6 +9,12 @@\n Prior to version *8.16.0*, the connector release notes were published as part of the {enterprise-search-ref}/changelog.html[Enterprise Search documentation].\n ====\n \n+[discrete]\n+[[es-connectors-release-notes-8-19-6]]\n+=== 8.19.6\n+\n+There are no new features, enhancements, fixes, known issues, or deprecations associated with this release.\n+\n [discrete]\n [[es-connectors-release-notes-8-19-5]]\n === 8.19.5\n",
+  "additions": 6,
+  "deletions": 0,
+  "changed_files": 1,
+  "url": "https://github.com/elastic/elasticsearch/pull/136960",
+  "mined_at": "2025-10-25T13:17:44.438127"
+}

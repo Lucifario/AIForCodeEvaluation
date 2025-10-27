@@ -1,0 +1,34 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index c94aa94b148d..b4783e978f52 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -62,7 +62,7 @@ jobs:
+         run: ./util/print_surefire_reports.sh
+       - name: 'Set up Gradle'
+         if: matrix.java == 11 # used only by the integration tests below
+-        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
++        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5.0.0
+       - name: 'Integration Test'
+         if: matrix.java == 11
+         shell: bash
+diff --git a/.github/workflows/scorecard.yml b/.github/workflows/scorecard.yml
+index a024aacff440..f074305e8221 100644
+--- a/.github/workflows/scorecard.yml
++++ b/.github/workflows/scorecard.yml
+@@ -37,7 +37,7 @@ jobs:
+           persist-credentials: false
+ 
+       - name: "Run analysis"
+-        uses: ossf/scorecard-action@05b42c624433fc40578a4040d5cf5e36ddca8cde # v2.4.2
++        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
+         with:
+           results_file: results.sarif
+           results_format: sarif
+@@ -67,6 +67,6 @@ jobs:
+ 
+       # Upload the results to GitHub's code scanning dashboard.
+       - name: "Upload to code-scanning"
+-        uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.29.5
++        uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93 # v3.30.5
+         with:
+           sarif_file: results.sarif

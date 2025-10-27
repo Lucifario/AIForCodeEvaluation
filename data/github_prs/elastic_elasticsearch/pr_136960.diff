@@ -1,0 +1,17 @@
+diff --git a/docs/reference/connector/docs/connectors-release-notes.asciidoc b/docs/reference/connector/docs/connectors-release-notes.asciidoc
+index daa4b9954a83d..e6dbbc1a8ae6c 100644
+--- a/docs/reference/connector/docs/connectors-release-notes.asciidoc
++++ b/docs/reference/connector/docs/connectors-release-notes.asciidoc
+@@ -9,6 +9,12 @@
+ Prior to version *8.16.0*, the connector release notes were published as part of the {enterprise-search-ref}/changelog.html[Enterprise Search documentation].
+ ====
+ 
++[discrete]
++[[es-connectors-release-notes-8-19-6]]
++=== 8.19.6
++
++There are no new features, enhancements, fixes, known issues, or deprecations associated with this release.
++
+ [discrete]
+ [[es-connectors-release-notes-8-19-5]]
+ === 8.19.5

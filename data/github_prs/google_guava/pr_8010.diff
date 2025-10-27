@@ -1,0 +1,210 @@
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java b/android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java
+index 1e937420e804..93d455c2e624 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java
+@@ -85,7 +85,7 @@ final long estimateSize() {
+       return spliterator.estimateSize();
+     }
+ 
+-    final Comparator<? super E> getComparator() {
++    final @Nullable Comparator<? super E> getComparator() {
+       return spliterator.getComparator();
+     }
+ 
+diff --git a/android/guava/src/com/google/common/collect/AbstractBiMap.java b/android/guava/src/com/google/common/collect/AbstractBiMap.java
+index e871fd1ca66e..82297c800adc 100644
+--- a/android/guava/src/com/google/common/collect/AbstractBiMap.java
++++ b/android/guava/src/com/google/common/collect/AbstractBiMap.java
+@@ -52,16 +52,14 @@
+ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Object>
+     extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
+ 
+-  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (lateinit)
+   private transient Map<K, V> delegate;
+ 
+-  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (lateinit)
+-  @RetainedWith
+-  transient AbstractBiMap<V, K> inverse;
++  @RetainedWith private transient AbstractBiMap<V, K> inverse;
+ 
+   /** Package-private constructor for creating a map-backed bimap. */
+   AbstractBiMap(Map<K, V> forward, Map<V, K> backward) {
+-    setDelegates(forward, backward);
++    inverse = checkMapsAndMakeInverse(forward, backward);
++    delegate = forward;
+   }
+ 
+   /** Private constructor for inverse bimap. */
+@@ -90,17 +88,19 @@ V checkValue(@ParametricNullness V value) {
+   }
+ 
+   /**
+-   * Specifies the delegate maps going in each direction. Called by the constructor and by
+-   * subclasses during deserialization.
++   * Specifies the delegate maps going in each direction. Called by subclasses during
++   * deserialization.
+    */
+   void setDelegates(Map<K, V> forward, Map<V, K> backward) {
+-    checkState(delegate == null);
+-    checkState(inverse == null);
++    inverse = checkMapsAndMakeInverse(forward, backward);
++    delegate = forward;
++  }
++
++  private AbstractBiMap<V, K> checkMapsAndMakeInverse(Map<K, V> forward, Map<V, K> backward) {
+     checkArgument(forward.isEmpty());
+     checkArgument(backward.isEmpty());
+     checkArgument(forward != backward);
+-    delegate = forward;
+-    inverse = makeInverse(backward);
++    return makeInverse(backward);
+   }
+ 
+   AbstractBiMap<V, K> makeInverse(Map<V, K> backward) {
+@@ -450,13 +450,13 @@ private static final class Inverse<K extends @Nullable Object, V extends @Nullab
+     @Override
+     @ParametricNullness
+     K checkKey(@ParametricNullness K key) {
+-      return inverse.checkValue(key);
++      return super.inverse.checkValue(key);
+     }
+ 
+     @Override
+     @ParametricNullness
+     V checkValue(@ParametricNullness V value) {
+-      return inverse.checkKey(value);
++      return super.inverse.checkKey(value);
+     }
+ 
+     /**
+diff --git a/android/guava/src/com/google/common/collect/EnumBiMap.java b/android/guava/src/com/google/common/collect/EnumBiMap.java
+index 21a164b431bf..06ba92ee3d06 100644
+--- a/android/guava/src/com/google/common/collect/EnumBiMap.java
++++ b/android/guava/src/com/google/common/collect/EnumBiMap.java
+@@ -154,7 +154,7 @@ private void readObject(ObjectInputStream stream) throws IOException, ClassNotFo
+     keyTypeOrObjectUnderJ2cl = (Class<K>) requireNonNull(stream.readObject());
+     valueTypeOrObjectUnderJ2cl = (Class<V>) requireNonNull(stream.readObject());
+     setDelegates(
+-        new EnumMap<K, V>(keyTypeOrObjectUnderJ2cl), new EnumMap<V, K>(valueTypeOrObjectUnderJ2cl));
++        new EnumMap<>(keyTypeOrObjectUnderJ2cl), new EnumMap<>(valueTypeOrObjectUnderJ2cl));
+     Serialization.populateMap(this, stream);
+   }
+ 
+diff --git a/android/guava/src/com/google/common/collect/EnumHashBiMap.java b/android/guava/src/com/google/common/collect/EnumHashBiMap.java
+index 6412e5137ca3..de3242e89afa 100644
+--- a/android/guava/src/com/google/common/collect/EnumHashBiMap.java
++++ b/android/guava/src/com/google/common/collect/EnumHashBiMap.java
+@@ -131,7 +131,7 @@ private void readObject(ObjectInputStream stream) throws IOException, ClassNotFo
+      * the number of entries in the map, as that makes it easy for hostile inputs to trigger lots of
+      * allocation—not that any program should be deserializing hostile inputs to begin with!)
+      */
+-    setDelegates(new EnumMap<K, V>(keyTypeOrObjectUnderJ2cl), new HashMap<V, K>());
++    setDelegates(new EnumMap<>(keyTypeOrObjectUnderJ2cl), new HashMap<>());
+     Serialization.populateMap(this, stream);
+   }
+ 
+diff --git a/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java b/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java
+index cbc7bab17a82..1f47f2a0fd7f 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java
++++ b/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java
+@@ -83,7 +83,7 @@ final long estimateSize() {
+       return spliterator.estimateSize();
+     }
+ 
+-    final Comparator<? super E> getComparator() {
++    final @Nullable Comparator<? super E> getComparator() {
+       return spliterator.getComparator();
+     }
+ 
+diff --git a/guava/src/com/google/common/collect/AbstractBiMap.java b/guava/src/com/google/common/collect/AbstractBiMap.java
+index c9395dc79596..657df64227da 100644
+--- a/guava/src/com/google/common/collect/AbstractBiMap.java
++++ b/guava/src/com/google/common/collect/AbstractBiMap.java
+@@ -53,16 +53,14 @@
+ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Object>
+     extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
+ 
+-  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (lateinit)
+   private transient Map<K, V> delegate;
+ 
+-  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (lateinit)
+-  @RetainedWith
+-  transient AbstractBiMap<V, K> inverse;
++  @RetainedWith private transient AbstractBiMap<V, K> inverse;
+ 
+   /** Package-private constructor for creating a map-backed bimap. */
+   AbstractBiMap(Map<K, V> forward, Map<V, K> backward) {
+-    setDelegates(forward, backward);
++    inverse = checkMapsAndMakeInverse(forward, backward);
++    delegate = forward;
+   }
+ 
+   /** Private constructor for inverse bimap. */
+@@ -91,17 +89,19 @@ V checkValue(@ParametricNullness V value) {
+   }
+ 
+   /**
+-   * Specifies the delegate maps going in each direction. Called by the constructor and by
+-   * subclasses during deserialization.
++   * Specifies the delegate maps going in each direction. Called by subclasses during
++   * deserialization.
+    */
+   void setDelegates(Map<K, V> forward, Map<V, K> backward) {
+-    checkState(delegate == null);
+-    checkState(inverse == null);
++    inverse = checkMapsAndMakeInverse(forward, backward);
++    delegate = forward;
++  }
++
++  private AbstractBiMap<V, K> checkMapsAndMakeInverse(Map<K, V> forward, Map<V, K> backward) {
+     checkArgument(forward.isEmpty());
+     checkArgument(backward.isEmpty());
+     checkArgument(forward != backward);
+-    delegate = forward;
+-    inverse = makeInverse(backward);
++    return makeInverse(backward);
+   }
+ 
+   AbstractBiMap<V, K> makeInverse(Map<V, K> backward) {
+@@ -474,13 +474,13 @@ private static final class Inverse<K extends @Nullable Object, V extends @Nullab
+     @Override
+     @ParametricNullness
+     K checkKey(@ParametricNullness K key) {
+-      return inverse.checkValue(key);
++      return super.inverse.checkValue(key);
+     }
+ 
+     @Override
+     @ParametricNullness
+     V checkValue(@ParametricNullness V value) {
+-      return inverse.checkKey(value);
++      return super.inverse.checkKey(value);
+     }
+ 
+     /**
+diff --git a/guava/src/com/google/common/collect/EnumBiMap.java b/guava/src/com/google/common/collect/EnumBiMap.java
+index 21a164b431bf..06ba92ee3d06 100644
+--- a/guava/src/com/google/common/collect/EnumBiMap.java
++++ b/guava/src/com/google/common/collect/EnumBiMap.java
+@@ -154,7 +154,7 @@ private void readObject(ObjectInputStream stream) throws IOException, ClassNotFo
+     keyTypeOrObjectUnderJ2cl = (Class<K>) requireNonNull(stream.readObject());
+     valueTypeOrObjectUnderJ2cl = (Class<V>) requireNonNull(stream.readObject());
+     setDelegates(
+-        new EnumMap<K, V>(keyTypeOrObjectUnderJ2cl), new EnumMap<V, K>(valueTypeOrObjectUnderJ2cl));
++        new EnumMap<>(keyTypeOrObjectUnderJ2cl), new EnumMap<>(valueTypeOrObjectUnderJ2cl));
+     Serialization.populateMap(this, stream);
+   }
+ 
+diff --git a/guava/src/com/google/common/collect/EnumHashBiMap.java b/guava/src/com/google/common/collect/EnumHashBiMap.java
+index 6412e5137ca3..de3242e89afa 100644
+--- a/guava/src/com/google/common/collect/EnumHashBiMap.java
++++ b/guava/src/com/google/common/collect/EnumHashBiMap.java
+@@ -131,7 +131,7 @@ private void readObject(ObjectInputStream stream) throws IOException, ClassNotFo
+      * the number of entries in the map, as that makes it easy for hostile inputs to trigger lots of
+      * allocation—not that any program should be deserializing hostile inputs to begin with!)
+      */
+-    setDelegates(new EnumMap<K, V>(keyTypeOrObjectUnderJ2cl), new HashMap<V, K>());
++    setDelegates(new EnumMap<>(keyTypeOrObjectUnderJ2cl), new HashMap<>());
+     Serialization.populateMap(this, stream);
+   }
+ 

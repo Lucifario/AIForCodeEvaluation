@@ -1,0 +1,954 @@
+diff --git a/build-tools-internal/src/main/java/org/elasticsearch/gradle/internal/RestrictedBuildApiService.java b/build-tools-internal/src/main/java/org/elasticsearch/gradle/internal/RestrictedBuildApiService.java
+index 4e9f08bc48f38..d6f6e07f78c88 100644
+--- a/build-tools-internal/src/main/java/org/elasticsearch/gradle/internal/RestrictedBuildApiService.java
++++ b/build-tools-internal/src/main/java/org/elasticsearch/gradle/internal/RestrictedBuildApiService.java
+@@ -92,8 +92,6 @@ private static ListMultimap<Class<?>, String> createLegacyRestTestBasePluginUsag
+         map.put(LegacyRestTestBasePlugin.class, ":x-pack:plugin:transform:qa:multi-cluster-tests-with-security");
+         map.put(LegacyRestTestBasePlugin.class, ":x-pack:plugin:transform:qa:multi-node-tests");
+         map.put(LegacyRestTestBasePlugin.class, ":x-pack:plugin:transform:qa:single-node-tests");
+-        map.put(LegacyRestTestBasePlugin.class, ":x-pack:plugin:watcher:qa:rest");
+-        map.put(LegacyRestTestBasePlugin.class, ":x-pack:plugin:watcher:qa:with-security");
+         return map;
+     }
+ 
+diff --git a/x-pack/plugin/watcher/build.gradle b/x-pack/plugin/watcher/build.gradle
+index ce7c8e5d6311a..a82f0cdc3c7a7 100644
+--- a/x-pack/plugin/watcher/build.gradle
++++ b/x-pack/plugin/watcher/build.gradle
+@@ -1,11 +1,16 @@
+ apply plugin: 'elasticsearch.internal-es-plugin'
+ apply plugin: 'elasticsearch.internal-cluster-test'
++apply plugin: 'elasticsearch.internal-java-rest-test'
++apply plugin: 'elasticsearch.internal-yaml-rest-test'
++apply plugin: 'elasticsearch.internal-test-artifact'
++apply plugin: 'elasticsearch.yaml-rest-compat-test'
++
+ esplugin {
+   name = 'x-pack-watcher'
+   description = 'Elasticsearch Expanded Pack Plugin - Watcher'
+-  classname ='org.elasticsearch.xpack.watcher.Watcher'
+-  hasNativeController =false
+-  requiresKeystore =false
++  classname = 'org.elasticsearch.xpack.watcher.Watcher'
++  hasNativeController = false
++  requiresKeystore = false
+   extendedPlugins = ['x-pack-core', 'lang-painless']
+ }
+ 
+@@ -15,6 +20,16 @@ base {
+ 
+ ext.compactProfile = 'full'
+ 
++restResources {
++  restApi {
++    include '_common', 'cluster', 'index', 'indices', 'get', 'nodes', 'search', 'watcher', 'security', 'xpack',
++      'put_script', 'ingest', 'count', 'xpack'
++  }
++  restTests {
++    includeXpack 'watcher'
++  }
++}
++
+ tasks.named("dependencyLicenses").configure {
+   mapping from: /owasp-java-html-sanitizer.*/, to: 'owasp-java-html-sanitizer'
+ }
+@@ -44,6 +59,41 @@ dependencies {
+   testImplementation 'com.google.code.findbugs:jsr305:3.0.2'
+ 
+   internalClusterTestImplementation project(":modules:analysis-common")
++
++  javaRestTestImplementation project(':x-pack:qa')
++  yamlRestTestImplementation project(':x-pack:qa')
++
++  clusterModules project(':modules:analysis-common')
++  clusterModules project(':modules:ingest-common')
++  clusterModules project(':modules:lang-mustache')
++  clusterModules project(':modules:lang-painless')
++  clusterModules project(xpackModule('ilm'))
++}
++
++artifacts {
++  restXpackTests(new File(projectDir, "src/yamlRestTest/resources/rest-api-spec/test"))
++}
++
++tasks.named("yamlRestTestV7CompatTransform").configure{ task ->
++  task.skipTest("mustache/30_search_input/Test search input mustache integration (using request body and rest_total_hits_as_int)", "remove JodaCompatibleDateTime -- ZonedDateTime doesn't output millis/nanos if they're 0 (#78417)")
++  task.skipTest("mustache/30_search_input/Test search input mustache integration (using request body)", "remove JodaCompatibleDateTime -- ZonedDateTime doesn't output millis/nanos if they're 0 (#78417)")
++  task.skipTest("mustache/40_search_transform/Test search transform mustache integration (using request body)", "remove JodaCompatibleDateTime -- ZonedDateTime doesn't output millis/nanos if they're 0 (#78417)")
++  task.skipTest("painless/40_exception/Test painless exceptions are returned when logging a broken response", "Exceptions are no longer thrown from Mustache, but from the transform action itself")
++  task.replaceKeyInDo("watcher.ack_watch", "xpack-watcher.ack_watch")
++  task.replaceKeyInDo("watcher.activate_watch", "xpack-watcher.activate_watch")
++  task.replaceKeyInDo("watcher.deactivate_watch", "xpack-watcher.deactivate_watch")
++  task.replaceKeyInDo("watcher.delete_watch", "xpack-watcher.delete_watch")
++  task.replaceKeyInDo("watcher.execute_watch", "xpack-watcher.execute_watch")
++  task.replaceKeyInDo("watcher.get_watch", "xpack-watcher.get_watch")
++  task.replaceKeyInDo("watcher.put_watch", "xpack-watcher.put_watch")
++  task.replaceKeyInDo("watcher.start", "xpack-watcher.start")
++  task.replaceKeyInDo("watcher.stats", "xpack-watcher.stats")
++  task.replaceKeyInDo("watcher.stop", "xpack-watcher.stop")
++
++  task.addAllowedWarningRegex(".*_xpack/watcher/.* is deprecated.*")
++  task.addAllowedWarningRegex("\\[types removal\\].*")
++  task.replaceValueTextByKeyValue("path", "/my_index/my_type/{{ctx.watch_id}}", "/my_index/_doc/{{ctx.watch_id}}",
++    "Test webhook action with mustache integration")
+ }
+ 
+ // classes are missing, e.g. com.ibm.icu.lang.UCharacter
+diff --git a/x-pack/plugin/watcher/qa/build.gradle b/x-pack/plugin/watcher/qa/build.gradle
+deleted file mode 100644
+index e69de29bb2d1d..0000000000000
+diff --git a/x-pack/plugin/watcher/qa/common/build.gradle b/x-pack/plugin/watcher/qa/common/build.gradle
+deleted file mode 100644
+index fdf48dbad255c..0000000000000
+--- a/x-pack/plugin/watcher/qa/common/build.gradle
++++ /dev/null
+@@ -1,6 +0,0 @@
+-apply plugin: 'elasticsearch.java'
+-
+-dependencies {
+-  implementation project(':test:yaml-rest-runner')
+-}
+-
+diff --git a/x-pack/plugin/watcher/qa/rest/build.gradle b/x-pack/plugin/watcher/qa/rest/build.gradle
+deleted file mode 100644
+index 44158971b0332..0000000000000
+--- a/x-pack/plugin/watcher/qa/rest/build.gradle
++++ /dev/null
+@@ -1,59 +0,0 @@
+-import org.elasticsearch.gradle.internal.info.BuildParams
+-
+-apply plugin: 'elasticsearch.legacy-java-rest-test'
+-apply plugin: 'elasticsearch.legacy-yaml-rest-test'
+-apply plugin: 'elasticsearch.legacy-yaml-rest-compat-test'
+-
+-dependencies {
+-  yamlRestTestImplementation project(path: ':x-pack:plugin:watcher:qa:common')
+-  javaRestTestImplementation project(path: ':x-pack:plugin:watcher:qa:common')
+-  javaRestTestImplementation project(':x-pack:qa')
+-}
+-
+-artifacts {
+-  restXpackTests(new File(projectDir, "src/yamlRestTest/resources/rest-api-spec/test"))
+-}
+-
+-restResources {
+-  restApi {
+-    include '_common', 'cluster', 'nodes', 'search', 'get', 'indices',
+-                'index', 'put_script', 'ingest', 'count', 'watcher', 'xpack'
+-  }
+-}
+-
+-testClusters.configureEach {
+-  testDistribution = 'DEFAULT'
+-  setting 'xpack.security.enabled', 'false'
+-  setting 'xpack.ml.enabled', 'false'
+-  setting 'xpack.license.self_generated.type', 'trial'
+-  setting 'logger.org.elasticsearch.xpack.watcher', 'DEBUG'
+-}
+-
+-if (buildParams.inFipsJvm){
+-  // Test clusters run with security disabled
+-  tasks.named("javaRestTest").configure{enabled = false }
+-  tasks.named("yamlRestTest").configure{enabled = false }
+-}
+-
+-
+-tasks.named("yamlRestTestV7CompatTransform").configure{ task ->
+-  task.skipTest("mustache/30_search_input/Test search input mustache integration (using request body and rest_total_hits_as_int)", "remove JodaCompatibleDateTime -- ZonedDateTime doesn't output millis/nanos if they're 0 (#78417)")
+-  task.skipTest("mustache/30_search_input/Test search input mustache integration (using request body)", "remove JodaCompatibleDateTime -- ZonedDateTime doesn't output millis/nanos if they're 0 (#78417)")
+-  task.skipTest("mustache/40_search_transform/Test search transform mustache integration (using request body)", "remove JodaCompatibleDateTime -- ZonedDateTime doesn't output millis/nanos if they're 0 (#78417)")
+-  task.skipTest("painless/40_exception/Test painless exceptions are returned when logging a broken response", "Exceptions are no longer thrown from Mustache, but from the transform action itself")
+-  task.replaceKeyInDo("watcher.ack_watch", "xpack-watcher.ack_watch")
+-  task.replaceKeyInDo("watcher.activate_watch", "xpack-watcher.activate_watch")
+-  task.replaceKeyInDo("watcher.deactivate_watch", "xpack-watcher.deactivate_watch")
+-  task.replaceKeyInDo("watcher.delete_watch", "xpack-watcher.delete_watch")
+-  task.replaceKeyInDo("watcher.execute_watch", "xpack-watcher.execute_watch")
+-  task.replaceKeyInDo("watcher.get_watch", "xpack-watcher.get_watch")
+-  task.replaceKeyInDo("watcher.put_watch", "xpack-watcher.put_watch")
+-  task.replaceKeyInDo("watcher.start", "xpack-watcher.start")
+-  task.replaceKeyInDo("watcher.stats", "xpack-watcher.stats")
+-  task.replaceKeyInDo("watcher.stop", "xpack-watcher.stop")
+-
+-  task.addAllowedWarningRegex(".*_xpack/watcher/.* is deprecated.*")
+-  task.addAllowedWarningRegex("\\[types removal\\].*")
+-  task.replaceValueTextByKeyValue("path", "/my_index/my_type/{{ctx.watch_id}}", "/my_index/_doc/{{ctx.watch_id}}",
+-    "Test webhook action with mustache integration")
+-}
+diff --git a/x-pack/plugin/watcher/qa/with-security/build.gradle b/x-pack/plugin/watcher/qa/with-security/build.gradle
+deleted file mode 100644
+index 5c01573e09417..0000000000000
+--- a/x-pack/plugin/watcher/qa/with-security/build.gradle
++++ /dev/null
+@@ -1,39 +0,0 @@
+-apply plugin: 'elasticsearch.legacy-java-rest-test'
+-apply plugin: 'elasticsearch.legacy-yaml-rest-test'
+-apply plugin: 'elasticsearch.legacy-yaml-rest-compat-test'
+-
+-dependencies {
+-  yamlRestTestImplementation project(path: ':x-pack:plugin:watcher:qa:common')
+-  javaRestTestImplementation project(path: ':x-pack:plugin:watcher:qa:common')
+-  javaRestTestImplementation project(':x-pack:qa')
+-  yamlRestTestImplementation project(':x-pack:qa')
+-  restXpackTestConfig project(path: ':x-pack:plugin:watcher:qa:rest', configuration: 'restXpackTests')
+-}
+-
+-restResources {
+-  restApi {
+-    include '_common', 'cluster', 'index', 'indices', 'get', 'nodes', 'search', 'watcher', 'security', 'xpack'
+-  }
+-  restTests {
+-    includeXpack 'watcher'
+-  }
+-}
+-
+-testClusters.configureEach {
+-  testDistribution = 'DEFAULT'
+-  setting 'xpack.ml.enabled', 'false'
+-  setting 'xpack.security.enabled', 'true'
+-  // settings to test settings filtering on
+-  setting 'xpack.notification.email.account._email.smtp.host', 'host.domain'
+-  setting 'xpack.notification.email.account._email.smtp.port', '587'
+-  setting 'xpack.notification.email.account._email.smtp.user', '_user'
+-  keystore 'xpack.notification.email.account._email.smtp.secure_password', '_passwd'
+-  setting 'xpack.license.self_generated.type', 'trial'
+-  setting 'logger.org.elasticsearch.xpack.watcher', 'debug'
+-  setting 'logger.org.elasticsearch.xpack.core.watcher', 'debug'
+-  rolesFile file('roles.yml')
+-  user username: "test_admin", password: "x-pack-test-password"
+-  user username: "x_pack_rest_user", password: "x-pack-test-password", role: "watcher_manager"
+-  user username: "watcher_manager", password: "x-pack-test-password", role: "watcher_manager"
+-  user username: "powerless_user", password: "x-pack-test-password", role: "crappy_role"
+-}
+diff --git a/x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityClientYamlTestSuiteIT.java b/x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityClientYamlTestSuiteIT.java
+deleted file mode 100644
+index 78e2f8ad8cd7f..0000000000000
+--- a/x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityClientYamlTestSuiteIT.java
++++ /dev/null
+@@ -1,53 +0,0 @@
+-/*
+- * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+- * or more contributor license agreements. Licensed under the Elastic License
+- * 2.0; you may not use this file except in compliance with the Elastic License
+- * 2.0.
+- */
+-package org.elasticsearch.smoketest;
+-
+-import com.carrotsearch.randomizedtesting.annotations.Name;
+-import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
+-
+-import org.elasticsearch.client.Request;
+-import org.elasticsearch.common.settings.SecureString;
+-import org.elasticsearch.common.settings.Settings;
+-import org.elasticsearch.common.util.concurrent.ThreadContext;
+-import org.elasticsearch.test.rest.yaml.ClientYamlTestCandidate;
+-import org.elasticsearch.xpack.watcher.WatcherYamlSuiteTestCase;
+-import org.junit.Before;
+-
+-public class SmokeTestWatcherWithSecurityClientYamlTestSuiteIT extends WatcherYamlSuiteTestCase {
+-
+-    private static final String TEST_ADMIN_USERNAME = "test_admin";
+-    private static final String TEST_ADMIN_PASSWORD = "x-pack-test-password";
+-
+-    public SmokeTestWatcherWithSecurityClientYamlTestSuiteIT(@Name("yaml") ClientYamlTestCandidate testCandidate) {
+-        super(testCandidate);
+-    }
+-
+-    @ParametersFactory
+-    public static Iterable<Object[]> parameters() throws Exception {
+-        return createParameters();
+-    }
+-
+-    @Before
+-    public void beforeTest() throws Exception {
+-        // create one document in this index, so we can test in the YAML tests, that the index cannot be accessed
+-        Request request = new Request("PUT", "/index_not_allowed_to_read/_doc/1");
+-        request.setJsonEntity("{\"foo\":\"bar\"}");
+-        adminClient().performRequest(request);
+-    }
+-
+-    @Override
+-    protected Settings restClientSettings() {
+-        String token = basicAuthHeaderValue("watcher_manager", new SecureString("x-pack-test-password".toCharArray()));
+-        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
+-    }
+-
+-    @Override
+-    protected Settings restAdminSettings() {
+-        String token = basicAuthHeaderValue(TEST_ADMIN_USERNAME, new SecureString(TEST_ADMIN_PASSWORD.toCharArray()));
+-        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
+-    }
+-}
+diff --git a/x-pack/plugin/watcher/qa/rest/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherTestSuiteIT.java b/x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherTestSuiteIT.java
+similarity index 90%
+rename from x-pack/plugin/watcher/qa/rest/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherTestSuiteIT.java
+rename to x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherTestSuiteIT.java
+index d201ee13a05c8..6b6946fa48a32 100644
+--- a/x-pack/plugin/watcher/qa/rest/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherTestSuiteIT.java
++++ b/x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherTestSuiteIT.java
+@@ -10,13 +10,11 @@
+ import org.elasticsearch.client.Response;
+ import org.elasticsearch.client.ResponseException;
+ import org.elasticsearch.common.Strings;
+-import org.elasticsearch.common.settings.SecureString;
+-import org.elasticsearch.common.settings.Settings;
+-import org.elasticsearch.common.util.concurrent.ThreadContext;
++import org.elasticsearch.test.cluster.ElasticsearchCluster;
+ import org.elasticsearch.test.rest.ObjectPath;
+ import org.elasticsearch.xcontent.XContentBuilder;
+ import org.elasticsearch.xcontent.XContentType;
+-import org.elasticsearch.xpack.watcher.WatcherRestTestCase;
++import org.junit.ClassRule;
+ 
+ import java.io.IOException;
+ import java.util.Map;
+@@ -31,19 +29,12 @@
+ 
+ public class SmokeTestWatcherTestSuiteIT extends WatcherRestTestCase {
+ 
+-    private static final String TEST_ADMIN_USERNAME = "test_admin";
+-    private static final String TEST_ADMIN_PASSWORD = "x-pack-test-password";
++    @ClassRule
++    public static ElasticsearchCluster cluster = watcherClusterSpec().build();
+ 
+     @Override
+-    protected Settings restClientSettings() {
+-        String token = basicAuthHeaderValue("watcher_manager", new SecureString("x-pack-test-password".toCharArray()));
+-        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
+-    }
+-
+-    @Override
+-    protected Settings restAdminSettings() {
+-        String token = basicAuthHeaderValue(TEST_ADMIN_USERNAME, new SecureString(TEST_ADMIN_PASSWORD.toCharArray()));
+-        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
++    protected String getTestRestCluster() {
++        return cluster.getHttpAddresses();
+     }
+ 
+     @AwaitsFix(bugUrl = "https://github.com/elastic/elasticsearch/issues/52453")
+@@ -79,8 +70,8 @@ public void testMonitorClusterHealth() throws Exception {
+                 .field("scheme", "http")
+                 .startObject("auth")
+                 .startObject("basic")
+-                .field("username", TEST_ADMIN_USERNAME)
+-                .field("password", TEST_ADMIN_PASSWORD)
++                .field("username", ADMIN_USER)
++                .field("password", TEST_PASSWORD)
+                 .endObject()
+                 .endObject()
+                 .endObject()
+diff --git a/x-pack/plugin/watcher/qa/with-security/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityIT.java b/x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityIT.java
+similarity index 94%
+rename from x-pack/plugin/watcher/qa/with-security/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityIT.java
+rename to x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityIT.java
+index a0d2560aa2406..0284d4b4bc500 100644
+--- a/x-pack/plugin/watcher/qa/with-security/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityIT.java
++++ b/x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/SmokeTestWatcherWithSecurityIT.java
+@@ -11,13 +11,12 @@
+ import org.elasticsearch.client.Response;
+ import org.elasticsearch.client.ResponseException;
+ import org.elasticsearch.common.Strings;
+-import org.elasticsearch.common.settings.SecureString;
+-import org.elasticsearch.common.settings.Settings;
+-import org.elasticsearch.common.util.concurrent.ThreadContext;
++import org.elasticsearch.test.cluster.ElasticsearchCluster;
++import org.elasticsearch.test.cluster.util.resource.Resource;
+ import org.elasticsearch.test.rest.ObjectPath;
+ import org.elasticsearch.xcontent.XContentBuilder;
+-import org.elasticsearch.xpack.watcher.WatcherRestTestCase;
+ import org.junit.Before;
++import org.junit.ClassRule;
+ 
+ import java.io.IOException;
+ import java.util.Map;
+@@ -31,11 +30,19 @@
+ 
+ public class SmokeTestWatcherWithSecurityIT extends WatcherRestTestCase {
+ 
+-    private static final String TEST_ADMIN_USERNAME = "test_admin";
+-    private static final String TEST_ADMIN_PASSWORD = "x-pack-test-password";
+-
+     private String watchId = randomAlphaOfLength(20);
+ 
++    @ClassRule
++    public static ElasticsearchCluster cluster = watcherClusterSpec().setting("xpack.security.enabled", "true")
++        .rolesFile(Resource.fromClasspath("roles.yml"))
++        .user(WATCHER_USER, TEST_PASSWORD, "watcher_manager", false)
++        .build();
++
++    @Override
++    protected String getTestRestCluster() {
++        return cluster.getHttpAddresses();
++    }
++
+     @Before
+     public void beforeTest() throws Exception {
+         Request deleteRequest = new Request("DELETE", "/my_test_index");
+@@ -53,18 +60,6 @@ public void beforeTest() throws Exception {
+         adminClient().performRequest(createNotAllowedDoc);
+     }
+ 
+-    @Override
+-    protected Settings restClientSettings() {
+-        String token = basicAuthHeaderValue("watcher_manager", new SecureString("x-pack-test-password".toCharArray()));
+-        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
+-    }
+-
+-    @Override
+-    protected Settings restAdminSettings() {
+-        String token = basicAuthHeaderValue(TEST_ADMIN_USERNAME, new SecureString(TEST_ADMIN_PASSWORD.toCharArray()));
+-        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
+-    }
+-
+     public void testSearchInputHasPermissions() throws Exception {
+         try (XContentBuilder builder = jsonBuilder()) {
+             builder.startObject();
+diff --git a/x-pack/plugin/watcher/qa/common/src/main/java/org/elasticsearch/xpack/watcher/WatcherRestTestCase.java b/x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/WatcherRestTestCase.java
+similarity index 72%
+rename from x-pack/plugin/watcher/qa/common/src/main/java/org/elasticsearch/xpack/watcher/WatcherRestTestCase.java
+rename to x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/WatcherRestTestCase.java
+index 19f1133e4f14f..95e6a09dc5bde 100644
+--- a/x-pack/plugin/watcher/qa/common/src/main/java/org/elasticsearch/xpack/watcher/WatcherRestTestCase.java
++++ b/x-pack/plugin/watcher/src/javaRestTest/java/org/elasticsearch/smoketest/WatcherRestTestCase.java
+@@ -4,11 +4,16 @@
+  * 2.0; you may not use this file except in compliance with the Elastic License
+  * 2.0.
+  */
+-package org.elasticsearch.xpack.watcher;
++package org.elasticsearch.smoketest;
+ 
+ import org.elasticsearch.client.Request;
+ import org.elasticsearch.client.Response;
++import org.elasticsearch.common.settings.SecureString;
++import org.elasticsearch.common.settings.Settings;
++import org.elasticsearch.common.util.concurrent.ThreadContext;
+ import org.elasticsearch.test.ESTestCase;
++import org.elasticsearch.test.cluster.ElasticsearchCluster;
++import org.elasticsearch.test.cluster.local.LocalClusterSpecBuilder;
+ import org.elasticsearch.test.rest.ESRestTestCase;
+ import org.elasticsearch.test.rest.ObjectPath;
+ import org.junit.After;
+@@ -26,6 +31,36 @@
+  */
+ public abstract class WatcherRestTestCase extends ESRestTestCase {
+ 
++    static final String ADMIN_USER = "test_admin";
++    static final String WATCHER_USER = "watcher_manager";
++    static final String TEST_PASSWORD = "x-pack-test-password";
++
++    static LocalClusterSpecBuilder<ElasticsearchCluster> watcherClusterSpec() {
++        return ElasticsearchCluster.local()
++            .module("x-pack-watcher")
++            .module("x-pack-ilm")
++            .module("ingest-common")
++            .module("analysis-common")
++            .module("lang-mustache")
++            .setting("xpack.ml.enabled", "false")
++            .setting("xpack.license.self_generated.type", "trial")
++            .setting("logger.org.elasticsearch.xpack.watcher", "debug")
++            .setting("logger.org.elasticsearch.xpack.core.watcher", "debug")
++            .user(ADMIN_USER, TEST_PASSWORD, "superuser", true);
++    }
++
++    @Override
++    protected Settings restClientSettings() {
++        String token = basicAuthHeaderValue(WATCHER_USER, new SecureString(TEST_PASSWORD.toCharArray()));
++        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
++    }
++
++    @Override
++    protected Settings restAdminSettings() {
++        String token = basicAuthHeaderValue(ADMIN_USER, new SecureString(TEST_PASSWORD.toCharArray()));
++        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
++    }
++
+     @Before
+     public final void startWatcher() throws Exception {
+         ESTestCase.assertBusy(() -> {
+diff --git a/x-pack/plugin/watcher/qa/with-security/roles.yml b/x-pack/plugin/watcher/src/javaRestTest/resources/roles.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/with-security/roles.yml
+rename to x-pack/plugin/watcher/src/javaRestTest/resources/roles.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestIT.java b/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestIT.java
+similarity index 52%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestIT.java
+rename to x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestIT.java
+index 368a30ece9405..255df7be55722 100644
+--- a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestIT.java
++++ b/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestIT.java
+@@ -6,8 +6,11 @@
+  */
+ package org.elasticsearch.smoketest;
+ 
++import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
++
++import org.elasticsearch.test.cluster.ElasticsearchCluster;
+ import org.elasticsearch.test.rest.yaml.ClientYamlTestCandidate;
+-import org.elasticsearch.xpack.watcher.WatcherYamlSuiteTestCase;
++import org.junit.ClassRule;
+ 
+ /**
+  * Runs the YAML rest tests against an external cluster
+@@ -16,4 +19,17 @@ public class WatcherYamlRestIT extends WatcherYamlSuiteTestCase {
+     public WatcherYamlRestIT(ClientYamlTestCandidate testCandidate) {
+         super(testCandidate);
+     }
++
++    @ClassRule
++    public static ElasticsearchCluster cluster = watcherClusterSpec().build();
++
++    @ParametersFactory
++    public static Iterable<Object[]> parameters() throws Exception {
++        return createParameters(new String[] { "mustache", "painless", "watcher" });
++    }
++
++    @Override
++    protected String getTestRestCluster() {
++        return cluster.getHttpAddresses();
++    }
+ }
+diff --git a/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestWithSecurityIT.java b/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestWithSecurityIT.java
+new file mode 100644
+index 0000000000000..8120349e6d6e3
+--- /dev/null
++++ b/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlRestWithSecurityIT.java
+@@ -0,0 +1,54 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the Elastic License
++ * 2.0; you may not use this file except in compliance with the Elastic License
++ * 2.0.
++ */
++package org.elasticsearch.smoketest;
++
++import com.carrotsearch.randomizedtesting.annotations.Name;
++import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
++
++import org.elasticsearch.client.Request;
++import org.elasticsearch.test.cluster.ElasticsearchCluster;
++import org.elasticsearch.test.cluster.util.resource.Resource;
++import org.elasticsearch.test.rest.yaml.ClientYamlTestCandidate;
++import org.junit.Before;
++import org.junit.ClassRule;
++
++public class WatcherYamlRestWithSecurityIT extends WatcherYamlSuiteTestCase {
++
++    @ClassRule
++    public static ElasticsearchCluster cluster = watcherClusterSpec().setting("xpack.security.enabled", "true")
++        .rolesFile(Resource.fromClasspath("roles.yml"))
++        .user(WATCHER_USER, TEST_PASSWORD, "watcher_manager", false)
++        .user("x_pack_rest_user", TEST_PASSWORD, "watcher_manager", false)
++        // settings to test settings filtering on
++        .setting("xpack.notification.email.account._email.smtp.host", "host.domain")
++        .setting("xpack.notification.email.account._email.smtp.port", "587")
++        .setting("xpack.notification.email.account._email.smtp.user", "_user")
++        .keystore("xpack.notification.email.account._email.smtp.secure_password", "_passwd")
++        .build();
++
++    @Override
++    protected String getTestRestCluster() {
++        return cluster.getHttpAddresses();
++    }
++
++    public WatcherYamlRestWithSecurityIT(@Name("yaml") ClientYamlTestCandidate testCandidate) {
++        super(testCandidate);
++    }
++
++    @ParametersFactory
++    public static Iterable<Object[]> parameters() throws Exception {
++        return createParameters(new String[] { "security" });
++    }
++
++    @Before
++    public void beforeTest() throws Exception {
++        // create one document in this index, so we can test in the YAML tests, that the index cannot be accessed
++        Request request = new Request("PUT", "/index_not_allowed_to_read/_doc/1");
++        request.setJsonEntity("{\"foo\":\"bar\"}");
++        adminClient().performRequest(request);
++    }
++}
+diff --git a/x-pack/plugin/watcher/qa/common/src/main/java/org/elasticsearch/xpack/watcher/WatcherYamlSuiteTestCase.java b/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlSuiteTestCase.java
+similarity index 59%
+rename from x-pack/plugin/watcher/qa/common/src/main/java/org/elasticsearch/xpack/watcher/WatcherYamlSuiteTestCase.java
+rename to x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlSuiteTestCase.java
+index ddcf976c84572..631b7bbc7d168 100644
+--- a/x-pack/plugin/watcher/qa/common/src/main/java/org/elasticsearch/xpack/watcher/WatcherYamlSuiteTestCase.java
++++ b/x-pack/plugin/watcher/src/yamlRestTest/java/org/elasticsearch/smoketest/WatcherYamlSuiteTestCase.java
+@@ -4,23 +4,31 @@
+  * 2.0; you may not use this file except in compliance with the Elastic License
+  * 2.0.
+  */
+-package org.elasticsearch.xpack.watcher;
++package org.elasticsearch.smoketest;
+ 
+ import com.carrotsearch.randomizedtesting.annotations.Name;
+ import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
+ 
++import org.elasticsearch.client.Request;
++import org.elasticsearch.common.settings.SecureString;
++import org.elasticsearch.common.settings.Settings;
++import org.elasticsearch.common.util.concurrent.ThreadContext;
+ import org.elasticsearch.test.ESTestCase;
++import org.elasticsearch.test.cluster.ElasticsearchCluster;
++import org.elasticsearch.test.cluster.local.LocalClusterSpecBuilder;
++import org.elasticsearch.test.rest.ESRestTestCase;
++import org.elasticsearch.test.rest.ObjectPath;
+ import org.elasticsearch.test.rest.yaml.ClientYamlTestCandidate;
+ import org.elasticsearch.test.rest.yaml.ClientYamlTestResponse;
+ import org.elasticsearch.test.rest.yaml.ESClientYamlSuiteTestCase;
+ import org.junit.After;
+ import org.junit.Before;
+ 
++import java.io.IOException;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.concurrent.TimeUnit;
+ 
+-import static org.elasticsearch.xpack.watcher.WatcherRestTestCase.deleteAllWatcherData;
+ import static org.hamcrest.Matchers.is;
+ 
+ /**
+@@ -31,11 +39,42 @@ public WatcherYamlSuiteTestCase(@Name("yaml") ClientYamlTestCandidate testCandid
+         super(testCandidate);
+     }
+ 
++    static final String ADMIN_USER = "test_admin";
++    static final String WATCHER_USER = "watcher_manager";
++    static final String TEST_PASSWORD = "x-pack-test-password";
++
++    static LocalClusterSpecBuilder<ElasticsearchCluster> watcherClusterSpec() {
++        return ElasticsearchCluster.local()
++            .module("x-pack-watcher")
++            .module("x-pack-ilm")
++            .module("ingest-common")
++            .module("analysis-common")
++            .module("lang-mustache")
++            .module("lang-painless")
++            .setting("xpack.ml.enabled", "false")
++            .setting("xpack.license.self_generated.type", "trial")
++            .setting("logger.org.elasticsearch.xpack.watcher", "debug")
++            .setting("logger.org.elasticsearch.xpack.core.watcher", "debug")
++            .user(ADMIN_USER, TEST_PASSWORD, "superuser", true);
++    }
++
+     @ParametersFactory
+     public static Iterable<Object[]> parameters() throws Exception {
+         return ESClientYamlSuiteTestCase.createParameters();
+     }
+ 
++    @Override
++    protected Settings restClientSettings() {
++        String token = basicAuthHeaderValue(WATCHER_USER, new SecureString(TEST_PASSWORD.toCharArray()));
++        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
++    }
++
++    @Override
++    protected Settings restAdminSettings() {
++        String token = basicAuthHeaderValue(ADMIN_USER, new SecureString(TEST_PASSWORD.toCharArray()));
++        return Settings.builder().put(ThreadContext.PREFIX + ".Authorization", token).build();
++    }
++
+     @Before
+     public final void startWatcher() throws Exception {
+         ESTestCase.assertBusy(() -> {
+@@ -93,4 +132,22 @@ public final void stopWatcher() throws Exception {
+         }, 60, TimeUnit.SECONDS);
+         deleteAllWatcherData();
+     }
++
++    static void deleteAllWatcherData() throws IOException {
++        var queryWatchesRequest = new Request("GET", "/_watcher/_query/watches");
++        var response = ObjectPath.createFromResponse(ESRestTestCase.adminClient().performRequest(queryWatchesRequest));
++
++        int totalCount = response.evaluate("count");
++        List<Map<?, ?>> watches = response.evaluate("watches");
++        assert watches.size() == totalCount : "number of watches returned is unequal to the total number of watches";
++        for (Map<?, ?> watch : watches) {
++            String id = (String) watch.get("_id");
++            var deleteWatchRequest = new Request("DELETE", "/_watcher/watch/" + id);
++            assertOK(ESRestTestCase.adminClient().performRequest(deleteWatchRequest));
++        }
++
++        var deleteWatchHistoryRequest = new Request("DELETE", ".watcher-history-*");
++        deleteWatchHistoryRequest.addParameter("ignore_unavailable", "true");
++        ESRestTestCase.adminClient().performRequest(deleteWatchHistoryRequest);
++    }
+ }
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/10_webhook.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/10_webhook.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/10_webhook.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/10_webhook.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/20_array_access.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/20_array_access.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/20_array_access.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/20_array_access.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/25_array_compare.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/25_array_compare.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/25_array_compare.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/25_array_compare.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/30_search_input.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/30_search_input.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/30_search_input.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/30_search_input.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/40_search_transform.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/40_search_transform.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/40_search_transform.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/40_search_transform.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/50_webhook_url_escaping.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/50_webhook_url_escaping.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/50_webhook_url_escaping.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/50_webhook_url_escaping.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/60_template_with_params.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/60_template_with_params.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/mustache/60_template_with_params.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/mustache/60_template_with_params.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/20_minimal_body.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/20_minimal_body.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/20_minimal_body.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/20_minimal_body.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/30_inline_watch.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/30_inline_watch.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/30_inline_watch.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/30_inline_watch.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/40_exception.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/40_exception.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/40_exception.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/40_exception.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/50_update_scripts.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/50_update_scripts.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/50_update_scripts.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/50_update_scripts.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/60_chain_input_with_transform.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/60_chain_input_with_transform.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/60_chain_input_with_transform.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/60_chain_input_with_transform.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/70_json_in_watch.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/70_json_in_watch.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/painless/70_json_in_watch.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/painless/70_json_in_watch.yml
+diff --git a/x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/resources/rest-api-spec/test/watcher/security/10_insufficient_privs.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/security/10_insufficient_privs.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/resources/rest-api-spec/test/watcher/security/10_insufficient_privs.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/security/10_insufficient_privs.yml
+diff --git a/x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/resources/rest-api-spec/test/watcher/security/20_settings_filter.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/security/20_settings_filter.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/resources/rest-api-spec/test/watcher/security/20_settings_filter.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/security/20_settings_filter.yml
+diff --git a/x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/resources/rest-api-spec/test/watcher/security/20_test_run_as_execute_watch.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/security/20_test_run_as_execute_watch.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/with-security/src/yamlRestTest/resources/rest-api-spec/test/watcher/security/20_test_run_as_execute_watch.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/security/20_test_run_as_execute_watch.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/20_ack_individual_action.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/20_ack_individual_action.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/20_ack_individual_action.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/20_ack_individual_action.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/30_reset_ack_after_unmet_condition.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/30_reset_ack_after_unmet_condition.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/30_reset_ack_after_unmet_condition.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/30_reset_ack_after_unmet_condition.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/40_reset_ack_after_unmet_action_condition.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/40_reset_ack_after_unmet_action_condition.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/40_reset_ack_after_unmet_action_condition.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/ack_watch/40_reset_ack_after_unmet_action_condition.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/activate_watch/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/activate_watch/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/activate_watch/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/activate_watch/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/delete_watch/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/delete_watch/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/delete_watch/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/delete_watch/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/20_transform.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/20_transform.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/20_transform.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/20_transform.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/30_throttled.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/30_throttled.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/30_throttled.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/30_throttled.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/40_ignore_condition.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/40_ignore_condition.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/40_ignore_condition.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/40_ignore_condition.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/50_action_mode.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/50_action_mode.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/50_action_mode.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/50_action_mode.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/60_http_input.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/60_http_input.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/60_http_input.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/60_http_input.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/70_invalid.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/70_invalid.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/70_invalid.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/70_invalid.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/80_foreach.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/80_foreach.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/80_foreach.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/80_foreach.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/90_painless_sha.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/90_painless_sha.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/90_painless_sha.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/execute_watch/90_painless_sha.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/20_missing.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/20_missing.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/20_missing.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/20_missing.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/30_with_chain_input.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/30_with_chain_input.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/30_with_chain_input.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/get_watch/30_with_chain_input.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/11_timezoned_schedules.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/11_timezoned_schedules.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/11_timezoned_schedules.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/11_timezoned_schedules.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/20_put_watch_with_throttle_period.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/20_put_watch_with_throttle_period.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/20_put_watch_with_throttle_period.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/20_put_watch_with_throttle_period.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/30_put_watch_with_action_throttle_period.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/30_put_watch_with_action_throttle_period.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/30_put_watch_with_action_throttle_period.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/30_put_watch_with_action_throttle_period.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/40_put_watch_as_inactive.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/40_put_watch_as_inactive.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/40_put_watch_as_inactive.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/40_put_watch_as_inactive.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/50_email_attachment_validation.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/50_email_attachment_validation.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/50_email_attachment_validation.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/50_email_attachment_validation.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/60_put_watch_with_action_condition.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/60_put_watch_with_action_condition.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/60_put_watch_with_action_condition.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/60_put_watch_with_action_condition.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/70_put_watch_with_index_action_using_id.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/70_put_watch_with_index_action_using_id.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/70_put_watch_with_index_action_using_id.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/70_put_watch_with_index_action_using_id.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/80_put_get_watch_with_passwords.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/80_put_get_watch_with_passwords.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/80_put_get_watch_with_passwords.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/80_put_get_watch_with_passwords.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_auto_create_index.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_auto_create_index.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_auto_create_index.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_auto_create_index.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_ensure_watch_gets_overwritten_without_version.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_ensure_watch_gets_overwritten_without_version.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_ensure_watch_gets_overwritten_without_version.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/90_ensure_watch_gets_overwritten_without_version.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/91_search_total_hits_as_int.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/91_search_total_hits_as_int.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/91_search_total_hits_as_int.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/91_search_total_hits_as_int.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/92_put_watch_with_indices_options.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/92_put_watch_with_indices_options.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/92_put_watch_with_indices_options.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/92_put_watch_with_indices_options.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/93_put_watch_with_reporting_interval.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/93_put_watch_with_reporting_interval.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/93_put_watch_with_reporting_interval.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/put_watch/93_put_watch_with_reporting_interval.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/query_watches/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/query_watches/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/query_watches/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/query_watches/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/settings_endpoints/10_watcher_settings.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/settings_endpoints/10_watcher_settings.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/settings_endpoints/10_watcher_settings.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/settings_endpoints/10_watcher_settings.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/start_watcher/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/start_watcher/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/start_watcher/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/start_watcher/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/stats/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/stats/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/stats/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/stats/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/stop_watcher/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/stop_watcher/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/stop_watcher/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/stop_watcher/10_basic.yml
+diff --git a/x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/usage/10_basic.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/usage/10_basic.yml
+similarity index 100%
+rename from x-pack/plugin/watcher/qa/rest/src/yamlRestTest/resources/rest-api-spec/test/watcher/usage/10_basic.yml
+rename to x-pack/plugin/watcher/src/yamlRestTest/resources/rest-api-spec/test/watcher/usage/10_basic.yml
+diff --git a/x-pack/plugin/watcher/src/yamlRestTest/resources/roles.yml b/x-pack/plugin/watcher/src/yamlRestTest/resources/roles.yml
+new file mode 100644
+index 0000000000000..b52fe6c5c5914
+--- /dev/null
++++ b/x-pack/plugin/watcher/src/yamlRestTest/resources/roles.yml
+@@ -0,0 +1,40 @@
++admin:
++  cluster:
++    - all
++  indices:
++    - names: '*'
++      privileges:
++        - all
++
++watcher_manager:
++  cluster:
++    - manage
++  indices:
++    - names: '.watch*'
++      privileges:
++        - all
++    # this index gets created by one of the watcher yaml tests
++    # and is needed for a search transform, so we have to create it as part of the test
++    - names: 'my_test_index'
++      privileges:
++        - all
++  run_as:
++    - powerless_user
++    - watcher_manager
++    - x_pack_rest_user
++
++watcher_monitor:
++  cluster:
++    - monitor
++  indices:
++    - names: '.watcher-history-*'
++      privileges:
++        - read
++
++crappy_role:
++  cluster:
++    - cluster:monitor/nodes/info
++    - cluster:monitor/health
++    - cluster:monitor/nodes/liveness
++    - cluster:monitor/main
++
+diff --git a/x-pack/rest-resources-zip/build.gradle b/x-pack/rest-resources-zip/build.gradle
+index 18b3d71957f1c..a2cf209e12fe4 100644
+--- a/x-pack/rest-resources-zip/build.gradle
++++ b/x-pack/rest-resources-zip/build.gradle
+@@ -30,7 +30,7 @@ dependencies {
+   platinumTests project(path: ':x-pack:plugin:eql:qa:rest', configuration: 'restXpackTests')
+   platinumTests project(path: ':x-pack:plugin:ent-search', configuration: 'restXpackTests')
+   platinumTests project(path: ':x-pack:plugin:inference', configuration: 'restXpackTests')
+-  platinumTests project(path: ':x-pack:plugin:watcher:qa:rest', configuration: 'restXpackTests')
++  platinumTests project(path: ':x-pack:plugin:watcher', configuration: 'restXpackTests')
+   platinumCompatTests project(path: ':x-pack:plugin', configuration: 'restCompatTests')
+   platinumCompatTests project(path: ':x-pack:plugin:eql:qa:rest', configuration: 'restCompatTests')
+ }

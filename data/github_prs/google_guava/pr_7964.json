@@ -1,0 +1,41 @@
+{
+  "id": 7964,
+  "repository": "google/guava",
+  "title": "Remove a suppression that is necessary only when building Guava with JDK 8.",
+  "body": "Remove a suppression that is necessary only when building Guava with JDK 8.\n\nGuava continues to support users who build and run their own code under JDK 8; this is [only about how we build Guava ourselves](https://github.com/google/guava/issues/6549).\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-02T17:24:05+00:00",
+  "created_at": "2025-09-02T14:17:46+00:00",
+  "updated_at": "2025-09-02T17:24:06+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "d5f5391568e77b30dcb4e9a1fac842e14f9aeee5",
+  "head_sha": "f24fd70aa8379f520774b2d842323eae81802835",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -1746,7 +1746,6 @@ Type type() {\n     }\n   }\n \n-  @SuppressWarnings(\"RestrictedApiChecker\") // crashes under JDK8, which EP no longer supports\n   public <T> void testRejectTypeVariable_withOwnerType() {\n     // Neither has subclass\n     assertHasTypeVariable(new From<Integer>().new To<String>().type());"
+    },
+    {
+      "filename": "guava-tests/test/com/google/common/reflect/TypeTokenTest.java",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -1746,7 +1746,6 @@ Type type() {\n     }\n   }\n \n-  @SuppressWarnings(\"RestrictedApiChecker\") // crashes under JDK8, which EP no longer supports\n   public <T> void testRejectTypeVariable_withOwnerType() {\n     // Neither has subclass\n     assertHasTypeVariable(new From<Integer>().new To<String>().type());"
+    }
+  ],
+  "diff": "diff --git a/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java b/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java\nindex bb2783a9d4f9..0b0c18c24330 100644\n--- a/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java\n+++ b/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java\n@@ -1746,7 +1746,6 @@ Type type() {\n     }\n   }\n \n-  @SuppressWarnings(\"RestrictedApiChecker\") // crashes under JDK8, which EP no longer supports\n   public <T> void testRejectTypeVariable_withOwnerType() {\n     // Neither has subclass\n     assertHasTypeVariable(new From<Integer>().new To<String>().type());\ndiff --git a/guava-tests/test/com/google/common/reflect/TypeTokenTest.java b/guava-tests/test/com/google/common/reflect/TypeTokenTest.java\nindex bb2783a9d4f9..0b0c18c24330 100644\n--- a/guava-tests/test/com/google/common/reflect/TypeTokenTest.java\n+++ b/guava-tests/test/com/google/common/reflect/TypeTokenTest.java\n@@ -1746,7 +1746,6 @@ Type type() {\n     }\n   }\n \n-  @SuppressWarnings(\"RestrictedApiChecker\") // crashes under JDK8, which EP no longer supports\n   public <T> void testRejectTypeVariable_withOwnerType() {\n     // Neither has subclass\n     assertHasTypeVariable(new From<Integer>().new To<String>().type());\n",
+  "additions": 0,
+  "deletions": 2,
+  "changed_files": 2,
+  "url": "https://github.com/google/guava/pull/7964",
+  "mined_at": "2025-10-25T13:06:17.619287"
+}

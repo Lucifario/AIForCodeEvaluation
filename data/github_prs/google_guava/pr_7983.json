@@ -1,0 +1,73 @@
+{
+  "id": 7983,
+  "repository": "google/guava",
+  "title": "Address https://errorprone.info/bugpattern/OperatorPrecedence warnings.",
+  "body": "Address https://errorprone.info/bugpattern/OperatorPrecedence warnings.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-11T18:29:04+00:00",
+  "created_at": "2025-09-11T18:02:29+00:00",
+  "updated_at": "2025-09-11T18:29:05+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "2de649504a00b02ab0c1407bbebeac65313b4197",
+  "head_sha": "233d873dbbcfbc555a613173a9addd45b34613d6",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava/src/com/google/common/io/BaseEncoding.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -1011,7 +1011,7 @@ void encodeTo(Appendable target, byte[] bytes, int off, int len) throws IOExcept\n       checkPositionIndexes(off, off + len, bytes.length);\n       int i = off;\n       for (int remaining = len; remaining >= 3; remaining -= 3) {\n-        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | bytes[i++] & 0xFF;\n+        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | (bytes[i++] & 0xFF);\n         target.append(alphabet.encode(chunk >>> 18));\n         target.append(alphabet.encode((chunk >>> 12) & 0x3F));\n         target.append(alphabet.encode((chunk >>> 6) & 0x3F));"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/math/IntMath.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -593,7 +593,7 @@ public static int saturatedPow(int b, int k) {\n     }\n     int accum = 1;\n     // if b is negative and k is odd then the limit is MIN otherwise the limit is MAX\n-    int limit = Integer.MAX_VALUE + ((b >>> Integer.SIZE - 1) & (k & 1));\n+    int limit = Integer.MAX_VALUE + ((b >>> (Integer.SIZE - 1)) & (k & 1));\n     while (true) {\n       switch (k) {\n         case 0:"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -80,7 +80,7 @@ public final void run() {\n     @RetainedLocalRef ListenableFuture<? extends V> localInputFuture = inputFuture;\n     @RetainedLocalRef Class<X> localExceptionType = exceptionType;\n     @RetainedLocalRef F localFallback = fallback;\n-    if (localInputFuture == null | localExceptionType == null | localFallback == null\n+    if ((localInputFuture == null | localExceptionType == null | localFallback == null)\n         // This check, unlike all the others, is a volatile read\n         || isCancelled()) {\n       return;"
+    },
+    {
+      "filename": "guava/src/com/google/common/io/BaseEncoding.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -1011,7 +1011,7 @@ void encodeTo(Appendable target, byte[] bytes, int off, int len) throws IOExcept\n       checkPositionIndexes(off, off + len, bytes.length);\n       int i = off;\n       for (int remaining = len; remaining >= 3; remaining -= 3) {\n-        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | bytes[i++] & 0xFF;\n+        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | (bytes[i++] & 0xFF);\n         target.append(alphabet.encode(chunk >>> 18));\n         target.append(alphabet.encode((chunk >>> 12) & 0x3F));\n         target.append(alphabet.encode((chunk >>> 6) & 0x3F));"
+    },
+    {
+      "filename": "guava/src/com/google/common/math/IntMath.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -593,7 +593,7 @@ public static int saturatedPow(int b, int k) {\n     }\n     int accum = 1;\n     // if b is negative and k is odd then the limit is MIN otherwise the limit is MAX\n-    int limit = Integer.MAX_VALUE + ((b >>> Integer.SIZE - 1) & (k & 1));\n+    int limit = Integer.MAX_VALUE + ((b >>> (Integer.SIZE - 1)) & (k & 1));\n     while (true) {\n       switch (k) {\n         case 0:"
+    },
+    {
+      "filename": "guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -80,7 +80,7 @@ public final void run() {\n     @RetainedLocalRef ListenableFuture<? extends V> localInputFuture = inputFuture;\n     @RetainedLocalRef Class<X> localExceptionType = exceptionType;\n     @RetainedLocalRef F localFallback = fallback;\n-    if (localInputFuture == null | localExceptionType == null | localFallback == null\n+    if ((localInputFuture == null | localExceptionType == null | localFallback == null)\n         // This check, unlike all the others, is a volatile read\n         || isCancelled()) {\n       return;"
+    }
+  ],
+  "diff": "diff --git a/android/guava/src/com/google/common/io/BaseEncoding.java b/android/guava/src/com/google/common/io/BaseEncoding.java\nindex f05858e7733d..2de70839c007 100644\n--- a/android/guava/src/com/google/common/io/BaseEncoding.java\n+++ b/android/guava/src/com/google/common/io/BaseEncoding.java\n@@ -1011,7 +1011,7 @@ void encodeTo(Appendable target, byte[] bytes, int off, int len) throws IOExcept\n       checkPositionIndexes(off, off + len, bytes.length);\n       int i = off;\n       for (int remaining = len; remaining >= 3; remaining -= 3) {\n-        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | bytes[i++] & 0xFF;\n+        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | (bytes[i++] & 0xFF);\n         target.append(alphabet.encode(chunk >>> 18));\n         target.append(alphabet.encode((chunk >>> 12) & 0x3F));\n         target.append(alphabet.encode((chunk >>> 6) & 0x3F));\ndiff --git a/android/guava/src/com/google/common/math/IntMath.java b/android/guava/src/com/google/common/math/IntMath.java\nindex b2957cdcd0b8..bdd6c471eb71 100644\n--- a/android/guava/src/com/google/common/math/IntMath.java\n+++ b/android/guava/src/com/google/common/math/IntMath.java\n@@ -593,7 +593,7 @@ public static int saturatedPow(int b, int k) {\n     }\n     int accum = 1;\n     // if b is negative and k is odd then the limit is MIN otherwise the limit is MAX\n-    int limit = Integer.MAX_VALUE + ((b >>> Integer.SIZE - 1) & (k & 1));\n+    int limit = Integer.MAX_VALUE + ((b >>> (Integer.SIZE - 1)) & (k & 1));\n     while (true) {\n       switch (k) {\n         case 0:\ndiff --git a/android/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java b/android/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java\nindex 9482e213eeb4..1f799c24cbcc 100644\n--- a/android/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java\n+++ b/android/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java\n@@ -80,7 +80,7 @@ public final void run() {\n     @RetainedLocalRef ListenableFuture<? extends V> localInputFuture = inputFuture;\n     @RetainedLocalRef Class<X> localExceptionType = exceptionType;\n     @RetainedLocalRef F localFallback = fallback;\n-    if (localInputFuture == null | localExceptionType == null | localFallback == null\n+    if ((localInputFuture == null | localExceptionType == null | localFallback == null)\n         // This check, unlike all the others, is a volatile read\n         || isCancelled()) {\n       return;\ndiff --git a/guava/src/com/google/common/io/BaseEncoding.java b/guava/src/com/google/common/io/BaseEncoding.java\nindex f05858e7733d..2de70839c007 100644\n--- a/guava/src/com/google/common/io/BaseEncoding.java\n+++ b/guava/src/com/google/common/io/BaseEncoding.java\n@@ -1011,7 +1011,7 @@ void encodeTo(Appendable target, byte[] bytes, int off, int len) throws IOExcept\n       checkPositionIndexes(off, off + len, bytes.length);\n       int i = off;\n       for (int remaining = len; remaining >= 3; remaining -= 3) {\n-        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | bytes[i++] & 0xFF;\n+        int chunk = (bytes[i++] & 0xFF) << 16 | (bytes[i++] & 0xFF) << 8 | (bytes[i++] & 0xFF);\n         target.append(alphabet.encode(chunk >>> 18));\n         target.append(alphabet.encode((chunk >>> 12) & 0x3F));\n         target.append(alphabet.encode((chunk >>> 6) & 0x3F));\ndiff --git a/guava/src/com/google/common/math/IntMath.java b/guava/src/com/google/common/math/IntMath.java\nindex b2957cdcd0b8..bdd6c471eb71 100644\n--- a/guava/src/com/google/common/math/IntMath.java\n+++ b/guava/src/com/google/common/math/IntMath.java\n@@ -593,7 +593,7 @@ public static int saturatedPow(int b, int k) {\n     }\n     int accum = 1;\n     // if b is negative and k is odd then the limit is MIN otherwise the limit is MAX\n-    int limit = Integer.MAX_VALUE + ((b >>> Integer.SIZE - 1) & (k & 1));\n+    int limit = Integer.MAX_VALUE + ((b >>> (Integer.SIZE - 1)) & (k & 1));\n     while (true) {\n       switch (k) {\n         case 0:\ndiff --git a/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java b/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java\nindex 9482e213eeb4..1f799c24cbcc 100644\n--- a/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java\n+++ b/guava/src/com/google/common/util/concurrent/AbstractCatchingFuture.java\n@@ -80,7 +80,7 @@ public final void run() {\n     @RetainedLocalRef ListenableFuture<? extends V> localInputFuture = inputFuture;\n     @RetainedLocalRef Class<X> localExceptionType = exceptionType;\n     @RetainedLocalRef F localFallback = fallback;\n-    if (localInputFuture == null | localExceptionType == null | localFallback == null\n+    if ((localInputFuture == null | localExceptionType == null | localFallback == null)\n         // This check, unlike all the others, is a volatile read\n         || isCancelled()) {\n       return;\n",
+  "additions": 6,
+  "deletions": 6,
+  "changed_files": 6,
+  "url": "https://github.com/google/guava/pull/7983",
+  "mined_at": "2025-10-25T13:03:32.432901"
+}

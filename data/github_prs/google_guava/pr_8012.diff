@@ -1,0 +1,1270 @@
+diff --git a/android/guava/src/com/google/common/collect/AbstractRangeSet.java b/android/guava/src/com/google/common/collect/AbstractRangeSet.java
+index 7a879a4a885a..c84d126ce1c4 100644
+--- a/android/guava/src/com/google/common/collect/AbstractRangeSet.java
++++ b/android/guava/src/com/google/common/collect/AbstractRangeSet.java
+@@ -52,7 +52,7 @@ public void remove(Range<C> range) {
+ 
+   @Override
+   public void clear() {
+-    remove(Range.<C>all());
++    remove(Range.all());
+   }
+ 
+   @Override
+diff --git a/android/guava/src/com/google/common/collect/ArrayListMultimap.java b/android/guava/src/com/google/common/collect/ArrayListMultimap.java
+index b5681ddb48b4..ed3d205f41a7 100644
+--- a/android/guava/src/com/google/common/collect/ArrayListMultimap.java
++++ b/android/guava/src/com/google/common/collect/ArrayListMultimap.java
+@@ -116,7 +116,7 @@ private ArrayListMultimap() {
+   }
+ 
+   private ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
+-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
++    super(Platform.newHashMapWithExpectedSize(expectedKeys));
+     checkNonnegative(expectedValuesPerKey, "expectedValuesPerKey");
+     this.expectedValuesPerKey = expectedValuesPerKey;
+   }
+diff --git a/android/guava/src/com/google/common/collect/CollectCollectors.java b/android/guava/src/com/google/common/collect/CollectCollectors.java
+index c0dc823cd54c..c8527ab46f23 100644
+--- a/android/guava/src/com/google/common/collect/CollectCollectors.java
++++ b/android/guava/src/com/google/common/collect/CollectCollectors.java
+@@ -339,7 +339,7 @@ EnumMapAccumulator<K, V> combine(EnumMapAccumulator<K, V> other) {
+     }
+ 
+     ImmutableMap<K, V> toImmutableMap() {
+-      return (map == null) ? ImmutableMap.<K, V>of() : ImmutableEnumMap.asImmutable(map);
++      return (map == null) ? ImmutableMap.of() : ImmutableEnumMap.asImmutable(map);
+     }
+   }
+ 
+diff --git a/android/guava/src/com/google/common/collect/Cut.java b/android/guava/src/com/google/common/collect/Cut.java
+index dffa6676e7c6..7725a8a3147e 100644
+--- a/android/guava/src/com/google/common/collect/Cut.java
++++ b/android/guava/src/com/google/common/collect/Cut.java
+@@ -187,7 +187,7 @@ Comparable<?> greatestValueBelow(DiscreteDomain<Comparable<?>> domain) {
+     @Override
+     Cut<Comparable<?>> canonical(DiscreteDomain<Comparable<?>> domain) {
+       try {
+-        return Cut.<Comparable<?>>belowValue(domain.minValue());
++        return Cut.belowValue(domain.minValue());
+       } catch (NoSuchElementException e) {
+         return this;
+       }
+diff --git a/android/guava/src/com/google/common/collect/DescendingMultiset.java b/android/guava/src/com/google/common/collect/DescendingMultiset.java
+index a4d98f1cd36e..93dda645f2f6 100644
+--- a/android/guava/src/com/google/common/collect/DescendingMultiset.java
++++ b/android/guava/src/com/google/common/collect/DescendingMultiset.java
+@@ -42,7 +42,8 @@ abstract class DescendingMultiset<E extends @Nullable Object> extends Forwarding
+   public Comparator<? super E> comparator() {
+     Comparator<? super E> result = comparator;
+     if (result == null) {
+-      return comparator = Ordering.from(forwardMultiset().comparator()).<E>reverse();
++      result = Ordering.from(forwardMultiset().comparator()).reverse();
++      comparator = result;
+     }
+     return result;
+   }
+diff --git a/android/guava/src/com/google/common/collect/FilteredEntryMultimap.java b/android/guava/src/com/google/common/collect/FilteredEntryMultimap.java
+index 9e83fff8fb25..406e65f67232 100644
+--- a/android/guava/src/com/google/common/collect/FilteredEntryMultimap.java
++++ b/android/guava/src/com/google/common/collect/FilteredEntryMultimap.java
+@@ -230,12 +230,12 @@ final class KeySetImpl extends Maps.KeySet<K, Collection<V>> {
+ 
+         @Override
+         public boolean removeAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<K>keyPredicateOnEntries(in(c)));
++          return removeEntriesIf(Maps.keyPredicateOnEntries(in(c)));
+         }
+ 
+         @Override
+         public boolean retainAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<K>keyPredicateOnEntries(not(in(c))));
++          return removeEntriesIf(Maps.keyPredicateOnEntries(not(in(c))));
+         }
+ 
+         @Override
+@@ -334,12 +334,12 @@ public boolean remove(@Nullable Object o) {
+ 
+         @Override
+         public boolean removeAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<Collection<V>>valuePredicateOnEntries(in(c)));
++          return removeEntriesIf(Maps.valuePredicateOnEntries(in(c)));
+         }
+ 
+         @Override
+         public boolean retainAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<Collection<V>>valuePredicateOnEntries(not(in(c))));
++          return removeEntriesIf(Maps.valuePredicateOnEntries(not(in(c))));
+         }
+       }
+       return new ValuesImpl();
+diff --git a/android/guava/src/com/google/common/collect/FluentIterable.java b/android/guava/src/com/google/common/collect/FluentIterable.java
+index 7324e14cd61b..3ec64e5b7545 100644
+--- a/android/guava/src/com/google/common/collect/FluentIterable.java
++++ b/android/guava/src/com/google/common/collect/FluentIterable.java
+@@ -317,7 +317,7 @@ public Iterator<? extends T> get(int i) {
+    */
+   @SuppressWarnings("EmptyList") // ImmutableList doesn't support nullable element types
+   public static <E extends @Nullable Object> FluentIterable<E> of() {
+-    return FluentIterable.from(Collections.<E>emptyList());
++    return FluentIterable.from(Collections.emptyList());
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/HashMultimap.java b/android/guava/src/com/google/common/collect/HashMultimap.java
+index 47d211498a83..e334ecbb6ffe 100644
+--- a/android/guava/src/com/google/common/collect/HashMultimap.java
++++ b/android/guava/src/com/google/common/collect/HashMultimap.java
+@@ -107,13 +107,13 @@ private HashMultimap() {
+   }
+ 
+   private HashMultimap(int expectedKeys, int expectedValuesPerKey) {
+-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
++    super(Platform.newHashMapWithExpectedSize(expectedKeys));
+     Preconditions.checkArgument(expectedValuesPerKey >= 0);
+     this.expectedValuesPerKey = expectedValuesPerKey;
+   }
+ 
+   private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
+-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(multimap.keySet().size()));
++    super(Platform.newHashMapWithExpectedSize(multimap.keySet().size()));
+     putAll(multimap);
+   }
+ 
+@@ -126,7 +126,7 @@ private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
+    */
+   @Override
+   Set<V> createCollection() {
+-    return Platform.<V>newHashSetWithExpectedSize(expectedValuesPerKey);
++    return Platform.newHashSetWithExpectedSize(expectedValuesPerKey);
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/LinkedListMultimap.java b/android/guava/src/com/google/common/collect/LinkedListMultimap.java
+index c71b322733a9..af35da14a011 100644
+--- a/android/guava/src/com/google/common/collect/LinkedListMultimap.java
++++ b/android/guava/src/com/google/common/collect/LinkedListMultimap.java
+@@ -409,7 +409,7 @@ void setValue(@ParametricNullness V value) {
+ 
+   /** An {@code Iterator} over distinct keys in key head order. */
+   private final class DistinctKeyIterator implements Iterator<K> {
+-    final Set<K> seenKeys = Sets.<K>newHashSetWithExpectedSize(keySet().size());
++    final Set<K> seenKeys = Sets.newHashSetWithExpectedSize(keySet().size());
+     @Nullable Node<K, V> next = head;
+     @Nullable Node<K, V> current;
+     int expectedModCount = modCount;
+diff --git a/android/guava/src/com/google/common/collect/MapMakerInternalMap.java b/android/guava/src/com/google/common/collect/MapMakerInternalMap.java
+index 1d12d409f09b..490d47449843 100644
+--- a/android/guava/src/com/google/common/collect/MapMakerInternalMap.java
++++ b/android/guava/src/com/google/common/collect/MapMakerInternalMap.java
+@@ -206,18 +206,18 @@ private MapMakerInternalMap(MapMaker builder, InternalEntryHelper<K, V, E, S> en
+       MapMaker builder) {
+     if (builder.getKeyStrength() == Strength.STRONG
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, StrongKeyStrongValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, StrongKeyStrongValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.STRONG
+         && builder.getValueStrength() == Strength.WEAK) {
+-      return new MapMakerInternalMap<>(builder, StrongKeyWeakValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, StrongKeyWeakValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.WEAK
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, WeakKeyStrongValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, WeakKeyStrongValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.WEAK && builder.getValueStrength() == Strength.WEAK) {
+-      return new MapMakerInternalMap<>(builder, WeakKeyWeakValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, WeakKeyWeakValueEntry.Helper.instance());
+     }
+     throw new AssertionError();
+   }
+@@ -237,11 +237,11 @@ private MapMakerInternalMap(MapMaker builder, InternalEntryHelper<K, V, E, S> en
+           MapMaker builder) {
+     if (builder.getKeyStrength() == Strength.STRONG
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, StrongKeyDummyValueEntry.Helper.<K>instance());
++      return new MapMakerInternalMap<>(builder, StrongKeyDummyValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.WEAK
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, WeakKeyDummyValueEntry.Helper.<K>instance());
++      return new MapMakerInternalMap<>(builder, WeakKeyDummyValueEntry.Helper.instance());
+     }
+     if (builder.getValueStrength() == Strength.WEAK) {
+       throw new IllegalArgumentException("Map cannot have both weak and dummy values");
+diff --git a/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java b/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+index 6e13b5771ce5..9d6772c0e92b 100644
+--- a/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
++++ b/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+@@ -116,7 +116,7 @@ public static <E extends Comparable<E>> MinMaxPriorityQueue<E> create() {
+    */
+   public static <E extends Comparable<E>> MinMaxPriorityQueue<E> create(
+       Iterable<? extends E> initialContents) {
+-    return new Builder<E>(Ordering.<E>natural()).create(initialContents);
++    return new Builder<E>(Ordering.natural()).create(initialContents);
+   }
+ 
+   /**
+@@ -207,7 +207,7 @@ public Builder<B> maximumSize(int maximumSize) {
+      * initial contents.
+      */
+     public <T extends B> MinMaxPriorityQueue<T> create() {
+-      return create(Collections.<T>emptySet());
++      return create(Collections.emptySet());
+     }
+ 
+     /**
+diff --git a/android/guava/src/com/google/common/collect/MultimapBuilder.java b/android/guava/src/com/google/common/collect/MultimapBuilder.java
+index f3f8782713d2..37910765558c 100644
+--- a/android/guava/src/com/google/common/collect/MultimapBuilder.java
++++ b/android/guava/src/com/google/common/collect/MultimapBuilder.java
+@@ -298,7 +298,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> ListMultimap<K, V> build() {
+           return Multimaps.newListMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(),
++              MultimapBuilderWithKeys.this.createMap(),
+               new ArrayListSupplier<V>(expectedValuesPerKey));
+         }
+       };
+@@ -318,7 +318,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> ListMultimap<K, V> build() {
+           return Multimaps.newListMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(), LinkedListSupplier.<V>instance());
++              MultimapBuilderWithKeys.this.createMap(), LinkedListSupplier.instance());
+         }
+       };
+     }
+@@ -340,7 +340,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> SetMultimap<K, V> build() {
+           return Multimaps.newSetMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(),
++              MultimapBuilderWithKeys.this.createMap(),
+               new HashSetSupplier<V>(expectedValuesPerKey));
+         }
+       };
+@@ -363,7 +363,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> SetMultimap<K, V> build() {
+           return Multimaps.newSetMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(),
++              MultimapBuilderWithKeys.this.createMap(),
+               new LinkedHashSetSupplier<V>(expectedValuesPerKey));
+         }
+       };
+@@ -388,7 +388,7 @@ public SortedSetMultimapBuilder<K0, Comparable> treeSetValues() {
+         @Override
+         public <K extends K0, V extends V0> SortedSetMultimap<K, V> build() {
+           return Multimaps.newSortedSetMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(), new TreeSetSupplier<V>(comparator));
++              MultimapBuilderWithKeys.this.createMap(), new TreeSetSupplier<V>(comparator));
+         }
+       };
+     }
+@@ -403,7 +403,7 @@ public <K extends K0, V extends V0> SetMultimap<K, V> build() {
+           // (their subclasses are inaccessible)
+           @SuppressWarnings({"unchecked", "rawtypes"})
+           Supplier<Set<V>> factory = (Supplier) new EnumSetSupplier<V0>(valueClass);
+-          return Multimaps.newSetMultimap(MultimapBuilderWithKeys.this.<K, V>createMap(), factory);
++          return Multimaps.newSetMultimap(MultimapBuilderWithKeys.this.createMap(), factory);
+         }
+       };
+     }
+diff --git a/android/guava/src/com/google/common/collect/Multimaps.java b/android/guava/src/com/google/common/collect/Multimaps.java
+index 172088496664..298199cc4160 100644
+--- a/android/guava/src/com/google/common/collect/Multimaps.java
++++ b/android/guava/src/com/google/common/collect/Multimaps.java
+@@ -612,8 +612,7 @@ M invertFrom(Multimap<? extends V, ? extends K> source, M dest) {
+    * any of its collection views:
+    *
+    * {@snippet :
+-   * Multimap<K, V> multimap = Multimaps.synchronizedMultimap(
+-   *     HashMultimap.<K, V>create());
++   * Multimap<K, V> multimap = Multimaps.synchronizedMultimap(HashMultimap.create());
+    * ...
+    * Collection<V> values = multimap.get(key);  // Needn't be in synchronized block
+    * ...
+@@ -1535,7 +1534,7 @@ Collection<Entry<K, V2>> createEntries() {
+     @Override
+     Iterator<Entry<K, V2>> entryIterator() {
+       return Iterators.transform(
+-          fromMultimap.entries().iterator(), Maps.<K, V1, V2>asEntryToEntryFunction(transformer));
++          fromMultimap.entries().iterator(), Maps.asEntryToEntryFunction(transformer));
+     }
+ 
+     @Override
+@@ -1969,10 +1968,10 @@ public void clear() {
+     } else if (unfiltered instanceof FilteredKeyMultimap) {
+       FilteredKeyMultimap<K, V> prev = (FilteredKeyMultimap<K, V>) unfiltered;
+       return new FilteredKeyMultimap<>(
+-          prev.unfiltered, Predicates.<K>and(prev.keyPredicate, keyPredicate));
++          prev.unfiltered, Predicates.and(prev.keyPredicate, keyPredicate));
+     } else if (unfiltered instanceof FilteredMultimap) {
+       FilteredMultimap<K, V> prev = (FilteredMultimap<K, V>) unfiltered;
+-      return filterFiltered(prev, Maps.<K>keyPredicateOnEntries(keyPredicate));
++      return filterFiltered(prev, Maps.keyPredicateOnEntries(keyPredicate));
+     } else {
+       return new FilteredKeyMultimap<>(unfiltered, keyPredicate);
+     }
+@@ -2011,10 +2010,10 @@ SetMultimap<K, V> filterKeys(
+     if (unfiltered instanceof FilteredKeySetMultimap) {
+       FilteredKeySetMultimap<K, V> prev = (FilteredKeySetMultimap<K, V>) unfiltered;
+       return new FilteredKeySetMultimap<>(
+-          prev.unfiltered(), Predicates.<K>and(prev.keyPredicate, keyPredicate));
++          prev.unfiltered(), Predicates.and(prev.keyPredicate, keyPredicate));
+     } else if (unfiltered instanceof FilteredSetMultimap) {
+       FilteredSetMultimap<K, V> prev = (FilteredSetMultimap<K, V>) unfiltered;
+-      return filterFiltered(prev, Maps.<K>keyPredicateOnEntries(keyPredicate));
++      return filterFiltered(prev, Maps.keyPredicateOnEntries(keyPredicate));
+     } else {
+       return new FilteredKeySetMultimap<>(unfiltered, keyPredicate);
+     }
+@@ -2053,7 +2052,7 @@ ListMultimap<K, V> filterKeys(
+     if (unfiltered instanceof FilteredKeyListMultimap) {
+       FilteredKeyListMultimap<K, V> prev = (FilteredKeyListMultimap<K, V>) unfiltered;
+       return new FilteredKeyListMultimap<>(
+-          prev.unfiltered(), Predicates.<K>and(prev.keyPredicate, keyPredicate));
++          prev.unfiltered(), Predicates.and(prev.keyPredicate, keyPredicate));
+     } else {
+       return new FilteredKeyListMultimap<>(unfiltered, keyPredicate);
+     }
+@@ -2088,7 +2087,7 @@ ListMultimap<K, V> filterKeys(
+    */
+   public static <K extends @Nullable Object, V extends @Nullable Object>
+       Multimap<K, V> filterValues(Multimap<K, V> unfiltered, Predicate<? super V> valuePredicate) {
+-    return filterEntries(unfiltered, Maps.<V>valuePredicateOnEntries(valuePredicate));
++    return filterEntries(unfiltered, Maps.valuePredicateOnEntries(valuePredicate));
+   }
+ 
+   /**
+@@ -2121,7 +2120,7 @@ Multimap<K, V> filterValues(Multimap<K, V> unfiltered, Predicate<? super V> valu
+   public static <K extends @Nullable Object, V extends @Nullable Object>
+       SetMultimap<K, V> filterValues(
+           SetMultimap<K, V> unfiltered, Predicate<? super V> valuePredicate) {
+-    return filterEntries(unfiltered, Maps.<V>valuePredicateOnEntries(valuePredicate));
++    return filterEntries(unfiltered, Maps.valuePredicateOnEntries(valuePredicate));
+   }
+ 
+   /**
+@@ -2204,8 +2203,7 @@ SetMultimap<K, V> filterEntries(
+   private static <K extends @Nullable Object, V extends @Nullable Object>
+       Multimap<K, V> filterFiltered(
+           FilteredMultimap<K, V> multimap, Predicate<? super Entry<K, V>> entryPredicate) {
+-    Predicate<Entry<K, V>> predicate =
+-        Predicates.<Entry<K, V>>and(multimap.entryPredicate(), entryPredicate);
++    Predicate<Entry<K, V>> predicate = Predicates.and(multimap.entryPredicate(), entryPredicate);
+     return new FilteredEntryMultimap<>(multimap.unfiltered(), predicate);
+   }
+ 
+@@ -2218,8 +2216,7 @@ Multimap<K, V> filterFiltered(
+   private static <K extends @Nullable Object, V extends @Nullable Object>
+       SetMultimap<K, V> filterFiltered(
+           FilteredSetMultimap<K, V> multimap, Predicate<? super Entry<K, V>> entryPredicate) {
+-    Predicate<Entry<K, V>> predicate =
+-        Predicates.<Entry<K, V>>and(multimap.entryPredicate(), entryPredicate);
++    Predicate<Entry<K, V>> predicate = Predicates.and(multimap.entryPredicate(), entryPredicate);
+     return new FilteredEntrySetMultimap<>(multimap.unfiltered(), predicate);
+   }
+ 
+diff --git a/android/guava/src/com/google/common/collect/Multisets.java b/android/guava/src/com/google/common/collect/Multisets.java
+index 1eb9d05f0746..b3b33c5b10c1 100644
+--- a/android/guava/src/com/google/common/collect/Multisets.java
++++ b/android/guava/src/com/google/common/collect/Multisets.java
+@@ -145,7 +145,7 @@ protected Multiset<E> delegate() {
+     @LazyInit transient @Nullable Set<E> elementSet;
+ 
+     Set<E> createElementSet() {
+-      return Collections.<E>unmodifiableSet(delegate.elementSet());
++      return Collections.unmodifiableSet(delegate.elementSet());
+     }
+ 
+     @Override
+@@ -169,7 +169,7 @@ public Set<Multiset.Entry<E>> entrySet() {
+ 
+     @Override
+     public Iterator<E> iterator() {
+-      return Iterators.<E>unmodifiableIterator(delegate.iterator());
++      return Iterators.unmodifiableIterator(delegate.iterator());
+     }
+ 
+     @Override
+diff --git a/android/guava/src/com/google/common/collect/Ordering.java b/android/guava/src/com/google/common/collect/Ordering.java
+index 099941eaec3d..e3229f672c45 100644
+--- a/android/guava/src/com/google/common/collect/Ordering.java
++++ b/android/guava/src/com/google/common/collect/Ordering.java
+@@ -461,7 +461,7 @@ public <S extends T> Ordering<S> reverse() {
+   }
+ 
+   <T2 extends T> Ordering<Entry<T2, ?>> onKeys() {
+-    return onResultOf(Maps.<T2>keyFunction());
++    return onResultOf(Maps.keyFunction());
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/Queues.java b/android/guava/src/com/google/common/collect/Queues.java
+index d1aadd31960b..4b36ba14ae29 100644
+--- a/android/guava/src/com/google/common/collect/Queues.java
++++ b/android/guava/src/com/google/common/collect/Queues.java
+@@ -469,7 +469,7 @@ public static <E> int drainUninterruptibly(
+    * of the deque's iterators:
+    *
+    * {@snippet :
+-   * Deque<E> deque = Queues.synchronizedDeque(Queues.<E>newArrayDeque());
++   * Deque<E> deque = Queues.synchronizedDeque(Queues.newArrayDeque());
+    * ...
+    * deque.add(element);  // Needn't be in synchronized block
+    * ...
+diff --git a/android/guava/src/com/google/common/collect/Range.java b/android/guava/src/com/google/common/collect/Range.java
+index 829a23c6b945..2cda2e6d81da 100644
+--- a/android/guava/src/com/google/common/collect/Range.java
++++ b/android/guava/src/com/google/common/collect/Range.java
+@@ -208,7 +208,7 @@ public static <C extends Comparable<?>> Range<C> range(
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> lessThan(C endpoint) {
+-    return create(Cut.<C>belowAll(), Cut.belowValue(endpoint));
++    return create(Cut.belowAll(), Cut.belowValue(endpoint));
+   }
+ 
+   /**
+@@ -217,7 +217,7 @@ public static <C extends Comparable<?>> Range<C> lessThan(C endpoint) {
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> atMost(C endpoint) {
+-    return create(Cut.<C>belowAll(), Cut.aboveValue(endpoint));
++    return create(Cut.belowAll(), Cut.aboveValue(endpoint));
+   }
+ 
+   /**
+@@ -242,7 +242,7 @@ public static <C extends Comparable<?>> Range<C> upTo(C endpoint, BoundType boun
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> greaterThan(C endpoint) {
+-    return create(Cut.aboveValue(endpoint), Cut.<C>aboveAll());
++    return create(Cut.aboveValue(endpoint), Cut.aboveAll());
+   }
+ 
+   /**
+@@ -251,7 +251,7 @@ public static <C extends Comparable<?>> Range<C> greaterThan(C endpoint) {
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> atLeast(C endpoint) {
+-    return create(Cut.belowValue(endpoint), Cut.<C>aboveAll());
++    return create(Cut.belowValue(endpoint), Cut.aboveAll());
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/Sets.java b/android/guava/src/com/google/common/collect/Sets.java
+index 3bea922c2164..53d776055828 100644
+--- a/android/guava/src/com/google/common/collect/Sets.java
++++ b/android/guava/src/com/google/common/collect/Sets.java
+@@ -451,7 +451,7 @@ public static <E extends Comparable> TreeSet<E> newTreeSet(Iterable<? extends E>
+    * @since 8.0
+    */
+   public static <E extends @Nullable Object> Set<E> newIdentityHashSet() {
+-    return Collections.newSetFromMap(Maps.<E, Boolean>newIdentityHashMap());
++    return Collections.newSetFromMap(Maps.newIdentityHashMap());
+   }
+ 
+   /**
+@@ -1766,9 +1766,9 @@ public static <E> Set<Set<E>> combinations(Set<E> set, int size) {
+     checkNonnegative(size, "size");
+     checkArgument(size <= index.size(), "size (%s) must be <= set.size() (%s)", size, index.size());
+     if (size == 0) {
+-      return ImmutableSet.<Set<E>>of(ImmutableSet.<E>of());
++      return ImmutableSet.of(ImmutableSet.of());
+     } else if (size == index.size()) {
+-      return ImmutableSet.<Set<E>>of(index.keySet());
++      return ImmutableSet.of(index.keySet());
+     }
+     return new AbstractSet<Set<E>>() {
+       @Override
+diff --git a/android/guava/src/com/google/common/collect/StandardTable.java b/android/guava/src/com/google/common/collect/StandardTable.java
+index 490f8fefa7c5..562904ee76cd 100644
+--- a/android/guava/src/com/google/common/collect/StandardTable.java
++++ b/android/guava/src/com/google/common/collect/StandardTable.java
+@@ -606,7 +606,7 @@ public boolean remove(@Nullable Object obj) {
+ 
+       @Override
+       public boolean retainAll(Collection<?> c) {
+-        return removeFromColumnIf(Maps.<R>keyPredicateOnEntries(not(in(c))));
++        return removeFromColumnIf(Maps.keyPredicateOnEntries(not(in(c))));
+       }
+     }
+ 
+@@ -623,17 +623,17 @@ private final class Values extends Maps.Values<R, V> {
+ 
+       @Override
+       public boolean remove(@Nullable Object obj) {
+-        return obj != null && removeFromColumnIf(Maps.<V>valuePredicateOnEntries(equalTo(obj)));
++        return obj != null && removeFromColumnIf(Maps.valuePredicateOnEntries(equalTo(obj)));
+       }
+ 
+       @Override
+       public boolean removeAll(Collection<?> c) {
+-        return removeFromColumnIf(Maps.<V>valuePredicateOnEntries(in(c)));
++        return removeFromColumnIf(Maps.valuePredicateOnEntries(in(c)));
+       }
+ 
+       @Override
+       public boolean retainAll(Collection<?> c) {
+-        return removeFromColumnIf(Maps.<V>valuePredicateOnEntries(not(in(c))));
++        return removeFromColumnIf(Maps.valuePredicateOnEntries(not(in(c))));
+       }
+     }
+   }
+diff --git a/android/guava/src/com/google/common/collect/Tables.java b/android/guava/src/com/google/common/collect/Tables.java
+index 0ca16fd38d30..89479d7fb903 100644
+--- a/android/guava/src/com/google/common/collect/Tables.java
++++ b/android/guava/src/com/google/common/collect/Tables.java
+@@ -667,7 +667,7 @@ public SortedSet<R> rowKeySet() {
+    * of its collection views:
+    *
+    * {@snippet :
+-   * Table<R, C, V> table = Tables.synchronizedTable(HashBasedTable.<R, C, V>create());
++   * Table<R, C, V> table = Tables.synchronizedTable(HashBasedTable.create());
+    * ...
+    * Map<C, V> row = table.row(rowKey);  // Needn't be in synchronized block
+    * ...
+diff --git a/android/guava/src/com/google/common/collect/TreeRangeMap.java b/android/guava/src/com/google/common/collect/TreeRangeMap.java
+index f21b7f436575..d427041ef762 100644
+--- a/android/guava/src/com/google/common/collect/TreeRangeMap.java
++++ b/android/guava/src/com/google/common/collect/TreeRangeMap.java
+@@ -627,7 +627,7 @@ public boolean remove(@Nullable Object o) {
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.<Range<K>>keyFunction()));
++            return removeEntryIf(compose(not(in(c)), Maps.keyFunction()));
+           }
+         };
+       }
+@@ -694,12 +694,12 @@ public Collection<V> values() {
+         return new Maps.Values<Range<K>, V>(this) {
+           @Override
+           public boolean removeAll(Collection<?> c) {
+-            return removeEntryIf(compose(in(c), Maps.<V>valueFunction()));
++            return removeEntryIf(compose(in(c), Maps.valueFunction()));
+           }
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.<V>valueFunction()));
++            return removeEntryIf(compose(not(in(c)), Maps.valueFunction()));
+           }
+         };
+       }
+diff --git a/android/guava/src/com/google/common/collect/TreeRangeSet.java b/android/guava/src/com/google/common/collect/TreeRangeSet.java
+index 59bc7f57d589..66f85c617214 100644
+--- a/android/guava/src/com/google/common/collect/TreeRangeSet.java
++++ b/android/guava/src/com/google/common/collect/TreeRangeSet.java
+@@ -331,7 +331,7 @@ public NavigableMap<Cut<C>, Range<C>> tailMap(Cut<C> fromKey, boolean inclusive)
+ 
+     @Override
+     public Comparator<? super Cut<C>> comparator() {
+-      return Ordering.<Cut<C>>natural();
++      return Ordering.natural();
+     }
+ 
+     @Override
+@@ -459,7 +459,7 @@ private static final class ComplementRangesByLowerBound<C extends Comparable<?>>
+     private final Range<Cut<C>> complementLowerBoundWindow;
+ 
+     ComplementRangesByLowerBound(NavigableMap<Cut<C>, Range<C>> positiveRangesByLowerBound) {
+-      this(positiveRangesByLowerBound, Range.<Cut<C>>all());
++      this(positiveRangesByLowerBound, Range.all());
+     }
+ 
+     private ComplementRangesByLowerBound(
+@@ -499,7 +499,7 @@ public NavigableMap<Cut<C>, Range<C>> tailMap(Cut<C> fromKey, boolean inclusive)
+ 
+     @Override
+     public Comparator<? super Cut<C>> comparator() {
+-      return Ordering.<Cut<C>>natural();
++      return Ordering.natural();
+     }
+ 
+     @Override
+@@ -733,7 +733,7 @@ public NavigableMap<Cut<C>, Range<C>> tailMap(Cut<C> fromKey, boolean inclusive)
+ 
+     @Override
+     public Comparator<? super Cut<C>> comparator() {
+-      return Ordering.<Cut<C>>natural();
++      return Ordering.natural();
+     }
+ 
+     @Override
+@@ -865,7 +865,7 @@ private final class SubRangeSet extends TreeRangeSet<C> {
+     SubRangeSet(Range<C> restriction) {
+       super(
+           new SubRangeSetRangesByLowerBound<C>(
+-              Range.<Cut<C>>all(), restriction, TreeRangeSet.this.rangesByLowerBound));
++              Range.all(), restriction, TreeRangeSet.this.rangesByLowerBound));
+       this.restriction = restriction;
+     }
+ 
+diff --git a/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/DescendingMultiset.java b/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/DescendingMultiset.java
+index 9c7fd8528324..c9f9d8e3dbce 100644
+--- a/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/DescendingMultiset.java
++++ b/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/DescendingMultiset.java
+@@ -40,7 +40,7 @@ abstract class DescendingMultiset<E extends @Nullable Object> extends Forwarding
+   public Comparator<? super E> comparator() {
+     Comparator<? super E> result = comparator;
+     if (result == null) {
+-      return comparator = Ordering.from(forwardMultiset().comparator()).<E>reverse();
++      return comparator = Ordering.from(forwardMultiset().comparator()).reverse();
+     }
+     return result;
+   }
+diff --git a/guava/src/com/google/common/collect/AbstractRangeSet.java b/guava/src/com/google/common/collect/AbstractRangeSet.java
+index 4b57bfc464f6..ad2cc6aa76b6 100644
+--- a/guava/src/com/google/common/collect/AbstractRangeSet.java
++++ b/guava/src/com/google/common/collect/AbstractRangeSet.java
+@@ -52,7 +52,7 @@ public void remove(Range<C> range) {
+ 
+   @Override
+   public void clear() {
+-    remove(Range.<C>all());
++    remove(Range.all());
+   }
+ 
+   @Override
+diff --git a/guava/src/com/google/common/collect/ArrayListMultimap.java b/guava/src/com/google/common/collect/ArrayListMultimap.java
+index 9a9cc617c6c9..aae9995e1a58 100644
+--- a/guava/src/com/google/common/collect/ArrayListMultimap.java
++++ b/guava/src/com/google/common/collect/ArrayListMultimap.java
+@@ -116,7 +116,7 @@ private ArrayListMultimap() {
+   }
+ 
+   private ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
+-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
++    super(Platform.newHashMapWithExpectedSize(expectedKeys));
+     checkNonnegative(expectedValuesPerKey, "expectedValuesPerKey");
+     this.expectedValuesPerKey = expectedValuesPerKey;
+   }
+diff --git a/guava/src/com/google/common/collect/ArrayTable.java b/guava/src/com/google/common/collect/ArrayTable.java
+index 9c44f5787e2c..b2310b99437a 100644
+--- a/guava/src/com/google/common/collect/ArrayTable.java
++++ b/guava/src/com/google/common/collect/ArrayTable.java
+@@ -560,7 +560,7 @@ public int size() {
+ 
+   @Override
+   Spliterator<Cell<R, C, @Nullable V>> cellSpliterator() {
+-    return CollectSpliterators.<Cell<R, C, @Nullable V>>indexed(
++    return CollectSpliterators.indexed(
+         size(), Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.DISTINCT, this::getCell);
+   }
+ 
+diff --git a/guava/src/com/google/common/collect/CollectCollectors.java b/guava/src/com/google/common/collect/CollectCollectors.java
+index a2723348606d..a4d3f8b47011 100644
+--- a/guava/src/com/google/common/collect/CollectCollectors.java
++++ b/guava/src/com/google/common/collect/CollectCollectors.java
+@@ -336,7 +336,7 @@ EnumMapAccumulator<K, V> combine(EnumMapAccumulator<K, V> other) {
+     }
+ 
+     ImmutableMap<K, V> toImmutableMap() {
+-      return (map == null) ? ImmutableMap.<K, V>of() : ImmutableEnumMap.asImmutable(map);
++      return (map == null) ? ImmutableMap.of() : ImmutableEnumMap.asImmutable(map);
+     }
+   }
+ 
+diff --git a/guava/src/com/google/common/collect/Cut.java b/guava/src/com/google/common/collect/Cut.java
+index dffa6676e7c6..7725a8a3147e 100644
+--- a/guava/src/com/google/common/collect/Cut.java
++++ b/guava/src/com/google/common/collect/Cut.java
+@@ -187,7 +187,7 @@ Comparable<?> greatestValueBelow(DiscreteDomain<Comparable<?>> domain) {
+     @Override
+     Cut<Comparable<?>> canonical(DiscreteDomain<Comparable<?>> domain) {
+       try {
+-        return Cut.<Comparable<?>>belowValue(domain.minValue());
++        return Cut.belowValue(domain.minValue());
+       } catch (NoSuchElementException e) {
+         return this;
+       }
+diff --git a/guava/src/com/google/common/collect/DescendingMultiset.java b/guava/src/com/google/common/collect/DescendingMultiset.java
+index a4d98f1cd36e..93dda645f2f6 100644
+--- a/guava/src/com/google/common/collect/DescendingMultiset.java
++++ b/guava/src/com/google/common/collect/DescendingMultiset.java
+@@ -42,7 +42,8 @@ abstract class DescendingMultiset<E extends @Nullable Object> extends Forwarding
+   public Comparator<? super E> comparator() {
+     Comparator<? super E> result = comparator;
+     if (result == null) {
+-      return comparator = Ordering.from(forwardMultiset().comparator()).<E>reverse();
++      result = Ordering.from(forwardMultiset().comparator()).reverse();
++      comparator = result;
+     }
+     return result;
+   }
+diff --git a/guava/src/com/google/common/collect/FilteredEntryMultimap.java b/guava/src/com/google/common/collect/FilteredEntryMultimap.java
+index 9e83fff8fb25..406e65f67232 100644
+--- a/guava/src/com/google/common/collect/FilteredEntryMultimap.java
++++ b/guava/src/com/google/common/collect/FilteredEntryMultimap.java
+@@ -230,12 +230,12 @@ final class KeySetImpl extends Maps.KeySet<K, Collection<V>> {
+ 
+         @Override
+         public boolean removeAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<K>keyPredicateOnEntries(in(c)));
++          return removeEntriesIf(Maps.keyPredicateOnEntries(in(c)));
+         }
+ 
+         @Override
+         public boolean retainAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<K>keyPredicateOnEntries(not(in(c))));
++          return removeEntriesIf(Maps.keyPredicateOnEntries(not(in(c))));
+         }
+ 
+         @Override
+@@ -334,12 +334,12 @@ public boolean remove(@Nullable Object o) {
+ 
+         @Override
+         public boolean removeAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<Collection<V>>valuePredicateOnEntries(in(c)));
++          return removeEntriesIf(Maps.valuePredicateOnEntries(in(c)));
+         }
+ 
+         @Override
+         public boolean retainAll(Collection<?> c) {
+-          return removeEntriesIf(Maps.<Collection<V>>valuePredicateOnEntries(not(in(c))));
++          return removeEntriesIf(Maps.valuePredicateOnEntries(not(in(c))));
+         }
+       }
+       return new ValuesImpl();
+diff --git a/guava/src/com/google/common/collect/FluentIterable.java b/guava/src/com/google/common/collect/FluentIterable.java
+index 5761fc1360c6..fb918582cd0a 100644
+--- a/guava/src/com/google/common/collect/FluentIterable.java
++++ b/guava/src/com/google/common/collect/FluentIterable.java
+@@ -310,7 +310,7 @@ public Iterator<? extends T> get(int i) {
+    */
+   @SuppressWarnings("EmptyList") // ImmutableList doesn't support nullable element types
+   public static <E extends @Nullable Object> FluentIterable<E> of() {
+-    return FluentIterable.from(Collections.<E>emptyList());
++    return FluentIterable.from(Collections.emptyList());
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/HashMultimap.java b/guava/src/com/google/common/collect/HashMultimap.java
+index 47d211498a83..e334ecbb6ffe 100644
+--- a/guava/src/com/google/common/collect/HashMultimap.java
++++ b/guava/src/com/google/common/collect/HashMultimap.java
+@@ -107,13 +107,13 @@ private HashMultimap() {
+   }
+ 
+   private HashMultimap(int expectedKeys, int expectedValuesPerKey) {
+-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
++    super(Platform.newHashMapWithExpectedSize(expectedKeys));
+     Preconditions.checkArgument(expectedValuesPerKey >= 0);
+     this.expectedValuesPerKey = expectedValuesPerKey;
+   }
+ 
+   private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
+-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(multimap.keySet().size()));
++    super(Platform.newHashMapWithExpectedSize(multimap.keySet().size()));
+     putAll(multimap);
+   }
+ 
+@@ -126,7 +126,7 @@ private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
+    */
+   @Override
+   Set<V> createCollection() {
+-    return Platform.<V>newHashSetWithExpectedSize(expectedValuesPerKey);
++    return Platform.newHashSetWithExpectedSize(expectedValuesPerKey);
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/HashMultiset.java b/guava/src/com/google/common/collect/HashMultiset.java
+index 95dd7085a469..887c9d821c4e 100644
+--- a/guava/src/com/google/common/collect/HashMultiset.java
++++ b/guava/src/com/google/common/collect/HashMultiset.java
+@@ -70,7 +70,7 @@ private HashMultiset() {
+   }
+ 
+   private HashMultiset(int distinctElements) {
+-    super(Maps.<E, Count>newHashMapWithExpectedSize(distinctElements));
++    super(Maps.newHashMapWithExpectedSize(distinctElements));
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/LinkedHashMultiset.java b/guava/src/com/google/common/collect/LinkedHashMultiset.java
+index d3d9ec8927a3..134bf008acaf 100644
+--- a/guava/src/com/google/common/collect/LinkedHashMultiset.java
++++ b/guava/src/com/google/common/collect/LinkedHashMultiset.java
+@@ -78,7 +78,7 @@ private LinkedHashMultiset() {
+   }
+ 
+   private LinkedHashMultiset(int distinctElements) {
+-    super(Maps.<E, Count>newLinkedHashMapWithExpectedSize(distinctElements));
++    super(Maps.newLinkedHashMapWithExpectedSize(distinctElements));
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/LinkedListMultimap.java b/guava/src/com/google/common/collect/LinkedListMultimap.java
+index 950263ac7c25..5c51c50f516c 100644
+--- a/guava/src/com/google/common/collect/LinkedListMultimap.java
++++ b/guava/src/com/google/common/collect/LinkedListMultimap.java
+@@ -412,7 +412,7 @@ void setValue(@ParametricNullness V value) {
+ 
+   /** An {@code Iterator} over distinct keys in key head order. */
+   private final class DistinctKeyIterator implements Iterator<K> {
+-    final Set<K> seenKeys = Sets.<K>newHashSetWithExpectedSize(keySet().size());
++    final Set<K> seenKeys = Sets.newHashSetWithExpectedSize(keySet().size());
+     @Nullable Node<K, V> next = head;
+     @Nullable Node<K, V> current;
+     int expectedModCount = modCount;
+diff --git a/guava/src/com/google/common/collect/MapMakerInternalMap.java b/guava/src/com/google/common/collect/MapMakerInternalMap.java
+index 1d12d409f09b..490d47449843 100644
+--- a/guava/src/com/google/common/collect/MapMakerInternalMap.java
++++ b/guava/src/com/google/common/collect/MapMakerInternalMap.java
+@@ -206,18 +206,18 @@ private MapMakerInternalMap(MapMaker builder, InternalEntryHelper<K, V, E, S> en
+       MapMaker builder) {
+     if (builder.getKeyStrength() == Strength.STRONG
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, StrongKeyStrongValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, StrongKeyStrongValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.STRONG
+         && builder.getValueStrength() == Strength.WEAK) {
+-      return new MapMakerInternalMap<>(builder, StrongKeyWeakValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, StrongKeyWeakValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.WEAK
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, WeakKeyStrongValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, WeakKeyStrongValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.WEAK && builder.getValueStrength() == Strength.WEAK) {
+-      return new MapMakerInternalMap<>(builder, WeakKeyWeakValueEntry.Helper.<K, V>instance());
++      return new MapMakerInternalMap<>(builder, WeakKeyWeakValueEntry.Helper.instance());
+     }
+     throw new AssertionError();
+   }
+@@ -237,11 +237,11 @@ private MapMakerInternalMap(MapMaker builder, InternalEntryHelper<K, V, E, S> en
+           MapMaker builder) {
+     if (builder.getKeyStrength() == Strength.STRONG
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, StrongKeyDummyValueEntry.Helper.<K>instance());
++      return new MapMakerInternalMap<>(builder, StrongKeyDummyValueEntry.Helper.instance());
+     }
+     if (builder.getKeyStrength() == Strength.WEAK
+         && builder.getValueStrength() == Strength.STRONG) {
+-      return new MapMakerInternalMap<>(builder, WeakKeyDummyValueEntry.Helper.<K>instance());
++      return new MapMakerInternalMap<>(builder, WeakKeyDummyValueEntry.Helper.instance());
+     }
+     if (builder.getValueStrength() == Strength.WEAK) {
+       throw new IllegalArgumentException("Map cannot have both weak and dummy values");
+diff --git a/guava/src/com/google/common/collect/MinMaxPriorityQueue.java b/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+index 6e13b5771ce5..9d6772c0e92b 100644
+--- a/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
++++ b/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+@@ -116,7 +116,7 @@ public static <E extends Comparable<E>> MinMaxPriorityQueue<E> create() {
+    */
+   public static <E extends Comparable<E>> MinMaxPriorityQueue<E> create(
+       Iterable<? extends E> initialContents) {
+-    return new Builder<E>(Ordering.<E>natural()).create(initialContents);
++    return new Builder<E>(Ordering.natural()).create(initialContents);
+   }
+ 
+   /**
+@@ -207,7 +207,7 @@ public Builder<B> maximumSize(int maximumSize) {
+      * initial contents.
+      */
+     public <T extends B> MinMaxPriorityQueue<T> create() {
+-      return create(Collections.<T>emptySet());
++      return create(Collections.emptySet());
+     }
+ 
+     /**
+diff --git a/guava/src/com/google/common/collect/MultimapBuilder.java b/guava/src/com/google/common/collect/MultimapBuilder.java
+index f3f8782713d2..37910765558c 100644
+--- a/guava/src/com/google/common/collect/MultimapBuilder.java
++++ b/guava/src/com/google/common/collect/MultimapBuilder.java
+@@ -298,7 +298,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> ListMultimap<K, V> build() {
+           return Multimaps.newListMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(),
++              MultimapBuilderWithKeys.this.createMap(),
+               new ArrayListSupplier<V>(expectedValuesPerKey));
+         }
+       };
+@@ -318,7 +318,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> ListMultimap<K, V> build() {
+           return Multimaps.newListMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(), LinkedListSupplier.<V>instance());
++              MultimapBuilderWithKeys.this.createMap(), LinkedListSupplier.instance());
+         }
+       };
+     }
+@@ -340,7 +340,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> SetMultimap<K, V> build() {
+           return Multimaps.newSetMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(),
++              MultimapBuilderWithKeys.this.createMap(),
+               new HashSetSupplier<V>(expectedValuesPerKey));
+         }
+       };
+@@ -363,7 +363,7 @@ public abstract static class MultimapBuilderWithKeys<K0 extends @Nullable Object
+         @Override
+         public <K extends K0, V extends @Nullable Object> SetMultimap<K, V> build() {
+           return Multimaps.newSetMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(),
++              MultimapBuilderWithKeys.this.createMap(),
+               new LinkedHashSetSupplier<V>(expectedValuesPerKey));
+         }
+       };
+@@ -388,7 +388,7 @@ public SortedSetMultimapBuilder<K0, Comparable> treeSetValues() {
+         @Override
+         public <K extends K0, V extends V0> SortedSetMultimap<K, V> build() {
+           return Multimaps.newSortedSetMultimap(
+-              MultimapBuilderWithKeys.this.<K, V>createMap(), new TreeSetSupplier<V>(comparator));
++              MultimapBuilderWithKeys.this.createMap(), new TreeSetSupplier<V>(comparator));
+         }
+       };
+     }
+@@ -403,7 +403,7 @@ public <K extends K0, V extends V0> SetMultimap<K, V> build() {
+           // (their subclasses are inaccessible)
+           @SuppressWarnings({"unchecked", "rawtypes"})
+           Supplier<Set<V>> factory = (Supplier) new EnumSetSupplier<V0>(valueClass);
+-          return Multimaps.newSetMultimap(MultimapBuilderWithKeys.this.<K, V>createMap(), factory);
++          return Multimaps.newSetMultimap(MultimapBuilderWithKeys.this.createMap(), factory);
+         }
+       };
+     }
+diff --git a/guava/src/com/google/common/collect/Multimaps.java b/guava/src/com/google/common/collect/Multimaps.java
+index 4a0ce1d2cf52..a685c9de17f6 100644
+--- a/guava/src/com/google/common/collect/Multimaps.java
++++ b/guava/src/com/google/common/collect/Multimaps.java
+@@ -613,8 +613,7 @@ M invertFrom(Multimap<? extends V, ? extends K> source, M dest) {
+    * any of its collection views:
+    *
+    * {@snippet :
+-   * Multimap<K, V> multimap = Multimaps.synchronizedMultimap(
+-   *     HashMultimap.<K, V>create());
++   * Multimap<K, V> multimap = Multimaps.synchronizedMultimap(HashMultimap.create());
+    * ...
+    * Collection<V> values = multimap.get(key);  // Needn't be in synchronized block
+    * ...
+@@ -1541,7 +1540,7 @@ Collection<Entry<K, V2>> createEntries() {
+     @Override
+     Iterator<Entry<K, V2>> entryIterator() {
+       return Iterators.transform(
+-          fromMultimap.entries().iterator(), Maps.<K, V1, V2>asEntryToEntryFunction(transformer));
++          fromMultimap.entries().iterator(), Maps.asEntryToEntryFunction(transformer));
+     }
+ 
+     @Override
+@@ -1986,10 +1985,10 @@ public void clear() {
+     } else if (unfiltered instanceof FilteredKeyMultimap) {
+       FilteredKeyMultimap<K, V> prev = (FilteredKeyMultimap<K, V>) unfiltered;
+       return new FilteredKeyMultimap<>(
+-          prev.unfiltered, Predicates.<K>and(prev.keyPredicate, keyPredicate));
++          prev.unfiltered, Predicates.and(prev.keyPredicate, keyPredicate));
+     } else if (unfiltered instanceof FilteredMultimap) {
+       FilteredMultimap<K, V> prev = (FilteredMultimap<K, V>) unfiltered;
+-      return filterFiltered(prev, Maps.<K>keyPredicateOnEntries(keyPredicate));
++      return filterFiltered(prev, Maps.keyPredicateOnEntries(keyPredicate));
+     } else {
+       return new FilteredKeyMultimap<>(unfiltered, keyPredicate);
+     }
+@@ -2028,10 +2027,10 @@ SetMultimap<K, V> filterKeys(
+     if (unfiltered instanceof FilteredKeySetMultimap) {
+       FilteredKeySetMultimap<K, V> prev = (FilteredKeySetMultimap<K, V>) unfiltered;
+       return new FilteredKeySetMultimap<>(
+-          prev.unfiltered(), Predicates.<K>and(prev.keyPredicate, keyPredicate));
++          prev.unfiltered(), Predicates.and(prev.keyPredicate, keyPredicate));
+     } else if (unfiltered instanceof FilteredSetMultimap) {
+       FilteredSetMultimap<K, V> prev = (FilteredSetMultimap<K, V>) unfiltered;
+-      return filterFiltered(prev, Maps.<K>keyPredicateOnEntries(keyPredicate));
++      return filterFiltered(prev, Maps.keyPredicateOnEntries(keyPredicate));
+     } else {
+       return new FilteredKeySetMultimap<>(unfiltered, keyPredicate);
+     }
+@@ -2070,7 +2069,7 @@ ListMultimap<K, V> filterKeys(
+     if (unfiltered instanceof FilteredKeyListMultimap) {
+       FilteredKeyListMultimap<K, V> prev = (FilteredKeyListMultimap<K, V>) unfiltered;
+       return new FilteredKeyListMultimap<>(
+-          prev.unfiltered(), Predicates.<K>and(prev.keyPredicate, keyPredicate));
++          prev.unfiltered(), Predicates.and(prev.keyPredicate, keyPredicate));
+     } else {
+       return new FilteredKeyListMultimap<>(unfiltered, keyPredicate);
+     }
+@@ -2105,7 +2104,7 @@ ListMultimap<K, V> filterKeys(
+    */
+   public static <K extends @Nullable Object, V extends @Nullable Object>
+       Multimap<K, V> filterValues(Multimap<K, V> unfiltered, Predicate<? super V> valuePredicate) {
+-    return filterEntries(unfiltered, Maps.<V>valuePredicateOnEntries(valuePredicate));
++    return filterEntries(unfiltered, Maps.valuePredicateOnEntries(valuePredicate));
+   }
+ 
+   /**
+@@ -2138,7 +2137,7 @@ Multimap<K, V> filterValues(Multimap<K, V> unfiltered, Predicate<? super V> valu
+   public static <K extends @Nullable Object, V extends @Nullable Object>
+       SetMultimap<K, V> filterValues(
+           SetMultimap<K, V> unfiltered, Predicate<? super V> valuePredicate) {
+-    return filterEntries(unfiltered, Maps.<V>valuePredicateOnEntries(valuePredicate));
++    return filterEntries(unfiltered, Maps.valuePredicateOnEntries(valuePredicate));
+   }
+ 
+   /**
+@@ -2221,8 +2220,7 @@ SetMultimap<K, V> filterEntries(
+   private static <K extends @Nullable Object, V extends @Nullable Object>
+       Multimap<K, V> filterFiltered(
+           FilteredMultimap<K, V> multimap, Predicate<? super Entry<K, V>> entryPredicate) {
+-    Predicate<Entry<K, V>> predicate =
+-        Predicates.<Entry<K, V>>and(multimap.entryPredicate(), entryPredicate);
++    Predicate<Entry<K, V>> predicate = Predicates.and(multimap.entryPredicate(), entryPredicate);
+     return new FilteredEntryMultimap<>(multimap.unfiltered(), predicate);
+   }
+ 
+@@ -2235,8 +2233,7 @@ Multimap<K, V> filterFiltered(
+   private static <K extends @Nullable Object, V extends @Nullable Object>
+       SetMultimap<K, V> filterFiltered(
+           FilteredSetMultimap<K, V> multimap, Predicate<? super Entry<K, V>> entryPredicate) {
+-    Predicate<Entry<K, V>> predicate =
+-        Predicates.<Entry<K, V>>and(multimap.entryPredicate(), entryPredicate);
++    Predicate<Entry<K, V>> predicate = Predicates.and(multimap.entryPredicate(), entryPredicate);
+     return new FilteredEntrySetMultimap<>(multimap.unfiltered(), predicate);
+   }
+ 
+diff --git a/guava/src/com/google/common/collect/Multisets.java b/guava/src/com/google/common/collect/Multisets.java
+index a6bda0cee6a0..45d49f06f905 100644
+--- a/guava/src/com/google/common/collect/Multisets.java
++++ b/guava/src/com/google/common/collect/Multisets.java
+@@ -145,7 +145,7 @@ protected Multiset<E> delegate() {
+     @LazyInit transient @Nullable Set<E> elementSet;
+ 
+     Set<E> createElementSet() {
+-      return Collections.<E>unmodifiableSet(delegate.elementSet());
++      return Collections.unmodifiableSet(delegate.elementSet());
+     }
+ 
+     @Override
+@@ -169,7 +169,7 @@ public Set<Multiset.Entry<E>> entrySet() {
+ 
+     @Override
+     public Iterator<E> iterator() {
+-      return Iterators.<E>unmodifiableIterator(delegate.iterator());
++      return Iterators.unmodifiableIterator(delegate.iterator());
+     }
+ 
+     @Override
+diff --git a/guava/src/com/google/common/collect/Ordering.java b/guava/src/com/google/common/collect/Ordering.java
+index 099941eaec3d..e3229f672c45 100644
+--- a/guava/src/com/google/common/collect/Ordering.java
++++ b/guava/src/com/google/common/collect/Ordering.java
+@@ -461,7 +461,7 @@ public <S extends T> Ordering<S> reverse() {
+   }
+ 
+   <T2 extends T> Ordering<Entry<T2, ?>> onKeys() {
+-    return onResultOf(Maps.<T2>keyFunction());
++    return onResultOf(Maps.keyFunction());
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/Queues.java b/guava/src/com/google/common/collect/Queues.java
+index d22e8c41c319..1bff97fba77a 100644
+--- a/guava/src/com/google/common/collect/Queues.java
++++ b/guava/src/com/google/common/collect/Queues.java
+@@ -467,7 +467,7 @@ public static <E> int drainUninterruptibly(
+    * of the deque's iterators:
+    *
+    * {@snippet :
+-   * Deque<E> deque = Queues.synchronizedDeque(Queues.<E>newArrayDeque());
++   * Deque<E> deque = Queues.synchronizedDeque(Queues.newArrayDeque());
+    * ...
+    * deque.add(element);  // Needn't be in synchronized block
+    * ...
+diff --git a/guava/src/com/google/common/collect/Range.java b/guava/src/com/google/common/collect/Range.java
+index 81039551f922..866f2430269a 100644
+--- a/guava/src/com/google/common/collect/Range.java
++++ b/guava/src/com/google/common/collect/Range.java
+@@ -208,7 +208,7 @@ public static <C extends Comparable<?>> Range<C> range(
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> lessThan(C endpoint) {
+-    return create(Cut.<C>belowAll(), Cut.belowValue(endpoint));
++    return create(Cut.belowAll(), Cut.belowValue(endpoint));
+   }
+ 
+   /**
+@@ -217,7 +217,7 @@ public static <C extends Comparable<?>> Range<C> lessThan(C endpoint) {
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> atMost(C endpoint) {
+-    return create(Cut.<C>belowAll(), Cut.aboveValue(endpoint));
++    return create(Cut.belowAll(), Cut.aboveValue(endpoint));
+   }
+ 
+   /**
+@@ -242,7 +242,7 @@ public static <C extends Comparable<?>> Range<C> upTo(C endpoint, BoundType boun
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> greaterThan(C endpoint) {
+-    return create(Cut.aboveValue(endpoint), Cut.<C>aboveAll());
++    return create(Cut.aboveValue(endpoint), Cut.aboveAll());
+   }
+ 
+   /**
+@@ -251,7 +251,7 @@ public static <C extends Comparable<?>> Range<C> greaterThan(C endpoint) {
+    * @since 14.0
+    */
+   public static <C extends Comparable<?>> Range<C> atLeast(C endpoint) {
+-    return create(Cut.belowValue(endpoint), Cut.<C>aboveAll());
++    return create(Cut.belowValue(endpoint), Cut.aboveAll());
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/Sets.java b/guava/src/com/google/common/collect/Sets.java
+index 95a8c3c1998a..bc1ee5b9257a 100644
+--- a/guava/src/com/google/common/collect/Sets.java
++++ b/guava/src/com/google/common/collect/Sets.java
+@@ -452,7 +452,7 @@ public static <E extends Comparable> TreeSet<E> newTreeSet(Iterable<? extends E>
+    * @since 8.0
+    */
+   public static <E extends @Nullable Object> Set<E> newIdentityHashSet() {
+-    return Collections.newSetFromMap(Maps.<E, Boolean>newIdentityHashMap());
++    return Collections.newSetFromMap(Maps.newIdentityHashMap());
+   }
+ 
+   /**
+@@ -1811,9 +1811,9 @@ public static <E> Set<Set<E>> combinations(Set<E> set, int size) {
+     checkNonnegative(size, "size");
+     checkArgument(size <= index.size(), "size (%s) must be <= set.size() (%s)", size, index.size());
+     if (size == 0) {
+-      return ImmutableSet.<Set<E>>of(ImmutableSet.<E>of());
++      return ImmutableSet.of(ImmutableSet.of());
+     } else if (size == index.size()) {
+-      return ImmutableSet.<Set<E>>of(index.keySet());
++      return ImmutableSet.of(index.keySet());
+     }
+     return new AbstractSet<Set<E>>() {
+       @Override
+diff --git a/guava/src/com/google/common/collect/StandardTable.java b/guava/src/com/google/common/collect/StandardTable.java
+index 7fb95348c447..fa342db33b29 100644
+--- a/guava/src/com/google/common/collect/StandardTable.java
++++ b/guava/src/com/google/common/collect/StandardTable.java
+@@ -630,7 +630,7 @@ public boolean remove(@Nullable Object obj) {
+ 
+       @Override
+       public boolean retainAll(Collection<?> c) {
+-        return removeFromColumnIf(Maps.<R>keyPredicateOnEntries(not(in(c))));
++        return removeFromColumnIf(Maps.keyPredicateOnEntries(not(in(c))));
+       }
+     }
+ 
+@@ -647,17 +647,17 @@ private final class Values extends Maps.Values<R, V> {
+ 
+       @Override
+       public boolean remove(@Nullable Object obj) {
+-        return obj != null && removeFromColumnIf(Maps.<V>valuePredicateOnEntries(equalTo(obj)));
++        return obj != null && removeFromColumnIf(Maps.valuePredicateOnEntries(equalTo(obj)));
+       }
+ 
+       @Override
+       public boolean removeAll(Collection<?> c) {
+-        return removeFromColumnIf(Maps.<V>valuePredicateOnEntries(in(c)));
++        return removeFromColumnIf(Maps.valuePredicateOnEntries(in(c)));
+       }
+ 
+       @Override
+       public boolean retainAll(Collection<?> c) {
+-        return removeFromColumnIf(Maps.<V>valuePredicateOnEntries(not(in(c))));
++        return removeFromColumnIf(Maps.valuePredicateOnEntries(not(in(c))));
+       }
+     }
+   }
+diff --git a/guava/src/com/google/common/collect/Tables.java b/guava/src/com/google/common/collect/Tables.java
+index 45a48d7dca43..e087945fb478 100644
+--- a/guava/src/com/google/common/collect/Tables.java
++++ b/guava/src/com/google/common/collect/Tables.java
+@@ -676,7 +676,7 @@ public SortedSet<R> rowKeySet() {
+    * of its collection views:
+    *
+    * {@snippet :
+-   * Table<R, C, V> table = Tables.synchronizedTable(HashBasedTable.<R, C, V>create());
++   * Table<R, C, V> table = Tables.synchronizedTable(HashBasedTable.create());
+    * ...
+    * Map<C, V> row = table.row(rowKey);  // Needn't be in synchronized block
+    * ...
+diff --git a/guava/src/com/google/common/collect/TreeRangeMap.java b/guava/src/com/google/common/collect/TreeRangeMap.java
+index c40566c280e9..59e34787f0c6 100644
+--- a/guava/src/com/google/common/collect/TreeRangeMap.java
++++ b/guava/src/com/google/common/collect/TreeRangeMap.java
+@@ -730,7 +730,7 @@ public boolean remove(@Nullable Object o) {
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.<Range<K>>keyFunction()));
++            return removeEntryIf(compose(not(in(c)), Maps.keyFunction()));
+           }
+         };
+       }
+@@ -797,12 +797,12 @@ public Collection<V> values() {
+         return new Maps.Values<Range<K>, V>(this) {
+           @Override
+           public boolean removeAll(Collection<?> c) {
+-            return removeEntryIf(compose(in(c), Maps.<V>valueFunction()));
++            return removeEntryIf(compose(in(c), Maps.valueFunction()));
+           }
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.<V>valueFunction()));
++            return removeEntryIf(compose(not(in(c)), Maps.valueFunction()));
+           }
+         };
+       }
+diff --git a/guava/src/com/google/common/collect/TreeRangeSet.java b/guava/src/com/google/common/collect/TreeRangeSet.java
+index 59bc7f57d589..66f85c617214 100644
+--- a/guava/src/com/google/common/collect/TreeRangeSet.java
++++ b/guava/src/com/google/common/collect/TreeRangeSet.java
+@@ -331,7 +331,7 @@ public NavigableMap<Cut<C>, Range<C>> tailMap(Cut<C> fromKey, boolean inclusive)
+ 
+     @Override
+     public Comparator<? super Cut<C>> comparator() {
+-      return Ordering.<Cut<C>>natural();
++      return Ordering.natural();
+     }
+ 
+     @Override
+@@ -459,7 +459,7 @@ private static final class ComplementRangesByLowerBound<C extends Comparable<?>>
+     private final Range<Cut<C>> complementLowerBoundWindow;
+ 
+     ComplementRangesByLowerBound(NavigableMap<Cut<C>, Range<C>> positiveRangesByLowerBound) {
+-      this(positiveRangesByLowerBound, Range.<Cut<C>>all());
++      this(positiveRangesByLowerBound, Range.all());
+     }
+ 
+     private ComplementRangesByLowerBound(
+@@ -499,7 +499,7 @@ public NavigableMap<Cut<C>, Range<C>> tailMap(Cut<C> fromKey, boolean inclusive)
+ 
+     @Override
+     public Comparator<? super Cut<C>> comparator() {
+-      return Ordering.<Cut<C>>natural();
++      return Ordering.natural();
+     }
+ 
+     @Override
+@@ -733,7 +733,7 @@ public NavigableMap<Cut<C>, Range<C>> tailMap(Cut<C> fromKey, boolean inclusive)
+ 
+     @Override
+     public Comparator<? super Cut<C>> comparator() {
+-      return Ordering.<Cut<C>>natural();
++      return Ordering.natural();
+     }
+ 
+     @Override
+@@ -865,7 +865,7 @@ private final class SubRangeSet extends TreeRangeSet<C> {
+     SubRangeSet(Range<C> restriction) {
+       super(
+           new SubRangeSetRangesByLowerBound<C>(
+-              Range.<Cut<C>>all(), restriction, TreeRangeSet.this.rangesByLowerBound));
++              Range.all(), restriction, TreeRangeSet.this.rangesByLowerBound));
+       this.restriction = restriction;
+     }
+ 

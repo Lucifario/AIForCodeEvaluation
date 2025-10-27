@@ -1,0 +1,34 @@
+diff --git a/docs/changelog/137050.yaml b/docs/changelog/137050.yaml
+new file mode 100644
+index 0000000000000..695c7811cf402
+--- /dev/null
++++ b/docs/changelog/137050.yaml
+@@ -0,0 +1,6 @@
++pr: 137050
++summary: Fixes memory leak in `BytesRefLongBlockHash`
++area: ES|QL
++type: bug
++issues:
++ - 137021
+diff --git a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java
+index 05e32bfba0539..b7eab4211d59e 100644
+--- a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java
++++ b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java
+@@ -161,12 +161,15 @@ public Block[] getKeys() {
+                 }
+                 // TODO: make takeOwnershipOf work?
+                 BytesRefArray bytes = BytesRefArray.deepCopy(bytesHash.hash.getBytesRefs());
++                BytesRefVector dict = null;
++
+                 try {
+-                    var dict = blockFactory.newBytesRefArrayVector(bytes, Math.toIntExact(bytes.size()));
++                    dict = blockFactory.newBytesRefArrayVector(bytes, Math.toIntExact(bytes.size()));
+                     bytes = null; // transfer ownership to dict
+                     k1 = new OrdinalBytesRefBlock(ordinals.build(), dict);
++                    dict = null;  // transfer ownership to k1
+                 } finally {
+-                    Releasables.closeExpectNoException(bytes);
++                    Releasables.closeExpectNoException(bytes, dict);
+                 }
+                 k2 = longs.build();
+             } finally {

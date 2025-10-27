@@ -1,0 +1,33 @@
+{
+  "id": 1472,
+  "repository": "apache/commons-lang",
+  "title": "Bump org.apache.commons:commons-parent from 89 to 90",
+  "body": "Bumps [org.apache.commons:commons-parent](https://github.com/apache/commons-parent) from 89 to 90.\n<details>\n<summary>Changelog</summary>\n<p><em>Sourced from <a href=\"https://github.com/apache/commons-parent/blob/master/RELEASE-NOTES.txt\">org.apache.commons:commons-parent's changelog</a>.</em></p>\n<blockquote>\n<h2>Apache Commons Parent 90 Release Notes</h2>\n<p>The Apache Commons Parent team is pleased to announce the release of Apache Commons Parent 90.</p>\n<p>The Apache Commons Parent POM provides common settings for all Apache Commons components.</p>\n<p>This is a feature and maintenance release. Java 8 or later is required.</p>\n<h2>Changes</h2>\n<ul>\n<li>\n<pre><code>              Bump org.codehaus.mojo:exec-maven-plugin from 3.6.0 to 3.6.1 [#673](https://github.com/apache/commons-parent/issues/673). Thanks to Gary Gregory, Dependabot.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump org.codehaus.mojo:animal-sniffer-maven-plugin from 1.24 to 1.26 [#671](https://github.com/apache/commons-parent/issues/671). Thanks to Gary Gregory, Dependabot.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump com.puppycrawl.tools:checkstyle from 11.1.0 to 12.0.1 on Java 17 and up. Thanks to Gary Gregory, Dependabot.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump maven-pmd-plugin from 3.27.0 to 3.28.0. Discontinue using Rule name category/java/errorprone.xml/UselessOperationOnImmutable as it is scheduled for removal from PMD. PMD 8.0.0 will remove support for this Rule. Thanks to Gary Gregory.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump com.github.siom79.japicmp:japicmp-maven-plugin from 0.24.1 to 0.24.2. Thanks to Gary Gregory.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump org.jacoco:jacoco-maven-plugin from 0.8.13 to 0.8.14. Thanks to Gary Gregory.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump org.apache.bcel:bcel from 6.10.0 to 6.11.0. Thanks to Gary Gregory.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump com.github.spotbugs:spotbugs from 4.9.6 to 4.9.7. Thanks to Gary Gregory.\n</code></pre>\n</li>\n<li>\n<pre><code>              Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.6.0 to 4.9.7.0. Thanks to Gary Gregory.\n</code></pre>\n</li>\n</ul>\n<p>Historical list of changes: <a href=\"https://commons.apache.org/proper/commons-parent/changes.html\">https://commons.apache.org/proper/commons-parent/changes.html</a></p>\n<p>For complete information on Apache Commons Parent, including instructions on how to submit bug reports,\npatches, or suggestions for improvement, see the Apache Commons Parent website:</p>\n<p><a href=\"https://commons.apache.org/proper/commons-parent/\">https://commons.apache.org/proper/commons-parent/</a></p>\n<p>Enjoy!\nApache Commons Team</p>\n<hr />\n</blockquote>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li>See full diff in <a href=\"https://github.com/apache/commons-parent/commits\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=org.apache.commons:commons-parent&package-manager=maven&previous-version=89&new-version=90)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)\n\nDependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.\n\n[//]: # (dependabot-automerge-start)\n[//]: # (dependabot-automerge-end)\n\n---\n\n<details>\n<summary>Dependabot commands and options</summary>\n<br />\n\nYou can trigger Dependabot actions by commenting on this PR:\n- `@dependabot rebase` will rebase this PR\n- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it\n- `@dependabot merge` will merge this PR after your CI passes on it\n- `@dependabot squash and merge` will squash and merge this PR after your CI passes on it\n- `@dependabot cancel merge` will cancel a previously requested merge and block automerging\n- `@dependabot reopen` will reopen this PR if it is closed\n- `@dependabot close` will close this PR and stop Dependabot recreating it. You can achieve the same result by closing it manually\n- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency\n- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)\n\n\n</details>",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-25T12:07:49+00:00",
+  "created_at": "2025-10-24T15:01:06+00:00",
+  "updated_at": "2025-10-25T12:07:56+00:00",
+  "author": "dependabot[bot]",
+  "reviewers": [],
+  "base_sha": "f4762c32fd8f0506a81ae1e9b49a494c77840922",
+  "head_sha": "f2b48180babc3089e6bc16d2e1c29a2fc09ca144",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "pom.xml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -22,7 +22,7 @@\n   <parent>\n     <groupId>org.apache.commons</groupId>\n     <artifactId>commons-parent</artifactId>\n-    <version>89</version>\n+    <version>90</version>\n   </parent>\n   <modelVersion>4.0.0</modelVersion>\n   <artifactId>commons-lang3</artifactId>"
+    }
+  ],
+  "diff": "diff --git a/pom.xml b/pom.xml\nindex 276d71f4c7e..ee6b49e96d0 100644\n--- a/pom.xml\n+++ b/pom.xml\n@@ -22,7 +22,7 @@\n   <parent>\n     <groupId>org.apache.commons</groupId>\n     <artifactId>commons-parent</artifactId>\n-    <version>89</version>\n+    <version>90</version>\n   </parent>\n   <modelVersion>4.0.0</modelVersion>\n   <artifactId>commons-lang3</artifactId>\n",
+  "additions": 1,
+  "deletions": 1,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1472",
+  "mined_at": "2025-10-25T12:43:59.363557"
+}

@@ -1,0 +1,1188 @@
+diff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.get_all_sample_configuration.json b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.get_all_sample_configuration.json
+new file mode 100644
+index 0000000000000..be2a582df0069
+--- /dev/null
++++ b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.get_all_sample_configuration.json
+@@ -0,0 +1,32 @@
++{
++  "indices.get_all_sample_configuration": {
++    "documentation": {
++      "url": "https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-all-sample-configuration",
++      "description": "Get sampling configurations for all indices and data streams"
++    },
++    "stability": "experimental",
++    "visibility": "public",
++    "headers": {
++      "accept": [
++        "application/json"
++      ]
++    },
++    "url": {
++      "paths": [
++        {
++          "path": "/_sample/config",
++          "methods": [
++            "GET"
++          ]
++        }
++      ]
++    },
++    "params": {
++      "master_timeout": {
++        "type": "time",
++        "description": "Timeout for connection to master node"
++      }
++    }
++  }
++}
++
+diff --git a/rest-api-spec/src/yamlRestTest/resources/rest-api-spec/test/indices.get_all_sample_configuration/10_basic.yml b/rest-api-spec/src/yamlRestTest/resources/rest-api-spec/test/indices.get_all_sample_configuration/10_basic.yml
+new file mode 100644
+index 0000000000000..7a74daa6a5177
+--- /dev/null
++++ b/rest-api-spec/src/yamlRestTest/resources/rest-api-spec/test/indices.get_all_sample_configuration/10_basic.yml
+@@ -0,0 +1,254 @@
++---
++setup:
++  - requires:
++      cluster_features: [ "random_sampling" ]
++      reason: requires feature 'random_sampling' to get random samples
++
++---
++teardown:
++  - do:
++      indices.delete:
++        index: "*test*"
++        ignore_unavailable: true
++        allow_no_indices: true
++
++---
++"Get all sampling configurations with no configurations":
++  - do:
++      indices.create:
++        index: test-no-config-index-1
++
++  - do:
++      indices.create:
++        index: test-no-config-index-2
++
++  - do:
++      indices.get_all_sample_configuration: {}
++
++  # Should return an empty array
++  - length: { $body: 0 }
++
++---
++"Get all sampling configurations with single configuration":
++  - do:
++      indices.create:
++        index: test-single-config-index
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-single-config-index
++        body:
++          rate: 0.5
++          max_samples: 100
++          max_size: "10mb"
++          time_to_live: "1h"
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  - length: { $body: 1 }
++  - match: { 0.index: "test-single-config-index" }
++  - match: { 0.configuration.rate: 0.5 }
++  - match: { 0.configuration.max_samples: 100 }
++  - match: { 0.configuration.max_size: "10mb" }
++  - match: { 0.configuration.time_to_live: "1h" }
++
++---
++"Get all sampling configurations with multiple configurations":
++  - do:
++      indices.create:
++        index: test-multi-config-index-1
++
++  - do:
++      indices.create:
++        index: test-multi-config-index-2
++
++  - do:
++      indices.create:
++        index: test-multi-config-index-3
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-multi-config-index-1
++        body:
++          rate: 0.3
++          max_samples: 50
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-multi-config-index-2
++        body:
++          rate: 0.7
++          max_samples: 200
++          max_size: "20mb"
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-multi-config-index-3
++        body:
++          rate: 1.0
++          if: "ctx?.field == 'sample_me'"
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  - length: { $body: 3 }
++  # Note: Array order may vary, so we just verify all 3 configurations exist
++  - is_true: 0.index
++  - is_true: 0.configuration
++  - is_true: 1.index
++  - is_true: 1.configuration
++  - is_true: 2.index
++  - is_true: 2.configuration
++
++---
++"Get all sampling configurations with mixed indices":
++  - do:
++      indices.create:
++        index: test-mixed-configured-1
++
++  - do:
++      indices.create:
++        index: test-mixed-unconfigured
++
++  - do:
++      indices.create:
++        index: test-mixed-configured-2
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-mixed-configured-1
++        body:
++          rate: 0.4
++          max_samples: 75
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-mixed-configured-2
++        body:
++          rate: 0.6
++          time_to_live: "2h"
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  # Should only return configured indices (2 items)
++  - length: { $body: 2 }
++  - is_true: 0.index
++  - is_true: 0.configuration
++  - is_true: 1.index
++  - is_true: 1.configuration
++
++---
++"Get all sampling configurations after update":
++  - do:
++      indices.create:
++        index: test-update-all-index
++
++  # Set initial configuration
++  - do:
++      indices.put_sample_configuration:
++        index: test-update-all-index
++        body:
++          rate: 0.2
++          max_samples: 30
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  - length: { $body: 1 }
++  - match: { 0.index: "test-update-all-index" }
++  - match: { 0.configuration.rate: 0.2 }
++  - match: { 0.configuration.max_samples: 30 }
++
++  # Update configuration
++  - do:
++      indices.put_sample_configuration:
++        index: test-update-all-index
++        body:
++          rate: 0.9
++          max_samples: 150
++          max_size: "15mb"
++
++  - match: { acknowledged: true }
++
++  # Verify updated configuration in get all
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  - length: { $body: 1 }
++  - match: { 0.index: "test-update-all-index" }
++  - match: { 0.configuration.rate: 0.9 }
++  - match: { 0.configuration.max_samples: 150 }
++  - match: { 0.configuration.max_size: "15mb" }
++
++---
++"Get all sampling configurations after deletion":
++  - do:
++      indices.create:
++        index: test-delete-all-index-1
++
++  - do:
++      indices.create:
++        index: test-delete-all-index-2
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-delete-all-index-1
++        body:
++          rate: 0.5
++          max_samples: 100
++
++  - match: { acknowledged: true }
++
++  - do:
++      indices.put_sample_configuration:
++        index: test-delete-all-index-2
++        body:
++          rate: 0.8
++          max_samples: 200
++
++  - match: { acknowledged: true }
++
++  # Verify both configurations exist
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  - length: { $body: 2 }
++
++  # Delete one configuration
++  - do:
++      indices.delete_sample_configuration:
++        index: test-delete-all-index-1
++
++  - match: { acknowledged: true }
++
++  # Verify only one configuration remains
++  - do:
++      indices.get_all_sample_configuration:
++        human: true
++
++  - length: { $body: 1 }
++  - match: { 0.index: "test-delete-all-index-2" }
++  - match: { 0.configuration.rate: 0.8 }
++  - match: { 0.configuration.max_samples: 200 }
+diff --git a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionIT.java b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionIT.java
+new file mode 100644
+index 0000000000000..5cd3085e2eb60
+--- /dev/null
++++ b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionIT.java
+@@ -0,0 +1,253 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.action.admin.indices.sampling;
++
++import org.elasticsearch.common.unit.ByteSizeValue;
++import org.elasticsearch.core.TimeValue;
++import org.elasticsearch.ingest.SamplingService;
++import org.elasticsearch.test.ESIntegTestCase;
++
++import java.util.HashMap;
++import java.util.Map;
++
++import static org.hamcrest.Matchers.anEmptyMap;
++import static org.hamcrest.Matchers.equalTo;
++import static org.hamcrest.Matchers.hasEntry;
++import static org.hamcrest.Matchers.hasKey;
++import static org.hamcrest.Matchers.is;
++import static org.hamcrest.Matchers.not;
++import static org.hamcrest.Matchers.notNullValue;
++
++public class GetAllSampleConfigurationActionIT extends ESIntegTestCase {
++
++    public void testGetAllSampleConfigurationsWithNoConfigurations() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        // Create some indices without sampling configurations
++        int numIndices = randomIntBetween(1, 3);
++        for (int i = 0; i < numIndices; i++) {
++            createIndex(randomIdentifier());
++        }
++
++        // Get all configurations - should return empty map
++        GetAllSampleConfigurationAction.Response response = getAllSamplingConfigurations();
++
++        assertThat("Response should not be null", response, notNullValue());
++        assertThat("Configuration map should be empty", response.getIndexToSamplingConfigMap(), is(anEmptyMap()));
++    }
++
++    public void testGetAllSampleConfigurationsWithSingleConfiguration() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        String indexName = randomIdentifier();
++        createIndex(indexName);
++
++        // Create a sampling configuration
++        SamplingConfiguration config = randomSamplingConfiguration();
++        putSamplingConfiguration(indexName, config);
++
++        // Get all configurations
++        GetAllSampleConfigurationAction.Response response = getAllSamplingConfigurations();
++
++        assertThat("Response should not be null", response, notNullValue());
++        Map<String, SamplingConfiguration> configMap = response.getIndexToSamplingConfigMap();
++        assertThat("Configuration map should not be empty", configMap, not(anEmptyMap()));
++        assertThat("Configuration map should contain the index", configMap, hasKey(indexName));
++        assertThat("Configuration should match", configMap.get(indexName), equalTo(config));
++    }
++
++    public void testGetAllSampleConfigurationsWithMultipleConfigurations() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        // Create multiple indices with sampling configurations
++        int numIndices = randomIntBetween(2, 5);
++        Map<String, SamplingConfiguration> expectedConfigs = new HashMap<>();
++
++        for (int i = 0; i < numIndices; i++) {
++            String indexName = randomIdentifier();
++            createIndex(indexName);
++            SamplingConfiguration config = randomSamplingConfiguration();
++            putSamplingConfiguration(indexName, config);
++            expectedConfigs.put(indexName, config);
++        }
++
++        // Get all configurations
++        GetAllSampleConfigurationAction.Response response = getAllSamplingConfigurations();
++
++        assertThat("Response should not be null", response, notNullValue());
++        Map<String, SamplingConfiguration> configMap = response.getIndexToSamplingConfigMap();
++        assertThat("Configuration map should have correct size", configMap.size(), equalTo(expectedConfigs.size()));
++
++        // Verify each configuration matches
++        for (Map.Entry<String, SamplingConfiguration> entry : expectedConfigs.entrySet()) {
++            assertThat("Configuration map should contain index: " + entry.getKey(), configMap, hasEntry(entry.getKey(), entry.getValue()));
++        }
++    }
++
++    public void testGetAllSampleConfigurationsWithMixedIndices() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        // Create some indices with configurations
++        int numConfiguredIndices = randomIntBetween(1, 3);
++        Map<String, SamplingConfiguration> expectedConfigs = new HashMap<>();
++
++        for (int i = 0; i < numConfiguredIndices; i++) {
++            String indexName = randomIdentifier();
++            createIndex(indexName);
++            SamplingConfiguration config = randomSamplingConfiguration();
++            putSamplingConfiguration(indexName, config);
++            expectedConfigs.put(indexName, config);
++        }
++
++        // Create some indices without configurations
++        int numUnconfiguredIndices = randomIntBetween(1, 3);
++        for (int i = 0; i < numUnconfiguredIndices; i++) {
++            createIndex(randomIdentifier());
++        }
++
++        // Get all configurations - should only return configured indices
++        GetAllSampleConfigurationAction.Response response = getAllSamplingConfigurations();
++
++        assertThat("Response should not be null", response, notNullValue());
++        Map<String, SamplingConfiguration> configMap = response.getIndexToSamplingConfigMap();
++        assertThat("Configuration map should only contain configured indices", configMap.size(), equalTo(expectedConfigs.size()));
++
++        // Verify each configuration matches
++        for (Map.Entry<String, SamplingConfiguration> entry : expectedConfigs.entrySet()) {
++            assertThat("Configuration map should contain index: " + entry.getKey(), configMap, hasEntry(entry.getKey(), entry.getValue()));
++        }
++    }
++
++    public void testGetAllSampleConfigurationsAfterUpdate() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        String indexName = randomIdentifier();
++        createIndex(indexName);
++
++        // Create initial configuration
++        SamplingConfiguration initialConfig = randomSamplingConfiguration();
++        putSamplingConfiguration(indexName, initialConfig);
++
++        // Get all configurations - should have initial config
++        GetAllSampleConfigurationAction.Response response1 = getAllSamplingConfigurations();
++        assertThat("Initial configuration should match", response1.getIndexToSamplingConfigMap().get(indexName), equalTo(initialConfig));
++
++        // Update with new configuration
++        SamplingConfiguration updatedConfig = randomSamplingConfiguration();
++        putSamplingConfiguration(indexName, updatedConfig);
++
++        // Get all configurations - should have updated config
++        GetAllSampleConfigurationAction.Response response2 = getAllSamplingConfigurations();
++        assertThat("Updated configuration should match", response2.getIndexToSamplingConfigMap().get(indexName), equalTo(updatedConfig));
++    }
++
++    public void testGetAllSampleConfigurationsAfterDeletion() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        // Create two indices with configurations
++        String index1 = randomIdentifier();
++        String index2 = randomIdentifier();
++        createIndex(index1);
++        createIndex(index2);
++
++        SamplingConfiguration config1 = randomSamplingConfiguration();
++        SamplingConfiguration config2 = randomSamplingConfiguration();
++        putSamplingConfiguration(index1, config1);
++        putSamplingConfiguration(index2, config2);
++
++        // Get all configurations - should have both
++        GetAllSampleConfigurationAction.Response response1 = getAllSamplingConfigurations();
++        assertThat("Should have two configurations", response1.getIndexToSamplingConfigMap().size(), equalTo(2));
++
++        // Delete one configuration
++        deleteSamplingConfiguration(index1);
++
++        // Get all configurations - should only have one
++        GetAllSampleConfigurationAction.Response response2 = getAllSamplingConfigurations();
++        Map<String, SamplingConfiguration> configMap = response2.getIndexToSamplingConfigMap();
++        assertThat("Should have one configuration", configMap.size(), equalTo(1));
++        assertThat("Should not contain deleted index", configMap, not(hasKey(index1)));
++        assertThat("Should contain remaining index", configMap, hasEntry(index2, config2));
++    }
++
++    public void testGetAllSampleConfigurationsPersistsAcrossClusterStateUpdates() {
++        assumeTrue("Requires the sampling feature flag to be enabled", SamplingService.RANDOM_SAMPLING_FEATURE_FLAG);
++
++        // Create indices with sampling configurations
++        int numIndices = randomIntBetween(2, 4);
++        Map<String, SamplingConfiguration> expectedConfigs = new HashMap<>();
++
++        for (int i = 0; i < numIndices; i++) {
++            String indexName = randomIdentifier();
++            createIndex(indexName);
++            SamplingConfiguration config = randomSamplingConfiguration();
++            putSamplingConfiguration(indexName, config);
++            expectedConfigs.put(indexName, config);
++        }
++
++        // Get initial configurations
++        GetAllSampleConfigurationAction.Response response1 = getAllSamplingConfigurations();
++        assertThat("Initial configurations should match", response1.getIndexToSamplingConfigMap(), equalTo(expectedConfigs));
++
++        // Trigger cluster state updates by creating additional indices
++        int numDummyIndices = randomIntBetween(2, 5);
++        for (int i = 0; i < numDummyIndices; i++) {
++            createIndex(randomIdentifier());
++        }
++
++        // Get configurations again after cluster state changes
++        GetAllSampleConfigurationAction.Response response2 = getAllSamplingConfigurations();
++        assertThat(
++            "Configurations should persist after cluster state changes",
++            response2.getIndexToSamplingConfigMap(),
++            equalTo(expectedConfigs)
++        );
++    }
++
++    private SamplingConfiguration randomSamplingConfiguration() {
++        return new SamplingConfiguration(
++            randomDoubleBetween(0.1, 1.0, true),
++            randomBoolean() ? randomIntBetween(1, SamplingConfiguration.MAX_SAMPLES_LIMIT) : null,
++            randomBoolean() ? ByteSizeValue.ofGb(randomLongBetween(1, SamplingConfiguration.MAX_SIZE_LIMIT_GIGABYTES)) : null,
++            randomBoolean() ? randomValidTimeValue() : null,
++            randomBoolean() ? randomAlphaOfLengthBetween(5, 30) : null
++        );
++    }
++
++    private void putSamplingConfiguration(String indexName, SamplingConfiguration config) {
++        PutSampleConfigurationAction.Request putRequest = new PutSampleConfigurationAction.Request(
++            config,
++            randomValidTimeValue(),
++            randomValidTimeValue()
++        );
++        putRequest.indices(indexName);
++        client().execute(PutSampleConfigurationAction.INSTANCE, putRequest).actionGet();
++        ensureGreen();
++    }
++
++    private void deleteSamplingConfiguration(String indexName) {
++        DeleteSampleConfigurationAction.Request deleteRequest = new DeleteSampleConfigurationAction.Request(
++            randomValidTimeValue(),
++            randomValidTimeValue()
++        );
++        deleteRequest.indices(indexName);
++        client().execute(DeleteSampleConfigurationAction.INSTANCE, deleteRequest).actionGet();
++        ensureGreen();
++    }
++
++    private GetAllSampleConfigurationAction.Response getAllSamplingConfigurations() {
++        GetAllSampleConfigurationAction.Request request = new GetAllSampleConfigurationAction.Request(randomValidTimeValue());
++        return client().execute(GetAllSampleConfigurationAction.INSTANCE, request).actionGet();
++    }
++
++    private TimeValue randomValidTimeValue() {
++        return TimeValue.timeValueDays(randomIntBetween(10, 20));
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/action/ActionModule.java b/server/src/main/java/org/elasticsearch/action/ActionModule.java
+index dc26766c8f0ad..14d9afe7cf9fa 100644
+--- a/server/src/main/java/org/elasticsearch/action/ActionModule.java
++++ b/server/src/main/java/org/elasticsearch/action/ActionModule.java
+@@ -128,16 +128,19 @@
+ import org.elasticsearch.action.admin.indices.rollover.RolloverAction;
+ import org.elasticsearch.action.admin.indices.rollover.TransportRolloverAction;
+ import org.elasticsearch.action.admin.indices.sampling.DeleteSampleConfigurationAction;
++import org.elasticsearch.action.admin.indices.sampling.GetAllSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.GetSampleAction;
+ import org.elasticsearch.action.admin.indices.sampling.GetSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.GetSampleStatsAction;
+ import org.elasticsearch.action.admin.indices.sampling.PutSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.RestDeleteSampleConfigurationAction;
++import org.elasticsearch.action.admin.indices.sampling.RestGetAllSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.RestGetSampleAction;
+ import org.elasticsearch.action.admin.indices.sampling.RestGetSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.RestGetSampleStatsAction;
+ import org.elasticsearch.action.admin.indices.sampling.RestPutSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.TransportDeleteSampleConfigurationAction;
++import org.elasticsearch.action.admin.indices.sampling.TransportGetAllSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.TransportGetSampleAction;
+ import org.elasticsearch.action.admin.indices.sampling.TransportGetSampleConfigurationAction;
+ import org.elasticsearch.action.admin.indices.sampling.TransportGetSampleStatsAction;
+@@ -835,6 +838,7 @@ public <Request extends ActionRequest, Response extends ActionResponse> void reg
+             actions.register(GetSampleStatsAction.INSTANCE, TransportGetSampleStatsAction.class);
+             actions.register(DeleteSampleConfigurationAction.INSTANCE, TransportDeleteSampleConfigurationAction.class);
+             actions.register(GetSampleConfigurationAction.INSTANCE, TransportGetSampleConfigurationAction.class);
++            actions.register(GetAllSampleConfigurationAction.INSTANCE, TransportGetAllSampleConfigurationAction.class);
+         }
+ 
+         return unmodifiableMap(actions.getRegistry());
+@@ -1071,6 +1075,7 @@ public void initRestHandlers(Supplier<DiscoveryNodes> nodesInCluster, Predicate<
+             registerHandler.accept(new RestGetSampleStatsAction());
+             registerHandler.accept(new RestDeleteSampleConfigurationAction());
+             registerHandler.accept(new RestGetSampleConfigurationAction());
++            registerHandler.accept(new RestGetAllSampleConfigurationAction());
+         }
+     }
+ 
+diff --git a/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationAction.java b/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationAction.java
+new file mode 100644
+index 0000000000000..0d3d641661342
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationAction.java
+@@ -0,0 +1,206 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.action.admin.indices.sampling;
++
++import org.elasticsearch.action.ActionResponse;
++import org.elasticsearch.action.ActionType;
++import org.elasticsearch.action.IndicesRequest;
++import org.elasticsearch.action.support.IndicesOptions;
++import org.elasticsearch.action.support.local.LocalClusterStateRequest;
++import org.elasticsearch.common.io.stream.StreamInput;
++import org.elasticsearch.common.io.stream.StreamOutput;
++import org.elasticsearch.common.xcontent.ChunkedToXContentObject;
++import org.elasticsearch.core.Nullable;
++import org.elasticsearch.core.TimeValue;
++import org.elasticsearch.tasks.CancellableTask;
++import org.elasticsearch.tasks.Task;
++import org.elasticsearch.tasks.TaskId;
++import org.elasticsearch.xcontent.ToXContent;
++import org.elasticsearch.xcontent.XContentBuilder;
++
++import java.io.IOException;
++import java.util.Collections;
++import java.util.Iterator;
++import java.util.Map;
++import java.util.Objects;
++
++/**
++ * Action type for retrieving all sampling configurations for cluster indices.
++ * <p>
++ * This action allows clients to get all sampling configurations
++ * that have been set. This action
++ * targets all indices and returns any existing configurations in a structured format.
++ * </p>
++ * The response format matches:
++ *  <pre>
++ * [
++ * {
++ *  "index": "logs",
++ *  "configuration": {
++ *      "rate": ".5",
++ *      "if": "ctx?.network?.name == 'Guest'"
++ *  }
++ * },
++ * {
++ *  "index": "logsTwo",
++ *  "configuration": {
++ *      "rate": ".75"
++ *  }
++ * },
++ * ]
++ *  </pre>
++ *
++ * @see SamplingConfiguration
++ * @see PutSampleConfigurationAction
++ */
++public class GetAllSampleConfigurationAction extends ActionType<GetAllSampleConfigurationAction.Response> {
++
++    /**
++     * Singleton instance of the GetAllSampleConfigurationAction.
++     * This provides a shared reference to the action type throughout the application.
++     */
++    public static final GetAllSampleConfigurationAction INSTANCE = new GetAllSampleConfigurationAction();
++
++    /**
++     * The name identifier for this action type used in the transport layer.
++     */
++    public static final String NAME = "indices:monitor/sample/config/get_all";
++
++    private GetAllSampleConfigurationAction() {
++        super(NAME);
++    }
++
++    /**
++     * Request object for getting all sampling configurations in a cluster.
++     */
++    public static class Request extends LocalClusterStateRequest implements IndicesRequest.Replaceable {
++        /**
++         * Constructs a new request.
++         *
++         * @param masterNodeTimeout the timeout for master node operations, or null for default
++         */
++        public Request(@Nullable TimeValue masterNodeTimeout) {
++            super(masterNodeTimeout);
++        }
++
++        /**
++         * Constructs a new request by deserializing from a StreamInput.
++         *
++         * @param in the stream input to read from
++         * @throws IOException if an I/O error occurs during deserialization
++         */
++        public Request(StreamInput in) throws IOException {
++            super(in);
++        }
++
++        @Override
++        public String[] indices() {
++            // This action reads from cluster state metadata (SamplingMetadata), not from indices directly.
++            // The IndicesRequest implementation is required for security authorization checks.
++            return new String[] { "*" };
++        }
++
++        @Override
++        public IndicesOptions indicesOptions() {
++            return IndicesOptions.LENIENT_EXPAND_OPEN;
++        }
++
++        @Override
++        public boolean includeDataStreams() {
++            return true;
++        }
++
++        @Override
++        public Request indices(String... indices) {
++            // This is a get-all operation, so we don't support changing the indices
++            return this;
++        }
++
++        @Override
++        public Task createTask(long id, String type, String action, TaskId parentTaskId, Map<String, String> headers) {
++            return new CancellableTask(id, type, action, "executing " + action, parentTaskId, headers);
++        }
++    }
++
++    /**
++     * Response object containing an index to sampling configuration map.
++     * <p>
++     * This response contains a map from index names to their associated sampling configurations.
++     * The response is designed to match the expected JSON format with an array containing
++     * objects with "index" and "configuration" fields.
++     * </p>
++     */
++    public static class Response extends ActionResponse implements ChunkedToXContentObject {
++        private final Map<String, SamplingConfiguration> indexToSamplingConfigMap;
++
++        /**
++         * Constructs a new Response with the given index to sampling configuration map.
++         *
++         * @param indexToSamplingConfigMap the index to sampling configuration map
++         */
++        public Response(Map<String, SamplingConfiguration> indexToSamplingConfigMap) {
++            this.indexToSamplingConfigMap = indexToSamplingConfigMap;
++        }
++
++        /**
++         * Constructs a new Response by deserializing from a StreamInput.
++         *
++         * @param in the stream input to read from
++         * @throws IOException if an I/O error occurs during deserialization
++         */
++        public Response(StreamInput in) throws IOException {
++            this.indexToSamplingConfigMap = in.readMap(StreamInput::readString, SamplingConfiguration::new);
++        }
++
++        /**
++         * Gets the index to sampling configuration map.
++         *
++         * @return the index to sampling configuration map, or an empty map if none exist
++         */
++        public Map<String, SamplingConfiguration> getIndexToSamplingConfigMap() {
++            return indexToSamplingConfigMap == null ? Map.of() : indexToSamplingConfigMap;
++        }
++
++        @Override
++        public void writeTo(StreamOutput out) throws IOException {
++            out.writeMap(indexToSamplingConfigMap, StreamOutput::writeString, (o, v) -> v.writeTo(o));
++        }
++
++        @Override
++        public boolean equals(Object o) {
++            if (this == o) return true;
++            if (o == null || getClass() != o.getClass()) return false;
++            Response that = (Response) o;
++            return indexToSamplingConfigMap.equals(that.indexToSamplingConfigMap);
++        }
++
++        @Override
++        public int hashCode() {
++            return Objects.hash(indexToSamplingConfigMap);
++        }
++
++        @Override
++        public Iterator<? extends ToXContent> toXContentChunked(ToXContent.Params params) {
++            return Collections.singletonList((ToXContent) (builder, p) -> toXContent(builder, params)).iterator();
++        }
++
++        private XContentBuilder toXContent(XContentBuilder builder, ToXContent.Params params) throws IOException {
++            builder.startArray();
++            for (Map.Entry<String, SamplingConfiguration> entry : indexToSamplingConfigMap.entrySet()) {
++                builder.startObject();
++                builder.field("index", entry.getKey());
++                builder.field("configuration", entry.getValue());
++                builder.endObject();
++            }
++            builder.endArray();
++            return builder;
++        }
++    }
++}
+diff --git a/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/RestGetAllSampleConfigurationAction.java b/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/RestGetAllSampleConfigurationAction.java
+new file mode 100644
+index 0000000000000..b9b6519e18a3f
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/RestGetAllSampleConfigurationAction.java
+@@ -0,0 +1,76 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.action.admin.indices.sampling;
++
++import org.elasticsearch.client.internal.node.NodeClient;
++import org.elasticsearch.rest.BaseRestHandler;
++import org.elasticsearch.rest.RestRequest;
++import org.elasticsearch.rest.Scope;
++import org.elasticsearch.rest.ServerlessScope;
++import org.elasticsearch.rest.action.RestCancellableNodeClient;
++import org.elasticsearch.rest.action.RestRefCountedChunkedToXContentListener;
++
++import java.io.IOException;
++import java.util.List;
++
++import static org.elasticsearch.rest.RestRequest.Method.GET;
++import static org.elasticsearch.rest.RestUtils.getMasterNodeTimeout;
++
++/**
++ * REST action for getting all sampling configurations for indices.
++ * <p>
++ * Handles GET requests to /_sample/config endpoint and delegates
++ * to the GetAllSampleConfigurationAction transport action.
++ * </p>
++ *
++ * <p>Example usage:</p>
++ * GET /_sample/config
++ * returns
++ * [
++ * {
++ *  "index": "logs",
++ *  "configuration": {
++ *      "rate": ".5",
++ *      "if": "ctx?.network?.name == 'Guest'"
++ *  }
++ * },
++ * {
++ *  "index": "logsTwo",
++ *  "configuration": {
++ *      "rate": ".75"
++ *  }
++ * },
++ * ]
++ */
++@ServerlessScope(Scope.INTERNAL)
++public class RestGetAllSampleConfigurationAction extends BaseRestHandler {
++
++    @Override
++    public List<Route> routes() {
++        return List.of(new Route(GET, "/_sample/config"));
++    }
++
++    @Override
++    public String getName() {
++        return "get_all_sample_configuration_action";
++    }
++
++    @Override
++    public RestChannelConsumer prepareRequest(final RestRequest request, final NodeClient client) throws IOException {
++        GetAllSampleConfigurationAction.Request getRequest = new GetAllSampleConfigurationAction.Request(getMasterNodeTimeout(request));
++
++        return channel -> new RestCancellableNodeClient(client, request.getHttpChannel()).execute(
++            GetAllSampleConfigurationAction.INSTANCE,
++            getRequest,
++            new RestRefCountedChunkedToXContentListener<>(channel)
++        );
++    }
++
++}
+diff --git a/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/TransportGetAllSampleConfigurationAction.java b/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/TransportGetAllSampleConfigurationAction.java
+new file mode 100644
+index 0000000000000..088ac19dc76c3
+--- /dev/null
++++ b/server/src/main/java/org/elasticsearch/action/admin/indices/sampling/TransportGetAllSampleConfigurationAction.java
+@@ -0,0 +1,119 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.action.admin.indices.sampling;
++
++import org.apache.logging.log4j.LogManager;
++import org.apache.logging.log4j.Logger;
++import org.elasticsearch.action.ActionListener;
++import org.elasticsearch.action.support.ActionFilters;
++import org.elasticsearch.action.support.local.TransportLocalProjectMetadataAction;
++import org.elasticsearch.cluster.ProjectState;
++import org.elasticsearch.cluster.block.ClusterBlockException;
++import org.elasticsearch.cluster.block.ClusterBlockLevel;
++import org.elasticsearch.cluster.metadata.ProjectMetadata;
++import org.elasticsearch.cluster.project.ProjectResolver;
++import org.elasticsearch.cluster.service.ClusterService;
++import org.elasticsearch.common.util.concurrent.EsExecutors;
++import org.elasticsearch.injection.guice.Inject;
++import org.elasticsearch.tasks.Task;
++import org.elasticsearch.transport.TransportService;
++
++import java.util.Map;
++
++/**
++ * Transport action for retrieving all existing sampling configurations.
++ * <p>
++ * This action retrieves the sampling configurations from the project metadata's custom sampling metadata.
++ * </p>
++ */
++public class TransportGetAllSampleConfigurationAction extends TransportLocalProjectMetadataAction<
++    GetAllSampleConfigurationAction.Request,
++    GetAllSampleConfigurationAction.Response> {
++
++    private static final Logger logger = LogManager.getLogger(TransportGetAllSampleConfigurationAction.class);
++
++    /**
++     * Constructs a new TransportGetAllSampleConfigurationAction.
++     *
++     * @param actionFilters the action filters to apply
++     * @param transportService the transport service
++     * @param clusterService the cluster service
++     * @param projectResolver the project resolver
++     */
++    @Inject
++    public TransportGetAllSampleConfigurationAction(
++        ActionFilters actionFilters,
++        TransportService transportService,
++        ClusterService clusterService,
++        ProjectResolver projectResolver
++    ) {
++        super(
++            GetAllSampleConfigurationAction.NAME,
++            actionFilters,
++            transportService.getTaskManager(),
++            clusterService,
++            EsExecutors.DIRECT_EXECUTOR_SERVICE,
++            projectResolver
++        );
++    }
++
++    /**
++     * Executes the get all sampling configuration operation against the local cluster state.
++     * <p>
++     * Retrieves all sampling configuration from the project metadata.
++     * Returns empty map if no sampling metadata exists or if no configurations are set.
++     * </p>
++     *
++     * @param task the task executing this operation
++     * @param request the get sampling configuration request containing the index name
++     * @param state the current project state
++     * @param listener the listener to notify with the response or failure
++     */
++    @Override
++    protected void localClusterStateOperation(
++        Task task,
++        GetAllSampleConfigurationAction.Request request,
++        ProjectState state,
++        ActionListener<GetAllSampleConfigurationAction.Response> listener
++    ) {
++        ProjectMetadata projectMetadata = state.metadata();
++
++        if (projectMetadata == null) {
++            logger.debug("No project metadata found");
++            listener.onResponse(new GetAllSampleConfigurationAction.Response(Map.of()));
++            return;
++        }
++
++        SamplingMetadata samplingMetadata = projectMetadata.custom(SamplingMetadata.TYPE);
++        if (samplingMetadata == null) {
++            logger.debug("No sampling metadata found");
++            listener.onResponse(new GetAllSampleConfigurationAction.Response(Map.of()));
++            return;
++        }
++
++        Map<String, SamplingConfiguration> indexToSampleConfigMap = samplingMetadata.getIndexToSamplingConfigMap();
++        logger.debug("Retrieved sampling configurations");
++        listener.onResponse(
++            new GetAllSampleConfigurationAction.Response(indexToSampleConfigMap == null ? Map.of() : indexToSampleConfigMap)
++        );
++    }
++
++    /**
++     * Checks for cluster blocks that would prevent this operation from executing.
++     *
++     * @param request the get sampling configuration request
++     * @param state the current project state
++     * @return a cluster block exception if the operation is blocked, null otherwise
++     */
++    @Override
++    protected ClusterBlockException checkBlock(GetAllSampleConfigurationAction.Request request, ProjectState state) {
++        return state.blocks().globalBlockedException(ClusterBlockLevel.METADATA_READ);
++    }
++}
+diff --git a/server/src/test/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionRequestTests.java b/server/src/test/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionRequestTests.java
+new file mode 100644
+index 0000000000000..0df0d8a8c482a
+--- /dev/null
++++ b/server/src/test/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionRequestTests.java
+@@ -0,0 +1,58 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.action.admin.indices.sampling;
++
++import org.elasticsearch.core.TimeValue;
++import org.elasticsearch.tasks.Task;
++import org.elasticsearch.tasks.TaskId;
++import org.elasticsearch.test.ESTestCase;
++
++import java.util.Map;
++
++import static org.hamcrest.Matchers.equalTo;
++import static org.hamcrest.Matchers.instanceOf;
++import static org.hamcrest.Matchers.notNullValue;
++
++public class GetAllSampleConfigurationActionRequestTests extends ESTestCase {
++
++    protected GetAllSampleConfigurationAction.Request createTestInstance() {
++        return new GetAllSampleConfigurationAction.Request(randomBoundedTimeValue());
++    }
++
++    public void testGettersAndSetters() {
++        TimeValue timeout = randomBoundedTimeValue();
++        GetAllSampleConfigurationAction.Request request = new GetAllSampleConfigurationAction.Request(timeout);
++
++        assertThat(request.masterTimeout(), equalTo(timeout));
++    }
++
++    public void testCreateTaskReturnsCancellableTask() {
++        GetAllSampleConfigurationAction.Request request = createTestInstance();
++
++        long taskId = randomLong();
++        String type = randomAlphaOfLength(10);
++        String action = GetAllSampleConfigurationAction.NAME;
++        TaskId parentTaskId = new TaskId(randomAlphaOfLength(10), randomLong());
++        Map<String, String> headers = Map.of("header1", "value1");
++
++        Task task = request.createTask(taskId, type, action, parentTaskId, headers);
++
++        assertThat(task, notNullValue());
++        assertThat(task, instanceOf(org.elasticsearch.tasks.CancellableTask.class));
++        assertThat(task.getId(), equalTo(taskId));
++        assertThat(task.getType(), equalTo(type));
++        assertThat(task.getAction(), equalTo(action));
++        assertThat(task.getParentTaskId(), equalTo(parentTaskId));
++    }
++
++    private TimeValue randomBoundedTimeValue() {
++        return TimeValue.timeValueSeconds(randomIntBetween(5, 10));
++    }
++}
+diff --git a/server/src/test/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionResponseTests.java b/server/src/test/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionResponseTests.java
+new file mode 100644
+index 0000000000000..ce93824c6b6c7
+--- /dev/null
++++ b/server/src/test/java/org/elasticsearch/action/admin/indices/sampling/GetAllSampleConfigurationActionResponseTests.java
+@@ -0,0 +1,89 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the "Elastic License
++ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
++ * Public License v 1"; you may not use this file except in compliance with, at
++ * your election, the "Elastic License 2.0", the "GNU Affero General Public
++ * License v3.0 only", or the "Server Side Public License, v 1".
++ */
++
++package org.elasticsearch.action.admin.indices.sampling;
++
++import org.elasticsearch.common.io.stream.Writeable;
++import org.elasticsearch.common.unit.ByteSizeValue;
++import org.elasticsearch.core.TimeValue;
++import org.elasticsearch.test.AbstractWireSerializingTestCase;
++
++import java.util.HashMap;
++import java.util.Map;
++
++public class GetAllSampleConfigurationActionResponseTests extends AbstractWireSerializingTestCase<
++    GetAllSampleConfigurationAction.Response> {
++
++    @Override
++    protected Writeable.Reader<GetAllSampleConfigurationAction.Response> instanceReader() {
++        return GetAllSampleConfigurationAction.Response::new;
++    }
++
++    @Override
++    protected GetAllSampleConfigurationAction.Response createTestInstance() {
++        int numIndices = randomIntBetween(0, 10);
++        Map<String, SamplingConfiguration> indexToConfigMap = new HashMap<>();
++        for (int i = 0; i < numIndices; i++) {
++            String indexName = randomAlphaOfLengthBetween(1, 20);
++            SamplingConfiguration config = createRandomSamplingConfiguration();
++            indexToConfigMap.put(indexName, config);
++        }
++        return new GetAllSampleConfigurationAction.Response(indexToConfigMap);
++    }
++
++    @Override
++    protected GetAllSampleConfigurationAction.Response mutateInstance(GetAllSampleConfigurationAction.Response instance) {
++        Map<String, SamplingConfiguration> originalMap = instance.getIndexToSamplingConfigMap();
++        Map<String, SamplingConfiguration> mutatedMap = new HashMap<>(originalMap);
++
++        if (mutatedMap.isEmpty()) {
++            // If empty, add a new entry
++            mutatedMap.put(randomAlphaOfLengthBetween(1, 20), createRandomSamplingConfiguration());
++        } else {
++            // Otherwise, randomly mutate the map
++            return switch (randomIntBetween(0, 2)) {
++                case 0 -> {
++                    // Add a new index
++                    String newIndex = randomValueOtherThanMany(mutatedMap::containsKey, () -> randomAlphaOfLengthBetween(1, 20));
++                    mutatedMap.put(newIndex, createRandomSamplingConfiguration());
++                    yield new GetAllSampleConfigurationAction.Response(mutatedMap);
++                }
++                case 1 -> {
++                    // Remove an index
++                    String keyToRemove = randomFrom(mutatedMap.keySet());
++                    mutatedMap.remove(keyToRemove);
++                    yield new GetAllSampleConfigurationAction.Response(mutatedMap);
++                }
++                case 2 -> {
++                    // Modify a configuration
++                    String keyToModify = randomFrom(mutatedMap.keySet());
++                    SamplingConfiguration newConfig = randomValueOtherThan(
++                        mutatedMap.get(keyToModify),
++                        this::createRandomSamplingConfiguration
++                    );
++                    mutatedMap.put(keyToModify, newConfig);
++                    yield new GetAllSampleConfigurationAction.Response(mutatedMap);
++                }
++                default -> throw new IllegalStateException("Invalid mutation case");
++            };
++        }
++
++        return new GetAllSampleConfigurationAction.Response(mutatedMap);
++    }
++
++    private SamplingConfiguration createRandomSamplingConfiguration() {
++        return new SamplingConfiguration(
++            randomDoubleBetween(0.1, 1.0, true),
++            randomBoolean() ? randomIntBetween(1, 1000) : null,
++            randomBoolean() ? ByteSizeValue.ofMb(randomIntBetween(1, 100)) : null,
++            randomBoolean() ? TimeValue.timeValueMinutes(randomIntBetween(1, 60)) : null,
++            randomBoolean() ? "ctx?.field == 'test'" : null
++        );
++    }
++}
+diff --git a/x-pack/plugin/security/qa/operator-privileges-tests/src/javaRestTest/java/org/elasticsearch/xpack/security/operator/Constants.java b/x-pack/plugin/security/qa/operator-privileges-tests/src/javaRestTest/java/org/elasticsearch/xpack/security/operator/Constants.java
+index 477212d87a4e7..89a47a9e070d0 100644
+--- a/x-pack/plugin/security/qa/operator-privileges-tests/src/javaRestTest/java/org/elasticsearch/xpack/security/operator/Constants.java
++++ b/x-pack/plugin/security/qa/operator-privileges-tests/src/javaRestTest/java/org/elasticsearch/xpack/security/operator/Constants.java
+@@ -663,6 +663,7 @@ public class Constants {
+         "indices:admin/sample/config/update",
+         "indices:admin/sample/stats",
+         "indices:admin/sample/config/delete",
+-        "indices:monitor/sample/config/get"
++        "indices:monitor/sample/config/get",
++        "indices:monitor/sample/config/get_all"
+     ).filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
+ }

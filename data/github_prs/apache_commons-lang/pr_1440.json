@@ -1,0 +1,33 @@
+{
+  "id": 1440,
+  "repository": "apache/commons-lang",
+  "title": "Fix CalendarUtils.toLocalDate() Javadoc return type description",
+  "body": null,
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-03T10:19:54+00:00",
+  "created_at": "2025-09-03T01:21:16+00:00",
+  "updated_at": "2025-09-03T11:08:45+00:00",
+  "author": "mymde",
+  "reviewers": [],
+  "base_sha": "be8b654fc02d5d1319734e39c6f1224b7cbbf212",
+  "head_sha": "5042e585d06a7f056cde805db96291692a9218c7",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "src/main/java/org/apache/commons/lang3/time/CalendarUtils.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -197,7 +197,7 @@ public int getYear() {\n     /**\n      * Converts this instance to a {@link LocalDate}.\n      *\n-     * @return a LocalDateTime.\n+     * @return a LocalDate.\n      * @since 3.18.0\n      */\n     public LocalDate toLocalDate() {"
+    }
+  ],
+  "diff": "diff --git a/src/main/java/org/apache/commons/lang3/time/CalendarUtils.java b/src/main/java/org/apache/commons/lang3/time/CalendarUtils.java\nindex 9ce4c656de8..7215d26a6f4 100644\n--- a/src/main/java/org/apache/commons/lang3/time/CalendarUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/time/CalendarUtils.java\n@@ -197,7 +197,7 @@ public int getYear() {\n     /**\n      * Converts this instance to a {@link LocalDate}.\n      *\n-     * @return a LocalDateTime.\n+     * @return a LocalDate.\n      * @since 3.18.0\n      */\n     public LocalDate toLocalDate() {\n",
+  "additions": 1,
+  "deletions": 1,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1440",
+  "mined_at": "2025-10-25T12:46:24.525576"
+}

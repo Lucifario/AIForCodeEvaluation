@@ -1,0 +1,33 @@
+{
+  "id": 7982,
+  "repository": "google/guava",
+  "title": "Add a test ahead of fixing https://github.com/google/guava/issues/5438, https://github.com/google/guava/issues/7625, and https://github.com/google/guava/issues/7975.",
+  "body": "Add a test ahead of fixing https://github.com/google/guava/issues/5438, https://github.com/google/guava/issues/7625, and https://github.com/google/guava/issues/7975.\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-11T17:58:39+00:00",
+  "created_at": "2025-09-11T17:33:48+00:00",
+  "updated_at": "2025-09-11T17:58:40+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "2de2021fb0c25215e6a5a745878bf6203e32d52c",
+  "head_sha": "2de649504a00b02ab0c1407bbebeac65313b4197",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 0,
+      "changes": 17,
+      "patch": "@@ -125,6 +125,23 @@ public void onRemoval(RemovalNotification<Integer, Integer> notification) {\n     CacheTesting.checkEmpty(cache);\n   }\n \n+  public void testComputeIfPresent_error() {\n+    Cache<String, String> cache = CacheBuilder.newBuilder().build();\n+    cache.put(key, \"1\");\n+    assertThrows(\n+        Error.class,\n+        () ->\n+            cache\n+                .asMap()\n+                .computeIfPresent(\n+                    key,\n+                    (k, v) -> {\n+                      throw new Error();\n+                    }));\n+    assertThat(cache.getIfPresent(key)).isEqualTo(\"1\");\n+    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> \"2\")).isEqualTo(null);\n+  }\n+\n   public void testUpdates() {\n     cache.put(key, \"1\");\n     // simultaneous update for same key, some null, some non-null"
+    }
+  ],
+  "diff": "diff --git a/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java b/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java\nindex a914e29b5eb7..54d8ae55ade5 100644\n--- a/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java\n+++ b/guava-tests/test/com/google/common/cache/LocalCacheMapComputeTest.java\n@@ -125,6 +125,23 @@ public void onRemoval(RemovalNotification<Integer, Integer> notification) {\n     CacheTesting.checkEmpty(cache);\n   }\n \n+  public void testComputeIfPresent_error() {\n+    Cache<String, String> cache = CacheBuilder.newBuilder().build();\n+    cache.put(key, \"1\");\n+    assertThrows(\n+        Error.class,\n+        () ->\n+            cache\n+                .asMap()\n+                .computeIfPresent(\n+                    key,\n+                    (k, v) -> {\n+                      throw new Error();\n+                    }));\n+    assertThat(cache.getIfPresent(key)).isEqualTo(\"1\");\n+    assertThat(cache.asMap().computeIfPresent(key, (k, v) -> \"2\")).isEqualTo(null);\n+  }\n+\n   public void testUpdates() {\n     cache.put(key, \"1\");\n     // simultaneous update for same key, some null, some non-null\n",
+  "additions": 17,
+  "deletions": 0,
+  "changed_files": 1,
+  "url": "https://github.com/google/guava/pull/7982",
+  "mined_at": "2025-10-25T13:03:45.541353"
+}

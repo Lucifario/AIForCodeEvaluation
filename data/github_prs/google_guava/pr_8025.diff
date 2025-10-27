@@ -1,0 +1,128 @@
+diff --git a/android/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java b/android/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java
+index 3cbf5a1028a7..7699ea2f4796 100644
+--- a/android/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java
++++ b/android/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java
+@@ -16,7 +16,6 @@
+ 
+ package com.google.common.io;
+ 
+-import static com.google.common.base.StandardSystemProperty.JAVA_IO_TMPDIR;
+ import static com.google.common.base.StandardSystemProperty.OS_NAME;
+ import static com.google.common.truth.Truth.assertThat;
+ import static java.lang.Math.min;
+@@ -73,10 +72,6 @@ private void testThreshold(
+ 
+     // Write data to go over the threshold
+     if (chunk2 > 0) {
+-      if (JAVA_IO_TMPDIR.value().equals("/sdcard")) {
+-        assertThrows(IOException.class, () -> write(out, data, chunk1, chunk2, singleByte));
+-        return;
+-      }
+       write(out, data, chunk1, chunk2, singleByte);
+       file = out.getFile();
+       assertEquals(dataSize, file.length());
+@@ -132,10 +127,6 @@ public void testWriteErrorAfterClose() throws Exception {
+     FileBackedOutputStream out = new FileBackedOutputStream(50);
+     ByteSource source = out.asByteSource();
+ 
+-    if (JAVA_IO_TMPDIR.value().equals("/sdcard")) {
+-      assertThrows(IOException.class, () -> out.write(data));
+-      return;
+-    }
+     out.write(data);
+     assertTrue(Arrays.equals(data, source.read()));
+ 
+diff --git a/android/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java b/android/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java
+index 1b15f3c8569b..90c91aa280d6 100644
+--- a/android/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java
++++ b/android/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java
+@@ -16,14 +16,12 @@
+ 
+ package com.google.common.io;
+ 
+-import static com.google.common.base.StandardSystemProperty.JAVA_IO_TMPDIR;
+ import static com.google.common.base.StandardSystemProperty.JAVA_SPECIFICATION_VERSION;
+ import static com.google.common.base.StandardSystemProperty.OS_NAME;
+ import static com.google.common.truth.Truth.assertThat;
+ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
+-import static org.junit.Assert.assertThrows;
+ 
+ import java.io.File;
+ import java.io.IOException;
+@@ -42,10 +40,6 @@
+ @NullUnmarked
+ public class FilesCreateTempDirTest extends TestCase {
+   public void testCreateTempDir() throws IOException {
+-    if (JAVA_IO_TMPDIR.value().equals("/sdcard")) {
+-      assertThrows(IllegalStateException.class, Files::createTempDir);
+-      return;
+-    }
+     File temp = Files.createTempDir();
+     try {
+       assertThat(temp.exists()).isTrue();
+diff --git a/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java b/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java
+index 3cbf5a1028a7..7699ea2f4796 100644
+--- a/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java
++++ b/guava-tests/test/com/google/common/io/FileBackedOutputStreamTest.java
+@@ -16,7 +16,6 @@
+ 
+ package com.google.common.io;
+ 
+-import static com.google.common.base.StandardSystemProperty.JAVA_IO_TMPDIR;
+ import static com.google.common.base.StandardSystemProperty.OS_NAME;
+ import static com.google.common.truth.Truth.assertThat;
+ import static java.lang.Math.min;
+@@ -73,10 +72,6 @@ private void testThreshold(
+ 
+     // Write data to go over the threshold
+     if (chunk2 > 0) {
+-      if (JAVA_IO_TMPDIR.value().equals("/sdcard")) {
+-        assertThrows(IOException.class, () -> write(out, data, chunk1, chunk2, singleByte));
+-        return;
+-      }
+       write(out, data, chunk1, chunk2, singleByte);
+       file = out.getFile();
+       assertEquals(dataSize, file.length());
+@@ -132,10 +127,6 @@ public void testWriteErrorAfterClose() throws Exception {
+     FileBackedOutputStream out = new FileBackedOutputStream(50);
+     ByteSource source = out.asByteSource();
+ 
+-    if (JAVA_IO_TMPDIR.value().equals("/sdcard")) {
+-      assertThrows(IOException.class, () -> out.write(data));
+-      return;
+-    }
+     out.write(data);
+     assertTrue(Arrays.equals(data, source.read()));
+ 
+diff --git a/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java b/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java
+index 1b15f3c8569b..90c91aa280d6 100644
+--- a/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java
++++ b/guava-tests/test/com/google/common/io/FilesCreateTempDirTest.java
+@@ -16,14 +16,12 @@
+ 
+ package com.google.common.io;
+ 
+-import static com.google.common.base.StandardSystemProperty.JAVA_IO_TMPDIR;
+ import static com.google.common.base.StandardSystemProperty.JAVA_SPECIFICATION_VERSION;
+ import static com.google.common.base.StandardSystemProperty.OS_NAME;
+ import static com.google.common.truth.Truth.assertThat;
+ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
+-import static org.junit.Assert.assertThrows;
+ 
+ import java.io.File;
+ import java.io.IOException;
+@@ -42,10 +40,6 @@
+ @NullUnmarked
+ public class FilesCreateTempDirTest extends TestCase {
+   public void testCreateTempDir() throws IOException {
+-    if (JAVA_IO_TMPDIR.value().equals("/sdcard")) {
+-      assertThrows(IllegalStateException.class, Files::createTempDir);
+-      return;
+-    }
+     File temp = Files.createTempDir();
+     try {
+       assertThat(temp.exists()).isTrue();

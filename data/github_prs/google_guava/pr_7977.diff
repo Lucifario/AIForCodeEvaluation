@@ -1,0 +1,530 @@
+diff --git a/android/guava-bom/pom.xml b/android/guava-bom/pom.xml
+index 4ca945c7ace3..39bc030bddd5 100644
+--- a/android/guava-bom/pom.xml
++++ b/android/guava-bom/pom.xml
+@@ -16,11 +16,6 @@
+   <url>https://github.com/google/guava</url>
+   <inceptionYear>2010</inceptionYear>
+ 
+-  <issueManagement>
+-    <system>GitHub Issues</system>
+-    <url>https://github.com/google/guava/issues</url>
+-  </issueManagement>
+-
+   <licenses>
+     <license>
+       <name>Apache License, Version 2.0</name>
+@@ -29,6 +24,11 @@
+     </license>
+   </licenses>
+ 
++  <issueManagement>
++    <system>GitHub Issues</system>
++    <url>https://github.com/google/guava/issues</url>
++  </issueManagement>
++
+   <distributionManagement>
+     <snapshotRepository>
+       <id>sonatype-nexus-snapshots</id>
+diff --git a/android/guava-tests/pom.xml b/android/guava-tests/pom.xml
+index ad5835cb303a..9e2c0cdf4249 100644
+--- a/android/guava-tests/pom.xml
++++ b/android/guava-tests/pom.xml
+@@ -97,6 +97,7 @@
+       <plugin>
+         <groupId>org.sonatype.central</groupId>
+         <artifactId>central-publishing-maven-plugin</artifactId>
++        <!-- TODO(cpovirk): Set a plugin version here, or find a different way to skip publishing for guava-tests. -->
+         <configuration>
+           <skipPublishing>true</skipPublishing>
+         </configuration>
+diff --git a/android/guava/pom.xml b/android/guava/pom.xml
+index 57fce6459893..4e36176e4c66 100644
+--- a/android/guava/pom.xml
++++ b/android/guava/pom.xml
+@@ -11,12 +11,12 @@
+   <artifactId>guava</artifactId>
+   <packaging>bundle</packaging>
+   <name>Guava: Google Core Libraries for Java</name>
+-  <url>https://github.com/google/guava</url>
+   <description>
+     Guava is a suite of core and expanded libraries that include
+     utility classes, Google's collections, I/O classes, and
+     much more.
+   </description>
++  <url>https://github.com/google/guava</url>
+   <dependencies>
+     <dependency>
+       <groupId>com.google.guava</groupId>
+diff --git a/android/pom.xml b/android/pom.xml
+index 32eccbe4510e..6c1efc3a9681 100644
+--- a/android/pom.xml
++++ b/android/pom.xml
+@@ -11,6 +11,58 @@
+   <name>Guava Maven Parent</name>
+   <description>Parent for guava artifacts</description>
+   <url>https://github.com/google/guava</url>
++  <inceptionYear>2010</inceptionYear>
++  <licenses>
++    <license>
++      <name>Apache License, Version 2.0</name>
++      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
++      <distribution>repo</distribution>
++    </license>
++  </licenses>
++  <developers>
++    <developer>
++      <id>kevinb9n</id>
++      <name>Kevin Bourrillion</name>
++      <email>kevinb@google.com</email>
++      <organization>Google</organization>
++      <organizationUrl>http://www.google.com</organizationUrl>
++      <roles>
++        <role>owner</role>
++        <role>developer</role>
++      </roles>
++      <timezone>-8</timezone>
++    </developer>
++  </developers>
++  <modules>
++    <module>guava</module>
++    <module>guava-bom</module>
++    <module>guava-testlib</module>
++    <module>guava-tests</module>
++  </modules>
++  <scm>
++    <connection>scm:git:https://github.com/google/guava.git</connection>
++    <developerConnection>scm:git:git@github.com:google/guava.git</developerConnection>
++    <url>https://github.com/google/guava</url>
++  </scm>
++  <issueManagement>
++    <system>GitHub Issues</system>
++    <url>https://github.com/google/guava/issues</url>
++  </issueManagement>
++  <ciManagement>
++    <system>GitHub Actions</system>
++    <url>https://github.com/google/guava/actions</url>
++  </ciManagement>
++  <distributionManagement>
++    <snapshotRepository>
++      <id>sonatype-nexus-snapshots</id>
++      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
++    </snapshotRepository>
++    <site>
++      <id>guava-site</id>
++      <name>Guava Documentation Site</name>
++      <url>scp://dummy.server/dontinstall/usestaging</url>
++    </site>
++  </distributionManagement>
+   <properties>
+     <!--
+     When building Guava, you can pass (e.g.) `-Dsurefire.toolchain.version=21` to change which version to run tests under.
+@@ -45,47 +97,30 @@
+     <otherVariant.jvmEnvironment>standard-jvm</otherVariant.jvmEnvironment>
+     <otherVariant.jvmEnvironmentVariantName>jre</otherVariant.jvmEnvironmentVariantName>
+   </properties>
+-  <issueManagement>
+-    <system>GitHub Issues</system>
+-    <url>https://github.com/google/guava/issues</url>
+-  </issueManagement>
+-  <inceptionYear>2010</inceptionYear>
+-  <licenses>
+-    <license>
+-      <name>Apache License, Version 2.0</name>
+-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+-      <distribution>repo</distribution>
+-    </license>
+-  </licenses>
+-  <scm>
+-    <connection>scm:git:https://github.com/google/guava.git</connection>
+-    <developerConnection>scm:git:git@github.com:google/guava.git</developerConnection>
+-    <url>https://github.com/google/guava</url>
+-  </scm>
+-  <developers>
+-    <developer>
+-      <id>kevinb9n</id>
+-      <name>Kevin Bourrillion</name>
+-      <email>kevinb@google.com</email>
+-      <organization>Google</organization>
+-      <organizationUrl>http://www.google.com</organizationUrl>
+-      <roles>
+-        <role>owner</role>
+-        <role>developer</role>
+-      </roles>
+-      <timezone>-8</timezone>
+-    </developer>
+-  </developers>
+-  <ciManagement>
+-    <system>GitHub Actions</system>
+-    <url>https://github.com/google/guava/actions</url>
+-  </ciManagement>
+-  <modules>
+-    <module>guava</module>
+-    <module>guava-bom</module>
+-    <module>guava-testlib</module>
+-    <module>guava-tests</module>
+-  </modules>
++  <dependencyManagement>
++    <dependencies>
++      <dependency>
++        <groupId>org.jspecify</groupId>
++        <artifactId>jspecify</artifactId>
++        <version>${jspecify.version}</version>
++      </dependency>
++      <dependency>
++        <groupId>com.google.errorprone</groupId>
++        <artifactId>error_prone_annotations</artifactId>
++        <version>${errorprone.version}</version>
++      </dependency>
++      <dependency>
++        <groupId>com.google.j2objc</groupId>
++        <artifactId>j2objc-annotations</artifactId>
++        <version>${j2objc.version}</version>
++      </dependency>
++      <!--
++      We moved away from using dependencyManagement for test-only deps because of https://github.com/google/guava/issues/6654.
++      We could probably have resumed it after https://github.com/google/guava/pull/6664.
++      But it's always weird that published poms reference test-only libraries at all, so I'm not in any rush to do so.
++      -->
++    </dependencies>
++  </dependencyManagement>
+   <build>
+     <!-- Handle where Guava deviates from Maven defaults -->
+     <sourceDirectory>src</sourceDirectory>
+@@ -430,41 +465,6 @@
+       </plugins>
+     </pluginManagement>
+   </build>
+-  <distributionManagement>
+-    <snapshotRepository>
+-      <id>sonatype-nexus-snapshots</id>
+-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+-    </snapshotRepository>
+-    <site>
+-      <id>guava-site</id>
+-      <name>Guava Documentation Site</name>
+-      <url>scp://dummy.server/dontinstall/usestaging</url>
+-    </site>
+-  </distributionManagement>
+-  <dependencyManagement>
+-    <dependencies>
+-      <dependency>
+-        <groupId>org.jspecify</groupId>
+-        <artifactId>jspecify</artifactId>
+-        <version>${jspecify.version}</version>
+-      </dependency>
+-      <dependency>
+-        <groupId>com.google.errorprone</groupId>
+-        <artifactId>error_prone_annotations</artifactId>
+-        <version>${errorprone.version}</version>
+-      </dependency>
+-      <dependency>
+-        <groupId>com.google.j2objc</groupId>
+-        <artifactId>j2objc-annotations</artifactId>
+-        <version>${j2objc.version}</version>
+-      </dependency>
+-      <!--
+-      We moved away from using dependencyManagement for test-only deps because of https://github.com/google/guava/issues/6654.
+-      We could probably have resumed it after https://github.com/google/guava/pull/6664.
+-      But it's always weird that published poms reference test-only libraries at all, so I'm not in any rush to do so.
+-      -->
+-    </dependencies>
+-  </dependencyManagement>
+   <profiles>
+     <profile>
+       <id>sonatype-oss-release</id>
+diff --git a/guava-bom/pom.xml b/guava-bom/pom.xml
+index 64bc74cb5cd0..e1cbaa8c1e79 100644
+--- a/guava-bom/pom.xml
++++ b/guava-bom/pom.xml
+@@ -16,11 +16,6 @@
+   <url>https://github.com/google/guava</url>
+   <inceptionYear>2010</inceptionYear>
+ 
+-  <issueManagement>
+-    <system>GitHub Issues</system>
+-    <url>https://github.com/google/guava/issues</url>
+-  </issueManagement>
+-
+   <licenses>
+     <license>
+       <name>Apache License, Version 2.0</name>
+@@ -29,6 +24,11 @@
+     </license>
+   </licenses>
+ 
++  <issueManagement>
++    <system>GitHub Issues</system>
++    <url>https://github.com/google/guava/issues</url>
++  </issueManagement>
++
+   <distributionManagement>
+     <snapshotRepository>
+       <id>sonatype-nexus-snapshots</id>
+diff --git a/guava-gwt/pom.xml b/guava-gwt/pom.xml
+index 24632ba7d2cb..e734323c48a6 100644
+--- a/guava-gwt/pom.xml
++++ b/guava-gwt/pom.xml
+@@ -21,26 +21,6 @@
+     <gwt.plugin.version>2.10.0</gwt.plugin.version>
+     <gwt.logLevel>WARN</gwt.logLevel>
+   </properties>
+-  <repositories>
+-    <repository>
+-      <id>sonatype-google-snapshots</id>
+-      <name>sonatype-google-snapshots</name>
+-      <url>https://oss.sonatype.org/content/repositories/google-snapshots/</url>
+-      <snapshots>
+-        <enabled>true</enabled>
+-      </snapshots>
+-    </repository>
+-  </repositories>
+-  <pluginRepositories>
+-    <pluginRepository>
+-      <id>sonatype-snapshots</id>
+-      <name>sonatype-snapshots</name>
+-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+-      <snapshots>
+-        <enabled>true</enabled>
+-      </snapshots>
+-    </pluginRepository>
+-  </pluginRepositories>
+   <dependencies>
+     <dependency>
+       <groupId>com.google.guava</groupId>
+@@ -123,6 +103,26 @@
+       </exclusions>
+     </dependency>
+   </dependencies>
++  <repositories>
++    <repository>
++      <id>sonatype-google-snapshots</id>
++      <name>sonatype-google-snapshots</name>
++      <url>https://oss.sonatype.org/content/repositories/google-snapshots/</url>
++      <snapshots>
++        <enabled>true</enabled>
++      </snapshots>
++    </repository>
++  </repositories>
++  <pluginRepositories>
++    <pluginRepository>
++      <id>sonatype-snapshots</id>
++      <name>sonatype-snapshots</name>
++      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
++      <snapshots>
++        <enabled>true</enabled>
++      </snapshots>
++    </pluginRepository>
++  </pluginRepositories>
+   <build>
+     <plugins>
+       <plugin>
+diff --git a/guava-tests/pom.xml b/guava-tests/pom.xml
+index b7fe0d5aaf5d..ce4a95f0bfc8 100644
+--- a/guava-tests/pom.xml
++++ b/guava-tests/pom.xml
+@@ -103,6 +103,7 @@
+       <plugin>
+         <groupId>org.sonatype.central</groupId>
+         <artifactId>central-publishing-maven-plugin</artifactId>
++        <!-- TODO(cpovirk): Set a plugin version here, or find a different way to skip publishing for guava-tests. -->
+         <configuration>
+           <skipPublishing>true</skipPublishing>
+         </configuration>
+diff --git a/guava/pom.xml b/guava/pom.xml
+index 5683efcd0a10..13517b0365a6 100644
+--- a/guava/pom.xml
++++ b/guava/pom.xml
+@@ -11,12 +11,12 @@
+   <artifactId>guava</artifactId>
+   <packaging>bundle</packaging>
+   <name>Guava: Google Core Libraries for Java</name>
+-  <url>https://github.com/google/guava</url>
+   <description>
+     Guava is a suite of core and expanded libraries that include
+     utility classes, Google's collections, I/O classes, and
+     much more.
+   </description>
++  <url>https://github.com/google/guava</url>
+   <dependencies>
+     <dependency>
+       <groupId>com.google.guava</groupId>
+diff --git a/pom.xml b/pom.xml
+index 0e7ebcb1458a..6af0780c2295 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -11,6 +11,59 @@
+   <name>Guava Maven Parent</name>
+   <description>Parent for guava artifacts</description>
+   <url>https://github.com/google/guava</url>
++  <inceptionYear>2010</inceptionYear>
++  <licenses>
++    <license>
++      <name>Apache License, Version 2.0</name>
++      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
++      <distribution>repo</distribution>
++    </license>
++  </licenses>
++  <developers>
++    <developer>
++      <id>kevinb9n</id>
++      <name>Kevin Bourrillion</name>
++      <email>kevinb@google.com</email>
++      <organization>Google</organization>
++      <organizationUrl>http://www.google.com</organizationUrl>
++      <roles>
++        <role>owner</role>
++        <role>developer</role>
++      </roles>
++      <timezone>-8</timezone>
++    </developer>
++  </developers>
++  <modules>
++    <module>guava</module>
++    <module>guava-bom</module>
++    <module>guava-gwt</module>
++    <module>guava-testlib</module>
++    <module>guava-tests</module>
++  </modules>
++  <scm>
++    <connection>scm:git:https://github.com/google/guava.git</connection>
++    <developerConnection>scm:git:git@github.com:google/guava.git</developerConnection>
++    <url>https://github.com/google/guava</url>
++  </scm>
++  <issueManagement>
++    <system>GitHub Issues</system>
++    <url>https://github.com/google/guava/issues</url>
++  </issueManagement>
++  <ciManagement>
++    <system>GitHub Actions</system>
++    <url>https://github.com/google/guava/actions</url>
++  </ciManagement>
++  <distributionManagement>
++    <snapshotRepository>
++      <id>sonatype-nexus-snapshots</id>
++      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
++    </snapshotRepository>
++    <site>
++      <id>guava-site</id>
++      <name>Guava Documentation Site</name>
++      <url>scp://dummy.server/dontinstall/usestaging</url>
++    </site>
++  </distributionManagement>
+   <properties>
+     <!--
+     When building Guava, you can pass (e.g.) `-Dsurefire.toolchain.version=21` to change which version to run tests under.
+@@ -45,48 +98,30 @@
+     <otherVariant.jvmEnvironment>android</otherVariant.jvmEnvironment>
+     <otherVariant.jvmEnvironmentVariantName>android</otherVariant.jvmEnvironmentVariantName>
+   </properties>
+-  <issueManagement>
+-    <system>GitHub Issues</system>
+-    <url>https://github.com/google/guava/issues</url>
+-  </issueManagement>
+-  <inceptionYear>2010</inceptionYear>
+-  <licenses>
+-    <license>
+-      <name>Apache License, Version 2.0</name>
+-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+-      <distribution>repo</distribution>
+-    </license>
+-  </licenses>
+-  <scm>
+-    <connection>scm:git:https://github.com/google/guava.git</connection>
+-    <developerConnection>scm:git:git@github.com:google/guava.git</developerConnection>
+-    <url>https://github.com/google/guava</url>
+-  </scm>
+-  <developers>
+-    <developer>
+-      <id>kevinb9n</id>
+-      <name>Kevin Bourrillion</name>
+-      <email>kevinb@google.com</email>
+-      <organization>Google</organization>
+-      <organizationUrl>http://www.google.com</organizationUrl>
+-      <roles>
+-        <role>owner</role>
+-        <role>developer</role>
+-      </roles>
+-      <timezone>-8</timezone>
+-    </developer>
+-  </developers>
+-  <ciManagement>
+-    <system>GitHub Actions</system>
+-    <url>https://github.com/google/guava/actions</url>
+-  </ciManagement>
+-  <modules>
+-    <module>guava</module>
+-    <module>guava-bom</module>
+-    <module>guava-gwt</module>
+-    <module>guava-testlib</module>
+-    <module>guava-tests</module>
+-  </modules>
++  <dependencyManagement>
++    <dependencies>
++      <dependency>
++        <groupId>org.jspecify</groupId>
++        <artifactId>jspecify</artifactId>
++        <version>${jspecify.version}</version>
++      </dependency>
++      <dependency>
++        <groupId>com.google.errorprone</groupId>
++        <artifactId>error_prone_annotations</artifactId>
++        <version>${errorprone.version}</version>
++      </dependency>
++      <dependency>
++        <groupId>com.google.j2objc</groupId>
++        <artifactId>j2objc-annotations</artifactId>
++        <version>${j2objc.version}</version>
++      </dependency>
++      <!--
++      We moved away from using dependencyManagement for test-only deps because of https://github.com/google/guava/issues/6654.
++      We could probably have resumed it after https://github.com/google/guava/pull/6664.
++      But it's always weird that published poms reference test-only libraries at all, so I'm not in any rush to do so.
++      -->
++    </dependencies>
++  </dependencyManagement>
+   <build>
+     <!-- Handle where Guava deviates from Maven defaults -->
+     <sourceDirectory>src</sourceDirectory>
+@@ -425,41 +460,6 @@
+       </plugins>
+     </pluginManagement>
+   </build>
+-  <distributionManagement>
+-    <snapshotRepository>
+-      <id>sonatype-nexus-snapshots</id>
+-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+-    </snapshotRepository>
+-    <site>
+-      <id>guava-site</id>
+-      <name>Guava Documentation Site</name>
+-      <url>scp://dummy.server/dontinstall/usestaging</url>
+-    </site>
+-  </distributionManagement>
+-  <dependencyManagement>
+-    <dependencies>
+-      <dependency>
+-        <groupId>org.jspecify</groupId>
+-        <artifactId>jspecify</artifactId>
+-        <version>${jspecify.version}</version>
+-      </dependency>
+-      <dependency>
+-        <groupId>com.google.errorprone</groupId>
+-        <artifactId>error_prone_annotations</artifactId>
+-        <version>${errorprone.version}</version>
+-      </dependency>
+-      <dependency>
+-        <groupId>com.google.j2objc</groupId>
+-        <artifactId>j2objc-annotations</artifactId>
+-        <version>${j2objc.version}</version>
+-      </dependency>
+-      <!--
+-      We moved away from using dependencyManagement for test-only deps because of https://github.com/google/guava/issues/6654.
+-      We could probably have resumed it after https://github.com/google/guava/pull/6664.
+-      But it's always weird that published poms reference test-only libraries at all, so I'm not in any rush to do so.
+-      -->
+-    </dependencies>
+-  </dependencyManagement>
+   <profiles>
+     <profile>
+       <id>sonatype-oss-release</id>

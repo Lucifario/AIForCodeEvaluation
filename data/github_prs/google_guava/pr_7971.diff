@@ -1,0 +1,30 @@
+diff --git a/android/guava/src/com/google/common/util/concurrent/Striped.java b/android/guava/src/com/google/common/util/concurrent/Striped.java
+index 2e4fe684ecc1..c98eb57c32b1 100644
+--- a/android/guava/src/com/google/common/util/concurrent/Striped.java
++++ b/android/guava/src/com/google/common/util/concurrent/Striped.java
+@@ -192,8 +192,9 @@ public Iterable<L> bulkGet(Iterable<? extends Object> keys) {
+    * @param stripes the minimum number of stripes (locks) required
+    * @param supplier a {@code Supplier<L>} object to obtain locks from
+    * @return a new {@code Striped<L>}
++   * @since NEXT
+    */
+-  static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {
++  public static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {
+     return new CompactStriped<>(stripes, supplier);
+   }
+ 
+diff --git a/guava/src/com/google/common/util/concurrent/Striped.java b/guava/src/com/google/common/util/concurrent/Striped.java
+index 2e4fe684ecc1..c98eb57c32b1 100644
+--- a/guava/src/com/google/common/util/concurrent/Striped.java
++++ b/guava/src/com/google/common/util/concurrent/Striped.java
+@@ -192,8 +192,9 @@ public Iterable<L> bulkGet(Iterable<? extends Object> keys) {
+    * @param stripes the minimum number of stripes (locks) required
+    * @param supplier a {@code Supplier<L>} object to obtain locks from
+    * @return a new {@code Striped<L>}
++   * @since NEXT
+    */
+-  static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {
++  public static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {
+     return new CompactStriped<>(stripes, supplier);
+   }
+ 

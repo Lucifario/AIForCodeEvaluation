@@ -1,0 +1,202 @@
+diff --git a/android/guava-bom/pom.xml b/android/guava-bom/pom.xml
+index e9e389bc8c2d..148cb698e5bf 100644
+--- a/android/guava-bom/pom.xml
++++ b/android/guava-bom/pom.xml
+@@ -45,7 +45,7 @@
+   </issueManagement>
+ 
+   <properties>
+-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
++    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
+     <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+   </properties>
+ 
+diff --git a/android/pom.xml b/android/pom.xml
+index 610353d6a759..04c76f62ee09 100644
+--- a/android/pom.xml
++++ b/android/pom.xml
+@@ -54,12 +54,12 @@
+     <surefire.toolchain.version>${java.specification.version}</surefire.toolchain.version>
+     <!-- Override this with -Dtest.include="**/SomeTest.java" on the CLI -->
+     <test.include>%regex[.*.class]</test.include>
+-    <animal-sniffer-maven-plugin.version>1.23</animal-sniffer-maven-plugin.version>
+-    <asm.version>9.6</asm.version>
+-    <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
+-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
++    <animal-sniffer-maven-plugin.version>1.24</animal-sniffer-maven-plugin.version>
++    <asm.version>9.8</asm.version>
++    <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
++    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
++    <error_prone_annotations.version>2.42.0</error_prone_annotations.version>
+     <error_prone_core.version>2.36.0</error_prone_core.version>
+-    <errorprone.version>2.41.0</errorprone.version>
+     <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
+     <failureaccess.version>1.0.3</failureaccess.version>
+     <gummy-bears-api-23-version>0.12.0</gummy-bears-api-23-version>
+@@ -72,18 +72,18 @@
+     <jsr305.version>3.0.2</jsr305.version>
+     <junit.version>4.13.2</junit.version>
+     <listenablefuture.version>9999.0-empty-to-avoid-conflict-with-guava</listenablefuture.version>
+-    <maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
++    <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+     <maven-bundle-plugin.version>5.1.9</maven-bundle-plugin.version>
+-    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+-    <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+-    <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
++    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
++    <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
++    <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
+     <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+-    <maven-install-plugin.version>3.1.3</maven-install-plugin.version>
++    <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
++    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+-    <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
++    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+     <maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
+     <plexus-io.version>3.5.1</plexus-io.version> <!-- We need at least 3.5.1 to avoid https://github.com/codehaus-plexus/plexus-io/issues/109. Once we upgrade maven-jar-plugin itself to a version new enough to depend on 3.5.1 or higher, we can remove this override. -->
+     <toolchains-maven-plugin.version>4.5.0</toolchains-maven-plugin.version>
+@@ -120,7 +120,7 @@
+       <dependency>
+         <groupId>com.google.errorprone</groupId>
+         <artifactId>error_prone_annotations</artifactId>
+-        <version>${errorprone.version}</version>
++        <version>${error_prone_annotations.version}</version>
+       </dependency>
+       <dependency>
+         <groupId>com.google.j2objc</groupId>
+diff --git a/guava-bom/pom.xml b/guava-bom/pom.xml
+index 913bd455f3d5..89f03c7958e5 100644
+--- a/guava-bom/pom.xml
++++ b/guava-bom/pom.xml
+@@ -45,7 +45,7 @@
+   </issueManagement>
+ 
+   <properties>
+-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
++    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
+     <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+   </properties>
+ 
+diff --git a/guava/module.json b/guava/module.json
+index e621749cfe0d..1bc095f9e210 100644
+--- a/guava/module.json
++++ b/guava/module.json
+@@ -51,7 +51,7 @@
+           "group": "com.google.errorprone",
+           "module": "error_prone_annotations",
+           "version": {
+-            "requires": "${errorprone.version}"
++            "requires": "${error_prone_annotations.version}"
+           }
+         },
+         {
+@@ -117,7 +117,7 @@
+           "group": "com.google.errorprone",
+           "module": "error_prone_annotations",
+           "version": {
+-            "requires": "${errorprone.version}"
++            "requires": "${error_prone_annotations.version}"
+           }
+         },
+         {
+@@ -183,7 +183,7 @@
+           "group": "com.google.errorprone",
+           "module": "error_prone_annotations",
+           "version": {
+-            "requires": "${errorprone.version}"
++            "requires": "${error_prone_annotations.version}"
+           }
+         },
+         {
+@@ -249,7 +249,7 @@
+           "group": "com.google.errorprone",
+           "module": "error_prone_annotations",
+           "version": {
+-            "requires": "${errorprone.version}"
++            "requires": "${error_prone_annotations.version}"
+           }
+         },
+         {
+diff --git a/integration-tests/gradle/build.gradle.kts b/integration-tests/gradle/build.gradle.kts
+index f0b294c74808..0094288b4f8b 100644
+--- a/integration-tests/gradle/build.gradle.kts
++++ b/integration-tests/gradle/build.gradle.kts
+@@ -10,7 +10,7 @@ val expectedReducedRuntimeClasspathAndroidVersion =
+     "failureaccess-1.0.3.jar",
+     "j2objc-annotations-3.1.jar",
+     "jspecify-1.0.0.jar",
+-    "error_prone_annotations-2.41.0.jar",
++    "error_prone_annotations-2.42.0.jar",
+     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
+   )
+ val expectedReducedRuntimeClasspathJreVersion =
+@@ -19,7 +19,7 @@ val expectedReducedRuntimeClasspathJreVersion =
+     "failureaccess-1.0.3.jar",
+     "j2objc-annotations-3.1.jar",
+     "jspecify-1.0.0.jar",
+-    "error_prone_annotations-2.41.0.jar",
++    "error_prone_annotations-2.42.0.jar",
+     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
+   )
+ val expectedCompileClasspathAndroidVersion = expectedReducedRuntimeClasspathAndroidVersion
+diff --git a/pom.xml b/pom.xml
+index 09f8396b35da..a980f27ead3a 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -55,12 +55,12 @@
+     <surefire.toolchain.version>${java.specification.version}</surefire.toolchain.version>
+     <!-- Override this with -Dtest.include="**/SomeTest.java" on the CLI -->
+     <test.include>%regex[.*.class]</test.include>
+-    <animal-sniffer-maven-plugin.version>1.23</animal-sniffer-maven-plugin.version>
+-    <asm.version>9.6</asm.version>
+-    <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
+-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
++    <animal-sniffer-maven-plugin.version>1.24</animal-sniffer-maven-plugin.version>
++    <asm.version>9.8</asm.version>
++    <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
++    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
++    <error_prone_annotations.version>2.42.0</error_prone_annotations.version>
+     <error_prone_core.version>2.36.0</error_prone_core.version>
+-    <errorprone.version>2.41.0</errorprone.version>
+     <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
+     <failureaccess.version>1.0.3</failureaccess.version>
+     <gummy-bears-api-23-version>0.12.0</gummy-bears-api-23-version>
+@@ -73,18 +73,18 @@
+     <jsr305.version>3.0.2</jsr305.version>
+     <junit.version>4.13.2</junit.version>
+     <listenablefuture.version>9999.0-empty-to-avoid-conflict-with-guava</listenablefuture.version>
+-    <maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
++    <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+     <maven-bundle-plugin.version>5.1.9</maven-bundle-plugin.version>
+-    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+-    <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+-    <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
++    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
++    <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
++    <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
+     <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+-    <maven-install-plugin.version>3.1.3</maven-install-plugin.version>
++    <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
++    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+-    <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
++    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+     <maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
+     <plexus-io.version>3.5.1</plexus-io.version> <!-- We need at least 3.5.1 to avoid https://github.com/codehaus-plexus/plexus-io/issues/109. Once we upgrade maven-jar-plugin itself to a version new enough to depend on 3.5.1 or higher, we can remove this override. -->
+     <toolchains-maven-plugin.version>4.5.0</toolchains-maven-plugin.version>
+@@ -121,7 +121,7 @@
+       <dependency>
+         <groupId>com.google.errorprone</groupId>
+         <artifactId>error_prone_annotations</artifactId>
+-        <version>${errorprone.version}</version>
++        <version>${error_prone_annotations.version}</version>
+       </dependency>
+       <dependency>
+         <groupId>com.google.j2objc</groupId>

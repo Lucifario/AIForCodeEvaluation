@@ -1,0 +1,56 @@
+diff --git a/android/guava-bom/pom.xml b/android/guava-bom/pom.xml
+index 3affa2ec365d..4ca945c7ace3 100644
+--- a/android/guava-bom/pom.xml
++++ b/android/guava-bom/pom.xml
+@@ -61,9 +61,6 @@
+             <artifactId>central-publishing-maven-plugin</artifactId>
+             <version>0.8.0</version>
+             <extensions>true</extensions>
+-            <configuration>
+-              <publishingServerId>central</publishingServerId>
+-            </configuration>
+           </plugin>
+         </plugins>
+       </build>
+diff --git a/android/pom.xml b/android/pom.xml
+index a696ef94e4cc..03f9fc37863e 100644
+--- a/android/pom.xml
++++ b/android/pom.xml
+@@ -488,9 +488,6 @@
+             <artifactId>central-publishing-maven-plugin</artifactId>
+             <version>0.8.0</version>
+             <extensions>true</extensions>
+-            <configuration>
+-              <publishingServerId>central</publishingServerId>
+-            </configuration>
+           </plugin>
+         </plugins>
+       </build>
+diff --git a/guava-bom/pom.xml b/guava-bom/pom.xml
+index 790dfeebb340..64bc74cb5cd0 100644
+--- a/guava-bom/pom.xml
++++ b/guava-bom/pom.xml
+@@ -66,9 +66,6 @@
+             <artifactId>central-publishing-maven-plugin</artifactId>
+             <version>0.8.0</version>
+             <extensions>true</extensions>
+-            <configuration>
+-              <publishingServerId>central</publishingServerId>
+-            </configuration>
+           </plugin>
+         </plugins>
+       </build>
+diff --git a/pom.xml b/pom.xml
+index ce2de5bfad2c..d1eaee8aae32 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -483,9 +483,6 @@
+             <artifactId>central-publishing-maven-plugin</artifactId>
+             <version>0.8.0</version>
+             <extensions>true</extensions>
+-            <configuration>
+-              <publishingServerId>central</publishingServerId>
+-            </configuration>
+           </plugin>
+         </plugins>
+       </build>

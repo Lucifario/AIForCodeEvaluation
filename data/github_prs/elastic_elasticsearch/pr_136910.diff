@@ -1,0 +1,478 @@
+diff --git a/docs/changelog/136147.yaml b/docs/changelog/136147.yaml
+new file mode 100644
+index 0000000000000..1f9f4dac5a97f
+--- /dev/null
++++ b/docs/changelog/136147.yaml
+@@ -0,0 +1,5 @@
++pr: 136147
++summary: Fixed geo point block loader slowness
++area: Mapping
++type: bug
++issues: []
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java
+index be5c4b82bf1f2..79eef5040b0a0 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/GeoPointFieldMapper.java
+@@ -18,6 +18,7 @@
+ import org.apache.lucene.geo.LatLonGeometry;
+ import org.apache.lucene.index.DocValuesType;
+ import org.apache.lucene.index.LeafReaderContext;
++import org.apache.lucene.index.SortedNumericDocValues;
+ import org.apache.lucene.search.IndexOrDocValuesQuery;
+ import org.apache.lucene.search.Query;
+ import org.apache.lucene.util.BytesRef;
+@@ -34,6 +35,7 @@
+ import org.elasticsearch.core.CheckedConsumer;
+ import org.elasticsearch.core.CheckedFunction;
+ import org.elasticsearch.geometry.Point;
++import org.elasticsearch.geometry.utils.WellKnownBinary;
+ import org.elasticsearch.index.IndexMode;
+ import org.elasticsearch.index.IndexVersion;
+ import org.elasticsearch.index.fielddata.FieldDataContext;
+@@ -62,6 +64,7 @@
+ 
+ import java.io.IOException;
+ import java.io.UncheckedIOException;
++import java.nio.ByteOrder;
+ import java.util.Collections;
+ import java.util.List;
+ import java.util.Map;
+@@ -70,6 +73,7 @@
+ import java.util.function.Function;
+ 
+ import static org.elasticsearch.index.mapper.MappedFieldType.FieldExtractPreference.DOC_VALUES;
++import static org.elasticsearch.index.mapper.MappedFieldType.FieldExtractPreference.NONE;
+ 
+ /**
+  * Field Mapper for geo_point types.
+@@ -387,7 +391,7 @@ public static class GeoPointFieldType extends AbstractPointFieldType<GeoPoint> i
+         private final IndexMode indexMode;
+         private final boolean isSyntheticSource;
+ 
+-        private GeoPointFieldType(
++        GeoPointFieldType(
+             String name,
+             boolean indexed,
+             boolean stored,
+@@ -545,28 +549,118 @@ public TimeSeriesParams.MetricType getMetricType() {
+ 
+         @Override
+         public BlockLoader blockLoader(BlockLoaderContext blContext) {
+-            if (blContext.fieldExtractPreference() == DOC_VALUES && hasDocValues()) {
+-                return new BlockDocValuesReader.LongsBlockLoader(name());
++            // load from doc values
++            if (hasDocValues()) {
++                if (blContext.fieldExtractPreference() == DOC_VALUES) {
++                    return new BlockDocValuesReader.LongsBlockLoader(name());
++                } else if (blContext.fieldExtractPreference() == NONE && isSyntheticSource) {
++                    // when the preference is not explicitly set to DOC_VALUES, we expect a BytesRef -> see PlannerUtils.toElementType()
++                    return new BytesRefFromLongsBlockLoader(name());
++                }
++                // if we got here, then either synthetic source is not enabled or the preference prohibits us from using doc_values
+             }
+ 
+-            // There are two scenarios possible once we arrive here:
+-            //
+-            // * Stored source - we'll just use blockLoaderFromSource
+-            // * Synthetic source. However, because of the fieldExtractPreference() check above it is still possible that doc_values are
+-            // present here.
+-            // So we have two subcases:
+-            // - doc_values are enabled - _ignored_source field does not exist since we have doc_values. We will use
+-            // blockLoaderFromSource which reads "native" synthetic source.
+-            // - doc_values are disabled - we know that _ignored_source field is present and use a special block loader unless it's a multi
+-            // field.
++            // doc_values are disabled, fallback to ignored_source, except for multi fields since then don't have fallback synthetic source
+             if (isSyntheticSource && hasDocValues() == false && blContext.parentField(name()) == null) {
+                 return blockLoaderFromFallbackSyntheticSource(blContext);
+             }
+ 
++            // otherwise, load from _source (synthetic or otherwise) - very slow
+             return blockLoaderFromSource(blContext);
+         }
+     }
+ 
++    /**
++     * This is a GeoPoint-specific block loader that helps deal with an edge case where doc_values are available, yet
++     * FieldExtractPreference = NONE. When this happens, the BlockLoader sanity checker (see PlannerUtils.toElementType) expects a BytesRef.
++     * This implies that we need to load the value from _source. This however is very slow, especially when synthetic source is enabled.
++     * We're better off reading from doc_values and converting to BytesRef to satisfy the checker. This is what this block loader is for.
++     */
++    static final class BytesRefFromLongsBlockLoader extends BlockDocValuesReader.DocValuesBlockLoader {
++
++        private final String fieldName;
++
++        BytesRefFromLongsBlockLoader(String fieldName) {
++            this.fieldName = fieldName;
++        }
++
++        @Override
++        public Builder builder(BlockFactory factory, int expectedCount) {
++            return factory.bytesRefs(expectedCount);
++        }
++
++        @Override
++        public AllReader reader(LeafReaderContext context) throws IOException {
++            SortedNumericDocValues docValues = context.reader().getSortedNumericDocValues(fieldName);
++            if (docValues != null) {
++                return new BytesRefsFromLong(docValues, (geoPointLong) -> {
++                    GeoPoint gp = new GeoPoint().resetFromEncoded(geoPointLong);
++                    byte[] wkb = WellKnownBinary.toWKB(new Point(gp.getX(), gp.getY()), ByteOrder.LITTLE_ENDIAN);
++                    return new BytesRef(wkb);
++                });
++            }
++            return new ConstantNullsReader();
++        }
++    }
++
++    private static final class BytesRefsFromLong extends BlockDocValuesReader {
++
++        private final SortedNumericDocValues numericDocValues;
++        private final Function<Long, BytesRef> longsToBytesRef;
++
++        BytesRefsFromLong(SortedNumericDocValues numericDocValues, Function<Long, BytesRef> longsToBytesRef) {
++            this.numericDocValues = numericDocValues;
++            this.longsToBytesRef = longsToBytesRef;
++        }
++
++        @Override
++        protected int docId() {
++            return numericDocValues.docID();
++        }
++
++        @Override
++        public String toString() {
++            return "BlockDocValuesReader.BytesRefsFromLong";
++        }
++
++        @Override
++        public BlockLoader.Block read(BlockLoader.BlockFactory factory, BlockLoader.Docs docs, int offset) throws IOException {
++
++            try (BlockLoader.BytesRefBuilder builder = factory.bytesRefs(docs.count() - offset)) {
++                for (int i = offset; i < docs.count(); i++) {
++                    int doc = docs.get(i);
++                    read(doc, builder);
++                }
++                return builder.build();
++            }
++        }
++
++        @Override
++        public void read(int docId, BlockLoader.StoredFields storedFields, BlockLoader.Builder builder) throws IOException {
++            read(docId, (BlockLoader.BytesRefBuilder) builder);
++        }
++
++        private void read(int doc, BlockLoader.BytesRefBuilder builder) throws IOException {
++            // no more values remaining
++            if (numericDocValues.advanceExact(doc) == false) {
++                builder.appendNull();
++                return;
++            }
++            int count = numericDocValues.docValueCount();
++            if (count == 1) {
++                BytesRef bytesRefValue = longsToBytesRef.apply(numericDocValues.nextValue());
++                builder.appendBytesRef(bytesRefValue);
++                return;
++            }
++            builder.beginPositionEntry();
++            for (int v = 0; v < count; v++) {
++                BytesRef bytesRefValue = longsToBytesRef.apply(numericDocValues.nextValue());
++                builder.appendBytesRef(bytesRefValue);
++            }
++            builder.endPositionEntry();
++        }
++    }
++
+     /** GeoPoint parser implementation */
+     private static class GeoPointParser extends PointParser<GeoPoint> {
+         private final boolean storeMalformedDataForSyntheticSource;
+diff --git a/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java b/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java
+index 93f1b2b977b0f..4b32fe141ba20 100644
+--- a/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java
++++ b/server/src/test/java/org/elasticsearch/index/mapper/GeoPointFieldTypeTests.java
+@@ -10,20 +10,28 @@
+ package org.elasticsearch.index.mapper;
+ 
+ import org.apache.lucene.tests.geo.GeoTestUtil;
++import org.elasticsearch.cluster.metadata.IndexMetadata;
+ import org.elasticsearch.common.geo.GeoPoint;
+ import org.elasticsearch.common.geo.SimpleFeatureFactory;
++import org.elasticsearch.common.settings.Settings;
+ import org.elasticsearch.geometry.Point;
+ import org.elasticsearch.geometry.utils.WellKnownBinary;
++import org.elasticsearch.index.IndexMode;
++import org.elasticsearch.index.IndexSettings;
+ import org.elasticsearch.index.IndexVersion;
+ import org.elasticsearch.script.ScriptCompiler;
+ 
+ import java.io.IOException;
+ import java.nio.ByteOrder;
+ import java.util.ArrayList;
++import java.util.Collections;
+ import java.util.List;
+ import java.util.Map;
+ 
+ import static org.hamcrest.Matchers.equalTo;
++import static org.hamcrest.Matchers.instanceOf;
++import static org.mockito.Mockito.doReturn;
++import static org.mockito.Mockito.mock;
+ 
+ public class GeoPointFieldTypeTests extends FieldTypeTestCase {
+ 
+@@ -147,4 +155,143 @@ public void testFetchVectorTile() throws IOException {
+         assertThat(sourceValue.size(), equalTo(1));
+         assertThat(sourceValue.get(0), equalTo(featureFactory.points(geoPoints)));
+     }
++
++    public void testBlockLoaderWhenDocValuesAreEnabledAndThePreferenceIsToUseDocValues() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = new GeoPointFieldMapper.GeoPointFieldType("potato");
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(false, MappedFieldType.FieldExtractPreference.DOC_VALUES);
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(BlockDocValuesReader.LongsBlockLoader.class));
++    }
++
++    public void testBlockLoaderWhenDocValuesAreEnabledAndThereIsNoPreference() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = new GeoPointFieldMapper.GeoPointFieldType("potato");
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(false, MappedFieldType.FieldExtractPreference.NONE);
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(BlockSourceReader.GeometriesBlockLoader.class));
++    }
++
++    public void testBlockLoaderWhenFieldIsStoredAndThePreferenceIsToUseStoredFields() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = createFieldType(true, false, false);
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(false, MappedFieldType.FieldExtractPreference.STORED);
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(BlockSourceReader.GeometriesBlockLoader.class));
++    }
++
++    public void testBlockLoaderWhenFieldIsStoredAndThereIsNoPreference() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = createFieldType(true, false, false);
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(false, MappedFieldType.FieldExtractPreference.NONE);
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(BlockSourceReader.GeometriesBlockLoader.class));
++    }
++
++    public void testBlockLoaderWhenSyntheticSourceIsEnabledAndFieldIsStoredInIgnoredSource() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = createFieldType(false, false, true);
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(true, MappedFieldType.FieldExtractPreference.NONE);
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(FallbackSyntheticSourceBlockLoader.class));
++    }
++
++    public void testBlockLoaderWhenSyntheticSourceAndDocValuesAreEnabled() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = createFieldType(false, true, true);
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(true, MappedFieldType.FieldExtractPreference.NONE);
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(GeoPointFieldMapper.BytesRefFromLongsBlockLoader.class));
++    }
++
++    public void testBlockLoaderFallsBackToSource() {
++        // given
++        GeoPointFieldMapper.GeoPointFieldType fieldType = new GeoPointFieldMapper.GeoPointFieldType("potato");
++        MappedFieldType.BlockLoaderContext blContextMock = mockBlockLoaderContext(
++            false,
++            MappedFieldType.FieldExtractPreference.EXTRACT_SPATIAL_BOUNDS
++        );
++
++        // when
++        BlockLoader loader = fieldType.blockLoader(blContextMock);
++
++        // then
++        // verify that we use the correct block value reader
++        assertThat(loader, instanceOf(BlockSourceReader.GeometriesBlockLoader.class));
++    }
++
++    private MappedFieldType.BlockLoaderContext mockBlockLoaderContext(
++        boolean enableSyntheticSource,
++        MappedFieldType.FieldExtractPreference fieldExtractPreference
++    ) {
++        Settings.Builder builder = Settings.builder()
++            .put(IndexMetadata.SETTING_VERSION_CREATED, IndexVersion.current())
++            .put(IndexMetadata.SETTING_NUMBER_OF_SHARDS, 1)
++            .put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 1);
++
++        if (enableSyntheticSource) {
++            builder.put("index.mapping.source.mode", "synthetic");
++        }
++
++        Settings settings = builder.build();
++
++        IndexSettings indexSettings = new IndexSettings(IndexMetadata.builder("index").settings(builder).build(), settings);
++
++        MappedFieldType.BlockLoaderContext blContextMock = mock(MappedFieldType.BlockLoaderContext.class);
++        doReturn(fieldExtractPreference).when(blContextMock).fieldExtractPreference();
++        doReturn(indexSettings).when(blContextMock).indexSettings();
++
++        return blContextMock;
++    }
++
++    private GeoPointFieldMapper.GeoPointFieldType createFieldType(
++        boolean isStored,
++        boolean hasDocValues,
++        boolean isSyntheticSourceEnabled
++    ) {
++        return new GeoPointFieldMapper.GeoPointFieldType(
++            "potato",
++            true,
++            isStored,
++            hasDocValues,
++            null,
++            null,
++            null,
++            Collections.emptyMap(),
++            TimeSeriesParams.MetricType.COUNTER,
++            IndexMode.LOGSDB,
++            isSyntheticSourceEnabled
++        );
++    }
++
+ }
+diff --git a/server/src/test/java/org/elasticsearch/index/mapper/blockloader/GeoPointFieldBlockLoaderTests.java b/server/src/test/java/org/elasticsearch/index/mapper/blockloader/GeoPointFieldBlockLoaderTests.java
+index fdb1d89175fef..0e55c0d2bb536 100644
+--- a/server/src/test/java/org/elasticsearch/index/mapper/blockloader/GeoPointFieldBlockLoaderTests.java
++++ b/server/src/test/java/org/elasticsearch/index/mapper/blockloader/GeoPointFieldBlockLoaderTests.java
+@@ -36,19 +36,15 @@ protected Object expected(Map<String, Object> fieldMapping, Object values, TestC
+             default -> throw new IllegalStateException("Unexpected null_value format");
+         };
+ 
+-        if (params.preference() == MappedFieldType.FieldExtractPreference.DOC_VALUES && hasDocValues(fieldMapping, true)) {
+-            if (values instanceof List<?> == false) {
+-                var point = convert(values, nullValue, testContext.isMultifield());
+-                return point != null ? point.getEncoded() : null;
++        // read from doc_values
++        boolean preferToLoadFromDocValues = params.preference() == MappedFieldType.FieldExtractPreference.DOC_VALUES;
++        boolean noPreference = params.preference() == MappedFieldType.FieldExtractPreference.NONE;
++        if (hasDocValues(fieldMapping, true)) {
++            if (preferToLoadFromDocValues) {
++                return longValues(values, nullValue, testContext.isMultifield());
++            } else if (noPreference && params.syntheticSource()) {
++                return bytesRefWkbValues(values, nullValue, testContext.isMultifield());
+             }
+-
+-            var resultList = ((List<Object>) values).stream()
+-                .map(v -> convert(v, nullValue, testContext.isMultifield()))
+-                .filter(Objects::nonNull)
+-                .map(GeoPoint::getEncoded)
+-                .sorted()
+-                .toList();
+-            return maybeFoldList(resultList);
+         }
+ 
+         // stored source is used
+@@ -74,23 +70,50 @@ protected Object expected(Map<String, Object> fieldMapping, Object values, TestC
+ 
+         // synthetic source and doc_values are present
+         if (hasDocValues(fieldMapping, true)) {
+-            if (values instanceof List<?> == false) {
+-                return toWKB(normalize(convert(values, nullValue, false)));
+-            }
+-
+-            var resultList = ((List<Object>) values).stream()
+-                .map(v -> convert(v, nullValue, false))
+-                .filter(Objects::nonNull)
+-                .sorted(Comparator.comparingLong(GeoPoint::getEncoded))
+-                .map(p -> toWKB(normalize(p)))
+-                .toList();
+-            return maybeFoldList(resultList);
++            return bytesRefWkbValues(values, nullValue, false);
+         }
+ 
+-        // synthetic source but no doc_values so using fallback synthetic source
++        // synthetic source is enabled, but no doc_values are present, so fallback to ignored source
+         return exactValuesFromSource(values, nullValue, false);
+     }
+ 
++    /**
++     * Use when values are stored as points encoded as longs.
++     */
++    @SuppressWarnings("unchecked")
++    private Object longValues(Object values, GeoPoint nullValue, boolean needsMultifieldAdjustment) {
++        if (values instanceof List<?> == false) {
++            var point = convert(values, nullValue, needsMultifieldAdjustment);
++            return point != null ? point.getEncoded() : null;
++        }
++
++        var resultList = ((List<Object>) values).stream()
++            .map(v -> convert(v, nullValue, needsMultifieldAdjustment))
++            .filter(Objects::nonNull)
++            .map(GeoPoint::getEncoded)
++            .sorted()
++            .toList();
++        return maybeFoldList(resultList);
++    }
++
++    /**
++     * Use when values are stored as WKB encoded points.
++     */
++    @SuppressWarnings("unchecked")
++    private Object bytesRefWkbValues(Object values, GeoPoint nullValue, boolean needsMultifieldAdjustment) {
++        if (values instanceof List<?> == false) {
++            return toWKB(normalize(convert(values, nullValue, needsMultifieldAdjustment)));
++        }
++
++        var resultList = ((List<Object>) values).stream()
++            .map(v -> convert(v, nullValue, needsMultifieldAdjustment))
++            .filter(Objects::nonNull)
++            .sorted(Comparator.comparingLong(GeoPoint::getEncoded))
++            .map(p -> toWKB(normalize(p)))
++            .toList();
++        return maybeFoldList(resultList);
++    }
++
+     @SuppressWarnings("unchecked")
+     private Object exactValuesFromSource(Object value, GeoPoint nullValue, boolean needsMultifieldAdjustment) {
+         if (value instanceof List<?> == false) {
+@@ -150,6 +173,12 @@ private GeoPoint possiblyAdjustMultifieldValue(GeoPoint point, boolean isMultifi
+         return point;
+     }
+ 
++    /**
++     * Normalizes the given point by forcing it to be encoded and then decoded, similarly to how actual block loaders work when they read
++     * values. During encoding/decoding, some precision may be lost, so the lat/lon coordinates may change. Without this, the point returned
++     * by the block loader will be ever so slightly different from the original point. This will cause the tests to fail. This method
++     * exists to essentially mimic what happens to the point when it gets stored and then later loaded back.
++     */
+     private GeoPoint normalize(GeoPoint point) {
+         if (point == null) {
+             return null;
+@@ -164,4 +193,5 @@ private BytesRef toWKB(GeoPoint point) {
+ 
+         return new BytesRef(WellKnownBinary.toWKB(new Point(point.getX(), point.getY()), ByteOrder.LITTLE_ENDIAN));
+     }
++
+ }

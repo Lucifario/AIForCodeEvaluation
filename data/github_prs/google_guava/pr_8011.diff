@@ -1,0 +1,338 @@
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java b/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+index d6c15e73ef9c..a8596bfb7eee 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+@@ -66,7 +66,7 @@ public void tearDown() throws Exception {
+   public void testCallableStartsAfterFirstFutureCompletes() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.<Void>immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(secondCallable, directExecutor());
+     assertThat(firstCallable.called).isTrue();
+@@ -78,10 +78,10 @@ public void testCallableStartsAfterFirstFutureCompletes() {
+   public void testCancellationDoesNotViolateSerialization() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.<Void>immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
+     ListenableFuture<@Nullable Void> secondFuture =
+         serializer.submitAsync(secondCallable, directExecutor());
+-    TestCallable thirdCallable = new TestCallable(Futures.<Void>immediateFuture(null));
++    TestCallable thirdCallable = new TestCallable(Futures.immediateFuture(null));
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(thirdCallable, directExecutor());
+     secondFuture.cancel(true);
+@@ -240,7 +240,7 @@ public void testAvoidsStackOverflow_manySubmitted() throws Exception {
+             },
+             directExecutor()));
+     for (int i = 0; i < 50_000; i++) {
+-      results.add(serializer.submit(Callables.<Void>returning(null), directExecutor()));
++      results.add(serializer.submit(Callables.returning(null), directExecutor()));
+     }
+     settableFuture.set(null);
+     getDone(allAsList(results));
+@@ -287,7 +287,7 @@ public void testAvoidsStackOverflow_alternatingCancelledAndSubmitted() throws Ex
+             directExecutor());
+     for (int i = 0; i < 25_000; i++) {
+       serializer.submit(Callables.<Void>returning(null), directExecutor()).cancel(true);
+-      unused = serializer.submit(Callables.<Void>returning(null), directExecutor());
++      unused = serializer.submit(Callables.returning(null), directExecutor());
+     }
+     ListenableFuture<Integer> stackDepthCheck =
+         serializer.submit(
+@@ -395,7 +395,7 @@ public Integer call() {
+   @SuppressWarnings("ObjectToString") // Intended behavior
+   public void testToString() {
+     Future<?> unused = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(SettableFuture.<Void>create());
++    TestCallable secondCallable = new TestCallable(SettableFuture.create());
+     Future<?> second = serializer.submitAsync(secondCallable, directExecutor());
+     assertThat(secondCallable.called).isFalse();
+     assertThat(second.toString()).contains(secondCallable.toString());
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java b/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+index f7e75e69573f..7cb128962b0b 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+@@ -45,12 +45,12 @@
+ public class FluentFutureTest extends TestCase {
+   @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
+   public void testFromFluentFuture() {
+-    FluentFuture<String> f = FluentFuture.from(SettableFuture.<String>create());
++    FluentFuture<String> f = FluentFuture.from(SettableFuture.create());
+     assertThat(FluentFuture.from(f)).isSameInstanceAs(f);
+   }
+ 
+   public void testFromFluentFuturePassingAsNonFluent() {
+-    ListenableFuture<String> f = FluentFuture.from(SettableFuture.<String>create());
++    ListenableFuture<String> f = FluentFuture.from(SettableFuture.create());
+     assertThat(FluentFuture.from(f)).isSameInstanceAs(f);
+   }
+ 
+@@ -105,7 +105,7 @@ public void testCatchingAsync() throws Exception {
+                 new AsyncFunction<Throwable, Class<?>>() {
+                   @Override
+                   public ListenableFuture<Class<?>> apply(Throwable input) {
+-                    return Futures.<Class<?>>immediateFuture(input.getClass());
++                    return Futures.immediateFuture(input.getClass());
+                   }
+                 },
+                 directExecutor());
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java b/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+index 8beeb1232632..695af568a2b4 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+@@ -1584,7 +1584,7 @@ public void testTransformAsync_asyncFunction_timeout()
+       throws InterruptedException, ExecutionException {
+     AsyncFunction<String, Integer> function = constantAsyncFunction(immediateFuture(1));
+     ListenableFuture<Integer> future =
+-        transformAsync(SettableFuture.<String>create(), function, directExecutor());
++        transformAsync(SettableFuture.create(), function, directExecutor());
+     assertThrows(TimeoutException.class, () -> future.get(1, MILLISECONDS));
+   }
+ 
+@@ -3609,7 +3609,7 @@ public void testCancellingADelegatePropagates() throws Exception {
+   public void testCancellingAllDelegatesIsNotQuadratic() throws Exception {
+     ImmutableList.Builder<SettableFuture<Long>> builder = ImmutableList.builder();
+     for (int i = 0; i < 500_000; i++) {
+-      builder.add(SettableFuture.<Long>create());
++      builder.add(SettableFuture.create());
+     }
+     ImmutableList<SettableFuture<Long>> inputs = builder.build();
+     ImmutableList<ListenableFuture<Long>> delegates = inCompletionOrder(inputs);
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java b/android/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java
+index e428b9d7356b..1e75f1f9f53f 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java
+@@ -408,7 +408,7 @@ public void testEmptyServiceManager() {
+     logger.setLevel(Level.FINEST);
+     TestLogHandler logHandler = new TestLogHandler();
+     logger.addHandler(logHandler);
+-    ServiceManager manager = new ServiceManager(Arrays.<Service>asList());
++    ServiceManager manager = new ServiceManager(Arrays.asList());
+     RecordingListener listener = new RecordingListener();
+     manager.addListener(listener, directExecutor());
+     manager.startAsync().awaitHealthy();
+@@ -668,7 +668,7 @@ protected String serviceName() {
+   }
+ 
+   public void testNulls() {
+-    ServiceManager manager = new ServiceManager(Arrays.<Service>asList());
++    ServiceManager manager = new ServiceManager(Arrays.asList());
+     new NullPointerTester()
+         .setDefault(ServiceManager.Listener.class, new RecordingListener())
+         .testAllPublicInstanceMethods(manager);
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java b/android/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java
+index 23c39af8effe..3c321ac0d892 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java
+@@ -85,7 +85,7 @@ public void testSetValue_simpleThreaded() throws Exception {
+     // Later attempts to set the future should return false.
+     assertFalse(future.set(23));
+     assertFalse(future.setException(new Exception("bar")));
+-    assertFalse(future.setFuture(SettableFuture.<Integer>create()));
++    assertFalse(future.setFuture(SettableFuture.create()));
+     // Check that the future has been set properly.
+     assertTrue(future.isDone());
+     assertFalse(future.isCancelled());
+@@ -114,7 +114,7 @@ public void testSetFuture() throws Exception {
+     // Later attempts to set the future should return false.
+     assertFalse(future.set("x"));
+     assertFalse(future.setException(new Exception("bar")));
+-    assertFalse(future.setFuture(SettableFuture.<String>create()));
++    assertFalse(future.setFuture(SettableFuture.create()));
+     // Check that the future has been set properly.
+     assertFalse(future.isDone());
+     assertFalse(future.isCancelled());
+@@ -136,7 +136,7 @@ public void testSetFuture_genericsHierarchy() throws Exception {
+     // Later attempts to set the future should return false.
+     assertFalse(future.set(new Foo()));
+     assertFalse(future.setException(new Exception("bar")));
+-    assertFalse(future.setFuture(SettableFuture.<Foo>create()));
++    assertFalse(future.setFuture(SettableFuture.create()));
+     // Check that the future has been set properly.
+     assertFalse(future.isDone());
+     assertFalse(future.isCancelled());
+diff --git a/android/guava/src/com/google/common/util/concurrent/ServiceManager.java b/android/guava/src/com/google/common/util/concurrent/ServiceManager.java
+index df40dc88fa9c..e59270201dec 100644
+--- a/android/guava/src/com/google/common/util/concurrent/ServiceManager.java
++++ b/android/guava/src/com/google/common/util/concurrent/ServiceManager.java
+@@ -216,7 +216,7 @@ public ServiceManager(Iterable<? extends Service> services) {
+               "ServiceManager configured with no services.  Is your application configured"
+                   + " properly?",
+               new EmptyServiceManagerWarning());
+-      copy = ImmutableList.<Service>of(new NoOpService());
++      copy = ImmutableList.of(new NoOpService());
+     }
+     this.state = new ServiceManagerState(copy);
+     this.services = copy;
+diff --git a/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java b/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+index d6c15e73ef9c..a8596bfb7eee 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+@@ -66,7 +66,7 @@ public void tearDown() throws Exception {
+   public void testCallableStartsAfterFirstFutureCompletes() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.<Void>immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(secondCallable, directExecutor());
+     assertThat(firstCallable.called).isTrue();
+@@ -78,10 +78,10 @@ public void testCallableStartsAfterFirstFutureCompletes() {
+   public void testCancellationDoesNotViolateSerialization() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.<Void>immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
+     ListenableFuture<@Nullable Void> secondFuture =
+         serializer.submitAsync(secondCallable, directExecutor());
+-    TestCallable thirdCallable = new TestCallable(Futures.<Void>immediateFuture(null));
++    TestCallable thirdCallable = new TestCallable(Futures.immediateFuture(null));
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(thirdCallable, directExecutor());
+     secondFuture.cancel(true);
+@@ -240,7 +240,7 @@ public void testAvoidsStackOverflow_manySubmitted() throws Exception {
+             },
+             directExecutor()));
+     for (int i = 0; i < 50_000; i++) {
+-      results.add(serializer.submit(Callables.<Void>returning(null), directExecutor()));
++      results.add(serializer.submit(Callables.returning(null), directExecutor()));
+     }
+     settableFuture.set(null);
+     getDone(allAsList(results));
+@@ -287,7 +287,7 @@ public void testAvoidsStackOverflow_alternatingCancelledAndSubmitted() throws Ex
+             directExecutor());
+     for (int i = 0; i < 25_000; i++) {
+       serializer.submit(Callables.<Void>returning(null), directExecutor()).cancel(true);
+-      unused = serializer.submit(Callables.<Void>returning(null), directExecutor());
++      unused = serializer.submit(Callables.returning(null), directExecutor());
+     }
+     ListenableFuture<Integer> stackDepthCheck =
+         serializer.submit(
+@@ -395,7 +395,7 @@ public Integer call() {
+   @SuppressWarnings("ObjectToString") // Intended behavior
+   public void testToString() {
+     Future<?> unused = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(SettableFuture.<Void>create());
++    TestCallable secondCallable = new TestCallable(SettableFuture.create());
+     Future<?> second = serializer.submitAsync(secondCallable, directExecutor());
+     assertThat(secondCallable.called).isFalse();
+     assertThat(second.toString()).contains(secondCallable.toString());
+diff --git a/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java b/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+index f7e75e69573f..7cb128962b0b 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+@@ -45,12 +45,12 @@
+ public class FluentFutureTest extends TestCase {
+   @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
+   public void testFromFluentFuture() {
+-    FluentFuture<String> f = FluentFuture.from(SettableFuture.<String>create());
++    FluentFuture<String> f = FluentFuture.from(SettableFuture.create());
+     assertThat(FluentFuture.from(f)).isSameInstanceAs(f);
+   }
+ 
+   public void testFromFluentFuturePassingAsNonFluent() {
+-    ListenableFuture<String> f = FluentFuture.from(SettableFuture.<String>create());
++    ListenableFuture<String> f = FluentFuture.from(SettableFuture.create());
+     assertThat(FluentFuture.from(f)).isSameInstanceAs(f);
+   }
+ 
+@@ -105,7 +105,7 @@ public void testCatchingAsync() throws Exception {
+                 new AsyncFunction<Throwable, Class<?>>() {
+                   @Override
+                   public ListenableFuture<Class<?>> apply(Throwable input) {
+-                    return Futures.<Class<?>>immediateFuture(input.getClass());
++                    return Futures.immediateFuture(input.getClass());
+                   }
+                 },
+                 directExecutor());
+diff --git a/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java b/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+index 8beeb1232632..695af568a2b4 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+@@ -1584,7 +1584,7 @@ public void testTransformAsync_asyncFunction_timeout()
+       throws InterruptedException, ExecutionException {
+     AsyncFunction<String, Integer> function = constantAsyncFunction(immediateFuture(1));
+     ListenableFuture<Integer> future =
+-        transformAsync(SettableFuture.<String>create(), function, directExecutor());
++        transformAsync(SettableFuture.create(), function, directExecutor());
+     assertThrows(TimeoutException.class, () -> future.get(1, MILLISECONDS));
+   }
+ 
+@@ -3609,7 +3609,7 @@ public void testCancellingADelegatePropagates() throws Exception {
+   public void testCancellingAllDelegatesIsNotQuadratic() throws Exception {
+     ImmutableList.Builder<SettableFuture<Long>> builder = ImmutableList.builder();
+     for (int i = 0; i < 500_000; i++) {
+-      builder.add(SettableFuture.<Long>create());
++      builder.add(SettableFuture.create());
+     }
+     ImmutableList<SettableFuture<Long>> inputs = builder.build();
+     ImmutableList<ListenableFuture<Long>> delegates = inCompletionOrder(inputs);
+diff --git a/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java b/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java
+index e428b9d7356b..1e75f1f9f53f 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java
+@@ -408,7 +408,7 @@ public void testEmptyServiceManager() {
+     logger.setLevel(Level.FINEST);
+     TestLogHandler logHandler = new TestLogHandler();
+     logger.addHandler(logHandler);
+-    ServiceManager manager = new ServiceManager(Arrays.<Service>asList());
++    ServiceManager manager = new ServiceManager(Arrays.asList());
+     RecordingListener listener = new RecordingListener();
+     manager.addListener(listener, directExecutor());
+     manager.startAsync().awaitHealthy();
+@@ -668,7 +668,7 @@ protected String serviceName() {
+   }
+ 
+   public void testNulls() {
+-    ServiceManager manager = new ServiceManager(Arrays.<Service>asList());
++    ServiceManager manager = new ServiceManager(Arrays.asList());
+     new NullPointerTester()
+         .setDefault(ServiceManager.Listener.class, new RecordingListener())
+         .testAllPublicInstanceMethods(manager);
+diff --git a/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java b/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java
+index 23c39af8effe..3c321ac0d892 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/SettableFutureTest.java
+@@ -85,7 +85,7 @@ public void testSetValue_simpleThreaded() throws Exception {
+     // Later attempts to set the future should return false.
+     assertFalse(future.set(23));
+     assertFalse(future.setException(new Exception("bar")));
+-    assertFalse(future.setFuture(SettableFuture.<Integer>create()));
++    assertFalse(future.setFuture(SettableFuture.create()));
+     // Check that the future has been set properly.
+     assertTrue(future.isDone());
+     assertFalse(future.isCancelled());
+@@ -114,7 +114,7 @@ public void testSetFuture() throws Exception {
+     // Later attempts to set the future should return false.
+     assertFalse(future.set("x"));
+     assertFalse(future.setException(new Exception("bar")));
+-    assertFalse(future.setFuture(SettableFuture.<String>create()));
++    assertFalse(future.setFuture(SettableFuture.create()));
+     // Check that the future has been set properly.
+     assertFalse(future.isDone());
+     assertFalse(future.isCancelled());
+@@ -136,7 +136,7 @@ public void testSetFuture_genericsHierarchy() throws Exception {
+     // Later attempts to set the future should return false.
+     assertFalse(future.set(new Foo()));
+     assertFalse(future.setException(new Exception("bar")));
+-    assertFalse(future.setFuture(SettableFuture.<Foo>create()));
++    assertFalse(future.setFuture(SettableFuture.create()));
+     // Check that the future has been set properly.
+     assertFalse(future.isDone());
+     assertFalse(future.isCancelled());
+diff --git a/guava/src/com/google/common/util/concurrent/ServiceManager.java b/guava/src/com/google/common/util/concurrent/ServiceManager.java
+index 6c37bcc841e2..507d780369c1 100644
+--- a/guava/src/com/google/common/util/concurrent/ServiceManager.java
++++ b/guava/src/com/google/common/util/concurrent/ServiceManager.java
+@@ -216,7 +216,7 @@ public ServiceManager(Iterable<? extends Service> services) {
+               "ServiceManager configured with no services.  Is your application configured"
+                   + " properly?",
+               new EmptyServiceManagerWarning());
+-      copy = ImmutableList.<Service>of(new NoOpService());
++      copy = ImmutableList.of(new NoOpService());
+     }
+     this.state = new ServiceManagerState(copy);
+     this.services = copy;

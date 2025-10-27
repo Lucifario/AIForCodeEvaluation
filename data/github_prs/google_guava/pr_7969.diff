@@ -1,0 +1,24 @@
+diff --git a/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java b/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java
+index 36ebac598e53..558f9517daa4 100644
+--- a/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java
++++ b/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java
+@@ -342,6 +342,7 @@ protected List<String> create(String[] elements) {
+             CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+             CollectionFeature.SERIALIZABLE,
+             CollectionSize.ANY)
++        .suppressing(suppressForVector())
+         .createTestSuite();
+   }
+ }
+diff --git a/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java b/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java
+index 5e6c15f4e760..748904fe3a7e 100644
+--- a/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java
++++ b/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java
+@@ -346,6 +346,7 @@ protected List<String> create(String[] elements) {
+             CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+             CollectionFeature.SERIALIZABLE,
+             CollectionSize.ANY)
++        .suppressing(suppressForVector())
+         .createTestSuite();
+   }
+ }

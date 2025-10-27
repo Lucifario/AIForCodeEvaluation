@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/apache/commons/lang3/StringUtils.java b/src/main/java/org/apache/commons/lang3/StringUtils.java
+index cc34db07e47..6076d719480 100644
+--- a/src/main/java/org/apache/commons/lang3/StringUtils.java
++++ b/src/main/java/org/apache/commons/lang3/StringUtils.java
+@@ -7707,7 +7707,7 @@ public static boolean startsWith(final CharSequence str, final CharSequence pref
+      * @see StringUtils#startsWith(CharSequence, CharSequence)
+      * @since 2.5
+      * @since 3.0 Changed signature from startsWithAny(String, String[]) to startsWithAny(CharSequence, CharSequence...)
+-     * @deprecated Use {@link Strings#startsWithAny(CharSequence, CharSequence...) Strings.CI.startsWithAny(CharSequence, CharSequence...)}
++     * @deprecated Use {@link Strings#startsWithAny(CharSequence, CharSequence...) Strings.CS.startsWithAny(CharSequence, CharSequence...)}
+      */
+     @Deprecated
+     public static boolean startsWithAny(final CharSequence sequence, final CharSequence... searchStrings) {

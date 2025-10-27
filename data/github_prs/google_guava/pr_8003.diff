@@ -1,0 +1,42 @@
+diff --git a/guava-gwt/pom.xml b/guava-gwt/pom.xml
+index e734323c48a6..30e398409f23 100644
+--- a/guava-gwt/pom.xml
++++ b/guava-gwt/pom.xml
+@@ -88,20 +88,6 @@
+         </exclusion>
+       </exclusions>
+     </dependency>
+-    <dependency>
+-      <groupId>com.google.truth.extensions</groupId>
+-      <artifactId>truth-java8-extension</artifactId>
+-      <version>${truth.version}</version>
+-      <classifier>gwt</classifier>
+-      <scope>test</scope>
+-      <exclusions>
+-        <exclusion>
+-          <!-- use the guava we're building. -->
+-          <groupId>com.google.guava</groupId>
+-          <artifactId>guava</artifactId>
+-        </exclusion>
+-      </exclusions>
+-    </dependency>
+   </dependencies>
+   <repositories>
+     <repository>
+diff --git a/guava-tests/pom.xml b/guava-tests/pom.xml
+index b7fe0d5aaf5d..c56b0e48378b 100644
+--- a/guava-tests/pom.xml
++++ b/guava-tests/pom.xml
+@@ -47,12 +47,6 @@
+       <version>${truth.version}</version>
+       <scope>test</scope>
+     </dependency>
+-    <dependency>
+-      <groupId>com.google.truth.extensions</groupId>
+-      <artifactId>truth-java8-extension</artifactId>
+-      <version>${truth.version}</version>
+-      <scope>test</scope>
+-    </dependency>
+     <dependency>
+       <groupId>com.google.jimfs</groupId>
+       <artifactId>jimfs</artifactId>

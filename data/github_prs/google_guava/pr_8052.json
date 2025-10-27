@@ -1,0 +1,73 @@
+{
+  "id": 8052,
+  "repository": "google/guava",
+  "title": "Tweak some code to satisfy some of our nullness checking.",
+  "body": "Tweak some code to satisfy some of our nullness checking.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-10T23:13:51+00:00",
+  "created_at": "2025-10-10T22:43:55+00:00",
+  "updated_at": "2025-10-10T23:13:52+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "83869af96382246da6ff99cb029ef59ba684f592",
+  "head_sha": "80cfdaa808a018f69781ca0e7315d202218ee258",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-testlib/src/com/google/common/collect/testing/Helpers.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -465,7 +465,7 @@ public String toString() {\n   public static <K extends Comparable, V extends @Nullable Object>\n       Iterable<Entry<K, V>> orderEntriesByKey(List<Entry<K, V>> insertionOrder) {\n     @SuppressWarnings(\"unchecked\") // assume any Comparable is Comparable<Self>\n-    Comparator<? super K> keyComparator = (Comparator<? super K>) Comparable::compareTo;\n+    Comparator<? super K> keyComparator = (Comparator<? super K>) (o1, o2) -> o1.compareTo(o2);\n     sort(insertionOrder, entryComparator(keyComparator));\n     return insertionOrder;\n   }"
+    },
+    {
+      "filename": "android/guava-tests/test/com/google/common/collect/OrderingTest.java",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -86,8 +86,8 @@ public void testComplicatedOrderingExample() {\n     Ordering<@Nullable Iterable<@Nullable Integer>> example =\n         Ordering.<Integer>natural()\n             .<Integer>nullsFirst()\n-            .reverse()\n-            .lexicographical()\n+            .<@Nullable Integer>reverse()\n+            .<@Nullable Integer>lexicographical()\n             .reverse()\n             .<Iterable<@Nullable Integer>>nullsLast();\n     List<@Nullable Integer> list1 = new ArrayList<>();"
+    },
+    {
+      "filename": "guava-testlib/src/com/google/common/collect/testing/Helpers.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -465,7 +465,7 @@ public String toString() {\n   public static <K extends Comparable, V extends @Nullable Object>\n       Iterable<Entry<K, V>> orderEntriesByKey(List<Entry<K, V>> insertionOrder) {\n     @SuppressWarnings(\"unchecked\") // assume any Comparable is Comparable<Self>\n-    Comparator<? super K> keyComparator = (Comparator<? super K>) Comparable::compareTo;\n+    Comparator<? super K> keyComparator = (Comparator<? super K>) (o1, o2) -> o1.compareTo(o2);\n     sort(insertionOrder, entryComparator(keyComparator));\n     return insertionOrder;\n   }"
+    },
+    {
+      "filename": "guava-tests/test/com/google/common/collect/LinkedHashMultimapTest.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -479,7 +479,7 @@ public void testEntriesSpliterator() {\n       multimap.put(entry.getKey(), entry.getValue());\n     }\n     List<Entry<String, Integer>> actualEntries = new ArrayList<>();\n-    multimap.entries().spliterator().forEachRemaining(actualEntries::add);\n+    multimap.entries().spliterator().forEachRemaining(e -> actualEntries.add(e));\n     assertThat(actualEntries).containsExactlyElementsIn(expectedEntries).inOrder();\n   }\n "
+    },
+    {
+      "filename": "guava-tests/test/com/google/common/collect/OrderingTest.java",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -86,8 +86,8 @@ public void testComplicatedOrderingExample() {\n     Ordering<@Nullable Iterable<@Nullable Integer>> example =\n         Ordering.<Integer>natural()\n             .<Integer>nullsFirst()\n-            .reverse()\n-            .lexicographical()\n+            .<@Nullable Integer>reverse()\n+            .<@Nullable Integer>lexicographical()\n             .reverse()\n             .<Iterable<@Nullable Integer>>nullsLast();\n     List<@Nullable Integer> list1 = new ArrayList<>();"
+    },
+    {
+      "filename": "guava/src/com/google/common/util/concurrent/AtomicLongMap.java",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "patch": "@@ -147,7 +147,9 @@ public long updateAndGet(K key, LongUnaryOperator updaterFunction) {\n     checkNotNull(updaterFunction);\n     Long result =\n         map.compute(\n-            key, (k, value) -> updaterFunction.applyAsLong(value == null ? 0L : value.longValue()));\n+            key,\n+            (K k, @Nullable Long value) ->\n+                updaterFunction.applyAsLong(value == null ? 0L : value.longValue()));\n     return requireNonNull(result);\n   }\n \n@@ -164,7 +166,7 @@ public long getAndUpdate(K key, LongUnaryOperator updaterFunction) {\n     AtomicLong holder = new AtomicLong();\n     map.compute(\n         key,\n-        (k, value) -> {\n+        (K k, @Nullable Long value) -> {\n           long oldValue = (value == null) ? 0L : value.longValue();\n           holder.set(oldValue);\n           return updaterFunction.applyAsLong(oldValue);\n@@ -321,7 +323,7 @@ long putIfAbsent(K key, long newValue) {\n     Long result =\n         map.compute(\n             key,\n-            (k, oldValue) -> {\n+            (K k, @Nullable Long oldValue) -> {\n               if (oldValue == null || oldValue == 0) {\n                 noValue.set(true);\n                 return newValue;"
+    }
+  ],
+  "diff": "diff --git a/android/guava-testlib/src/com/google/common/collect/testing/Helpers.java b/android/guava-testlib/src/com/google/common/collect/testing/Helpers.java\nindex 8bc912c6fde3..8bdc01b6b2a2 100644\n--- a/android/guava-testlib/src/com/google/common/collect/testing/Helpers.java\n+++ b/android/guava-testlib/src/com/google/common/collect/testing/Helpers.java\n@@ -465,7 +465,7 @@ public String toString() {\n   public static <K extends Comparable, V extends @Nullable Object>\n       Iterable<Entry<K, V>> orderEntriesByKey(List<Entry<K, V>> insertionOrder) {\n     @SuppressWarnings(\"unchecked\") // assume any Comparable is Comparable<Self>\n-    Comparator<? super K> keyComparator = (Comparator<? super K>) Comparable::compareTo;\n+    Comparator<? super K> keyComparator = (Comparator<? super K>) (o1, o2) -> o1.compareTo(o2);\n     sort(insertionOrder, entryComparator(keyComparator));\n     return insertionOrder;\n   }\ndiff --git a/android/guava-tests/test/com/google/common/collect/OrderingTest.java b/android/guava-tests/test/com/google/common/collect/OrderingTest.java\nindex acefe3aef63f..367c64aa9955 100644\n--- a/android/guava-tests/test/com/google/common/collect/OrderingTest.java\n+++ b/android/guava-tests/test/com/google/common/collect/OrderingTest.java\n@@ -86,8 +86,8 @@ public void testComplicatedOrderingExample() {\n     Ordering<@Nullable Iterable<@Nullable Integer>> example =\n         Ordering.<Integer>natural()\n             .<Integer>nullsFirst()\n-            .reverse()\n-            .lexicographical()\n+            .<@Nullable Integer>reverse()\n+            .<@Nullable Integer>lexicographical()\n             .reverse()\n             .<Iterable<@Nullable Integer>>nullsLast();\n     List<@Nullable Integer> list1 = new ArrayList<>();\ndiff --git a/guava-testlib/src/com/google/common/collect/testing/Helpers.java b/guava-testlib/src/com/google/common/collect/testing/Helpers.java\nindex 8bc912c6fde3..8bdc01b6b2a2 100644\n--- a/guava-testlib/src/com/google/common/collect/testing/Helpers.java\n+++ b/guava-testlib/src/com/google/common/collect/testing/Helpers.java\n@@ -465,7 +465,7 @@ public String toString() {\n   public static <K extends Comparable, V extends @Nullable Object>\n       Iterable<Entry<K, V>> orderEntriesByKey(List<Entry<K, V>> insertionOrder) {\n     @SuppressWarnings(\"unchecked\") // assume any Comparable is Comparable<Self>\n-    Comparator<? super K> keyComparator = (Comparator<? super K>) Comparable::compareTo;\n+    Comparator<? super K> keyComparator = (Comparator<? super K>) (o1, o2) -> o1.compareTo(o2);\n     sort(insertionOrder, entryComparator(keyComparator));\n     return insertionOrder;\n   }\ndiff --git a/guava-tests/test/com/google/common/collect/LinkedHashMultimapTest.java b/guava-tests/test/com/google/common/collect/LinkedHashMultimapTest.java\nindex a07a4f6eab5c..060d32966112 100644\n--- a/guava-tests/test/com/google/common/collect/LinkedHashMultimapTest.java\n+++ b/guava-tests/test/com/google/common/collect/LinkedHashMultimapTest.java\n@@ -479,7 +479,7 @@ public void testEntriesSpliterator() {\n       multimap.put(entry.getKey(), entry.getValue());\n     }\n     List<Entry<String, Integer>> actualEntries = new ArrayList<>();\n-    multimap.entries().spliterator().forEachRemaining(actualEntries::add);\n+    multimap.entries().spliterator().forEachRemaining(e -> actualEntries.add(e));\n     assertThat(actualEntries).containsExactlyElementsIn(expectedEntries).inOrder();\n   }\n \ndiff --git a/guava-tests/test/com/google/common/collect/OrderingTest.java b/guava-tests/test/com/google/common/collect/OrderingTest.java\nindex f3564d939eed..956c2cc62d3d 100644\n--- a/guava-tests/test/com/google/common/collect/OrderingTest.java\n+++ b/guava-tests/test/com/google/common/collect/OrderingTest.java\n@@ -86,8 +86,8 @@ public void testComplicatedOrderingExample() {\n     Ordering<@Nullable Iterable<@Nullable Integer>> example =\n         Ordering.<Integer>natural()\n             .<Integer>nullsFirst()\n-            .reverse()\n-            .lexicographical()\n+            .<@Nullable Integer>reverse()\n+            .<@Nullable Integer>lexicographical()\n             .reverse()\n             .<Iterable<@Nullable Integer>>nullsLast();\n     List<@Nullable Integer> list1 = new ArrayList<>();\ndiff --git a/guava/src/com/google/common/util/concurrent/AtomicLongMap.java b/guava/src/com/google/common/util/concurrent/AtomicLongMap.java\nindex a51f3975e673..366c03cbd981 100644\n--- a/guava/src/com/google/common/util/concurrent/AtomicLongMap.java\n+++ b/guava/src/com/google/common/util/concurrent/AtomicLongMap.java\n@@ -147,7 +147,9 @@ public long updateAndGet(K key, LongUnaryOperator updaterFunction) {\n     checkNotNull(updaterFunction);\n     Long result =\n         map.compute(\n-            key, (k, value) -> updaterFunction.applyAsLong(value == null ? 0L : value.longValue()));\n+            key,\n+            (K k, @Nullable Long value) ->\n+                updaterFunction.applyAsLong(value == null ? 0L : value.longValue()));\n     return requireNonNull(result);\n   }\n \n@@ -164,7 +166,7 @@ public long getAndUpdate(K key, LongUnaryOperator updaterFunction) {\n     AtomicLong holder = new AtomicLong();\n     map.compute(\n         key,\n-        (k, value) -> {\n+        (K k, @Nullable Long value) -> {\n           long oldValue = (value == null) ? 0L : value.longValue();\n           holder.set(oldValue);\n           return updaterFunction.applyAsLong(oldValue);\n@@ -321,7 +323,7 @@ long putIfAbsent(K key, long newValue) {\n     Long result =\n         map.compute(\n             key,\n-            (k, oldValue) -> {\n+            (K k, @Nullable Long oldValue) -> {\n               if (oldValue == null || oldValue == 0) {\n                 noValue.set(true);\n                 return newValue;\n",
+  "additions": 12,
+  "deletions": 10,
+  "changed_files": 6,
+  "url": "https://github.com/google/guava/pull/8052",
+  "mined_at": "2025-10-25T12:49:38.393071"
+}

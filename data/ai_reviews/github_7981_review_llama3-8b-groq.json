@@ -1,0 +1,23 @@
+{
+  "source_item_id": 7981,
+  "source_type": "github",
+  "generator_model_id": "llama3-8b-groq",
+  "generation_timestamp": "2025-10-26T13:46:12.757144",
+  "input_code_language": "java",
+  "input_code_snippet": "/*\n * Copyright (C) 2013 The Guava Authors\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except\n * in compliance with the License. You may obtain a copy of the License at\n *\n * http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software distributed under the License\n * is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express\n * or implied. See the License for the specific language governing permissions and limitations under\n * the License.\n */\n\npackage com.google.common.eventbus;\n\nimport static com.google.common.base.Preconditions.checkNotNull;\n\nimport java.lang.reflect.Method;\n\n/**\n * Context for an exception thrown by a subscriber.\n *\n * @since 16.0\n */\npublic class SubscriberExceptionContext {\n  private final EventBus eventBus;\n  private final Object event;\n  private final Object subscriber;\n  private final Method subscriberMethod;\n\n  /**\n   * @param eventBus The {@link EventBus} that handled the event and the subscriber. Useful for\n   *     broadcasting a new event based on the error.\n   * @param event The event object that caused the subscriber to throw.\n   * @param subscriber The source subscriber context.\n   * @param subscriberMethod the subscribed method.\n   */\n  SubscriberExceptionContext(\n      EventBus eventBus, Object event, Object subscriber, Method subscriberMethod) {\n    this.eventBus = checkNotNull(eventBus);\n    this.event = checkNotNull(event);\n    this.subscriber = checkNotNull(subscriber);\n    this.subscriberMethod = checkNotNull(subscriberMethod);\n  }\n\n  /**\n   * @return The {@link EventBus} that handled the event and the subscriber. Useful for broadcasting\n   *     a new event based on the error.\n   */\n  public EventBus getEventBus() {\n    return eventBus;\n  }\n\n  /**\n   * @return The event object that caused the subscriber to throw.\n   */\n  public Object getEvent() {\n    return event;\n  }\n\n  /**\n   * @return The object context that the subscriber was called on.\n   */\n  public Object getSubscriber() {\n    return subscriber;\n  }\n\n  /**\n   * @return The subscribed method that threw the exception.\n   */\n  public Method getSubscriberMethod() {\n    return subscriberMethod;\n  }\n}\n",
+  "raw_llm_output": "{\n  \"bugs_found\": [\n      {\n         \"explanation\": \"The SubscriberExceptionContext class does not handle null values for eventBus, event, subscriber, and subscriberMethod. Although checkNotNull is used, it does not prevent the constructor from being called with null values.\",\n         \"suggested_fix\": \"Add null checks for eventBus, event, subscriber, and subscriberMethod in the constructor. If any of these values are null, throw an IllegalArgumentException with a descriptive message.\"\n      },\n      {\n         \"explanation\": \"The SubscriberExceptionContext class does not handle the case where the subscriberMethod is null. Although checkNotNull is used, it does not prevent the constructor from being called with a null subscriberMethod.\",\n         \"suggested_fix\": \"Add a null check for subscriberMethod in the constructor. If subscriberMethod is null, throw an IllegalArgumentException with a descriptive message.\"\n      }\n   ],\n   \"no_bugs_reasoning\": \"\"\n}",
+  "parsed_llm_output": {
+    "bugs_found": [
+      {
+        "explanation": "The SubscriberExceptionContext class does not handle null values for eventBus, event, subscriber, and subscriberMethod. Although checkNotNull is used, it does not prevent the constructor from being called with null values.",
+        "suggested_fix": "Add null checks for eventBus, event, subscriber, and subscriberMethod in the constructor. If any of these values are null, throw an IllegalArgumentException with a descriptive message."
+      },
+      {
+        "explanation": "The SubscriberExceptionContext class does not handle the case where the subscriberMethod is null. Although checkNotNull is used, it does not prevent the constructor from being called with a null subscriberMethod.",
+        "suggested_fix": "Add a null check for subscriberMethod in the constructor. If subscriberMethod is null, throw an IllegalArgumentException with a descriptive message."
+      }
+    ],
+    "no_bugs_reasoning": ""
+  },
+  "error": null
+}

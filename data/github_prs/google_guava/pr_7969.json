@@ -1,0 +1,41 @@
+{
+  "id": 7969,
+  "repository": "google/guava",
+  "title": "Actually use `suppressForVector()`.",
+  "body": "Actually use `suppressForVector()`.\n\nIt's empty, so this is academic. But it may prevent confusion in the future, and it follows the pattern that we've set elsewhere in the file (and in the package more broadly).\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-04T15:04:11+00:00",
+  "created_at": "2025-09-04T14:12:51+00:00",
+  "updated_at": "2025-09-04T15:04:11+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "9547910cc2617b9c494ed2ad79138531fddc3384",
+  "head_sha": "3944ffa4f3c477f182baca9eaf3738a626ccddef",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "patch": "@@ -342,6 +342,7 @@ protected List<String> create(String[] elements) {\n             CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,\n             CollectionFeature.SERIALIZABLE,\n             CollectionSize.ANY)\n+        .suppressing(suppressForVector())\n         .createTestSuite();\n   }\n }"
+    },
+    {
+      "filename": "guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "patch": "@@ -346,6 +346,7 @@ protected List<String> create(String[] elements) {\n             CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,\n             CollectionFeature.SERIALIZABLE,\n             CollectionSize.ANY)\n+        .suppressing(suppressForVector())\n         .createTestSuite();\n   }\n }"
+    }
+  ],
+  "diff": "diff --git a/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java b/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java\nindex 36ebac598e53..558f9517daa4 100644\n--- a/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java\n+++ b/android/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java\n@@ -342,6 +342,7 @@ protected List<String> create(String[] elements) {\n             CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,\n             CollectionFeature.SERIALIZABLE,\n             CollectionSize.ANY)\n+        .suppressing(suppressForVector())\n         .createTestSuite();\n   }\n }\ndiff --git a/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java b/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java\nindex 5e6c15f4e760..748904fe3a7e 100644\n--- a/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java\n+++ b/guava-testlib/src/com/google/common/collect/testing/TestsForListsInJavaUtil.java\n@@ -346,6 +346,7 @@ protected List<String> create(String[] elements) {\n             CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,\n             CollectionFeature.SERIALIZABLE,\n             CollectionSize.ANY)\n+        .suppressing(suppressForVector())\n         .createTestSuite();\n   }\n }\n",
+  "additions": 2,
+  "deletions": 0,
+  "changed_files": 2,
+  "url": "https://github.com/google/guava/pull/7969",
+  "mined_at": "2025-10-25T13:05:40.583359"
+}

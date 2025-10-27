@@ -1,0 +1,41 @@
+{
+  "id": 8003,
+  "repository": "google/guava",
+  "title": "Remove deps on `truth-java8-extension`.",
+  "body": "Remove deps on `truth-java8-extension`.\n\nIts classes [have been part of the core Truth artifact since 1.4.2](https://github.com/google/truth/issues/746#issuecomment-1972041135).\n\nSince we now depend on only one Truth artifact, I also inlined our `truth.version` property. Exception: I kept it in Guava, since we share it across multiple `pom.xml` files. (We _could_ accomplish the same thing by using `dependencyManagement` there, but [we have recently avoided it](https://github.com/google/guava/blob/257bc194f6e5bedd02115693f7416a84c3e4ba25/pom.xml#L107-L111), and I have some reservations around it, anyway, since it may override a newer version from a dependency. Fortunately, that is mostly academic now that we have Dependabot set up for almost all our projects.) The other thing about Guava is that we do _not_ have Dependabot set up for it. By keeping the version in a property, we allow our lesser Dependabot substitute, `versions-maven-plugin`, to bump it, as discussed on cl/554548816.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-17T17:50:58+00:00",
+  "created_at": "2025-09-17T16:48:40+00:00",
+  "updated_at": "2025-09-17T17:50:58+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "257bc194f6e5bedd02115693f7416a84c3e4ba25",
+  "head_sha": "4c4f855e85ee2aa5a0ee8c5a91de19a8153f3e0e",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "guava-gwt/pom.xml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 14,
+      "changes": 14,
+      "patch": "@@ -88,20 +88,6 @@\n         </exclusion>\n       </exclusions>\n     </dependency>\n-    <dependency>\n-      <groupId>com.google.truth.extensions</groupId>\n-      <artifactId>truth-java8-extension</artifactId>\n-      <version>${truth.version}</version>\n-      <classifier>gwt</classifier>\n-      <scope>test</scope>\n-      <exclusions>\n-        <exclusion>\n-          <!-- use the guava we're building. -->\n-          <groupId>com.google.guava</groupId>\n-          <artifactId>guava</artifactId>\n-        </exclusion>\n-      </exclusions>\n-    </dependency>\n   </dependencies>\n   <repositories>\n     <repository>"
+    },
+    {
+      "filename": "guava-tests/pom.xml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 6,
+      "changes": 6,
+      "patch": "@@ -47,12 +47,6 @@\n       <version>${truth.version}</version>\n       <scope>test</scope>\n     </dependency>\n-    <dependency>\n-      <groupId>com.google.truth.extensions</groupId>\n-      <artifactId>truth-java8-extension</artifactId>\n-      <version>${truth.version}</version>\n-      <scope>test</scope>\n-    </dependency>\n     <dependency>\n       <groupId>com.google.jimfs</groupId>\n       <artifactId>jimfs</artifactId>"
+    }
+  ],
+  "diff": "diff --git a/guava-gwt/pom.xml b/guava-gwt/pom.xml\nindex e734323c48a6..30e398409f23 100644\n--- a/guava-gwt/pom.xml\n+++ b/guava-gwt/pom.xml\n@@ -88,20 +88,6 @@\n         </exclusion>\n       </exclusions>\n     </dependency>\n-    <dependency>\n-      <groupId>com.google.truth.extensions</groupId>\n-      <artifactId>truth-java8-extension</artifactId>\n-      <version>${truth.version}</version>\n-      <classifier>gwt</classifier>\n-      <scope>test</scope>\n-      <exclusions>\n-        <exclusion>\n-          <!-- use the guava we're building. -->\n-          <groupId>com.google.guava</groupId>\n-          <artifactId>guava</artifactId>\n-        </exclusion>\n-      </exclusions>\n-    </dependency>\n   </dependencies>\n   <repositories>\n     <repository>\ndiff --git a/guava-tests/pom.xml b/guava-tests/pom.xml\nindex b7fe0d5aaf5d..c56b0e48378b 100644\n--- a/guava-tests/pom.xml\n+++ b/guava-tests/pom.xml\n@@ -47,12 +47,6 @@\n       <version>${truth.version}</version>\n       <scope>test</scope>\n     </dependency>\n-    <dependency>\n-      <groupId>com.google.truth.extensions</groupId>\n-      <artifactId>truth-java8-extension</artifactId>\n-      <version>${truth.version}</version>\n-      <scope>test</scope>\n-    </dependency>\n     <dependency>\n       <groupId>com.google.jimfs</groupId>\n       <artifactId>jimfs</artifactId>\n",
+  "additions": 0,
+  "deletions": 20,
+  "changed_files": 2,
+  "url": "https://github.com/google/guava/pull/8003",
+  "mined_at": "2025-10-25T13:01:46.856042"
+}

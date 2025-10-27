@@ -1,0 +1,113 @@
+{
+  "id": 8001,
+  "repository": "google/guava",
+  "title": "Prepare for release 33.5.0.",
+  "body": "Prepare for release 33.5.0.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-16T22:01:39+00:00",
+  "created_at": "2025-09-16T21:26:33+00:00",
+  "updated_at": "2025-09-16T22:01:39+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "d594f610b68b0c89ffbf85c7846ac2e18e17b4ae",
+  "head_sha": "257bc194f6e5bedd02115693f7416a84c3e4ba25",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "README.md",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 8,
+      "changes": 16,
+      "patch": "@@ -28,8 +28,8 @@ Guava comes in two flavors:\n Guava's Maven group ID is `com.google.guava`, and its artifact ID is `guava`.\n Guava provides two different \"flavors\": one for use on a (Java 8+) JRE and one\n for use on Android or by any library that wants to be compatible with Android.\n-These flavors are specified in the Maven version field as either `33.4.8-jre` or\n-`33.4.8-android`. For more about depending on Guava, see\n+These flavors are specified in the Maven version field as either `33.5.0-jre` or\n+`33.5.0-android`. For more about depending on Guava, see\n [using Guava in your build].\n \n To add a dependency on Guava using Maven, use the following:\n@@ -38,9 +38,9 @@ To add a dependency on Guava using Maven, use the following:\n <dependency>\n   <groupId>com.google.guava</groupId>\n   <artifactId>guava</artifactId>\n-  <version>33.4.8-jre</version>\n+  <version>33.5.0-jre</version>\n   <!-- or, for Android: -->\n-  <version>33.4.8-android</version>\n+  <version>33.5.0-android</version>\n </dependency>\n ```\n \n@@ -51,16 +51,16 @@ dependencies {\n   // Pick one:\n \n   // 1. Use Guava in your implementation only:\n-  implementation(\"com.google.guava:guava:33.4.8-jre\")\n+  implementation(\"com.google.guava:guava:33.5.0-jre\")\n \n   // 2. Use Guava types in your public API:\n-  api(\"com.google.guava:guava:33.4.8-jre\")\n+  api(\"com.google.guava:guava:33.5.0-jre\")\n \n   // 3. Android - Use Guava in your implementation only:\n-  implementation(\"com.google.guava:guava:33.4.8-android\")\n+  implementation(\"com.google.guava:guava:33.5.0-android\")\n \n   // 4. Android - Use Guava types in your public API:\n-  api(\"com.google.guava:guava:33.4.8-android\")\n+  api(\"com.google.guava:guava:33.5.0-android\")\n }\n ```\n "
+    },
+    {
+      "filename": "android/guava-testlib/src/com/google/common/testing/CollectorTester.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -44,7 +44,7 @@\n  * </pre>\n  *\n  * @author Louis Wasserman\n- * @since NEXT (but since 21.0 in the JRE flavor)\n+ * @since 33.5.0 (but since 21.0 in the JRE flavor)\n  */\n @GwtCompatible\n @NullMarked"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/math/IntMath.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -751,7 +751,7 @@ public static boolean isPrime(int n) {\n    * hash code) into a well-distributed nonnegative number, the most even distribution is achieved\n    * not by this method or other absolute value methods, but by {@code x & Integer.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static int saturatedAbs(int x) {\n     return (x == Integer.MIN_VALUE) ? Integer.MAX_VALUE : Math.abs(x);"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/math/LongMath.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -1360,7 +1360,7 @@ public static double roundToDouble(long x, RoundingMode mode) {\n    * into a well-distributed nonnegative number, the most even distribution is achieved not by this\n    * method or other absolute value methods, but by {@code x & Long.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static long saturatedAbs(long x) {\n     return (x == Long.MIN_VALUE) ? Long.MAX_VALUE : Math.abs(x);"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/net/MediaType.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -256,7 +256,7 @@ private static MediaType addKnownType(MediaType mediaType) {\n   /**\n    * <a href=\"https://en.wikipedia.org/wiki/AVIF\">AVIF image format</a>.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static final MediaType AVIF = createConstant(IMAGE_TYPE, \"avif\");\n "
+    },
+    {
+      "filename": "android/guava/src/com/google/common/util/concurrent/Striped.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -192,7 +192,7 @@ public Iterable<L> bulkGet(Iterable<? extends Object> keys) {\n    * @param stripes the minimum number of stripes (locks) required\n    * @param supplier a {@code Supplier<L>} object to obtain locks from\n    * @return a new {@code Striped<L>}\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {\n     return new CompactStriped<>(stripes, supplier);"
+    },
+    {
+      "filename": "guava-testlib/README.md",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -13,7 +13,7 @@ To add a dependency on Guava testlib using Maven, use the following:\n <dependency>\n   <groupId>com.google.guava</groupId>\n   <artifactId>guava-testlib</artifactId>\n-  <version>33.4.8-jre</version>\n+  <version>33.5.0-jre</version>\n   <scope>test</scope>\n </dependency>\n ```\n@@ -22,7 +22,7 @@ To add a dependency using Gradle:\n \n ```gradle\n dependencies {\n-  test 'com.google.guava:guava-testlib:33.4.8-jre'\n+  test 'com.google.guava:guava-testlib:33.5.0-jre'\n }\n ```\n "
+    },
+    {
+      "filename": "guava/src/com/google/common/math/IntMath.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -751,7 +751,7 @@ public static boolean isPrime(int n) {\n    * hash code) into a well-distributed nonnegative number, the most even distribution is achieved\n    * not by this method or other absolute value methods, but by {@code x & Integer.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static int saturatedAbs(int x) {\n     return (x == Integer.MIN_VALUE) ? Integer.MAX_VALUE : Math.abs(x);"
+    },
+    {
+      "filename": "guava/src/com/google/common/math/LongMath.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -1360,7 +1360,7 @@ public static double roundToDouble(long x, RoundingMode mode) {\n    * into a well-distributed nonnegative number, the most even distribution is achieved not by this\n    * method or other absolute value methods, but by {@code x & Long.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static long saturatedAbs(long x) {\n     return (x == Long.MIN_VALUE) ? Long.MAX_VALUE : Math.abs(x);"
+    },
+    {
+      "filename": "guava/src/com/google/common/net/MediaType.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -256,7 +256,7 @@ private static MediaType addKnownType(MediaType mediaType) {\n   /**\n    * <a href=\"https://en.wikipedia.org/wiki/AVIF\">AVIF image format</a>.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static final MediaType AVIF = createConstant(IMAGE_TYPE, \"avif\");\n "
+    },
+    {
+      "filename": "guava/src/com/google/common/util/concurrent/Striped.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -192,7 +192,7 @@ public Iterable<L> bulkGet(Iterable<? extends Object> keys) {\n    * @param stripes the minimum number of stripes (locks) required\n    * @param supplier a {@code Supplier<L>} object to obtain locks from\n    * @return a new {@code Striped<L>}\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {\n     return new CompactStriped<>(stripes, supplier);"
+    }
+  ],
+  "diff": "diff --git a/README.md b/README.md\nindex 85cc4cf3156a..9b19e05298f0 100644\n--- a/README.md\n+++ b/README.md\n@@ -28,8 +28,8 @@ Guava comes in two flavors:\n Guava's Maven group ID is `com.google.guava`, and its artifact ID is `guava`.\n Guava provides two different \"flavors\": one for use on a (Java 8+) JRE and one\n for use on Android or by any library that wants to be compatible with Android.\n-These flavors are specified in the Maven version field as either `33.4.8-jre` or\n-`33.4.8-android`. For more about depending on Guava, see\n+These flavors are specified in the Maven version field as either `33.5.0-jre` or\n+`33.5.0-android`. For more about depending on Guava, see\n [using Guava in your build].\n \n To add a dependency on Guava using Maven, use the following:\n@@ -38,9 +38,9 @@ To add a dependency on Guava using Maven, use the following:\n <dependency>\n   <groupId>com.google.guava</groupId>\n   <artifactId>guava</artifactId>\n-  <version>33.4.8-jre</version>\n+  <version>33.5.0-jre</version>\n   <!-- or, for Android: -->\n-  <version>33.4.8-android</version>\n+  <version>33.5.0-android</version>\n </dependency>\n ```\n \n@@ -51,16 +51,16 @@ dependencies {\n   // Pick one:\n \n   // 1. Use Guava in your implementation only:\n-  implementation(\"com.google.guava:guava:33.4.8-jre\")\n+  implementation(\"com.google.guava:guava:33.5.0-jre\")\n \n   // 2. Use Guava types in your public API:\n-  api(\"com.google.guava:guava:33.4.8-jre\")\n+  api(\"com.google.guava:guava:33.5.0-jre\")\n \n   // 3. Android - Use Guava in your implementation only:\n-  implementation(\"com.google.guava:guava:33.4.8-android\")\n+  implementation(\"com.google.guava:guava:33.5.0-android\")\n \n   // 4. Android - Use Guava types in your public API:\n-  api(\"com.google.guava:guava:33.4.8-android\")\n+  api(\"com.google.guava:guava:33.5.0-android\")\n }\n ```\n \ndiff --git a/android/guava-testlib/src/com/google/common/testing/CollectorTester.java b/android/guava-testlib/src/com/google/common/testing/CollectorTester.java\nindex e54524dfe952..263d5b661ef6 100644\n--- a/android/guava-testlib/src/com/google/common/testing/CollectorTester.java\n+++ b/android/guava-testlib/src/com/google/common/testing/CollectorTester.java\n@@ -44,7 +44,7 @@\n  * </pre>\n  *\n  * @author Louis Wasserman\n- * @since NEXT (but since 21.0 in the JRE flavor)\n+ * @since 33.5.0 (but since 21.0 in the JRE flavor)\n  */\n @GwtCompatible\n @NullMarked\ndiff --git a/android/guava/src/com/google/common/math/IntMath.java b/android/guava/src/com/google/common/math/IntMath.java\nindex bdd6c471eb71..a959dc4968a7 100644\n--- a/android/guava/src/com/google/common/math/IntMath.java\n+++ b/android/guava/src/com/google/common/math/IntMath.java\n@@ -751,7 +751,7 @@ public static boolean isPrime(int n) {\n    * hash code) into a well-distributed nonnegative number, the most even distribution is achieved\n    * not by this method or other absolute value methods, but by {@code x & Integer.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static int saturatedAbs(int x) {\n     return (x == Integer.MIN_VALUE) ? Integer.MAX_VALUE : Math.abs(x);\ndiff --git a/android/guava/src/com/google/common/math/LongMath.java b/android/guava/src/com/google/common/math/LongMath.java\nindex c1c91cdf9732..4e26183d658f 100644\n--- a/android/guava/src/com/google/common/math/LongMath.java\n+++ b/android/guava/src/com/google/common/math/LongMath.java\n@@ -1360,7 +1360,7 @@ public static double roundToDouble(long x, RoundingMode mode) {\n    * into a well-distributed nonnegative number, the most even distribution is achieved not by this\n    * method or other absolute value methods, but by {@code x & Long.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static long saturatedAbs(long x) {\n     return (x == Long.MIN_VALUE) ? Long.MAX_VALUE : Math.abs(x);\ndiff --git a/android/guava/src/com/google/common/net/MediaType.java b/android/guava/src/com/google/common/net/MediaType.java\nindex 4cd592bea1eb..d88c9dd684ed 100644\n--- a/android/guava/src/com/google/common/net/MediaType.java\n+++ b/android/guava/src/com/google/common/net/MediaType.java\n@@ -256,7 +256,7 @@ private static MediaType addKnownType(MediaType mediaType) {\n   /**\n    * <a href=\"https://en.wikipedia.org/wiki/AVIF\">AVIF image format</a>.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static final MediaType AVIF = createConstant(IMAGE_TYPE, \"avif\");\n \ndiff --git a/android/guava/src/com/google/common/util/concurrent/Striped.java b/android/guava/src/com/google/common/util/concurrent/Striped.java\nindex c98eb57c32b1..110a62ba8759 100644\n--- a/android/guava/src/com/google/common/util/concurrent/Striped.java\n+++ b/android/guava/src/com/google/common/util/concurrent/Striped.java\n@@ -192,7 +192,7 @@ public Iterable<L> bulkGet(Iterable<? extends Object> keys) {\n    * @param stripes the minimum number of stripes (locks) required\n    * @param supplier a {@code Supplier<L>} object to obtain locks from\n    * @return a new {@code Striped<L>}\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {\n     return new CompactStriped<>(stripes, supplier);\ndiff --git a/guava-testlib/README.md b/guava-testlib/README.md\nindex f4f26f42e60c..a9ed85ffb3cc 100644\n--- a/guava-testlib/README.md\n+++ b/guava-testlib/README.md\n@@ -13,7 +13,7 @@ To add a dependency on Guava testlib using Maven, use the following:\n <dependency>\n   <groupId>com.google.guava</groupId>\n   <artifactId>guava-testlib</artifactId>\n-  <version>33.4.8-jre</version>\n+  <version>33.5.0-jre</version>\n   <scope>test</scope>\n </dependency>\n ```\n@@ -22,7 +22,7 @@ To add a dependency using Gradle:\n \n ```gradle\n dependencies {\n-  test 'com.google.guava:guava-testlib:33.4.8-jre'\n+  test 'com.google.guava:guava-testlib:33.5.0-jre'\n }\n ```\n \ndiff --git a/guava/src/com/google/common/math/IntMath.java b/guava/src/com/google/common/math/IntMath.java\nindex bdd6c471eb71..a959dc4968a7 100644\n--- a/guava/src/com/google/common/math/IntMath.java\n+++ b/guava/src/com/google/common/math/IntMath.java\n@@ -751,7 +751,7 @@ public static boolean isPrime(int n) {\n    * hash code) into a well-distributed nonnegative number, the most even distribution is achieved\n    * not by this method or other absolute value methods, but by {@code x & Integer.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static int saturatedAbs(int x) {\n     return (x == Integer.MIN_VALUE) ? Integer.MAX_VALUE : Math.abs(x);\ndiff --git a/guava/src/com/google/common/math/LongMath.java b/guava/src/com/google/common/math/LongMath.java\nindex c1c91cdf9732..4e26183d658f 100644\n--- a/guava/src/com/google/common/math/LongMath.java\n+++ b/guava/src/com/google/common/math/LongMath.java\n@@ -1360,7 +1360,7 @@ public static double roundToDouble(long x, RoundingMode mode) {\n    * into a well-distributed nonnegative number, the most even distribution is achieved not by this\n    * method or other absolute value methods, but by {@code x & Long.MAX_VALUE}.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static long saturatedAbs(long x) {\n     return (x == Long.MIN_VALUE) ? Long.MAX_VALUE : Math.abs(x);\ndiff --git a/guava/src/com/google/common/net/MediaType.java b/guava/src/com/google/common/net/MediaType.java\nindex 4cd592bea1eb..d88c9dd684ed 100644\n--- a/guava/src/com/google/common/net/MediaType.java\n+++ b/guava/src/com/google/common/net/MediaType.java\n@@ -256,7 +256,7 @@ private static MediaType addKnownType(MediaType mediaType) {\n   /**\n    * <a href=\"https://en.wikipedia.org/wiki/AVIF\">AVIF image format</a>.\n    *\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static final MediaType AVIF = createConstant(IMAGE_TYPE, \"avif\");\n \ndiff --git a/guava/src/com/google/common/util/concurrent/Striped.java b/guava/src/com/google/common/util/concurrent/Striped.java\nindex c98eb57c32b1..110a62ba8759 100644\n--- a/guava/src/com/google/common/util/concurrent/Striped.java\n+++ b/guava/src/com/google/common/util/concurrent/Striped.java\n@@ -192,7 +192,7 @@ public Iterable<L> bulkGet(Iterable<? extends Object> keys) {\n    * @param stripes the minimum number of stripes (locks) required\n    * @param supplier a {@code Supplier<L>} object to obtain locks from\n    * @return a new {@code Striped<L>}\n-   * @since NEXT\n+   * @since 33.5.0\n    */\n   public static <L> Striped<L> custom(int stripes, Supplier<L> supplier) {\n     return new CompactStriped<>(stripes, supplier);\n",
+  "additions": 19,
+  "deletions": 19,
+  "changed_files": 11,
+  "url": "https://github.com/google/guava/pull/8001",
+  "mined_at": "2025-10-25T13:01:54.228365"
+}

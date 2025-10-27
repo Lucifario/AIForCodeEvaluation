@@ -1,0 +1,39 @@
+{
+  "id": 1464,
+  "repository": "apache/commons-lang",
+  "title": "Fix test fixture in ReflectionDiffBuilderTest.testTransientFieldDifference()",
+  "body": null,
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-10T11:11:47+00:00",
+  "created_at": "2025-10-10T10:25:40+00:00",
+  "updated_at": "2025-10-10T11:12:03+00:00",
+  "author": "mymde",
+  "reviewers": [],
+  "base_sha": "f2f204d94025db09d39da3dbbaf3789b29c1f7f6",
+  "head_sha": "141acabe04a5921e08f160a8d14f0557c53023c4",
+  "review_comments": [],
+  "pr_comments": [
+    {
+      "user": "garydgregory",
+      "body": "Thank you @mymde \r\n\r\nPR merged.\r\n",
+      "created_at": "2025-10-10T11:12:03+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "src/test/java/org/apache/commons/lang3/builder/ReflectionDiffBuilderTest.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -287,7 +287,7 @@ void testTransientFieldDifference() {\n         final TypeTestClass firstObject = new TypeTestClass();\n         firstObject.transientField = \"a\";\n         final TypeTestClass secondObject = new TypeTestClass();\n-        firstObject.transientField = \"b\";\n+        secondObject.transientField = \"b\";\n         DiffResult<TypeTestClass> list = firstObject.diff(secondObject);\n         assertEquals(0, list.getNumberOfDiffs());\n         list = firstObject.diffDeprecated(secondObject);"
+    }
+  ],
+  "diff": "diff --git a/src/test/java/org/apache/commons/lang3/builder/ReflectionDiffBuilderTest.java b/src/test/java/org/apache/commons/lang3/builder/ReflectionDiffBuilderTest.java\nindex 202bb21fa72..e2e134d9dcc 100644\n--- a/src/test/java/org/apache/commons/lang3/builder/ReflectionDiffBuilderTest.java\n+++ b/src/test/java/org/apache/commons/lang3/builder/ReflectionDiffBuilderTest.java\n@@ -287,7 +287,7 @@ void testTransientFieldDifference() {\n         final TypeTestClass firstObject = new TypeTestClass();\n         firstObject.transientField = \"a\";\n         final TypeTestClass secondObject = new TypeTestClass();\n-        firstObject.transientField = \"b\";\n+        secondObject.transientField = \"b\";\n         DiffResult<TypeTestClass> list = firstObject.diff(secondObject);\n         assertEquals(0, list.getNumberOfDiffs());\n         list = firstObject.diffDeprecated(secondObject);\n",
+  "additions": 1,
+  "deletions": 1,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1464",
+  "mined_at": "2025-10-25T12:44:33.819584"
+}

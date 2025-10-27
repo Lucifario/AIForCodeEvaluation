@@ -1,0 +1,194 @@
+diff --git a/android/guava/src/com/google/common/collect/CartesianList.java b/android/guava/src/com/google/common/collect/CartesianList.java
+index 8150370afd04..7c5d2df446dd 100644
+--- a/android/guava/src/com/google/common/collect/CartesianList.java
++++ b/android/guava/src/com/google/common/collect/CartesianList.java
+@@ -19,7 +19,6 @@
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.GwtIncompatible;
+ import com.google.common.annotations.J2ktIncompatible;
+-import com.google.common.math.IntMath;
+ import java.util.AbstractList;
+ import java.util.List;
+ import java.util.ListIterator;
+@@ -55,7 +54,7 @@ static <E> List<List<E>> create(List<? extends List<? extends E>> lists) {
+     axesSizeProduct[axes.size()] = 1;
+     try {
+       for (int i = axes.size() - 1; i >= 0; i--) {
+-        axesSizeProduct[i] = IntMath.checkedMultiply(axesSizeProduct[i + 1], axes.get(i).size());
++        axesSizeProduct[i] = Math.multiplyExact(axesSizeProduct[i + 1], axes.get(i).size());
+       }
+     } catch (ArithmeticException e) {
+       throw new IllegalArgumentException(
+diff --git a/android/guava/src/com/google/common/collect/ConcurrentHashMultiset.java b/android/guava/src/com/google/common/collect/ConcurrentHashMultiset.java
+index ac1d0e66f8ed..6242c605e799 100644
+--- a/android/guava/src/com/google/common/collect/ConcurrentHashMultiset.java
++++ b/android/guava/src/com/google/common/collect/ConcurrentHashMultiset.java
+@@ -29,7 +29,6 @@
+ import com.google.common.annotations.J2ktIncompatible;
+ import com.google.common.annotations.VisibleForTesting;
+ import com.google.common.collect.Serialization.FieldSetter;
+-import com.google.common.math.IntMath;
+ import com.google.common.primitives.Ints;
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+ import com.google.j2objc.annotations.WeakOuter;
+@@ -225,7 +224,7 @@ public int add(E element, int occurrences) {
+         int oldValue = existingCounter.get();
+         if (oldValue != 0) {
+           try {
+-            int newValue = IntMath.checkedAdd(oldValue, occurrences);
++            int newValue = Math.addExact(oldValue, occurrences);
+             if (existingCounter.compareAndSet(oldValue, newValue)) {
+               // newValue can't == 0, so no need to check & remove
+               return oldValue;
+diff --git a/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java b/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+index 661d202adc6b..6e13b5771ce5 100644
+--- a/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
++++ b/android/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+@@ -29,7 +29,6 @@
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.J2ktIncompatible;
+ import com.google.common.annotations.VisibleForTesting;
+-import com.google.common.math.IntMath;
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+ import com.google.j2objc.annotations.Weak;
+ import com.google.j2objc.annotations.WeakOuter;
+@@ -968,7 +967,7 @@ private void growIfNeeded() {
+   private int calculateNewCapacity() {
+     int oldCapacity = queue.length;
+     int newCapacity =
+-        (oldCapacity < 64) ? (oldCapacity + 1) * 2 : IntMath.checkedMultiply(oldCapacity / 2, 3);
++        (oldCapacity < 64) ? (oldCapacity + 1) * 2 : Math.multiplyExact(oldCapacity / 2, 3);
+     return capAtMaximumSize(newCapacity, maximumSize);
+   }
+ 
+diff --git a/android/guava/src/com/google/common/collect/TopKSelector.java b/android/guava/src/com/google/common/collect/TopKSelector.java
+index 7da3772492d6..29fadc397d8b 100644
+--- a/android/guava/src/com/google/common/collect/TopKSelector.java
++++ b/android/guava/src/com/google/common/collect/TopKSelector.java
+@@ -125,7 +125,7 @@ private TopKSelector(Comparator<? super T> comparator, int k) {
+     this.k = k;
+     checkArgument(k >= 0, "k (%s) must be >= 0", k);
+     checkArgument(k <= Integer.MAX_VALUE / 2, "k (%s) must be <= Integer.MAX_VALUE / 2", k);
+-    this.buffer = (T[]) new Object[IntMath.checkedMultiply(k, 2)];
++    this.buffer = (T[]) new Object[Math.multiplyExact(k, 2)];
+     this.bufferSize = 0;
+     this.threshold = null;
+   }
+diff --git a/android/guava/src/com/google/common/hash/BloomFilter.java b/android/guava/src/com/google/common/hash/BloomFilter.java
+index d41e3e61ee51..dc8163fe785c 100644
+--- a/android/guava/src/com/google/common/hash/BloomFilter.java
++++ b/android/guava/src/com/google/common/hash/BloomFilter.java
+@@ -24,7 +24,6 @@
+ import com.google.common.base.Predicate;
+ import com.google.common.hash.BloomFilterStrategies.LockFreeBitArray;
+ import com.google.common.math.DoubleMath;
+-import com.google.common.math.LongMath;
+ import com.google.common.primitives.SignedBytes;
+ import com.google.common.primitives.UnsignedBytes;
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+@@ -629,7 +628,7 @@ public void writeTo(OutputStream out) throws IOException {
+       @SuppressWarnings("EnumOrdinal")
+       Strategy strategy = BloomFilterStrategies.values()[strategyOrdinal];
+ 
+-      LockFreeBitArray dataArray = new LockFreeBitArray(LongMath.checkedMultiply(dataLength, 64L));
++      LockFreeBitArray dataArray = new LockFreeBitArray(Math.multiplyExact(dataLength, 64L));
+       for (int i = 0; i < dataLength; i++) {
+         dataArray.putData(i, din.readLong());
+       }
+diff --git a/guava/src/com/google/common/collect/CartesianList.java b/guava/src/com/google/common/collect/CartesianList.java
+index 8150370afd04..7c5d2df446dd 100644
+--- a/guava/src/com/google/common/collect/CartesianList.java
++++ b/guava/src/com/google/common/collect/CartesianList.java
+@@ -19,7 +19,6 @@
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.GwtIncompatible;
+ import com.google.common.annotations.J2ktIncompatible;
+-import com.google.common.math.IntMath;
+ import java.util.AbstractList;
+ import java.util.List;
+ import java.util.ListIterator;
+@@ -55,7 +54,7 @@ static <E> List<List<E>> create(List<? extends List<? extends E>> lists) {
+     axesSizeProduct[axes.size()] = 1;
+     try {
+       for (int i = axes.size() - 1; i >= 0; i--) {
+-        axesSizeProduct[i] = IntMath.checkedMultiply(axesSizeProduct[i + 1], axes.get(i).size());
++        axesSizeProduct[i] = Math.multiplyExact(axesSizeProduct[i + 1], axes.get(i).size());
+       }
+     } catch (ArithmeticException e) {
+       throw new IllegalArgumentException(
+diff --git a/guava/src/com/google/common/collect/ConcurrentHashMultiset.java b/guava/src/com/google/common/collect/ConcurrentHashMultiset.java
+index ac1d0e66f8ed..6242c605e799 100644
+--- a/guava/src/com/google/common/collect/ConcurrentHashMultiset.java
++++ b/guava/src/com/google/common/collect/ConcurrentHashMultiset.java
+@@ -29,7 +29,6 @@
+ import com.google.common.annotations.J2ktIncompatible;
+ import com.google.common.annotations.VisibleForTesting;
+ import com.google.common.collect.Serialization.FieldSetter;
+-import com.google.common.math.IntMath;
+ import com.google.common.primitives.Ints;
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+ import com.google.j2objc.annotations.WeakOuter;
+@@ -225,7 +224,7 @@ public int add(E element, int occurrences) {
+         int oldValue = existingCounter.get();
+         if (oldValue != 0) {
+           try {
+-            int newValue = IntMath.checkedAdd(oldValue, occurrences);
++            int newValue = Math.addExact(oldValue, occurrences);
+             if (existingCounter.compareAndSet(oldValue, newValue)) {
+               // newValue can't == 0, so no need to check & remove
+               return oldValue;
+diff --git a/guava/src/com/google/common/collect/MinMaxPriorityQueue.java b/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+index 661d202adc6b..6e13b5771ce5 100644
+--- a/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
++++ b/guava/src/com/google/common/collect/MinMaxPriorityQueue.java
+@@ -29,7 +29,6 @@
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.J2ktIncompatible;
+ import com.google.common.annotations.VisibleForTesting;
+-import com.google.common.math.IntMath;
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+ import com.google.j2objc.annotations.Weak;
+ import com.google.j2objc.annotations.WeakOuter;
+@@ -968,7 +967,7 @@ private void growIfNeeded() {
+   private int calculateNewCapacity() {
+     int oldCapacity = queue.length;
+     int newCapacity =
+-        (oldCapacity < 64) ? (oldCapacity + 1) * 2 : IntMath.checkedMultiply(oldCapacity / 2, 3);
++        (oldCapacity < 64) ? (oldCapacity + 1) * 2 : Math.multiplyExact(oldCapacity / 2, 3);
+     return capAtMaximumSize(newCapacity, maximumSize);
+   }
+ 
+diff --git a/guava/src/com/google/common/collect/TopKSelector.java b/guava/src/com/google/common/collect/TopKSelector.java
+index a61799eb9ed1..43ff655c1337 100644
+--- a/guava/src/com/google/common/collect/TopKSelector.java
++++ b/guava/src/com/google/common/collect/TopKSelector.java
+@@ -126,7 +126,7 @@ private TopKSelector(Comparator<? super T> comparator, int k) {
+     this.k = k;
+     checkArgument(k >= 0, "k (%s) must be >= 0", k);
+     checkArgument(k <= Integer.MAX_VALUE / 2, "k (%s) must be <= Integer.MAX_VALUE / 2", k);
+-    this.buffer = (T[]) new Object[IntMath.checkedMultiply(k, 2)];
++    this.buffer = (T[]) new Object[Math.multiplyExact(k, 2)];
+     this.bufferSize = 0;
+     this.threshold = null;
+   }
+diff --git a/guava/src/com/google/common/hash/BloomFilter.java b/guava/src/com/google/common/hash/BloomFilter.java
+index 1f0cced2f6a5..346c37db7c45 100644
+--- a/guava/src/com/google/common/hash/BloomFilter.java
++++ b/guava/src/com/google/common/hash/BloomFilter.java
+@@ -24,7 +24,6 @@
+ import com.google.common.base.Predicate;
+ import com.google.common.hash.BloomFilterStrategies.LockFreeBitArray;
+ import com.google.common.math.DoubleMath;
+-import com.google.common.math.LongMath;
+ import com.google.common.primitives.SignedBytes;
+ import com.google.common.primitives.UnsignedBytes;
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+@@ -639,7 +638,7 @@ public void writeTo(OutputStream out) throws IOException {
+       @SuppressWarnings("EnumOrdinal")
+       Strategy strategy = BloomFilterStrategies.values()[strategyOrdinal];
+ 
+-      LockFreeBitArray dataArray = new LockFreeBitArray(LongMath.checkedMultiply(dataLength, 64L));
++      LockFreeBitArray dataArray = new LockFreeBitArray(Math.multiplyExact(dataLength, 64L));
+       for (int i = 0; i < dataLength; i++) {
+         dataArray.putData(i, din.readLong());
+       }

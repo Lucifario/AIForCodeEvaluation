@@ -1,0 +1,91 @@
+{
+  "id": 137050,
+  "repository": "elastic/elasticsearch",
+  "title": "Fixes memory leak in BytesRefLongBlockHash",
+  "body": "Closes #137021.\r\n\r\nRepro:\r\n\r\n```\r\n./gradlew \":x-pack:plugin:esql:compute:test\" --tests \"org.elasticsearch.compute.aggregation.blockhash.BlockHashRandomizedTests.testWithCranky {forcePackedHash=false groups=2 maxValuesPerPosition=1 dups=0 allowedTypes=[Basic[elementType=LONG], Basic[elementType=BYTES_REF]]}\" -Dtests.seed=F336120F4E4CDBE -Dtests.locale=en-DG -Dtests.timezone=America/Sitka -Druntime.java=25\r\n```\r\n\r\nThe test `BlockHashRandomizedTests#testWithCranky` was failing in the `after` phase when we were checking all of the allocated arrays had been released. That test only failed once every 20 times (the frequency `CrankyCircuitBreakerService` kicks in).\r\n\r\n```java\r\n    public void testWithCranky() {\r\n        CircuitBreakerService service = new CrankyCircuitBreakerService();\r\n        CircuitBreaker breaker = service.getBreaker(CircuitBreaker.REQUEST);\r\n        BigArrays bigArrays = new MockBigArrays(PageCacheRecycler.NON_RECYCLING_INSTANCE, service);\r\n        try {\r\n            test(new MockBlockFactory(breaker, bigArrays));\r\n            logger.info(\"cranky let us finish!\");\r\n        } catch (CircuitBreakingException e) {\r\n            logger.info(\"cranky\", e);\r\n            assertThat(e.getMessage(), equalTo(CrankyCircuitBreakerService.ERROR_MESSAGE));\r\n        }\r\n    }\r\n```",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T07:12:51+00:00",
+  "created_at": "2025-10-23T16:31:56+00:00",
+  "updated_at": "2025-10-24T07:48:11+00:00",
+  "author": "ncordon",
+  "reviewers": [
+    "dnhatn",
+    "nik9000",
+    "ncordon"
+  ],
+  "base_sha": "440faee03ee04b4ab8dbf2e41afcc3cc6f0a26c0",
+  "head_sha": "a2cdef4e0ba4f3dfe7a4b4a3dacf8ea343d2204f",
+  "review_comments": [
+    {
+      "user": "ncordon",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T16:34:37+00:00"
+    },
+    {
+      "user": "dnhatn",
+      "state": "APPROVED",
+      "body": "LGTM. Thanks Nacho!",
+      "submitted_at": "2025-10-23T16:42:28+00:00"
+    },
+    {
+      "user": "nik9000",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T16:44:08+00:00"
+    },
+    {
+      "user": "ncordon",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T16:56:57+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Hi @ncordon, I've created a changelog YAML for you.",
+      "created_at": "2025-10-23T16:33:14+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/es-analytical-engine (Team:Analytics)",
+      "created_at": "2025-10-23T16:38:37+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "## 💔 Backport failed\n| Status | Branch | Result |\n|:------:|:------:|:------:|\n| ❌ |  9.2  | Commit could not be cherrypicked due to conflicts |\n| ❌ |  8.19  | Commit could not be cherrypicked due to conflicts |\n| ❌ |  9.1  | Commit could not be cherrypicked due to conflicts |\n\nYou can use [sqren/backport](https://github.com/sqren/backport) to manually backport by running `backport --upstream elastic/elasticsearch --pr 137050`",
+      "created_at": "2025-10-24T07:14:08+00:00"
+    },
+    {
+      "user": "ncordon",
+      "body": "No need to backport this, it seems this bug was introduced only for 9.3",
+      "created_at": "2025-10-24T07:47:58+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/changelog/137050.yaml",
+      "status": "added",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "patch": "@@ -0,0 +1,6 @@\n+pr: 137050\n+summary: Fixes memory leak in `BytesRefLongBlockHash`\n+area: ES|QL\n+type: bug\n+issues:\n+ - 137021"
+    },
+    {
+      "filename": "x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "changes": 7,
+      "patch": "@@ -161,12 +161,15 @@ public Block[] getKeys() {\n                 }\n                 // TODO: make takeOwnershipOf work?\n                 BytesRefArray bytes = BytesRefArray.deepCopy(bytesHash.hash.getBytesRefs());\n+                BytesRefVector dict = null;\n+\n                 try {\n-                    var dict = blockFactory.newBytesRefArrayVector(bytes, Math.toIntExact(bytes.size()));\n+                    dict = blockFactory.newBytesRefArrayVector(bytes, Math.toIntExact(bytes.size()));\n                     bytes = null; // transfer ownership to dict\n                     k1 = new OrdinalBytesRefBlock(ordinals.build(), dict);\n+                    dict = null;  // transfer ownership to k1\n                 } finally {\n-                    Releasables.closeExpectNoException(bytes);\n+                    Releasables.closeExpectNoException(bytes, dict);\n                 }\n                 k2 = longs.build();\n             } finally {"
+    }
+  ],
+  "diff": "diff --git a/docs/changelog/137050.yaml b/docs/changelog/137050.yaml\nnew file mode 100644\nindex 0000000000000..695c7811cf402\n--- /dev/null\n+++ b/docs/changelog/137050.yaml\n@@ -0,0 +1,6 @@\n+pr: 137050\n+summary: Fixes memory leak in `BytesRefLongBlockHash`\n+area: ES|QL\n+type: bug\n+issues:\n+ - 137021\ndiff --git a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java\nindex 05e32bfba0539..b7eab4211d59e 100644\n--- a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java\n+++ b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/blockhash/BytesRefLongBlockHash.java\n@@ -161,12 +161,15 @@ public Block[] getKeys() {\n                 }\n                 // TODO: make takeOwnershipOf work?\n                 BytesRefArray bytes = BytesRefArray.deepCopy(bytesHash.hash.getBytesRefs());\n+                BytesRefVector dict = null;\n+\n                 try {\n-                    var dict = blockFactory.newBytesRefArrayVector(bytes, Math.toIntExact(bytes.size()));\n+                    dict = blockFactory.newBytesRefArrayVector(bytes, Math.toIntExact(bytes.size()));\n                     bytes = null; // transfer ownership to dict\n                     k1 = new OrdinalBytesRefBlock(ordinals.build(), dict);\n+                    dict = null;  // transfer ownership to k1\n                 } finally {\n-                    Releasables.closeExpectNoException(bytes);\n+                    Releasables.closeExpectNoException(bytes, dict);\n                 }\n                 k2 = longs.build();\n             } finally {\n",
+  "additions": 11,
+  "deletions": 2,
+  "changed_files": 2,
+  "url": "https://github.com/elastic/elasticsearch/pull/137050",
+  "mined_at": "2025-10-25T13:34:27.789876"
+}

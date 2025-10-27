@@ -1,0 +1,276 @@
+diff --git a/docs/changelog/137096.yaml b/docs/changelog/137096.yaml
+new file mode 100644
+index 0000000000000..1b194934b0691
+--- /dev/null
++++ b/docs/changelog/137096.yaml
+@@ -0,0 +1,5 @@
++pr: 137096
++summary: Fix mapping conflicts in clone/split/shrink APIs
++area: Indices APIs
++type: bug
++issues: []
+diff --git a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/CloneIndexIT.java b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/CloneIndexIT.java
+index 92049978c4bf2..654a1393aa146 100644
+--- a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/CloneIndexIT.java
++++ b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/CloneIndexIT.java
+@@ -20,6 +20,7 @@
+ import org.elasticsearch.index.seqno.SeqNoStats;
+ import org.elasticsearch.test.ESIntegTestCase;
+ import org.elasticsearch.test.index.IndexVersionUtils;
++import org.elasticsearch.xcontent.ObjectPath;
+ import org.elasticsearch.xcontent.XContentType;
+ 
+ import java.util.List;
+@@ -203,4 +204,60 @@ public void testResizeChangeIndexSorts() {
+         });
+         assertThat(error.getMessage(), containsString("can't override index sort when resizing an index"));
+     }
++
++    /**
++     * Test that cloning a logsdb index with a non-default timestamp mapping doesn't result in any mapping conflicts.
++     */
++    public void testCloneLogsdbIndexWithNonDefaultTimestamp() {
++        // Create a logsdb index with a date_nanos @timestamp field
++        final int numberOfReplicas = randomInt(internalCluster().numDataNodes() - 1);
++        final var settings = indexSettings(1, numberOfReplicas).put("index.mode", "logsdb").put("index.blocks.write", true);
++        prepareCreate("source").setSettings(settings).setMapping("@timestamp", "type=date_nanos").get();
++        ensureGreen();
++
++        // Clone the index
++        indicesAdmin().prepareResizeIndex("source", "target")
++            .setResizeType(ResizeType.CLONE)
++            // We need to explicitly set the number of replicas in case the source has 0 replicas and the cluster has only 1 data node
++            .setSettings(Settings.builder().put("index.number_of_replicas", numberOfReplicas).build())
++            .get();
++
++        // Verify that the target index has the correct @timestamp mapping
++        final var targetMappings = indicesAdmin().prepareGetMappings(TEST_REQUEST_TIMEOUT, "target").get();
++        assertThat(
++            ObjectPath.eval("properties.@timestamp.type", targetMappings.mappings().get("target").getSourceAsMap()),
++            equalTo("date_nanos")
++        );
++        ensureGreen();
++    }
++
++    /**
++     * Test that cloning a time series index with a non-default timestamp mapping doesn't result in any mapping conflicts.
++     */
++    public void testCloneTimeSeriesIndexWithNonDefaultTimestamp() {
++        // Create a time series index with a date_nanos @timestamp field
++        final int numberOfReplicas = randomInt(internalCluster().numDataNodes() - 1);
++        final var settings = indexSettings(1, numberOfReplicas).put("index.mode", "time_series")
++            .put("index.routing_path", "sensor_id")
++            .put("index.blocks.write", true);
++        prepareCreate("source").setSettings(settings)
++            .setMapping("@timestamp", "type=date_nanos", "sensor_id", "type=keyword,time_series_dimension=true")
++            .get();
++        ensureGreen();
++
++        // Clone the index
++        indicesAdmin().prepareResizeIndex("source", "target")
++            .setResizeType(ResizeType.CLONE)
++            // We need to explicitly set the number of replicas in case the source has 0 replicas and the cluster has only 1 data node
++            .setSettings(Settings.builder().put("index.number_of_replicas", numberOfReplicas).build())
++            .get();
++
++        // Verify that the target index has the correct @timestamp mapping
++        final var targetMappings = indicesAdmin().prepareGetMappings(TEST_REQUEST_TIMEOUT, "target").get();
++        assertThat(
++            ObjectPath.eval("properties.@timestamp.type", targetMappings.mappings().get("target").getSourceAsMap()),
++            equalTo("date_nanos")
++        );
++        ensureGreen();
++    }
+ }
+diff --git a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/ShrinkIndexIT.java b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/ShrinkIndexIT.java
+index 3d8b90c5797ce..31831f7eb6fe5 100644
+--- a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/ShrinkIndexIT.java
++++ b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/ShrinkIndexIT.java
+@@ -51,6 +51,7 @@
+ import org.elasticsearch.indices.IndicesService;
+ import org.elasticsearch.test.ESIntegTestCase;
+ import org.elasticsearch.test.index.IndexVersionUtils;
++import org.elasticsearch.xcontent.ObjectPath;
+ import org.elasticsearch.xcontent.XContentType;
+ 
+ import java.util.Arrays;
+@@ -614,6 +615,63 @@ public void testShrinkThenSplitWithFailedNode() throws Exception {
+         assertNoResizeSourceIndexSettings("splitagain");
+     }
+ 
++    /**
++     * Tests that shrinking a logsdb index with a non-default timestamp mapping doesn't result in any mapping conflicts.
++     */
++    public void testShrinkLogsdbIndexWithNonDefaultTimestamp() {
++        // Create a logsdb index with a date_nanos @timestamp field
++        final var settings = indexSettings(2, 0).put("index.mode", "logsdb")
++            .put("index.blocks.write", true)
++            .put("index.routing.allocation.require._name", internalCluster().getRandomDataNodeName());
++        prepareCreate("source").setSettings(settings).setMapping("@timestamp", "type=date_nanos").get();
++        ensureGreen();
++
++        // Shrink the index
++        indicesAdmin().prepareResizeIndex("source", "target")
++            .setResizeType(ResizeType.SHRINK)
++            // We need to explicitly set the number of replicas in case the source has 0 replicas and the cluster has only 1 data node
++            .setSettings(Settings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0).build())
++            .get();
++
++        // Verify that the target index has the correct @timestamp mapping
++        final var targetMappings = indicesAdmin().prepareGetMappings(TEST_REQUEST_TIMEOUT, "target").get();
++        assertThat(
++            ObjectPath.eval("properties.@timestamp.type", targetMappings.mappings().get("target").getSourceAsMap()),
++            equalTo("date_nanos")
++        );
++        ensureGreen();
++    }
++
++    /**
++     * Tests that shrinking a time series index with a non-default timestamp mapping doesn't result in any mapping conflicts.
++     */
++    public void testShrinkTimeSeriesIndexWithNonDefaultTimestamp() {
++        // Create a time series index with a date_nanos @timestamp field
++        final var settings = indexSettings(2, 0).put("index.mode", "time_series")
++            .put("index.routing_path", "sensor_id")
++            .put("index.routing.allocation.require._name", internalCluster().getRandomDataNodeName())
++            .put("index.blocks.write", true);
++        prepareCreate("source").setSettings(settings)
++            .setMapping("@timestamp", "type=date_nanos", "sensor_id", "type=keyword,time_series_dimension=true")
++            .get();
++        ensureGreen();
++
++        // Shrink the index
++        indicesAdmin().prepareResizeIndex("source", "target")
++            .setResizeType(ResizeType.SHRINK)
++            // We need to explicitly set the number of replicas in case the source has 0 replicas and the cluster has only 1 data node
++            .setSettings(Settings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0).build())
++            .get();
++
++        // Verify that the target index has the correct @timestamp mapping
++        final var targetMappings = indicesAdmin().prepareGetMappings(TEST_REQUEST_TIMEOUT, "target").get();
++        assertThat(
++            ObjectPath.eval("properties.@timestamp.type", targetMappings.mappings().get("target").getSourceAsMap()),
++            equalTo("date_nanos")
++        );
++        ensureGreen();
++    }
++
+     static void assertNoResizeSourceIndexSettings(final String index) {
+         ClusterStateResponse clusterStateResponse = clusterAdmin().prepareState(TEST_REQUEST_TIMEOUT)
+             .clear()
+diff --git a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/SplitIndexIT.java b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/SplitIndexIT.java
+index 5a483df773097..5055430310703 100644
+--- a/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/SplitIndexIT.java
++++ b/server/src/internalClusterTest/java/org/elasticsearch/action/admin/indices/create/SplitIndexIT.java
+@@ -46,6 +46,7 @@
+ import org.elasticsearch.indices.IndicesService;
+ import org.elasticsearch.test.ESIntegTestCase;
+ import org.elasticsearch.test.index.IndexVersionUtils;
++import org.elasticsearch.xcontent.ObjectPath;
+ import org.elasticsearch.xcontent.XContentType;
+ 
+ import java.io.IOException;
+@@ -496,4 +497,31 @@ public void testCreateSplitWithIndexSort() throws Exception {
+         assertSortedSegments("target", expectedIndexSort);
+         assertNoResizeSourceIndexSettings("target");
+     }
++
++    /**
++     * Tests that splitting a logsdb index with a non-default timestamp mapping doesn't result in any mapping conflicts.
++     * N.B.: we don't test time_series indices as split is not supported for them.
++     */
++    public void testSplitLogsdbIndexWithNonDefaultTimestamp() {
++        // Create a logsdb index with a date_nanos @timestamp field
++        final int numberOfReplicas = randomInt(internalCluster().numDataNodes() - 1);
++        final var settings = indexSettings(1, numberOfReplicas).put("index.mode", "logsdb").put("index.blocks.write", true);
++        prepareCreate("source").setSettings(settings).setMapping("@timestamp", "type=date_nanos").get();
++        ensureGreen();
++
++        // Split the index
++        indicesAdmin().prepareResizeIndex("source", "target")
++            .setResizeType(ResizeType.SPLIT)
++            // We need to explicitly set the number of replicas in case the source has 0 replicas and the cluster has only 1 data node
++            .setSettings(Settings.builder().put("index.number_of_shards", 2).put("index.number_of_replicas", numberOfReplicas).build())
++            .get();
++
++        // Verify that the target index has the correct @timestamp mapping
++        final var targetMappings = indicesAdmin().prepareGetMappings(TEST_REQUEST_TIMEOUT, "target").get();
++        assertThat(
++            ObjectPath.eval("properties.@timestamp.type", targetMappings.mappings().get("target").getSourceAsMap()),
++            equalTo("date_nanos")
++        );
++        ensureGreen();
++    }
+ }
+diff --git a/server/src/main/java/org/elasticsearch/cluster/metadata/MetadataCreateIndexService.java b/server/src/main/java/org/elasticsearch/cluster/metadata/MetadataCreateIndexService.java
+index 4e8632ca18657..44bf6b93c014f 100644
+--- a/server/src/main/java/org/elasticsearch/cluster/metadata/MetadataCreateIndexService.java
++++ b/server/src/main/java/org/elasticsearch/cluster/metadata/MetadataCreateIndexService.java
+@@ -543,11 +543,15 @@ private ClusterState applyCreateIndexWithTemporaryService(
+         assert indicesService.hasIndex(temporaryIndexMeta.getIndex()) == false
+             : Strings.format("Index [%s] already exists", temporaryIndexMeta.getIndex().getName());
+         return indicesService.<ClusterState, Exception>withTempIndexService(temporaryIndexMeta, indexService -> {
+-            try {
+-                updateIndexMappingsAndBuildSortOrder(indexService, request, mappings, sourceMetadata);
+-            } catch (Exception e) {
+-                logger.log(silent ? Level.DEBUG : Level.INFO, "failed on parsing mappings on index creation [{}]", request.index(), e);
+-                throw e;
++            // If we're creating the index from an existing index, we should not provide any mappings, as the new index shards will take
++            // care of copying the mappings from the source index during recovery. Providing mappings here would cause conflicts.
++            if (sourceMetadata == null) {
++                try {
++                    updateIndexMappingsAndBuildSortOrder(indexService, request, mappings);
++                } catch (Exception e) {
++                    logger.log(silent ? Level.DEBUG : Level.INFO, "failed on parsing mappings on index creation [{}]", request.index(), e);
++                    throw e;
++                }
+             }
+ 
+             final List<AliasMetadata> aliases = aliasSupplier.apply(indexService);
+@@ -1550,8 +1554,7 @@ private static IndexMetadata.Builder createIndexMetadataBuilder(
+     private static void updateIndexMappingsAndBuildSortOrder(
+         IndexService indexService,
+         CreateIndexClusterStateUpdateRequest request,
+-        List<CompressedXContent> mappings,
+-        @Nullable IndexMetadata sourceMetadata
++        List<CompressedXContent> mappings
+     ) throws IOException {
+         MapperService mapperService = indexService.mapperService();
+         IndexMode indexMode = indexService.getIndexSettings() != null ? indexService.getIndexSettings().getMode() : IndexMode.STANDARD;
+@@ -1565,13 +1568,11 @@ private static void updateIndexMappingsAndBuildSortOrder(
+ 
+         indexMode.validateTimestampFieldMapping(request.dataStreamName() != null, mapperService.mappingLookup());
+ 
+-        if (sourceMetadata == null) {
+-            // now that the mapping is merged we can validate the index sort.
+-            // we cannot validate for index shrinking since the mapping is empty
+-            // at this point. The validation will take place later in the process
+-            // (when all shards are copied in a single place).
+-            indexService.getIndexSortSupplier().get();
+-        }
++        // now that the mapping is merged we can validate the index sort.
++        // we cannot validate for index shrinking since the mapping is empty
++        // at this point. The validation will take place later in the process
++        // (when all shards are copied in a single place).
++        indexService.getIndexSortSupplier().get();
+     }
+ 
+     private static void validateActiveShardCount(ActiveShardCount waitForActiveShards, IndexMetadata indexMetadata) {
+diff --git a/test/framework/src/main/java/org/elasticsearch/test/InternalTestCluster.java b/test/framework/src/main/java/org/elasticsearch/test/InternalTestCluster.java
+index 9e13105994de6..59bf3fddf13ba 100644
+--- a/test/framework/src/main/java/org/elasticsearch/test/InternalTestCluster.java
++++ b/test/framework/src/main/java/org/elasticsearch/test/InternalTestCluster.java
+@@ -2114,6 +2114,13 @@ public String getRandomNodeName() {
+         return getNodeNameThat(Predicates.always());
+     }
+ 
++    /**
++     * @return the name of a random data node in a cluster
++     */
++    public String getRandomDataNodeName() {
++        return getNodeNameThat(DiscoveryNode::canContainData);
++    }
++
+     /**
+      * @return the name of a random node in a cluster that match the {@code predicate}
+      */

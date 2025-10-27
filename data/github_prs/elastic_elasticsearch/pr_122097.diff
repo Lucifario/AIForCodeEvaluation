@@ -1,0 +1,105 @@
+diff --git a/server/src/test/java/org/elasticsearch/action/search/SearchResponseTests.java b/server/src/test/java/org/elasticsearch/action/search/SearchResponseTests.java
+index 1b0b9c853f6ce..90591250f8058 100644
+--- a/server/src/test/java/org/elasticsearch/action/search/SearchResponseTests.java
++++ b/server/src/test/java/org/elasticsearch/action/search/SearchResponseTests.java
+@@ -43,6 +43,7 @@
+ import java.util.ArrayList;
+ import java.util.Collections;
+ import java.util.List;
++import java.util.function.Supplier;
+ 
+ import static java.util.Collections.emptyList;
+ import static java.util.Collections.singletonMap;
+@@ -144,7 +145,7 @@ static SearchResponse.Clusters randomClusters() {
+      * compare xContent, so we omit it here
+      */
+     public void testFromXContent() throws IOException {
+-        doFromXContentTestWithRandomFields(createTestItem(), false);
++        doFromXContentTestWithRandomFields(this::createTestItem, false);
+     }
+ 
+     /**
+@@ -154,11 +155,16 @@ public void testFromXContent() throws IOException {
+      * fields to SearchHits, Aggregations etc... is tested in their own tests
+      */
+     public void testFromXContentWithRandomFields() throws IOException {
+-        doFromXContentTestWithRandomFields(createMinimalTestItem(), true);
++        doFromXContentTestWithRandomFields(this::createMinimalTestItem, true);
+     }
+ 
+-    private void doFromXContentTestWithRandomFields(SearchResponse response, boolean addRandomFields) throws IOException {
++    private void doFromXContentTestWithRandomFields(Supplier<SearchResponse> responseSupplier, boolean addRandomFields) throws IOException {
++        SearchResponse response = responseSupplier.get();
+         XContentType xcontentType = randomFrom(XContentType.values());
++        if (xcontentType.equals(XContentType.YAML) && isLargeResponse(response)) {
++            // restrict YAML xContent response to < 3MB because of limit in snakeyaml input
++            response = randomValueOtherThanMany(SearchResponseTests::isLargeResponse, responseSupplier);
++        }
+         boolean humanReadable = randomBoolean();
+         final ToXContent.Params params = new ToXContent.MapParams(singletonMap(RestSearchAction.TYPED_KEYS_PARAM, "true"));
+         BytesReference originalBytes = toShuffledXContent(response, xcontentType, params, humanReadable);
+@@ -190,6 +196,10 @@ public void testFromXContentWithFailures() throws IOException {
+         }
+         SearchResponse response = createTestItem(failures);
+         XContentType xcontentType = randomFrom(XContentType.values());
++        if (xcontentType.equals(XContentType.YAML) && isLargeResponse(response)) {
++            // restrict YAML xContent response to < 3MB because of limit in snakeyaml input
++            response = randomValueOtherThanMany(SearchResponseTests::isLargeResponse, () -> createTestItem(failures));
++        }
+         final ToXContent.Params params = new ToXContent.MapParams(singletonMap(RestSearchAction.TYPED_KEYS_PARAM, "true"));
+         BytesReference originalBytes = toShuffledXContent(response, xcontentType, params, randomBoolean());
+         try (XContentParser parser = createParser(xcontentType.xContent(), originalBytes)) {
+@@ -216,6 +226,14 @@ public void testFromXContentWithFailures() throws IOException {
+         }
+     }
+ 
++    /**
++     * returns true if the response object string is larger than 3 MB since this might create issues with YAML
++     * xContent parsing
++     */
++    private static boolean isLargeResponse(SearchResponse response) {
++        return Strings.toString(response).length() > 3 * 1024 * 1024;
++    }
++
+     public void testToXContent() {
+         SearchHit hit = new SearchHit(1, "id1", new Text("type"), Collections.emptyMap(), Collections.emptyMap());
+         hit.score(2.0f);
+diff --git a/server/src/test/java/org/elasticsearch/search/aggregations/AggregationsTests.java b/server/src/test/java/org/elasticsearch/search/aggregations/AggregationsTests.java
+index b80932381ab7f..e92d38d4f168c 100644
+--- a/server/src/test/java/org/elasticsearch/search/aggregations/AggregationsTests.java
++++ b/server/src/test/java/org/elasticsearch/search/aggregations/AggregationsTests.java
+@@ -9,6 +9,7 @@
+ package org.elasticsearch.search.aggregations;
+ 
+ import org.elasticsearch.common.ParsingException;
++import org.elasticsearch.common.Strings;
+ import org.elasticsearch.common.bytes.BytesReference;
+ import org.elasticsearch.common.xcontent.XContentHelper;
+ import org.elasticsearch.rest.action.search.RestSearchAction;
+@@ -207,6 +208,11 @@ private void parseAndAssert(boolean addRandomFields) throws IOException {
+         XContentType xContentType = randomFrom(XContentType.values());
+         final ToXContent.Params params = new ToXContent.MapParams(singletonMap(RestSearchAction.TYPED_KEYS_PARAM, "true"));
+         Aggregations aggregations = createTestInstance();
++        if (xContentType.equals(XContentType.YAML) && isLargeAgg(aggregations)) {
++            // restrict YAML xContent response to < 3MB because of limit in snakeyaml input
++            aggregations = randomValueOtherThanMany(AggregationsTests::isLargeAgg, this::createTestInstance);
++        }
++
+         BytesReference originalBytes = toShuffledXContent(aggregations, xContentType, params, randomBoolean());
+         BytesReference mutated;
+         if (addRandomFields) {
+@@ -252,6 +258,14 @@ private void parseAndAssert(boolean addRandomFields) throws IOException {
+         }
+     }
+ 
++    /**
++     * returns true if the aggregation object string is larger than 3 MB since this might create issues with YAML
++     * xContent parsing
++     */
++    private static boolean isLargeAgg(Aggregations agg) {
++        return Strings.toString(agg).length() > 3 * 1024 * 1024;
++    }
++
+     public void testParsingExceptionOnUnknownAggregation() throws IOException {
+         XContentBuilder builder = XContentFactory.jsonBuilder();
+         builder.startObject();

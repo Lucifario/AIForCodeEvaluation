@@ -1,0 +1,545 @@
+{
+  "id": 137108,
+  "repository": "elastic/elasticsearch",
+  "title": "[8.19] rest-api-spec: Omit params and path parts if empty (#136641)",
+  "body": "# Backport\n\nThis will backport the following commits from `main` to `8.19`:\n - [rest-api-spec: Omit params and path parts if empty (#136641)](https://github.com/elastic/elasticsearch/pull/136641)\n\n<!--- Backport version: 10.0.1 -->\n\n### Questions ?\nPlease refer to the [Backport tool documentation](https://github.com/sorenlouv/backport)",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T15:27:09+00:00",
+  "created_at": "2025-10-24T13:36:03+00:00",
+  "updated_at": "2025-10-24T15:27:09+00:00",
+  "author": "pquentin",
+  "reviewers": [],
+  "base_sha": "3cceb31a58e841e6cd36286d17655fece7a74973",
+  "head_sha": "cfa79076a9f6e37f9a16d8cc28bf5e5cd9764caa",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/clear_scroll.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -42,7 +42,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"A comma-separated list of scroll IDs to clear if none was specified via the scroll_id parameter\",\n       \"required\": false"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/close_point_in_time.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"a point-in-time id to close\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/cluster.info.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -33,7 +33,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/cluster.remote_info.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_delete.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_get.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_post.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -21,7 +21,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The secret value to store\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_put.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -27,7 +27,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The secret value to store\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/dangling_indices.list_dangling_indices.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/fleet.delete_secret.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/fleet.get_secret.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/fleet.msearch.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -38,7 +38,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The request definitions (metadata-fleet search request definition pairs), separated by newlines\",\n       \"required\": true,"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/fleet.post_secret.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -21,7 +21,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The secret value to store\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/get_script_context.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/get_script_languages.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ilm.get_status.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ilm.move_to_step.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -30,7 +30,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The new lifecycle step to move to\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ilm.remove_policy.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ilm.retry.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/indices.downsample.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -36,7 +36,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The downsampling configuration\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/indices.modify_data_stream.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The data stream modifications\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/info.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_geoip_database.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_ip_location_database.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ingest.processor_grok.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/license.get_basic_status.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/license.get_trial_status.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/logstash.delete_pipeline.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/logstash.get_pipeline.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/logstash.put_pipeline.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -30,7 +30,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The Pipeline to add or update\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/migration.deprecations.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/migration.get_feature_upgrade_status.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/migration.post_feature_upgrade.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ml.estimate_model_memory.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The analysis config, plus cardinality estimates for fields it references\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ml.explain_data_frame_analytics.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -21,8 +21,7 @@\n           \"methods\": [\n             \"GET\",\n             \"POST\"\n-          ],\n-          \"parts\": {}\n+          ]\n         },\n         {\n           \"path\": \"/_ml/data_frame/analytics/{id}/_explain\","
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ml.preview_data_frame_analytics.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -21,8 +21,7 @@\n           \"methods\": [\n             \"GET\",\n             \"POST\"\n-          ],\n-          \"parts\": {}\n+          ]\n         },\n         {\n           \"path\": \"/_ml/data_frame/analytics/{id}/_preview\","
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ml.update_model_snapshot.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -34,7 +34,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The model snapshot properties to update\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The job config\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate_detector.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The detector\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ping.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/scripts_painless_execute.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The script to execute\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.authenticate.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_api_key_cache.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_privileges.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_roles.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_service_tokens.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -34,7 +34,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.create_cross_cluster_api_key.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The request to create a cross-cluster API key\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.delegate_pki.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -21,7 +21,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The X509Certificate chain.\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_builtin_privileges.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_privileges.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -48,7 +48,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -32,7 +32,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role_mapping.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -32,7 +32,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_accounts.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -48,7 +48,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_credentials.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -30,7 +30,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_token.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The token request to get\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.get_user_privileges.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -38,7 +38,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The privileges to test\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges_user_profile.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The privileges to check and the list of profile IDs\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/security.invalidate_token.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The token to invalidate\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/shutdown.get_node.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,8 +20,7 @@\n           \"path\": \"/_nodes/shutdown\",\n           \"methods\": [\n             \"GET\"\n-          ],\n-          \"parts\": {}\n+          ]\n         },\n         {\n           \"path\": \"/_nodes/{node_id}/shutdown\","
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/sql.translate.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"Specify the query in the `query` element.\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/ssl.certificates.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/terms_enum.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -31,7 +31,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"field name, string which is the prefix expected in matching terms, timeout and size for max number of results\",\n       \"required\": true"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/watcher.get_watch.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "changes": 3,
+      "patch": "@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/watcher.query_watches.json",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 1,
+      "changes": 1,
+      "patch": "@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"From, size, query, sort and search_after\",\n       \"required\": false"
+    }
+  ],
+  "diff": "diff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/clear_scroll.json b/rest-api-spec/src/main/resources/rest-api-spec/api/clear_scroll.json\nindex d8a0dabcf7a0b..592bd10cc0fdf 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/clear_scroll.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/clear_scroll.json\n@@ -42,7 +42,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"A comma-separated list of scroll IDs to clear if none was specified via the scroll_id parameter\",\n       \"required\": false\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/close_point_in_time.json b/rest-api-spec/src/main/resources/rest-api-spec/api/close_point_in_time.json\nindex 3e7f691f96e7c..bcbe195288f6b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/close_point_in_time.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/close_point_in_time.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"a point-in-time id to close\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.info.json b/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.info.json\nindex 58bf3e50037ed..7515cb23782cc 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.info.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.info.json\n@@ -33,7 +33,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.remote_info.json b/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.remote_info.json\nindex 3d5b523193123..1cc336abda8a8 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.remote_info.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.remote_info.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_delete.json b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_delete.json\nindex 35bebccd0213c..a54b5a6e34ed1 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_delete.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_delete.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_get.json b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_get.json\nindex a5d285bea80a7..ecb03accfafdf 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_get.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_get.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_post.json b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_post.json\nindex 09dd0f2e220b3..90482f564772f 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_post.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_post.json\n@@ -21,7 +21,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The secret value to store\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_put.json b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_put.json\nindex b4837502acc4b..54ba5701e582c 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_put.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/connector.secret_put.json\n@@ -27,7 +27,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The secret value to store\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/dangling_indices.list_dangling_indices.json b/rest-api-spec/src/main/resources/rest-api-spec/api/dangling_indices.list_dangling_indices.json\nindex 24b935f08293a..26580e17852fe 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/dangling_indices.list_dangling_indices.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/dangling_indices.list_dangling_indices.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.delete_secret.json b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.delete_secret.json\nindex 1c65c13fc2b78..8f12dfe6ea676 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.delete_secret.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.delete_secret.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.get_secret.json b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.get_secret.json\nindex 54fa3010b8859..6b501beb10762 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.get_secret.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.get_secret.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.msearch.json b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.msearch.json\nindex 0785e36ecbc41..18699e492f05e 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.msearch.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.msearch.json\n@@ -38,7 +38,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The request definitions (metadata-fleet search request definition pairs), separated by newlines\",\n       \"required\": true,\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.post_secret.json b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.post_secret.json\nindex 63635820950b5..06cf37511dba1 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.post_secret.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/fleet.post_secret.json\n@@ -21,7 +21,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The secret value to store\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_context.json b/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_context.json\nindex 2acf497c0384b..9365345957f69 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_context.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_context.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_languages.json b/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_languages.json\nindex 1452f279b9767..014f2634957d3 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_languages.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/get_script_languages.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.get_status.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.get_status.json\nindex 11317c02fdc15..7762842aea82b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.get_status.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.get_status.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.move_to_step.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.move_to_step.json\nindex d7a415d220927..5124c8b92a062 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.move_to_step.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.move_to_step.json\n@@ -30,7 +30,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The new lifecycle step to move to\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.remove_policy.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.remove_policy.json\nindex 703db19fd4293..4235f94372c97 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.remove_policy.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.remove_policy.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.retry.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.retry.json\nindex ebd3b8ff41056..77d20b60bf4a7 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.retry.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ilm.retry.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.downsample.json b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.downsample.json\nindex c8f4e9cdb3c06..bda4cc9d1e12c 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.downsample.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.downsample.json\n@@ -36,7 +36,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The downsampling configuration\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.modify_data_stream.json b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.modify_data_stream.json\nindex a074793f4e991..6b9483e443815 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.modify_data_stream.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.modify_data_stream.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The data stream modifications\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/info.json b/rest-api-spec/src/main/resources/rest-api-spec/api/info.json\nindex d6838d301cbf7..da583af8d4d1a 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/info.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/info.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_geoip_database.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_geoip_database.json\nindex 63989521ec1f9..27219f10b9eb6 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_geoip_database.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_geoip_database.json\n@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_ip_location_database.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_ip_location_database.json\nindex 608429b41666d..57faf8b294ead 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_ip_location_database.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.get_ip_location_database.json\n@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.processor_grok.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.processor_grok.json\nindex a2003a062c4d3..03f99f70ae2f9 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.processor_grok.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ingest.processor_grok.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_basic_status.json b/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_basic_status.json\nindex a96b5b60131f2..38979245b0459 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_basic_status.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_basic_status.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_trial_status.json b/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_trial_status.json\nindex a3a3f3f3a0e13..688dabe493da8 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_trial_status.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/license.get_trial_status.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.delete_pipeline.json b/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.delete_pipeline.json\nindex c3a5b82dbff97..6cc8e529fb856 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.delete_pipeline.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.delete_pipeline.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.get_pipeline.json b/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.get_pipeline.json\nindex e58539e81a7c8..2fbf2d4aa7569 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.get_pipeline.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.get_pipeline.json\n@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.put_pipeline.json b/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.put_pipeline.json\nindex f3f2856f1691e..f9a20b3764b98 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.put_pipeline.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/logstash.put_pipeline.json\n@@ -30,7 +30,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The Pipeline to add or update\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/migration.deprecations.json b/rest-api-spec/src/main/resources/rest-api-spec/api/migration.deprecations.json\nindex 9be68852e7507..e083de44e5035 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/migration.deprecations.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/migration.deprecations.json\n@@ -32,7 +32,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/migration.get_feature_upgrade_status.json b/rest-api-spec/src/main/resources/rest-api-spec/api/migration.get_feature_upgrade_status.json\nindex ec42b401ec2b1..16b83c1df4436 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/migration.get_feature_upgrade_status.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/migration.get_feature_upgrade_status.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/migration.post_feature_upgrade.json b/rest-api-spec/src/main/resources/rest-api-spec/api/migration.post_feature_upgrade.json\nindex f8c9d7c9e5bc0..e7e918d8faf73 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/migration.post_feature_upgrade.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/migration.post_feature_upgrade.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.estimate_model_memory.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.estimate_model_memory.json\nindex d166dbc925888..fc56bc52e2e4b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.estimate_model_memory.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.estimate_model_memory.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The analysis config, plus cardinality estimates for fields it references\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.explain_data_frame_analytics.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.explain_data_frame_analytics.json\nindex 6ffa7c175cbfc..e623834a02fa1 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.explain_data_frame_analytics.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.explain_data_frame_analytics.json\n@@ -21,8 +21,7 @@\n           \"methods\": [\n             \"GET\",\n             \"POST\"\n-          ],\n-          \"parts\": {}\n+          ]\n         },\n         {\n           \"path\": \"/_ml/data_frame/analytics/{id}/_explain\",\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.preview_data_frame_analytics.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.preview_data_frame_analytics.json\nindex 78ad225f62898..cde501b9afe47 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.preview_data_frame_analytics.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.preview_data_frame_analytics.json\n@@ -21,8 +21,7 @@\n           \"methods\": [\n             \"GET\",\n             \"POST\"\n-          ],\n-          \"parts\": {}\n+          ]\n         },\n         {\n           \"path\": \"/_ml/data_frame/analytics/{id}/_preview\",\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.update_model_snapshot.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.update_model_snapshot.json\nindex 9c281acc1d925..7cf19623025b4 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.update_model_snapshot.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.update_model_snapshot.json\n@@ -34,7 +34,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The model snapshot properties to update\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate.json\nindex 93a156670422d..18b1b2f551157 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The job config\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate_detector.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate_detector.json\nindex 99134a9146d69..683151d482407 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate_detector.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ml.validate_detector.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The detector\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ping.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ping.json\nindex 5e43708f53fca..262780e0535d4 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ping.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ping.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/scripts_painless_execute.json b/rest-api-spec/src/main/resources/rest-api-spec/api/scripts_painless_execute.json\nindex f9f32e94adff7..c9d830d88bd5c 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/scripts_painless_execute.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/scripts_painless_execute.json\n@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The script to execute\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.authenticate.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.authenticate.json\nindex a8399c8f491db..c2e4fb97d1e48 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.authenticate.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.authenticate.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_api_key_cache.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_api_key_cache.json\nindex dfb15a802426a..3ae5dc8fd3590 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_api_key_cache.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_api_key_cache.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_privileges.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_privileges.json\nindex 8cdbe469265b5..0696b281ede36 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_privileges.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_privileges.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_roles.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_roles.json\nindex 1371be935a38a..e4bee19e1f9ad 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_roles.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_roles.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_service_tokens.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_service_tokens.json\nindex 373bdc1a612e3..93eb93716e733 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_service_tokens.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.clear_cached_service_tokens.json\n@@ -34,7 +34,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.create_cross_cluster_api_key.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.create_cross_cluster_api_key.json\nindex b8bdd2a591636..9ad5796accf40 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.create_cross_cluster_api_key.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.create_cross_cluster_api_key.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The request to create a cross-cluster API key\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.delegate_pki.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.delegate_pki.json\nindex eae49bfac9e93..275179193545b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.delegate_pki.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.delegate_pki.json\n@@ -21,7 +21,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The X509Certificate chain.\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_builtin_privileges.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_builtin_privileges.json\nindex cca0e8a92f1fe..66cb3750e6b61 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_builtin_privileges.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_builtin_privileges.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_privileges.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_privileges.json\nindex 151e1fa03af77..c521c577a67c0 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_privileges.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_privileges.json\n@@ -48,7 +48,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role.json\nindex 15266a79d0ead..118c4b8c31efa 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role.json\n@@ -32,7 +32,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role_mapping.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role_mapping.json\nindex 6b071167a220b..f34d1f77cd842 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role_mapping.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_role_mapping.json\n@@ -32,7 +32,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_accounts.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_accounts.json\nindex a63c97410be91..596997764d4c5 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_accounts.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_accounts.json\n@@ -48,7 +48,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_credentials.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_credentials.json\nindex 77e0489744f7a..691d8bc72a198 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_credentials.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_service_credentials.json\n@@ -30,7 +30,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_token.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_token.json\nindex aa20daed86f65..34acc1b2e9e83 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_token.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_token.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The token request to get\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_user_privileges.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_user_privileges.json\nindex d742052292d8a..e36e8f62b0840 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_user_privileges.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.get_user_privileges.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges.json\nindex 0c596659e784d..04e33178fb5a9 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges.json\n@@ -38,7 +38,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The privileges to test\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges_user_profile.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges_user_profile.json\nindex 7458ca6bffccd..446ff31b556fa 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges_user_profile.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.has_privileges_user_profile.json\n@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The privileges to check and the list of profile IDs\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/security.invalidate_token.json b/rest-api-spec/src/main/resources/rest-api-spec/api/security.invalidate_token.json\nindex bb5644b8738b1..1014724d5f5f2 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/security.invalidate_token.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/security.invalidate_token.json\n@@ -24,7 +24,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"The token to invalidate\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/shutdown.get_node.json b/rest-api-spec/src/main/resources/rest-api-spec/api/shutdown.get_node.json\nindex 04555e0beb855..c4b7e7d1ce9c4 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/shutdown.get_node.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/shutdown.get_node.json\n@@ -20,8 +20,7 @@\n           \"path\": \"/_nodes/shutdown\",\n           \"methods\": [\n             \"GET\"\n-          ],\n-          \"parts\": {}\n+          ]\n         },\n         {\n           \"path\": \"/_nodes/{node_id}/shutdown\",\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/sql.translate.json b/rest-api-spec/src/main/resources/rest-api-spec/api/sql.translate.json\nindex 950bdc104e987..3d2be2edc1501 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/sql.translate.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/sql.translate.json\n@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"Specify the query in the `query` element.\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/ssl.certificates.json b/rest-api-spec/src/main/resources/rest-api-spec/api/ssl.certificates.json\nindex 3fa1f285b1ece..d3b720d798b34 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/ssl.certificates.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/ssl.certificates.json\n@@ -20,7 +20,6 @@\n           ]\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/terms_enum.json b/rest-api-spec/src/main/resources/rest-api-spec/api/terms_enum.json\nindex d5ebf076bbef6..4e7364673bb95 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/terms_enum.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/terms_enum.json\n@@ -31,7 +31,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"field name, string which is the prefix expected in matching terms, timeout and size for max number of results\",\n       \"required\": true\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.get_watch.json b/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.get_watch.json\nindex fba5197800e8e..4b9df02ac2040 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.get_watch.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.get_watch.json\n@@ -26,7 +26,6 @@\n           }\n         }\n       ]\n-    },\n-    \"params\": {}\n+    }\n   }\n }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.query_watches.json b/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.query_watches.json\nindex ba1e934ed1766..a77076edf2789 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.query_watches.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/watcher.query_watches.json\n@@ -25,7 +25,6 @@\n         }\n       ]\n     },\n-    \"params\": {},\n     \"body\": {\n       \"description\": \"From, size, query, sort and search_after\",\n       \"required\": false\n",
+  "additions": 41,
+  "deletions": 106,
+  "changed_files": 65,
+  "url": "https://github.com/elastic/elasticsearch/pull/137108",
+  "mined_at": "2025-10-25T13:17:52.389527"
+}

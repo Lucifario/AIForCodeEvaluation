@@ -1,0 +1,168 @@
+{
+  "id": 137017,
+  "repository": "elastic/elasticsearch",
+  "title": "ES|QL: manage INLINE STATS count(*) on result sets with no columns",
+  "body": "Fixing queries where INLINE STATS count(*) is calculated on results with no columns, eg.\r\n\r\n```\r\nFROM employees\r\n| KEEP emp_no\r\n| DROP emp_no\r\n| INLINE STATS count(*)\r\n```\r\n\r\nFixes: https://github.com/elastic/elasticsearch/issues/136851",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T13:03:57+00:00",
+  "created_at": "2025-10-23T10:20:46+00:00",
+  "updated_at": "2025-10-24T13:57:35+00:00",
+  "author": "luigidellaquila",
+  "reviewers": [
+    "luigidellaquila",
+    "astefan",
+    "cimequinox"
+  ],
+  "base_sha": "93d08aaf3dc6c1924e32e5500abcf14cf0c53815",
+  "head_sha": "720bc36057c33f21b343e7ea1fa73db31780b05c",
+  "review_comments": [
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T10:22:09+00:00"
+    },
+    {
+      "user": "cimequinox",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T12:17:32+00:00"
+    },
+    {
+      "user": "cimequinox",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T12:27:37+00:00"
+    },
+    {
+      "user": "cimequinox",
+      "state": "COMMENTED",
+      "body": "The change relies on properties of the mask when encountering blocks with no values.  The calculations appear correct.  \r\n\r\nTwo suggestions:\r\n* It would be good to add a comment describing the intent of the -1 constant returned by `blockIndex`. \r\n* The count calculation on line 107 could be simplified to `count = block.getTotalValueCount();`\r\n\r\n",
+      "submitted_at": "2025-10-23T12:54:16+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T13:17:23+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T13:20:58+00:00"
+    },
+    {
+      "user": "cimequinox",
+      "state": "APPROVED",
+      "body": "",
+      "submitted_at": "2025-10-23T13:35:51+00:00"
+    },
+    {
+      "user": "astefan",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T14:26:21+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T14:50:27+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T14:55:54+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-23T15:13:30+00:00"
+    },
+    {
+      "user": "astefan",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-24T09:49:51+00:00"
+    },
+    {
+      "user": "astefan",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-24T12:35:36+00:00"
+    },
+    {
+      "user": "astefan",
+      "state": "APPROVED",
+      "body": "LGTM",
+      "submitted_at": "2025-10-24T12:36:22+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "state": "COMMENTED",
+      "body": "",
+      "submitted_at": "2025-10-24T13:57:35+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/es-analytical-engine (Team:Analytics)",
+      "created_at": "2025-10-23T10:21:10+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "Hi @luigidellaquila, I've created a changelog YAML for you.",
+      "created_at": "2025-10-23T10:21:35+00:00"
+    },
+    {
+      "user": "luigidellaquila",
+      "body": "Thanks @cimequinox, I pushed a fix for the suggested changes",
+      "created_at": "2025-10-23T13:30:49+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/changelog/137017.yaml",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "patch": "@@ -0,0 +1,5 @@\n+pr: 137017\n+summary: Manage INLINE STATS count(*) on result sets with no columns\n+area: ES|QL\n+type: bug\n+issues: []"
+    },
+    {
+      "filename": "x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/CountAggregatorFunction.java",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 10,
+      "changes": 39,
+      "patch": "@@ -78,23 +78,42 @@ public int intermediateBlockCount() {\n     }\n \n     private int blockIndex() {\n-        return countAll ? 0 : channels.get(0);\n+        // In case of countAll, block index is irrelevant.\n+        // Page.positionCount should be used instead,\n+        // because the page could have zero blocks\n+        // (drop all columns scenario)\n+        return countAll ? -1 : channels.get(0);\n     }\n \n     @Override\n     public void addRawInput(Page page, BooleanVector mask) {\n-        Block block = page.getBlock(blockIndex());\n-        LongState state = this.state;\n-        int count;\n-        if (mask.isConstant()) {\n-            if (mask.getBoolean(0) == false) {\n-                return;\n+        if (countAll) {\n+            // this will work also when the page has no blocks\n+            if (mask.isConstant() && mask.getBoolean(0)) {\n+                state.longValue(state.longValue() + page.getPositionCount());\n+            } else {\n+                int count = 0;\n+                for (int i = 0; i < mask.getPositionCount(); i++) {\n+                    if (mask.getBoolean(i)) {\n+                        count++;\n+                    }\n+                }\n+                state.longValue(state.longValue() + count);\n             }\n-            count = countAll ? block.getPositionCount() : block.getTotalValueCount();\n         } else {\n-            count = countMasked(block, mask);\n+            Block block = page.getBlock(blockIndex());\n+            LongState state = this.state;\n+            int count;\n+            if (mask.isConstant()) {\n+                if (mask.getBoolean(0) == false) {\n+                    return;\n+                }\n+                count = block.getTotalValueCount();\n+            } else {\n+                count = countMasked(block, mask);\n+            }\n+            state.longValue(state.longValue() + count);\n         }\n-        state.longValue(state.longValue() + count);\n     }\n \n     private int countMasked(Block block, BooleanVector mask) {"
+    },
+    {
+      "filename": "x-pack/plugin/esql/qa/testFixtures/src/main/resources/inlinestats.csv-spec",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "changes": 29,
+      "patch": "@@ -4362,3 +4362,32 @@ from employees\n c:long\n 1\n ;\n+\n+\n+inlineStatsKeepDropCountStar\n+required_capability: inline_stats_with_no_columns\n+\n+from employees\n+| keep emp_no\n+| drop emp_no\n+| inline stats c = count(*)\n+| limit 3\n+;\n+\n+c:long\n+100\n+100\n+100\n+;\n+\n+rowInlineStatsKeepDropCountStar\n+required_capability: inline_stats_with_no_columns\n+\n+row a = 1\n+| drop a\n+| inline stats c = count(*)\n+;\n+\n+c:long\n+1\n+;"
+    },
+    {
+      "filename": "x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "patch": "@@ -1563,11 +1563,17 @@ public enum Cap {\n          * Temporarily forbid the use of an explicit or implicit LIMIT before INLINE STATS.\n          */\n         FORBID_LIMIT_BEFORE_INLINE_STATS(INLINE_STATS.enabled),\n+\n         /**\n          * Support for the TRANGE function\n          */\n         FN_TRANGE,\n \n+        /**\n+         * https://github.com/elastic/elasticsearch/issues/136851\n+         */\n+        INLINE_STATS_WITH_NO_COLUMNS(INLINE_STATS.enabled),\n+\n         // Last capability should still have a comma for fewer merge conflicts when adding new ones :)\n         // This comment prevents the semicolon from being on the previous capability when Spotless formats the file.\n         ;"
+    }
+  ],
+  "diff": "diff --git a/docs/changelog/137017.yaml b/docs/changelog/137017.yaml\nnew file mode 100644\nindex 0000000000000..538776a2504ee\n--- /dev/null\n+++ b/docs/changelog/137017.yaml\n@@ -0,0 +1,5 @@\n+pr: 137017\n+summary: Manage INLINE STATS count(*) on result sets with no columns\n+area: ES|QL\n+type: bug\n+issues: []\ndiff --git a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/CountAggregatorFunction.java b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/CountAggregatorFunction.java\nindex a9d21babfbd9c..a348d08138273 100644\n--- a/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/CountAggregatorFunction.java\n+++ b/x-pack/plugin/esql/compute/src/main/java/org/elasticsearch/compute/aggregation/CountAggregatorFunction.java\n@@ -78,23 +78,42 @@ public int intermediateBlockCount() {\n     }\n \n     private int blockIndex() {\n-        return countAll ? 0 : channels.get(0);\n+        // In case of countAll, block index is irrelevant.\n+        // Page.positionCount should be used instead,\n+        // because the page could have zero blocks\n+        // (drop all columns scenario)\n+        return countAll ? -1 : channels.get(0);\n     }\n \n     @Override\n     public void addRawInput(Page page, BooleanVector mask) {\n-        Block block = page.getBlock(blockIndex());\n-        LongState state = this.state;\n-        int count;\n-        if (mask.isConstant()) {\n-            if (mask.getBoolean(0) == false) {\n-                return;\n+        if (countAll) {\n+            // this will work also when the page has no blocks\n+            if (mask.isConstant() && mask.getBoolean(0)) {\n+                state.longValue(state.longValue() + page.getPositionCount());\n+            } else {\n+                int count = 0;\n+                for (int i = 0; i < mask.getPositionCount(); i++) {\n+                    if (mask.getBoolean(i)) {\n+                        count++;\n+                    }\n+                }\n+                state.longValue(state.longValue() + count);\n             }\n-            count = countAll ? block.getPositionCount() : block.getTotalValueCount();\n         } else {\n-            count = countMasked(block, mask);\n+            Block block = page.getBlock(blockIndex());\n+            LongState state = this.state;\n+            int count;\n+            if (mask.isConstant()) {\n+                if (mask.getBoolean(0) == false) {\n+                    return;\n+                }\n+                count = block.getTotalValueCount();\n+            } else {\n+                count = countMasked(block, mask);\n+            }\n+            state.longValue(state.longValue() + count);\n         }\n-        state.longValue(state.longValue() + count);\n     }\n \n     private int countMasked(Block block, BooleanVector mask) {\ndiff --git a/x-pack/plugin/esql/qa/testFixtures/src/main/resources/inlinestats.csv-spec b/x-pack/plugin/esql/qa/testFixtures/src/main/resources/inlinestats.csv-spec\nindex 7ec65467e7e98..4bcb08fa82f0b 100644\n--- a/x-pack/plugin/esql/qa/testFixtures/src/main/resources/inlinestats.csv-spec\n+++ b/x-pack/plugin/esql/qa/testFixtures/src/main/resources/inlinestats.csv-spec\n@@ -4362,3 +4362,32 @@ from employees\n c:long\n 1\n ;\n+\n+\n+inlineStatsKeepDropCountStar\n+required_capability: inline_stats_with_no_columns\n+\n+from employees\n+| keep emp_no\n+| drop emp_no\n+| inline stats c = count(*)\n+| limit 3\n+;\n+\n+c:long\n+100\n+100\n+100\n+;\n+\n+rowInlineStatsKeepDropCountStar\n+required_capability: inline_stats_with_no_columns\n+\n+row a = 1\n+| drop a\n+| inline stats c = count(*)\n+;\n+\n+c:long\n+1\n+;\ndiff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java\nindex 1338d337b1eaa..9cb41a1a63a36 100644\n--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java\n+++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java\n@@ -1563,11 +1563,17 @@ public enum Cap {\n          * Temporarily forbid the use of an explicit or implicit LIMIT before INLINE STATS.\n          */\n         FORBID_LIMIT_BEFORE_INLINE_STATS(INLINE_STATS.enabled),\n+\n         /**\n          * Support for the TRANGE function\n          */\n         FN_TRANGE,\n \n+        /**\n+         * https://github.com/elastic/elasticsearch/issues/136851\n+         */\n+        INLINE_STATS_WITH_NO_COLUMNS(INLINE_STATS.enabled),\n+\n         // Last capability should still have a comma for fewer merge conflicts when adding new ones :)\n         // This comment prevents the semicolon from being on the previous capability when Spotless formats the file.\n         ;\n",
+  "additions": 69,
+  "deletions": 10,
+  "changed_files": 4,
+  "url": "https://github.com/elastic/elasticsearch/pull/137017",
+  "mined_at": "2025-10-25T13:21:18.727150"
+}

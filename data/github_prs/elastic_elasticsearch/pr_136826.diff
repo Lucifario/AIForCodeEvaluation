@@ -1,0 +1,720 @@
+diff --git a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequest.java b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequest.java
+index 6270c27ac463f..f285c49c7a1d4 100644
+--- a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequest.java
++++ b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequest.java
+@@ -8,10 +8,10 @@
+ package org.elasticsearch.xpack.core.action;
+ 
+ import org.elasticsearch.action.support.master.AcknowledgedRequest;
++import org.elasticsearch.action.support.master.MasterNodeRequest;
+ import org.elasticsearch.common.io.stream.StreamInput;
+ import org.elasticsearch.common.io.stream.StreamOutput;
+-import org.elasticsearch.xcontent.ConstructingObjectParser;
+-import org.elasticsearch.xcontent.ParseField;
++import org.elasticsearch.core.TimeValue;
+ import org.elasticsearch.xcontent.ToXContent;
+ import org.elasticsearch.xcontent.ToXContentObject;
+ import org.elasticsearch.xcontent.XContentBuilder;
+@@ -20,31 +20,23 @@
+ import java.util.Objects;
+ 
+ public class SetResetModeActionRequest extends AcknowledgedRequest<SetResetModeActionRequest> implements ToXContentObject {
+-    public static SetResetModeActionRequest enabled() {
+-        return new SetResetModeActionRequest(true, false);
++
++    public static SetResetModeActionRequest enabled(TimeValue masterNodeTimeout) {
++        return new SetResetModeActionRequest(masterNodeTimeout, true, false);
+     }
+ 
+-    public static SetResetModeActionRequest disabled(boolean deleteMetadata) {
+-        return new SetResetModeActionRequest(false, deleteMetadata);
++    public static SetResetModeActionRequest disabled(TimeValue masterNodeTimeout, boolean deleteMetadata) {
++        return new SetResetModeActionRequest(masterNodeTimeout, false, deleteMetadata);
+     }
+ 
+     private final boolean enabled;
+     private final boolean deleteMetadata;
+ 
+-    private static final ParseField ENABLED = new ParseField("enabled");
+-    private static final ParseField DELETE_METADATA = new ParseField("delete_metadata");
+-    public static final ConstructingObjectParser<SetResetModeActionRequest, Void> PARSER = new ConstructingObjectParser<>(
+-        "set_reset_mode_action_request",
+-        a -> new SetResetModeActionRequest((Boolean) a[0], (Boolean) a[1])
+-    );
+-
+-    static {
+-        PARSER.declareBoolean(ConstructingObjectParser.constructorArg(), ENABLED);
+-        PARSER.declareBoolean(ConstructingObjectParser.optionalConstructorArg(), DELETE_METADATA);
+-    }
++    static final String ENABLED_FIELD_NAME = "enabled";
++    static final String DELETE_METADATA_FIELD_NAME = "delete_metadata";
+ 
+-    SetResetModeActionRequest(boolean enabled, Boolean deleteMetadata) {
+-        super(TRAPPY_IMPLICIT_DEFAULT_MASTER_NODE_TIMEOUT, DEFAULT_ACK_TIMEOUT);
++    SetResetModeActionRequest(TimeValue masterNodeTimeout, boolean enabled, Boolean deleteMetadata) {
++        super(masterNodeTimeout, MasterNodeRequest.INFINITE_MASTER_NODE_TIMEOUT /* wait indefinitely for acks */);
+         this.enabled = enabled;
+         this.deleteMetadata = deleteMetadata != null && deleteMetadata;
+     }
+@@ -72,7 +64,7 @@ public void writeTo(StreamOutput out) throws IOException {
+ 
+     @Override
+     public int hashCode() {
+-        return Objects.hash(enabled, deleteMetadata);
++        return Objects.hash(masterNodeTimeout(), enabled, deleteMetadata);
+     }
+ 
+     @Override
+@@ -84,15 +76,17 @@ public boolean equals(Object obj) {
+             return false;
+         }
+         SetResetModeActionRequest other = (SetResetModeActionRequest) obj;
+-        return Objects.equals(enabled, other.enabled) && Objects.equals(deleteMetadata, other.deleteMetadata);
++        return Objects.equals(masterNodeTimeout(), other.masterNodeTimeout())
++            && Objects.equals(enabled, other.enabled)
++            && Objects.equals(deleteMetadata, other.deleteMetadata);
+     }
+ 
+     @Override
+     public XContentBuilder toXContent(XContentBuilder builder, ToXContent.Params params) throws IOException {
+         builder.startObject();
+-        builder.field(ENABLED.getPreferredName(), enabled);
++        builder.field(ENABLED_FIELD_NAME, enabled);
+         if (enabled == false) {
+-            builder.field(DELETE_METADATA.getPreferredName(), deleteMetadata);
++            builder.field(DELETE_METADATA_FIELD_NAME, deleteMetadata);
+         }
+         builder.endObject();
+         return builder;
+diff --git a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetUpgradeModeActionRequest.java b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetUpgradeModeActionRequest.java
+index 98e30b284c21a..665f9fed4e8db 100644
+--- a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetUpgradeModeActionRequest.java
++++ b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/action/SetUpgradeModeActionRequest.java
+@@ -10,8 +10,7 @@
+ import org.elasticsearch.action.support.master.AcknowledgedRequest;
+ import org.elasticsearch.common.io.stream.StreamInput;
+ import org.elasticsearch.common.io.stream.StreamOutput;
+-import org.elasticsearch.xcontent.ConstructingObjectParser;
+-import org.elasticsearch.xcontent.ParseField;
++import org.elasticsearch.core.TimeValue;
+ import org.elasticsearch.xcontent.ToXContentObject;
+ import org.elasticsearch.xcontent.XContentBuilder;
+ 
+@@ -22,18 +21,8 @@ public class SetUpgradeModeActionRequest extends AcknowledgedRequest<SetUpgradeM
+ 
+     private final boolean enabled;
+ 
+-    private static final ParseField ENABLED = new ParseField("enabled");
+-    public static final ConstructingObjectParser<SetUpgradeModeActionRequest, Void> PARSER = new ConstructingObjectParser<>(
+-        "set_upgrade_mode_action_request",
+-        a -> new SetUpgradeModeActionRequest((Boolean) a[0])
+-    );
+-
+-    static {
+-        PARSER.declareBoolean(ConstructingObjectParser.constructorArg(), ENABLED);
+-    }
+-
+-    public SetUpgradeModeActionRequest(boolean enabled) {
+-        super(TRAPPY_IMPLICIT_DEFAULT_MASTER_NODE_TIMEOUT, DEFAULT_ACK_TIMEOUT);
++    public SetUpgradeModeActionRequest(TimeValue masterNodeTimeout, TimeValue ackTimeout, boolean enabled) {
++        super(masterNodeTimeout, ackTimeout);
+         this.enabled = enabled;
+     }
+ 
+@@ -54,7 +43,7 @@ public void writeTo(StreamOutput out) throws IOException {
+ 
+     @Override
+     public int hashCode() {
+-        return Objects.hash(enabled);
++        return Objects.hash(masterNodeTimeout(), ackTimeout(), enabled);
+     }
+ 
+     @Override
+@@ -66,13 +55,15 @@ public boolean equals(Object obj) {
+             return false;
+         }
+         SetUpgradeModeActionRequest other = (SetUpgradeModeActionRequest) obj;
+-        return enabled == other.enabled();
++        return Objects.equals(masterNodeTimeout(), other.masterNodeTimeout())
++            && Objects.equals(ackTimeout(), other.ackTimeout())
++            && enabled == other.enabled();
+     }
+ 
+     @Override
+     public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
+         builder.startObject();
+-        builder.field(ENABLED.getPreferredName(), enabled);
++        builder.field("enabled", enabled);
+         builder.endObject();
+         return builder;
+     }
+diff --git a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeAction.java b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeAction.java
+index a67ae33e85801..3bfdd8985de37 100644
+--- a/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeAction.java
++++ b/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeAction.java
+@@ -9,8 +9,7 @@
+ import org.elasticsearch.action.ActionType;
+ import org.elasticsearch.action.support.master.AcknowledgedResponse;
+ import org.elasticsearch.common.io.stream.StreamInput;
+-import org.elasticsearch.xcontent.ConstructingObjectParser;
+-import org.elasticsearch.xcontent.ParseField;
++import org.elasticsearch.core.TimeValue;
+ import org.elasticsearch.xpack.core.action.SetUpgradeModeActionRequest;
+ 
+ import java.io.IOException;
+@@ -26,18 +25,8 @@ private SetUpgradeModeAction() {
+ 
+     public static class Request extends SetUpgradeModeActionRequest {
+ 
+-        private static final ParseField ENABLED = new ParseField("enabled");
+-        public static final ConstructingObjectParser<Request, Void> PARSER = new ConstructingObjectParser<>(
+-            NAME,
+-            a -> new Request((Boolean) a[0])
+-        );
+-
+-        static {
+-            PARSER.declareBoolean(ConstructingObjectParser.constructorArg(), ENABLED);
+-        }
+-
+-        public Request(boolean enabled) {
+-            super(enabled);
++        public Request(TimeValue masterNodeTimeout, TimeValue ackTimeout, boolean enabled) {
++            super(masterNodeTimeout, ackTimeout, enabled);
+         }
+ 
+         public Request(StreamInput in) throws IOException {
+diff --git a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/AbstractTransportSetUpgradeModeActionTests.java b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/AbstractTransportSetUpgradeModeActionTests.java
+index 09d033cd9de24..7a8e895a825c5 100644
+--- a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/AbstractTransportSetUpgradeModeActionTests.java
++++ b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/AbstractTransportSetUpgradeModeActionTests.java
+@@ -174,19 +174,29 @@ private static class TestTransportSetUpgradeModeAction extends AbstractTransport
+         }
+ 
+         public void runWithoutWaiting(boolean upgrade) throws Exception {
+-            masterOperation(mock(), new SetUpgradeModeActionRequest(upgrade), ClusterState.EMPTY_STATE, ActionListener.noop());
++            masterOperation(
++                mock(),
++                new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, upgrade),
++                ClusterState.EMPTY_STATE,
++                ActionListener.noop()
++            );
+         }
+ 
+         public Tuple<AcknowledgedResponse, Exception> run(boolean upgrade) throws Exception {
+             AtomicReference<Tuple<AcknowledgedResponse, Exception>> response = new AtomicReference<>();
+             CountDownLatch latch = new CountDownLatch(1);
+-            masterOperation(mock(), new SetUpgradeModeActionRequest(upgrade), ClusterState.EMPTY_STATE, ActionListener.wrap(r -> {
+-                response.set(Tuple.tuple(r, null));
+-                latch.countDown();
+-            }, e -> {
+-                response.set(Tuple.tuple(null, e));
+-                latch.countDown();
+-            }));
++            masterOperation(
++                mock(),
++                new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, upgrade),
++                ClusterState.EMPTY_STATE,
++                ActionListener.wrap(r -> {
++                    response.set(Tuple.tuple(r, null));
++                    latch.countDown();
++                }, e -> {
++                    response.set(Tuple.tuple(null, e));
++                    latch.countDown();
++                })
++            );
+             assertTrue("Failed to run TestTransportSetUpgradeModeAction in 10s", latch.await(10, TimeUnit.SECONDS));
+             return response.get();
+         }
+diff --git a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequestTests.java b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequestTests.java
+index 9f5716ef49ab4..a5ee571bf860f 100644
+--- a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequestTests.java
++++ b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/action/SetResetModeActionRequestTests.java
+@@ -8,6 +8,8 @@
+ 
+ import org.elasticsearch.common.io.stream.Writeable;
+ import org.elasticsearch.test.AbstractXContentSerializingTestCase;
++import org.elasticsearch.xcontent.ConstructingObjectParser;
++import org.elasticsearch.xcontent.ParseField;
+ import org.elasticsearch.xcontent.XContentParser;
+ 
+ public class SetResetModeActionRequestTests extends AbstractXContentSerializingTestCase<SetResetModeActionRequest> {
+@@ -15,7 +17,7 @@ public class SetResetModeActionRequestTests extends AbstractXContentSerializingT
+     @Override
+     protected SetResetModeActionRequest createTestInstance() {
+         boolean enabled = randomBoolean();
+-        return new SetResetModeActionRequest(enabled, enabled == false && randomBoolean());
++        return new SetResetModeActionRequest(TEST_REQUEST_TIMEOUT, enabled, enabled == false && randomBoolean());
+     }
+ 
+     @Override
+@@ -30,6 +32,20 @@ protected Writeable.Reader<SetResetModeActionRequest> instanceReader() {
+ 
+     @Override
+     protected SetResetModeActionRequest doParseInstance(XContentParser parser) {
+-        return SetResetModeActionRequest.PARSER.apply(parser, null);
++        return PARSER.apply(parser, null);
+     }
++
++    public static final ConstructingObjectParser<SetResetModeActionRequest, Void> PARSER = new ConstructingObjectParser<>(
++        "set_reset_mode_action_request",
++        a -> new SetResetModeActionRequest(TEST_REQUEST_TIMEOUT, (Boolean) a[0], (Boolean) a[1])
++    );
++
++    static {
++        PARSER.declareBoolean(ConstructingObjectParser.constructorArg(), new ParseField(SetResetModeActionRequest.ENABLED_FIELD_NAME));
++        PARSER.declareBoolean(
++            ConstructingObjectParser.optionalConstructorArg(),
++            new ParseField(SetResetModeActionRequest.DELETE_METADATA_FIELD_NAME)
++        );
++    }
++
+ }
+diff --git a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeActionRequestTests.java b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeActionRequestTests.java
+index 3b09fd60311e3..a7f2014296fbd 100644
+--- a/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeActionRequestTests.java
++++ b/x-pack/plugin/core/src/test/java/org/elasticsearch/xpack/core/ml/action/SetUpgradeModeActionRequestTests.java
+@@ -8,14 +8,26 @@
+ 
+ import org.elasticsearch.common.io.stream.Writeable;
+ import org.elasticsearch.test.AbstractXContentSerializingTestCase;
++import org.elasticsearch.xcontent.ConstructingObjectParser;
++import org.elasticsearch.xcontent.ParseField;
+ import org.elasticsearch.xcontent.XContentParser;
+ import org.elasticsearch.xpack.core.ml.action.SetUpgradeModeAction.Request;
+ 
+ public class SetUpgradeModeActionRequestTests extends AbstractXContentSerializingTestCase<Request> {
+ 
++    private static final ParseField ENABLED = new ParseField("enabled");
++    public static final ConstructingObjectParser<Request, Void> PARSER = new ConstructingObjectParser<>(
++        SetUpgradeModeAction.NAME,
++        a -> new Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, (Boolean) a[0])
++    );
++
++    static {
++        PARSER.declareBoolean(ConstructingObjectParser.constructorArg(), ENABLED);
++    }
++
+     @Override
+     protected Request createTestInstance() {
+-        return new Request(randomBoolean());
++        return new Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, randomBoolean());
+     }
+ 
+     @Override
+@@ -30,6 +42,7 @@ protected Writeable.Reader<Request> instanceReader() {
+ 
+     @Override
+     protected Request doParseInstance(XContentParser parser) {
+-        return Request.PARSER.apply(parser, null);
++        return PARSER.apply(parser, null);
+     }
++
+ }
+diff --git a/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlNativeIntegTestCase.java b/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlNativeIntegTestCase.java
+index d1afbc2bf751d..d929537a15e08 100644
+--- a/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlNativeIntegTestCase.java
++++ b/x-pack/plugin/ml/qa/native-multi-node-tests/src/javaRestTest/java/org/elasticsearch/xpack/ml/integration/MlNativeIntegTestCase.java
+@@ -283,8 +283,10 @@ protected void cleanUpResources() {
+     }
+ 
+     protected void setUpgradeModeTo(boolean enabled) {
+-        AcknowledgedResponse response = client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(enabled))
+-            .actionGet();
++        AcknowledgedResponse response = client().execute(
++            SetUpgradeModeAction.INSTANCE,
++            new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, enabled)
++        ).actionGet();
+         assertThat(response.isAcknowledged(), is(true));
+         assertThat(upgradeMode(), is(enabled));
+     }
+diff --git a/x-pack/plugin/ml/src/internalClusterTest/java/org/elasticsearch/xpack/ml/integration/AnnotationIndexIT.java b/x-pack/plugin/ml/src/internalClusterTest/java/org/elasticsearch/xpack/ml/integration/AnnotationIndexIT.java
+index 45fd7640fed59..1434453fb78ad 100644
+--- a/x-pack/plugin/ml/src/internalClusterTest/java/org/elasticsearch/xpack/ml/integration/AnnotationIndexIT.java
++++ b/x-pack/plugin/ml/src/internalClusterTest/java/org/elasticsearch/xpack/ml/integration/AnnotationIndexIT.java
+@@ -90,7 +90,8 @@ public void testReindexingWithNodeInfo() throws Exception {
+             assertEquals(2, numberOfAnnotationsAliases());
+         });
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(true)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true))
++            .actionGet();
+ 
+         String reindexedIndexName = ".reindexed-v7-ml-annotations-6";
+         createReindexedIndex(reindexedIndexName);
+@@ -112,7 +113,8 @@ public void testReindexingWithNodeInfo() throws Exception {
+ 
+         indicesAdmin().aliases(indicesAliasesRequestBuilder.request()).actionGet();
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(false)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false))
++            .actionGet();
+ 
+         // Ask a few times to increase the chance of failure if the .ml-annotations index is created when no other ML index exists
+         for (int i = 0; i < 10; ++i) {
+@@ -133,7 +135,8 @@ public void testReindexingWithoutNodeInfo() throws Exception {
+             assertEquals(2, numberOfAnnotationsAliases());
+         });
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(true)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true))
++            .actionGet();
+ 
+         String reindexedIndexName = ".reindexed-v7-ml-annotations-6";
+         createReindexedIndex(reindexedIndexName);
+@@ -155,7 +158,8 @@ public void testReindexingWithoutNodeInfo() throws Exception {
+ 
+         indicesAdmin().aliases(indicesAliasesRequestBuilder.request()).actionGet();
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(false)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false))
++            .actionGet();
+ 
+         // Ask a few times to increase the chance of failure if the .ml-annotations index is created when no other ML index exists
+         for (int i = 0; i < 10; ++i) {
+@@ -176,7 +180,8 @@ public void testReindexingWithLostAliasesWithNodeInfo() throws Exception {
+             assertEquals(2, numberOfAnnotationsAliases());
+         });
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(true)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true))
++            .actionGet();
+ 
+         String reindexedIndexName = ".reindexed-v7-ml-annotations-6";
+         createReindexedIndex(reindexedIndexName);
+@@ -194,7 +199,8 @@ public void testReindexingWithLostAliasesWithNodeInfo() throws Exception {
+ 
+         indicesAdmin().aliases(indicesAliasesRequestBuilder.request()).actionGet();
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(false)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false))
++            .actionGet();
+ 
+         assertBusy(() -> {
+             assertFalse(annotationsIndexExists(AnnotationIndex.LATEST_INDEX_NAME));
+@@ -214,7 +220,8 @@ public void testReindexingWithLostAliasesWithoutNodeInfo() throws Exception {
+             assertEquals(2, numberOfAnnotationsAliases());
+         });
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(true)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true))
++            .actionGet();
+ 
+         String reindexedIndexName = ".reindexed-v7-ml-annotations-6";
+         createReindexedIndex(reindexedIndexName);
+@@ -232,7 +239,8 @@ public void testReindexingWithLostAliasesWithoutNodeInfo() throws Exception {
+ 
+         indicesAdmin().aliases(indicesAliasesRequestBuilder.request()).actionGet();
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(false)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false))
++            .actionGet();
+ 
+         assertBusy(() -> {
+             assertFalse(annotationsIndexExists(AnnotationIndex.LATEST_INDEX_NAME));
+@@ -284,7 +292,8 @@ public void testAliasesMovedFromOldToNew() throws Exception {
+ 
+     public void testNotCreatedWhenAfterOtherMlIndexAndUpgradeInProgress() throws Exception {
+ 
+-        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(true)).actionGet();
++        client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true))
++            .actionGet();
+ 
+         try {
+             // Creating a document in the .ml-notifications-000002 index would normally cause .ml-annotations
+@@ -305,13 +314,16 @@ public void testNotCreatedWhenAfterOtherMlIndexAndUpgradeInProgress() throws Exc
+                 }
+             });
+         } finally {
+-            client().execute(SetUpgradeModeAction.INSTANCE, new SetUpgradeModeAction.Request(false)).actionGet();
++            client().execute(
++                SetUpgradeModeAction.INSTANCE,
++                new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false)
++            ).actionGet();
+         }
+     }
+ 
+     public void testNotCreatedWhenAfterOtherMlIndexAndResetInProgress() throws Exception {
+ 
+-        client().execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.enabled()).actionGet();
++        client().execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.enabled(TEST_REQUEST_TIMEOUT)).actionGet();
+ 
+         try {
+ 
+@@ -329,7 +341,7 @@ public void testNotCreatedWhenAfterOtherMlIndexAndResetInProgress() throws Excep
+                 assertEquals(0, numberOfAnnotationsAliases());
+             });
+         } finally {
+-            client().execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.disabled(true)).actionGet();
++            client().execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.disabled(TEST_REQUEST_TIMEOUT, true)).actionGet();
+         }
+     }
+ 
+diff --git a/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/MachineLearning.java b/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/MachineLearning.java
+index 632c5bc17a611..532f9cf5c71d8 100644
+--- a/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/MachineLearning.java
++++ b/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/MachineLearning.java
+@@ -2057,7 +2057,11 @@ public void prepareForIndicesMigration(ProjectMetadata project, Client client, A
+         Client originClient = new OriginSettingClient(client, ML_ORIGIN);
+         originClient.execute(
+             SetUpgradeModeAction.INSTANCE,
+-            new SetUpgradeModeAction.Request(true),
++            new SetUpgradeModeAction.Request(
++                MachineLearning.HARD_CODED_MACHINE_LEARNING_MASTER_NODE_TIMEOUT,
++                MachineLearning.HARD_CODED_MACHINE_LEARNING_MASTER_NODE_TIMEOUT,
++                true
++            ),
+             listener.delegateFailureAndWrap((l, r) -> l.onResponse(Collections.singletonMap("already_in_upgrade_mode", false)))
+         );
+     }
+@@ -2074,7 +2078,11 @@ public void indicesMigrationComplete(Map<String, Object> preUpgradeMetadata, Cli
+         Client originClient = new OriginSettingClient(client, ML_ORIGIN);
+         originClient.execute(
+             SetUpgradeModeAction.INSTANCE,
+-            new SetUpgradeModeAction.Request(false),
++            new SetUpgradeModeAction.Request(
++                MachineLearning.HARD_CODED_MACHINE_LEARNING_MASTER_NODE_TIMEOUT,
++                MachineLearning.HARD_CODED_MACHINE_LEARNING_MASTER_NODE_TIMEOUT,
++                false
++            ),
+             listener.delegateFailureAndWrap((l, r) -> l.onResponse(r.isAcknowledged()))
+         );
+     }
+@@ -2153,23 +2161,27 @@ public void cleanUpFeature(
+ 
+         ActionListener<ResetFeatureStateResponse.ResetFeatureStateStatus> unsetResetModeListener = ActionListener.wrap(success -> {
+ 
+-            client.execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.disabled(true), ActionListener.wrap(resetSuccess -> {
+-                finalListener.onResponse(success);
+-                logger.info("Finished machine learning feature reset");
+-            }, resetFailure -> {
+-                logger.error("failed to disable reset mode after state otherwise successful machine learning reset", resetFailure);
+-                finalListener.onFailure(
+-                    ExceptionsHelper.serverError(
+-                        "failed to disable reset mode after state otherwise successful machine learning reset",
+-                        resetFailure
+-                    )
+-                );
+-            }));
++            client.execute(
++                SetResetModeAction.INSTANCE,
++                SetResetModeActionRequest.disabled(masterNodeTimeout, true),
++                ActionListener.wrap(resetSuccess -> {
++                    finalListener.onResponse(success);
++                    logger.info("Finished machine learning feature reset");
++                }, resetFailure -> {
++                    logger.error("failed to disable reset mode after state otherwise successful machine learning reset", resetFailure);
++                    finalListener.onFailure(
++                        ExceptionsHelper.serverError(
++                            "failed to disable reset mode after state otherwise successful machine learning reset",
++                            resetFailure
++                        )
++                    );
++                })
++            );
+         }, failure -> {
+             logger.error("failed to reset machine learning", failure);
+             client.execute(
+                 SetResetModeAction.INSTANCE,
+-                SetResetModeActionRequest.disabled(false),
++                SetResetModeActionRequest.disabled(masterNodeTimeout, false),
+                 ActionListener.wrap(resetSuccess -> finalListener.onFailure(failure), resetFailure -> {
+                     logger.error("failed to disable reset mode after state clean up failure", resetFailure);
+                     finalListener.onFailure(failure);
+@@ -2353,7 +2365,7 @@ public void cleanUpFeature(
+         }, finalListener::onFailure);
+ 
+         // Indicate that a reset is now in progress
+-        client.execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.enabled(), afterResetModeSet);
++        client.execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.enabled(masterNodeTimeout), afterResetModeSet);
+     }
+ 
+     @Override
+diff --git a/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/rest/RestSetUpgradeModeAction.java b/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/rest/RestSetUpgradeModeAction.java
+index 1d12a8b555225..c4992bc8faac0 100644
+--- a/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/rest/RestSetUpgradeModeAction.java
++++ b/x-pack/plugin/ml/src/main/java/org/elasticsearch/xpack/ml/rest/RestSetUpgradeModeAction.java
+@@ -37,9 +37,11 @@ public String getName() {
+ 
+     @Override
+     protected RestChannelConsumer prepareRequest(RestRequest restRequest, NodeClient client) throws IOException {
+-        SetUpgradeModeAction.Request request = new SetUpgradeModeAction.Request(restRequest.paramAsBoolean("enabled", false));
+-        request.ackTimeout(getAckTimeout(restRequest));
+-        request.masterNodeTimeout(getMasterNodeTimeout(restRequest));
++        SetUpgradeModeAction.Request request = new SetUpgradeModeAction.Request(
++            getMasterNodeTimeout(restRequest),
++            getAckTimeout(restRequest),
++            restRequest.paramAsBoolean("enabled", false)
++        );
+         return channel -> client.execute(SetUpgradeModeAction.INSTANCE, request, new RestToXContentListener<>(channel));
+     }
+ }
+diff --git a/x-pack/plugin/ml/src/test/java/org/elasticsearch/xpack/ml/MachineLearningTests.java b/x-pack/plugin/ml/src/test/java/org/elasticsearch/xpack/ml/MachineLearningTests.java
+index 9d77afb69209c..1e6f04eef5eab 100644
+--- a/x-pack/plugin/ml/src/test/java/org/elasticsearch/xpack/ml/MachineLearningTests.java
++++ b/x-pack/plugin/ml/src/test/java/org/elasticsearch/xpack/ml/MachineLearningTests.java
+@@ -77,7 +77,7 @@ public void testPrePostSystemIndexUpgrade_givenNotInUpgradeMode() throws IOExcep
+             assertThat(response.get(), equalTo(Collections.singletonMap("already_in_upgrade_mode", false)));
+             verify(client).execute(
+                 same(SetUpgradeModeAction.INSTANCE),
+-                eq(new SetUpgradeModeAction.Request(true)),
++                eq(new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true)),
+                 any(ActionListener.class)
+             );
+ 
+@@ -89,7 +89,7 @@ public void testPrePostSystemIndexUpgrade_givenNotInUpgradeMode() throws IOExcep
+ 
+             verify(client).execute(
+                 same(SetUpgradeModeAction.INSTANCE),
+-                eq(new SetUpgradeModeAction.Request(false)),
++                eq(new SetUpgradeModeAction.Request(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false)),
+                 any(ActionListener.class)
+             );
+         } finally {
+diff --git a/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/Transform.java b/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/Transform.java
+index 3738d037bcc5c..33d974205075e 100644
+--- a/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/Transform.java
++++ b/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/Transform.java
+@@ -197,7 +197,7 @@ public void prepareForIndicesMigration(ProjectMetadata project, Client client, A
+         var originClient = new OriginSettingClient(client, TRANSFORM_ORIGIN);
+         originClient.execute(
+             SetTransformUpgradeModeAction.INSTANCE,
+-            new SetUpgradeModeActionRequest(true),
++            new SetUpgradeModeActionRequest(HARD_CODED_TRANSFORM_MASTER_NODE_TIMEOUT, HARD_CODED_TRANSFORM_MASTER_NODE_TIMEOUT, true),
+             listener.delegateFailureAndWrap((l, r) -> l.onResponse(Map.of("already_in_upgrade_mode", false)))
+         );
+     }
+@@ -214,7 +214,7 @@ public void indicesMigrationComplete(Map<String, Object> preUpgradeMetadata, Cli
+         var originClient = new OriginSettingClient(client, TRANSFORM_ORIGIN);
+         originClient.execute(
+             SetTransformUpgradeModeAction.INSTANCE,
+-            new SetUpgradeModeActionRequest(false),
++            new SetUpgradeModeActionRequest(HARD_CODED_TRANSFORM_MASTER_NODE_TIMEOUT, HARD_CODED_TRANSFORM_MASTER_NODE_TIMEOUT, false),
+             listener.delegateFailureAndWrap((l, r) -> l.onResponse(r.isAcknowledged()))
+         );
+     }
+@@ -450,7 +450,7 @@ public void cleanUpFeature(
+             }
+             client.execute(
+                 SetResetModeAction.INSTANCE,
+-                SetResetModeActionRequest.disabled(true),
++                SetResetModeActionRequest.disabled(masterNodeTimeout, true),
+                 ActionListener.wrap(resetSuccess -> finalListener.onResponse(success), resetFailure -> {
+                     logger.error("failed to disable reset mode after otherwise successful transform reset", resetFailure);
+                     finalListener.onFailure(
+@@ -465,7 +465,7 @@ public void cleanUpFeature(
+         },
+             failure -> client.execute(
+                 SetResetModeAction.INSTANCE,
+-                SetResetModeActionRequest.disabled(false),
++                SetResetModeActionRequest.disabled(masterNodeTimeout, false),
+                 ActionListener.wrap(resetSuccess -> finalListener.onFailure(failure), resetFailure -> {
+                     logger.error(TransformMessages.getMessage(FAILED_TO_UNSET_RESET_MODE, "a failed feature reset"), resetFailure);
+                     Exception ex = new ElasticsearchException(
+@@ -549,7 +549,7 @@ public void cleanUpFeature(
+             client.execute(StopTransformAction.INSTANCE, stopTransformsRequest, afterStoppingTransforms);
+         }, finalListener::onFailure);
+ 
+-        client.execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.enabled(), afterResetModeSet);
++        client.execute(SetResetModeAction.INSTANCE, SetResetModeActionRequest.enabled(masterNodeTimeout), afterResetModeSet);
+     }
+ 
+     @Override
+diff --git a/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/rest/action/RestSetTransformUpgradeModeAction.java b/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/rest/action/RestSetTransformUpgradeModeAction.java
+index f4e7606c1c1d4..aec09c2db2b9a 100644
+--- a/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/rest/action/RestSetTransformUpgradeModeAction.java
++++ b/x-pack/plugin/transform/src/main/java/org/elasticsearch/xpack/transform/rest/action/RestSetTransformUpgradeModeAction.java
+@@ -39,9 +39,11 @@ public String getName() {
+ 
+     @Override
+     protected RestChannelConsumer prepareRequest(RestRequest restRequest, NodeClient client) throws IOException {
+-        SetUpgradeModeActionRequest request = new SetUpgradeModeActionRequest(restRequest.paramAsBoolean("enabled", false));
+-        request.ackTimeout(getAckTimeout(restRequest));
+-        request.masterNodeTimeout(getMasterNodeTimeout(restRequest));
++        final var request = new SetUpgradeModeActionRequest(
++            getMasterNodeTimeout(restRequest),
++            getAckTimeout(restRequest),
++            restRequest.paramAsBoolean("enabled", false)
++        );
+         return channel -> client.execute(SetTransformUpgradeModeAction.INSTANCE, request, new RestToXContentListener<>(channel));
+     }
+ }
+diff --git a/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/TransformTests.java b/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/TransformTests.java
+index 5d04f026d9ef2..cabb694be30ea 100644
+--- a/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/TransformTests.java
++++ b/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/TransformTests.java
+@@ -50,7 +50,11 @@ public void testSetTransformUpgradeMode() {
+             transformPlugin.prepareForIndicesMigration(emptyProject(), client, ActionTestUtils.assertNoFailureListener(response::set));
+ 
+             assertThat(response.get(), equalTo(Collections.singletonMap("already_in_upgrade_mode", false)));
+-            verify(client).execute(same(SetTransformUpgradeModeAction.INSTANCE), eq(new SetUpgradeModeActionRequest(true)), any());
++            verify(client).execute(
++                same(SetTransformUpgradeModeAction.INSTANCE),
++                eq(new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true)),
++                any()
++            );
+ 
+             transformPlugin.indicesMigrationComplete(
+                 response.get(),
+@@ -58,7 +62,11 @@ public void testSetTransformUpgradeMode() {
+                 ActionTestUtils.assertNoFailureListener(ESTestCase::assertTrue)
+             );
+ 
+-            verify(client).execute(same(SetTransformUpgradeModeAction.INSTANCE), eq(new SetUpgradeModeActionRequest(false)), any());
++            verify(client).execute(
++                same(SetTransformUpgradeModeAction.INSTANCE),
++                eq(new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false)),
++                any()
++            );
+         } finally {
+             terminate(threadPool);
+         }
+diff --git a/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/action/TransportSetTransformUpgradeModeActionTests.java b/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/action/TransportSetTransformUpgradeModeActionTests.java
+index 33fad76117a53..cf20935c1011f 100644
+--- a/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/action/TransportSetTransformUpgradeModeActionTests.java
++++ b/x-pack/plugin/transform/src/test/java/org/elasticsearch/xpack/transform/action/TransportSetTransformUpgradeModeActionTests.java
+@@ -104,10 +104,16 @@ private ClusterState state(boolean upgradeMode) {
+     }
+ 
+     public void testCreateUpdatedState() {
+-        var updatedState = action.createUpdatedState(new SetUpgradeModeActionRequest(true), state(false));
++        var updatedState = action.createUpdatedState(
++            new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true),
++            state(false)
++        );
+         assertTrue(TransformMetadata.upgradeMode(updatedState));
+ 
+-        updatedState = action.createUpdatedState(new SetUpgradeModeActionRequest(false), state(true));
++        updatedState = action.createUpdatedState(
++            new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false),
++            state(true)
++        );
+         assertFalse(TransformMetadata.upgradeMode(updatedState));
+     }
+ 
+@@ -150,7 +156,7 @@ public void testUpgradeModeWithNoTransformTasks() throws InterruptedException {
+ 
+     private void upgradeModeSuccessfullyChanged(ClusterState state, ActionListener<AcknowledgedResponse> listener)
+         throws InterruptedException {
+-        upgradeModeSuccessfullyChanged(new SetUpgradeModeActionRequest(true), state, listener);
++        upgradeModeSuccessfullyChanged(new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, true), state, listener);
+     }
+ 
+     private void upgradeModeSuccessfullyChanged(
+@@ -197,9 +203,13 @@ public void testDisableUpgradeMode() throws InterruptedException {
+             listener.onResponse(true);
+             return null;
+         }).when(persistentTasksService).waitForPersistentTasksCondition(any(), any(), any(), any());
+-        upgradeModeSuccessfullyChanged(new SetUpgradeModeActionRequest(false), stateWithTransformTask(), assertNoFailureListener(r -> {
+-            assertThat(r, is(AcknowledgedResponse.TRUE));
+-            verify(clusterService, never()).submitUnbatchedStateUpdateTask(eq("unassign persistent task from any node"), any());
+-        }));
++        upgradeModeSuccessfullyChanged(
++            new SetUpgradeModeActionRequest(TEST_REQUEST_TIMEOUT, TEST_REQUEST_TIMEOUT, false),
++            stateWithTransformTask(),
++            assertNoFailureListener(r -> {
++                assertThat(r, is(AcknowledgedResponse.TRUE));
++                verify(clusterService, never()).submitUnbatchedStateUpdateTask(eq("unassign persistent task from any node"), any());
++            })
++        );
+     }
+ }

@@ -1,0 +1,79 @@
+github:
+  token: "GITHUBIID"  
+  repositories:
+    - "apache/commons-lang"
+    - "google/guava"
+    - "spring-projects/spring-framework"
+    - "elastic/elasticsearch"
+  query_params:
+    state: "closed"
+    per_page: 100
+    min_reviewers: 0 
+    max_pr_age_days: 90
+    max_prs_to_fetch_per_repo: 100 
+
+defects4j:
+  base_path: "/Users/lucifario/Documents/Code/AIForCodeReview/defects4j"
+  projects:
+    - "Lang"
+    - "Math"
+    - "Chart"
+    - "Time"
+  max_bugs_per_project: 20
+  checkout_dir: "./data/defects4j_bugs"
+
+synthetic:
+  mutation_tools:
+    python: "mutpy"
+    java: "pit"
+  mutation_operators:
+    - "AOR"
+    - "ROR"
+    - "COR"
+    - "LCR"
+  max_mutants_per_file: 10
+  output_dir: "./data/synthetic_bugs"
+
+data:
+  output_base: "./data"
+  version_file: "./data/metadata/dataset_version.json"
+  log_file: "./logs/pipeline.log"
+
+schedule:
+  enabled: true
+  cron_expression: "0 0 * * 0"
+
+llm_providers:
+  groq:
+    api_key_env: "GROQ_API_KEY"
+    base_url: "https://api.groq.com/openai/v1"
+  openrouter:
+    api_key_env: "OPENROUTER_API_KEY"
+    base_url: "https://openrouter.ai/api/v1"
+
+llm_models:
+  - id: "llama3-8b-groq"
+    provider: "groq"
+    model_name: "llama-3.1-8b-instant" 
+    role: "generator"
+
+  - id: "Mistral-Small-3.2-24B-Instruct-2506"
+    provider: "openrouter"
+    model_name: "mistralai/mistral-small-24b-instruct-2501" 
+    role: "judge"
+
+  - id: "gemma-27b-or"
+    provider: "openrouter"
+    model_name: "google/gemma-3-27b-it" 
+    role: "judge"
+
+  - id: "llama3-70b-groq"
+    provider: "groq"
+    model_name: "llama-3.3-70b-versatile" 
+    role: "meta-judge"
+
+multi_judge_config:
+  judge_roles: ["judge"]         
+  meta_judge_roles: ["meta-judge"] 
+  max_retries: 3                  
+  initial_delay: 2                

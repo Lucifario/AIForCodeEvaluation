@@ -1,0 +1,27 @@
+{
+  "source_item_id": 137112,
+  "source_type": "github",
+  "generator_model_id": "llama3-8b-groq",
+  "generation_timestamp": "2025-10-26T13:33:45.424818",
+  "input_code_language": "java",
+  "input_code_snippet": "/*\n * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one\n * or more contributor license agreements. Licensed under the Elastic License\n * 2.0; you may not use this file except in compliance with the Elastic License\n * 2.0.\n */\npackage org.elasticsearch.xpack.esql.core.capabilities;\n\npublic interface Unresolvable extends Resolvable {\n\n    String UNRESOLVED_PREFIX = \"?\";\n\n    @Override\n    default boolean resolved() {\n        return false;\n    }\n\n    String unresolvedMessage();\n}\n",
+  "raw_llm_output": "{\n  \"bugs_found\": [\n      {\n         \"explanation\": \"The class Unresolvable extends Resolvable without checking if Resolvable is null, which can lead to a NullPointerException.\",\n         \"suggested_fix\": \"public interface Unresolvable extends Resolvable { ... }\"\n      },\n      {\n         \"explanation\": \"The method unresolvedMessage() does not have a default implementation, but it is declared in an interface. This can lead to a compilation error if the interface is extended by another interface.\",\n         \"suggested_fix\": \"public interface Unresolvable extends Resolvable { public default String unresolvedMessage() { return \\\"Unresolved message\\\"; } }\"\n      },\n      {\n         \"explanation\": \"The constant UNRESOLVED_PREFIX is declared as a static field, but it is not marked as static. This can lead to a compilation error if the interface is extended by another interface.\",\n         \"suggested_fix\": \"public static final String UNRESOLVED_PREFIX = \\\"?\\\";\"\n      }\n   ],\n   \"no_bugs_reasoning\": \"\"\n}",
+  "parsed_llm_output": {
+    "bugs_found": [
+      {
+        "explanation": "The class Unresolvable extends Resolvable without checking if Resolvable is null, which can lead to a NullPointerException.",
+        "suggested_fix": "public interface Unresolvable extends Resolvable { ... }"
+      },
+      {
+        "explanation": "The method unresolvedMessage() does not have a default implementation, but it is declared in an interface. This can lead to a compilation error if the interface is extended by another interface.",
+        "suggested_fix": "public interface Unresolvable extends Resolvable { public default String unresolvedMessage() { return \"Unresolved message\"; } }"
+      },
+      {
+        "explanation": "The constant UNRESOLVED_PREFIX is declared as a static field, but it is not marked as static. This can lead to a compilation error if the interface is extended by another interface.",
+        "suggested_fix": "public static final String UNRESOLVED_PREFIX = \"?\";"
+      }
+    ],
+    "no_bugs_reasoning": ""
+  },
+  "error": null
+}

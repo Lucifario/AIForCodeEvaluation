@@ -1,0 +1,40 @@
+diff --git a/framework-docs/modules/ROOT/pages/integration/observability.adoc b/framework-docs/modules/ROOT/pages/integration/observability.adoc
+index 8b3e163ef4d4..a32d4b5a2c04 100644
+--- a/framework-docs/modules/ROOT/pages/integration/observability.adoc
++++ b/framework-docs/modules/ROOT/pages/integration/observability.adoc
+@@ -190,7 +190,7 @@ This observation uses the `io.micrometer.jakarta9.instrument.jms.DefaultJmsProce
+ == HTTP Server instrumentation
+ 
+ HTTP server exchange observations are created with the name `"http.server.requests"` for Servlet and Reactive applications,
+-or "http.server.request.duration" if using the OpenTelemetry convention.
++or `"http.server.request.duration"` if using the OpenTelemetry convention.
+ 
+ [[observability.http-server.servlet]]
+ === Servlet applications
+diff --git a/spring-web/src/main/java/org/springframework/http/server/observation/OpenTelemetryServerRequestObservationConvention.java b/spring-web/src/main/java/org/springframework/http/server/observation/OpenTelemetryServerRequestObservationConvention.java
+index 8a1dcfd95a72..24f2d7c6e5c5 100644
+--- a/spring-web/src/main/java/org/springframework/http/server/observation/OpenTelemetryServerRequestObservationConvention.java
++++ b/spring-web/src/main/java/org/springframework/http/server/observation/OpenTelemetryServerRequestObservationConvention.java
+@@ -69,13 +69,6 @@ public class OpenTelemetryServerRequestObservationConvention implements ServerRe
+ 	private static final Set<String> HTTP_METHODS = Stream.of(HttpMethod.values()).map(HttpMethod::name).collect(Collectors.toUnmodifiableSet());
+ 
+ 
+-	/**
+-	 * Create a convention.
+-	 */
+-	public OpenTelemetryServerRequestObservationConvention() {
+-	}
+-
+-
+ 	@Override
+ 	public String getName() {
+ 		return NAME;
+@@ -87,7 +80,7 @@ public String getName() {
+ 	 * SHOULD be {@code {method}}.
+ 	 * <p>
+ 	 * The {@code {method}} MUST be {@code {http.request.method}} if the method represents the original
+-	 * method known to the instrumentation. In other cases (when Customize Toolbar… is
++	 * method known to the instrumentation. In other cases (when {@code {http.request.method}} is
+ 	 * set to {@code _OTHER}), {@code {method}} MUST be HTTP.
+ 	 * <p>
+ 	 * The {@code target} SHOULD be the {@code {http.route}}.

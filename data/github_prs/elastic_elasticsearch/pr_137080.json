@@ -1,0 +1,60 @@
+{
+  "id": 137080,
+  "repository": "elastic/elasticsearch",
+  "title": "[ML] Fix MlAssignmentPlannerUpgradeIT.estMlAssignmentPlannerUpgrade() ",
+  "body": "As suggested [here](https://github.com/elastic/elasticsearch/issues/101926#issuecomment-1803420029), this PR changes deployments to low priority. Low priority deployments don't require specific processor allocations, allowing them to run in constrained environments. The test can now succeed in single-processor test environments where all processors are already allocated. \n\nSince we don't test BWC for pre-8.6.0 versions, where priority was introduced, this change fixes the test. \n\nCloses #101926",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T13:26:36+00:00",
+  "created_at": "2025-10-24T08:18:48+00:00",
+  "updated_at": "2025-10-24T13:28:57+00:00",
+  "author": "valeriy42",
+  "reviewers": [
+    "copilot-pull-request-reviewer[bot]",
+    "prwhelan"
+  ],
+  "base_sha": "88d4704a9a48e0c58dcb16d7f6efac2612b12901",
+  "head_sha": "8db08c9e47cb2848695eeb9a07994101db1eb71c",
+  "review_comments": [
+    {
+      "user": "copilot-pull-request-reviewer[bot]",
+      "state": "COMMENTED",
+      "body": "## Pull Request Overview\n\nThis PR fixes `MlAssignmentPlannerUpgradeIT.testMlAssignmentPlannerUpgrade()` by changing model deployments from normal to low priority, allowing the test to succeed in single-processor environments where all processors are already allocated. The key changes enable low-priority deployments that don't require specific processor allocations.\n\n- Removes the `@AwaitsFix` annotation from the failing test\n- Updates `startDeployment` method overloads to support priority parameter\n- Changes deployment priority from \"normal\" to \"low\" for test models\n\n\n\n\n\n---\n\n<sub>**Tip:** Customize your code reviews with copilot-instructions.md. <a href=\"/elastic/elasticsearch/new/main/.github?filename=copilot-instructions.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Create the file</a> or <a href=\"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">learn how to get started</a>.</sub>",
+      "submitted_at": "2025-10-24T09:25:50+00:00"
+    },
+    {
+      "user": "prwhelan",
+      "state": "APPROVED",
+      "body": "",
+      "submitted_at": "2025-10-24T13:17:46+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/ml-core (Team:ML)",
+      "created_at": "2025-10-24T08:21:52+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "## 💚 Backport successful\n| Status | Branch | Result |\n|:------:|:------:|:------:|\n| ✅ |  [9.2](https://github.com/elastic/elasticsearch/pull/137103)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137103\">](https://github.com/elastic/elasticsearch/pull/137103) |\n| ✅ |  [9.1](https://github.com/elastic/elasticsearch/pull/137104)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137104\">](https://github.com/elastic/elasticsearch/pull/137104) |",
+      "created_at": "2025-10-24T13:28:57+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "x-pack/qa/rolling-upgrade/src/test/java/org/elasticsearch/upgrades/MlAssignmentPlannerUpgradeIT.java",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 5,
+      "changes": 14,
+      "patch": "@@ -67,7 +67,6 @@ public class MlAssignmentPlannerUpgradeIT extends AbstractUpgradeTestCase {\n         RAW_MODEL_SIZE = Base64.getDecoder().decode(BASE_64_ENCODED_MODEL).length;\n     }\n \n-    @AwaitsFix(bugUrl = \"https://github.com/elastic/elasticsearch/issues/101926\")\n     public void testMlAssignmentPlannerUpgrade() throws Exception {\n         assumeFalse(\"This test deploys multiple models which cannot be accommodated on a single processor\", IS_SINGLE_PROCESSOR_TEST);\n \n@@ -187,12 +186,12 @@ private void setupDeployments() throws Exception {\n         createTrainedModel(\"old_memory_format\", 0, 0);\n         putModelDefinition(\"old_memory_format\");\n         putVocabulary(List.of(\"these\", \"are\", \"my\", \"words\"), \"old_memory_format\");\n-        startDeployment(\"old_memory_format\");\n+        startDeployment(\"old_memory_format\", \"started\", \"low\");\n \n         createTrainedModel(\"new_memory_format\", ByteSizeValue.ofMb(300).getBytes(), ByteSizeValue.ofMb(10).getBytes());\n         putModelDefinition(\"new_memory_format\");\n         putVocabulary(List.of(\"these\", \"are\", \"my\", \"words\"), \"new_memory_format\");\n-        startDeployment(\"new_memory_format\");\n+        startDeployment(\"new_memory_format\", \"started\", \"low\");\n     }\n \n     private void cleanupDeployments() throws IOException {\n@@ -248,10 +247,14 @@ private void deleteTrainedModel(String modelId) throws IOException {\n     }\n \n     private Response startDeployment(String modelId) throws IOException {\n-        return startDeployment(modelId, \"started\");\n+        return startDeployment(modelId, \"started\", \"normal\");\n     }\n \n     private Response startDeployment(String modelId, String waitForState) throws IOException {\n+        return startDeployment(modelId, waitForState, \"normal\");\n+    }\n+\n+    private Response startDeployment(String modelId, String waitForState, String priority) throws IOException {\n         String inferenceThreadParamName = \"threads_per_allocation\";\n         String modelThreadParamName = \"number_of_allocations\";\n         String compatibleHeader = null;\n@@ -271,7 +274,8 @@ private Response startDeployment(String modelId, String waitForState) throws IOE\n                 + inferenceThreadParamName\n                 + \"=1&\"\n                 + modelThreadParamName\n-                + \"=1\"\n+                + \"=1&priority=\"\n+                + priority\n         );\n         if (compatibleHeader != null) {\n             request.setOptions(request.getOptions().toBuilder().addHeader(\"Accept\", compatibleHeader).build());"
+    }
+  ],
+  "diff": "diff --git a/x-pack/qa/rolling-upgrade/src/test/java/org/elasticsearch/upgrades/MlAssignmentPlannerUpgradeIT.java b/x-pack/qa/rolling-upgrade/src/test/java/org/elasticsearch/upgrades/MlAssignmentPlannerUpgradeIT.java\nindex 07d9de3dea6ac..e8443bef65436 100644\n--- a/x-pack/qa/rolling-upgrade/src/test/java/org/elasticsearch/upgrades/MlAssignmentPlannerUpgradeIT.java\n+++ b/x-pack/qa/rolling-upgrade/src/test/java/org/elasticsearch/upgrades/MlAssignmentPlannerUpgradeIT.java\n@@ -67,7 +67,6 @@ public class MlAssignmentPlannerUpgradeIT extends AbstractUpgradeTestCase {\n         RAW_MODEL_SIZE = Base64.getDecoder().decode(BASE_64_ENCODED_MODEL).length;\n     }\n \n-    @AwaitsFix(bugUrl = \"https://github.com/elastic/elasticsearch/issues/101926\")\n     public void testMlAssignmentPlannerUpgrade() throws Exception {\n         assumeFalse(\"This test deploys multiple models which cannot be accommodated on a single processor\", IS_SINGLE_PROCESSOR_TEST);\n \n@@ -187,12 +186,12 @@ private void setupDeployments() throws Exception {\n         createTrainedModel(\"old_memory_format\", 0, 0);\n         putModelDefinition(\"old_memory_format\");\n         putVocabulary(List.of(\"these\", \"are\", \"my\", \"words\"), \"old_memory_format\");\n-        startDeployment(\"old_memory_format\");\n+        startDeployment(\"old_memory_format\", \"started\", \"low\");\n \n         createTrainedModel(\"new_memory_format\", ByteSizeValue.ofMb(300).getBytes(), ByteSizeValue.ofMb(10).getBytes());\n         putModelDefinition(\"new_memory_format\");\n         putVocabulary(List.of(\"these\", \"are\", \"my\", \"words\"), \"new_memory_format\");\n-        startDeployment(\"new_memory_format\");\n+        startDeployment(\"new_memory_format\", \"started\", \"low\");\n     }\n \n     private void cleanupDeployments() throws IOException {\n@@ -248,10 +247,14 @@ private void deleteTrainedModel(String modelId) throws IOException {\n     }\n \n     private Response startDeployment(String modelId) throws IOException {\n-        return startDeployment(modelId, \"started\");\n+        return startDeployment(modelId, \"started\", \"normal\");\n     }\n \n     private Response startDeployment(String modelId, String waitForState) throws IOException {\n+        return startDeployment(modelId, waitForState, \"normal\");\n+    }\n+\n+    private Response startDeployment(String modelId, String waitForState, String priority) throws IOException {\n         String inferenceThreadParamName = \"threads_per_allocation\";\n         String modelThreadParamName = \"number_of_allocations\";\n         String compatibleHeader = null;\n@@ -271,7 +274,8 @@ private Response startDeployment(String modelId, String waitForState) throws IOE\n                 + inferenceThreadParamName\n                 + \"=1&\"\n                 + modelThreadParamName\n-                + \"=1\"\n+                + \"=1&priority=\"\n+                + priority\n         );\n         if (compatibleHeader != null) {\n             request.setOptions(request.getOptions().toBuilder().addHeader(\"Accept\", compatibleHeader).build());\n",
+  "additions": 9,
+  "deletions": 5,
+  "changed_files": 1,
+  "url": "https://github.com/elastic/elasticsearch/pull/137080",
+  "mined_at": "2025-10-25T13:24:00.359078"
+}

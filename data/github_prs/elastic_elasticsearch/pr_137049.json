@@ -1,0 +1,82 @@
+{
+  "id": 137049,
+  "repository": "elastic/elasticsearch",
+  "title": "Finalize release notes for v9.1.6 release",
+  "body": "This PR was auto-generated. Please merge after approval. cc @elastic/es-delivery",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-23T19:40:09+00:00",
+  "created_at": "2025-10-23T16:06:05+00:00",
+  "updated_at": "2025-10-23T19:40:11+00:00",
+  "author": "elasticsearchmachine",
+  "reviewers": [
+    "leemthompo"
+  ],
+  "base_sha": "08c1e1b1ddfd05da75156c75ab016653e4034af7",
+  "head_sha": "5714b77855c3b382b4a6877f858b7ddc8ab0ca2d",
+  "review_comments": [
+    {
+      "user": "leemthompo",
+      "state": "APPROVED",
+      "body": "",
+      "submitted_at": "2025-10-23T19:40:02+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/core-docs (Team:Docs)",
+      "created_at": "2025-10-23T16:06:30+00:00"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "## 🔍 Preview links for changed docs\n- [docs/release-notes/breaking-changes.md](https://docs-v3-preview.elastic.dev/elastic/elasticsearch/pull/137049/release-notes/breaking-changes)\n- [docs/release-notes/deprecations.md](https://docs-v3-preview.elastic.dev/elastic/elasticsearch/pull/137049/release-notes/deprecations)\n- [docs/release-notes/index.md](https://docs-v3-preview.elastic.dev/elastic/elasticsearch/pull/137049/release-notes)",
+      "created_at": "2025-10-23T16:08:05+00:00"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "## ℹ️ Important: Docs version tagging\n\n👋 Thanks for updating the docs! Just a friendly reminder that our docs are now **cumulative**. This means all 9.x versions are documented on the same page and published off of the main branch, instead of creating separate pages for each minor version.\n\nWe use [applies_to tags](https://elastic.github.io/docs-builder/syntax/applies) to mark version-specific features and changes.\n\n<details>\n<summary>Expand for a quick overview</summary>\n\n### When to use applies_to tags:\n✅ At the page level to indicate which products/deployments the content applies to (mandatory)\n✅ When features change state (e.g. preview, ga) in a specific version\n✅ When availability differs across deployments and environments\n\n### What NOT to do:\n❌ Don't remove or replace information that applies to an older version\n❌ Don't add new information that applies to a specific version without an applies_to tag\n❌ Don't forget that applies_to tags can be used at the page, section, and inline level\n</details>\n\n### 🤔 Need help?\n- Check out the [cumulative docs guidelines](https://elastic.github.io/docs-builder/contribute/cumulative-docs/)\n- Reach out in the [#docs](https://elastic.slack.com/archives/C0JF80CJZ) Slack channel",
+      "created_at": "2025-10-23T16:08:06+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/release-notes/breaking-changes.md",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -12,9 +12,6 @@ If you are migrating from a version prior to version 9.0, you must first upgrade\n \n % ## Next version [elasticsearch-nextversion-breaking-changes]\n \n-```{applies_to}\n-stack: ga 9.1.6\n-```\n ## 9.1.6 [elasticsearch-9.1.6-breaking-changes]\n \n There are no breaking changes associated with this release."
+    },
+    {
+      "filename": "docs/release-notes/changelog-bundles/9.1.6.yml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -1,6 +1,6 @@\n version: 9.1.6\n-released: false\n-generated: 2025-10-22T17:03:50.756198780Z\n+released: true\n+generated: 2025-10-23T16:05:25.757289375Z\n changelogs:\n   - pr: 132651\n     summary: Use java8 variant of apm-agent"
+    },
+    {
+      "filename": "docs/release-notes/deprecations.md",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -16,9 +16,6 @@ To give you insight into what deprecated features you’re using, {{es}}:\n \n % ## Next version [elasticsearch-nextversion-deprecations]\n \n-```{applies_to}\n-stack: ga 9.1.6\n-```\n ## 9.1.6 [elasticsearch-9.1.6-deprecations]\n \n There are no deprecations associated with this release."
+    },
+    {
+      "filename": "docs/release-notes/index.md",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "patch": "@@ -21,9 +21,6 @@ To check for security updates, go to [Security announcements for the Elastic sta\n % *\n \n ## 9.1.6 [elasticsearch-9.1.6-release-notes]\n-```{applies_to}\n-stack: ga 9.1.6\n-```\n \n ### Features and enhancements [elasticsearch-9.1.6-features-enhancements]\n \n@@ -72,6 +69,7 @@ Vector Search:\n * Cardinality Aggregator Throws `UnsupportedOperationException` When Field Type is Vector [#135994](https://github.com/elastic/elasticsearch/pull/135994)\n \n \n+\n ## 9.2.0 [elasticsearch-9.2.0-release-notes]\n \n ### Highlights [elasticsearch-9.2.0-highlights]\n@@ -130,6 +128,7 @@ POST vectors/_search{\n   }\n }\n ```\n+\n `num_candidates` can be used for tuning approximate nature of the search.\n Or, more granular control can be provided by setting `visit_percentage` directly.\n ::::\n@@ -159,7 +158,6 @@ Queries containing LOOKUP JOIN now can be preformed on cross-cluster indices, fo\n ```yaml\n FROM logs-*, remote:logs-* | LOOKUP JOIN clients on ip | SORT timestamp | LIMIT 100\n ```\n-\n ::::\n \n ::::{dropdown} New lucene 10.3.0 release\n@@ -543,6 +541,8 @@ Vector Search:\n * Fix _inference_fields handling on old indices [#136312](https://github.com/elastic/elasticsearch/pull/136312) (issue: [#136130](https://github.com/elastic/elasticsearch/issues/136130))\n * Have top level knn searches tracked in query stats [#132548](https://github.com/elastic/elasticsearch/pull/132548)\n \n+\n+\n ## 9.0.8 [elasticsearch-9.0.8-release-notes]\n \n ### Highlights [elasticsearch-9.0.8-highlights]"
+    }
+  ],
+  "diff": "diff --git a/docs/release-notes/breaking-changes.md b/docs/release-notes/breaking-changes.md\nindex cc85da04cf457..0f9f2836d7991 100644\n--- a/docs/release-notes/breaking-changes.md\n+++ b/docs/release-notes/breaking-changes.md\n@@ -12,9 +12,6 @@ If you are migrating from a version prior to version 9.0, you must first upgrade\n \n % ## Next version [elasticsearch-nextversion-breaking-changes]\n \n-```{applies_to}\n-stack: ga 9.1.6\n-```\n ## 9.1.6 [elasticsearch-9.1.6-breaking-changes]\n \n There are no breaking changes associated with this release.\ndiff --git a/docs/release-notes/changelog-bundles/9.1.6.yml b/docs/release-notes/changelog-bundles/9.1.6.yml\nindex 70b7f4520d9e6..0b7b6a16b507b 100644\n--- a/docs/release-notes/changelog-bundles/9.1.6.yml\n+++ b/docs/release-notes/changelog-bundles/9.1.6.yml\n@@ -1,6 +1,6 @@\n version: 9.1.6\n-released: false\n-generated: 2025-10-22T17:03:50.756198780Z\n+released: true\n+generated: 2025-10-23T16:05:25.757289375Z\n changelogs:\n   - pr: 132651\n     summary: Use java8 variant of apm-agent\ndiff --git a/docs/release-notes/deprecations.md b/docs/release-notes/deprecations.md\nindex 1f0d40c3a3a8a..0f41aaa7466b0 100644\n--- a/docs/release-notes/deprecations.md\n+++ b/docs/release-notes/deprecations.md\n@@ -16,9 +16,6 @@ To give you insight into what deprecated features you’re using, {{es}}:\n \n % ## Next version [elasticsearch-nextversion-deprecations]\n \n-```{applies_to}\n-stack: ga 9.1.6\n-```\n ## 9.1.6 [elasticsearch-9.1.6-deprecations]\n \n There are no deprecations associated with this release.\ndiff --git a/docs/release-notes/index.md b/docs/release-notes/index.md\nindex 1a8d0bc2a177f..67af4fe1127de 100644\n--- a/docs/release-notes/index.md\n+++ b/docs/release-notes/index.md\n@@ -21,9 +21,6 @@ To check for security updates, go to [Security announcements for the Elastic sta\n % *\n \n ## 9.1.6 [elasticsearch-9.1.6-release-notes]\n-```{applies_to}\n-stack: ga 9.1.6\n-```\n \n ### Features and enhancements [elasticsearch-9.1.6-features-enhancements]\n \n@@ -72,6 +69,7 @@ Vector Search:\n * Cardinality Aggregator Throws `UnsupportedOperationException` When Field Type is Vector [#135994](https://github.com/elastic/elasticsearch/pull/135994)\n \n \n+\n ## 9.2.0 [elasticsearch-9.2.0-release-notes]\n \n ### Highlights [elasticsearch-9.2.0-highlights]\n@@ -130,6 +128,7 @@ POST vectors/_search{\n   }\n }\n ```\n+\n `num_candidates` can be used for tuning approximate nature of the search.\n Or, more granular control can be provided by setting `visit_percentage` directly.\n ::::\n@@ -159,7 +158,6 @@ Queries containing LOOKUP JOIN now can be preformed on cross-cluster indices, fo\n ```yaml\n FROM logs-*, remote:logs-* | LOOKUP JOIN clients on ip | SORT timestamp | LIMIT 100\n ```\n-\n ::::\n \n ::::{dropdown} New lucene 10.3.0 release\n@@ -543,6 +541,8 @@ Vector Search:\n * Fix _inference_fields handling on old indices [#136312](https://github.com/elastic/elasticsearch/pull/136312) (issue: [#136130](https://github.com/elastic/elasticsearch/issues/136130))\n * Have top level knn searches tracked in query stats [#132548](https://github.com/elastic/elasticsearch/pull/132548)\n \n+\n+\n ## 9.0.8 [elasticsearch-9.0.8-release-notes]\n \n ### Highlights [elasticsearch-9.0.8-highlights]\n",
+  "additions": 6,
+  "deletions": 12,
+  "changed_files": 4,
+  "url": "https://github.com/elastic/elasticsearch/pull/137049",
+  "mined_at": "2025-10-25T13:38:33.171508"
+}

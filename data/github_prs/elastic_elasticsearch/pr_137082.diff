@@ -1,0 +1,78 @@
+diff --git a/docs/changelog/137082.yaml b/docs/changelog/137082.yaml
+new file mode 100644
+index 0000000000000..ffb92a3876df1
+--- /dev/null
++++ b/docs/changelog/137082.yaml
+@@ -0,0 +1,5 @@
++pr: 137082
++summary: Validate multiple GROK patterns individually
++area: ES|QL
++type: bug
++issues: []
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java
+index 3caf9a9600f73..bdf89d08f93b6 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java
+@@ -223,18 +223,23 @@ public PlanFactory visitGrokCommand(EsqlBaseParser.GrokCommandContext ctx) {
+                 .map(stringContext -> BytesRefs.toString(visitString(stringContext).fold(patternFoldContext)))
+                 .toList();
+ 
+-            String combinePattern = org.elasticsearch.grok.Grok.combinePatterns(patterns);
+-
+-            Grok.Parser grokParser;
+-            try {
+-                grokParser = Grok.pattern(source, combinePattern);
+-            } catch (SyntaxException e) {
+-                if (patterns.size() == 1) {
+-                    throw new ParsingException(source, "Invalid GROK pattern [{}]: [{}]", patterns.getFirst(), e.getMessage());
+-                } else {
+-                    throw new ParsingException(source, "Invalid GROK patterns {}: [{}]", patterns, e.getMessage());
++            for (int i = 0; i < patterns.size(); i++) {
++                String pattern = patterns.get(i);
++
++                // Validate each pattern individually,
++                // as multiple invalid patterns could be combined to form a valid one
++                // see https://github.com/elastic/elasticsearch/issues/136750
++                try {
++                    Grok.pattern(source, pattern);
++                } catch (SyntaxException e) {
++                    throw new ParsingException(source(ctx.string(i)), "Invalid GROK pattern [{}]: [{}]", pattern, e.getMessage());
+                 }
+             }
++
++            String combinePattern = org.elasticsearch.grok.Grok.combinePatterns(patterns);
++
++            Grok.Parser grokParser = Grok.pattern(source, combinePattern);
++
+             validateGrokPattern(source, grokParser, combinePattern, patterns);
+             Grok result = new Grok(source(ctx), p, expression(ctx.primaryExpression()), grokParser);
+             return result;
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java
+index b61856ab5333e..a150e1270ac9d 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java
+@@ -1322,7 +1322,7 @@ public void testGrokPattern() {
+ 
+         expectError(
+             "row a = \"foo\" | GROK a \"(?P<justification>.+)\"",
+-            "line 1:17: Invalid GROK pattern [(?P<justification>.+)]: [undefined group option]"
++            "line 1:24: Invalid GROK pattern [(?P<justification>.+)]: [undefined group option]"
+         );
+ 
+         expectError(
+@@ -1333,8 +1333,14 @@ public void testGrokPattern() {
+ 
+         expectError(
+             "row a = \"foo\" | GROK a \"%{WORD:foo}\", \"(?P<justification>.+)\"",
+-            "line 1:17: Invalid GROK patterns [%{WORD:foo}, (?P<justification>.+)]: [undefined group option]"
++            "line 1:39: Invalid GROK pattern [(?P<justification>.+)]: [undefined group option]"
+         );
++
++        // when combining the pattern, the resulting string could be valid, but the single patterns are invalid
++        expectError("""
++            ROW a = "foo bar"
++            | GROK a "(%{WORD:word}", "x)"
++            """, "line 2:10: Invalid GROK pattern [(%{WORD:word}]: [end pattern with unmatched parenthesis]");
+     }
+ 
+     public void testLikeRLike() {

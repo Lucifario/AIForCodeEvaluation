@@ -1,0 +1,1764 @@
+diff --git a/android/guava-tests/test/com/google/common/graph/AbstractGraphTest.java b/android/guava-tests/test/com/google/common/graph/AbstractGraphTest.java
+index bcf9cf6d7680..071b040d8e9b 100644
+--- a/android/guava-tests/test/com/google/common/graph/AbstractGraphTest.java
++++ b/android/guava-tests/test/com/google/common/graph/AbstractGraphTest.java
+@@ -121,6 +121,17 @@ static <N> void validateGraph(Graph<N> graph) {
+     int edgeStart = graphString.indexOf("edges:");
+     String nodeString = graphString.substring(nodeStart, edgeStart);
+ 
++    Network<N, EndpointPair<N>> asNetwork = graph.asNetwork();
++    // Don't call AbstractNetworkTest.validateNetwork(asNetwork).  Mutual recursion.
++    assertThat(graph.nodes()).isEqualTo(asNetwork.nodes());
++    assertThat(graph.edges()).hasSize(asNetwork.edges().size());
++    assertThat(graph.nodeOrder()).isEqualTo(asNetwork.nodeOrder());
++    assertThat(graph.isDirected()).isEqualTo(asNetwork.isDirected());
++    assertThat(graph.allowsSelfLoops()).isEqualTo(asNetwork.allowsSelfLoops());
++    assertThat(asNetwork.edgeOrder()).isEqualTo(ElementOrder.unordered());
++    assertThat(asNetwork.allowsParallelEdges()).isFalse();
++    assertThat(asNetwork.asGraph()).isEqualTo(graph);
++
+     Set<EndpointPair<N>> allEndpointPairs = new HashSet<>();
+ 
+     for (N node : sanityCheckSet(graph.nodes())) {
+diff --git a/android/guava-tests/test/com/google/common/graph/ValueGraphTest.java b/android/guava-tests/test/com/google/common/graph/ValueGraphTest.java
+index b549a392c1fc..94dbafd74215 100644
+--- a/android/guava-tests/test/com/google/common/graph/ValueGraphTest.java
++++ b/android/guava-tests/test/com/google/common/graph/ValueGraphTest.java
+@@ -58,6 +58,17 @@ public void validateGraphState() {
+     assertThat(graph.isDirected()).isEqualTo(asGraph.isDirected());
+     assertThat(graph.allowsSelfLoops()).isEqualTo(asGraph.allowsSelfLoops());
+ 
++    Network<Integer, EndpointPair<Integer>> asNetwork = graph.asNetwork();
++    AbstractNetworkTest.validateNetwork(asNetwork);
++    assertThat(graph.nodes()).isEqualTo(asNetwork.nodes());
++    assertThat(graph.edges()).hasSize(asNetwork.edges().size());
++    assertThat(graph.nodeOrder()).isEqualTo(asNetwork.nodeOrder());
++    assertThat(graph.isDirected()).isEqualTo(asNetwork.isDirected());
++    assertThat(graph.allowsSelfLoops()).isEqualTo(asNetwork.allowsSelfLoops());
++    assertThat(asNetwork.edgeOrder()).isEqualTo(ElementOrder.unordered());
++    assertThat(asNetwork.allowsParallelEdges()).isFalse();
++    assertThat(asNetwork.asGraph()).isEqualTo(graph.asGraph());
++
+     for (Integer node : graph.nodes()) {
+       assertThat(graph.adjacentNodes(node)).isEqualTo(asGraph.adjacentNodes(node));
+       assertThat(graph.predecessors(node)).isEqualTo(asGraph.predecessors(node));
+diff --git a/android/guava/src/com/google/common/graph/AbstractBaseGraph.java b/android/guava/src/com/google/common/graph/AbstractBaseGraph.java
+index 9ce3838947b8..c1ec51da5c5a 100644
+--- a/android/guava/src/com/google/common/graph/AbstractBaseGraph.java
++++ b/android/guava/src/com/google/common/graph/AbstractBaseGraph.java
+@@ -108,7 +108,7 @@ public Set<EndpointPair<N>> incidentEdges(N node) {
+     checkNotNull(node);
+     checkArgument(nodes().contains(node), "Node %s is not an element of this graph.", node);
+     IncidentEdgeSet<N> incident =
+-        new IncidentEdgeSet<N>(this, node) {
++        new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.BOTH) {
+           @Override
+           public UnmodifiableIterator<EndpointPair<N>> iterator() {
+             if (graph.isDirected()) {
+@@ -172,6 +172,137 @@ public boolean hasEdgeConnecting(EndpointPair<N> endpoints) {
+     return nodes().contains(nodeU) && successors(nodeU).contains(nodeV);
+   }
+ 
++  @Override
++  public Network<N, EndpointPair<N>> asNetwork() {
++    return new AbstractNetwork<N, EndpointPair<N>>() {
++      @Override
++      public Set<N> nodes() {
++        return AbstractBaseGraph.this.nodes();
++      }
++
++      @Override
++      public Set<EndpointPair<N>> edges() {
++        return AbstractBaseGraph.this.edges();
++      }
++
++      @Override
++      public Graph<N> asGraph() {
++        if (AbstractBaseGraph.this instanceof Graph) {
++          return (Graph<N>) AbstractBaseGraph.this;
++        } else if (AbstractBaseGraph.this instanceof ValueGraph) {
++          return ((ValueGraph<N, ?>) AbstractBaseGraph.this).asGraph();
++        }
++        throw new UnsupportedOperationException(
++            "Unexpected graph type: " + AbstractBaseGraph.this.getClass());
++      }
++
++      @Override
++      public boolean isDirected() {
++        return AbstractBaseGraph.this.isDirected();
++      }
++
++      @Override
++      public boolean allowsParallelEdges() {
++        return false; // Graph doesn't allow parallel edges
++      }
++
++      @Override
++      public boolean allowsSelfLoops() {
++        return AbstractBaseGraph.this.allowsSelfLoops();
++      }
++
++      @Override
++      public ElementOrder<N> nodeOrder() {
++        return AbstractBaseGraph.this.nodeOrder();
++      }
++
++      @Override
++      public ElementOrder<EndpointPair<N>> edgeOrder() {
++        return ElementOrder.unordered(); // Graph doesn't define edge order
++      }
++
++      @Override
++      public Set<N> adjacentNodes(N node) {
++        return AbstractBaseGraph.this.adjacentNodes(node);
++      }
++
++      @Override
++      public Set<N> predecessors(N node) {
++        return AbstractBaseGraph.this.predecessors(node);
++      }
++
++      @Override
++      public Set<N> successors(N node) {
++        return AbstractBaseGraph.this.successors(node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> incidentEdges(N node) {
++        return AbstractBaseGraph.this.incidentEdges(node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> inEdges(N node) {
++        checkNotNull(node);
++        checkArgument(nodes().contains(node));
++        IncidentEdgeSet<N> incident =
++            new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.INCOMING) {
++              @Override
++              public UnmodifiableIterator<EndpointPair<N>> iterator() {
++                return Iterators.unmodifiableIterator(
++                    Iterators.transform(
++                        graph.predecessors(node).iterator(),
++                        (N predecessor) ->
++                            graph.isDirected()
++                                ? EndpointPair.ordered(predecessor, node)
++                                : EndpointPair.unordered(predecessor, node)));
++              }
++            };
++        return nodeInvalidatableSet(incident, node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> outEdges(N node) {
++        checkNotNull(node);
++        checkArgument(nodes().contains(node));
++        IncidentEdgeSet<N> incident =
++            new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.OUTGOING) {
++              @Override
++              public UnmodifiableIterator<EndpointPair<N>> iterator() {
++                return Iterators.unmodifiableIterator(
++                    Iterators.transform(
++                        graph.successors(node).iterator(),
++                        (N successor) ->
++                            graph.isDirected()
++                                ? EndpointPair.ordered(node, successor)
++                                : EndpointPair.unordered(node, successor)));
++              }
++            };
++        return nodeInvalidatableSet(incident, node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> adjacentEdges(EndpointPair<N> edge) {
++        checkArgument(edges().contains(edge));
++        N nodeU = edge.nodeU();
++        N nodeV = edge.nodeV();
++        Set<EndpointPair<N>> endpointPairIncidentEdges =
++            Sets.union(incidentEdges(nodeU), incidentEdges(nodeV));
++        return nodePairInvalidatableSet(
++            Sets.difference(endpointPairIncidentEdges, ImmutableSet.of(edge)), nodeU, nodeV);
++      }
++
++      @Override
++      public EndpointPair<N> incidentNodes(EndpointPair<N> edge) {
++        checkArgument(edges().contains(edge));
++        return edge;
++      }
++
++      // Don't override the existing edge[s]Connecting() or *degree() AbstractNetwork
++      // implementations; they call in/outEdges() and should be fine.
++    };
++  }
++
+   /**
+    * Throws {@code IllegalArgumentException} if the ordering of {@code endpoints} is not compatible
+    * with the directionality of this graph.
+diff --git a/android/guava/src/com/google/common/graph/ArchetypeGraph.java b/android/guava/src/com/google/common/graph/ArchetypeGraph.java
+new file mode 100644
+index 000000000000..bbbefe6103d7
+--- /dev/null
++++ b/android/guava/src/com/google/common/graph/ArchetypeGraph.java
+@@ -0,0 +1,191 @@
++/*
++ * Copyright (C) 2017 The Guava Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.google.common.graph;
++
++import java.util.Set;
++
++/**
++ * A non-public interface for the methods shared between {@link Graph}, {@link ValueGraph}, and
++ * {@link Network}.
++ *
++ * @author Joshua O'Madadhain
++ * @param <N> Node parameter type
++ */
++interface ArchetypeGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
++  //
++  // Graph-level accessors
++  //
++
++  /** Returns all nodes in this graph, in the order specified by {@link #nodeOrder()}. */
++  Set<N> nodes();
++
++  //
++  // Graph properties
++  //
++
++  /**
++   * Returns true if the edges in this graph are directed. Directed edges connect a {@link
++   * EndpointPair#source() source node} to a {@link EndpointPair#target() target node}, while
++   * undirected edges connect a pair of nodes to each other.
++   */
++  boolean isDirected();
++
++  /**
++   * Returns true if this graph allows self-loops (edges that connect a node to itself). Attempting
++   * to add a self-loop to a graph that does not allow them will throw an {@link
++   * IllegalArgumentException}.
++   */
++  boolean allowsSelfLoops();
++
++  /** Returns the order of iteration for the elements of {@link #nodes()}. */
++  ElementOrder<N> nodeOrder();
++
++  //
++  // Element-level accessors
++  //
++
++  /**
++   * Returns a live view of the nodes which have an incident edge in common with {@code node} in
++   * this graph.
++   *
++   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
++   *
++   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
++   * {@code view} returned by this method will be invalidated, and will throw {@code
++   * IllegalStateException} if it is accessed in any way, with the following exceptions:
++   *
++   * <ul>
++   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
++   *       involving {@code view} will throw)
++   *   <li>{@code hashCode()} does not throw
++   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
++   *       behavior is undefined
++   * </ul>
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  Set<N> adjacentNodes(N node);
++
++  /**
++   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
++   * traversing {@code node}'s incoming edges <i>against</i> the direction (if any) of the edge.
++   *
++   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
++   *
++   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
++   * {@code view} returned by this method will be invalidated, and will throw {@code
++   * IllegalStateException} if it is accessed in any way, with the following exceptions:
++   *
++   * <ul>
++   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
++   *       involving {@code view} will throw)
++   *   <li>{@code hashCode()} does not throw
++   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
++   *       behavior is undefined
++   * </ul>
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  @Override
++  Set<N> predecessors(N node);
++
++  /**
++   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
++   * traversing {@code node}'s outgoing edges in the direction (if any) of the edge.
++   *
++   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
++   *
++   * <p>This is <i>not</i> the same as "all nodes reachable from {@code node} by following outgoing
++   * edges". For that functionality, see {@link Graphs#reachableNodes(Graph, Object)}.
++   *
++   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
++   * {@code view} returned by this method will be invalidated, and will throw {@code
++   * IllegalStateException} if it is accessed in any way, with the following exceptions:
++   *
++   * <ul>
++   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
++   *       involving {@code view} will throw)
++   *   <li>{@code hashCode()} does not throw
++   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
++   *       behavior is undefined
++   * </ul>
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  @Override
++  Set<N> successors(N node);
++
++  /**
++   * Returns the count of {@code node}'s incident edges, counting self-loops twice (equivalently,
++   * the number of times an edge touches {@code node}).
++   *
++   * <p>For directed graphs, this is equal to {@code inDegree(node) + outDegree(node)}.
++   *
++   * <p>For undirected graphs, this is equal to {@code incidentEdges(node).size()} + (number of
++   * self-loops incident to {@code node}).
++   *
++   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  int degree(N node);
++
++  /**
++   * Returns the count of {@code node}'s incoming edges (equal to {@code predecessors(node).size()})
++   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
++   *
++   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  int inDegree(N node);
++
++  /**
++   * Returns the count of {@code node}'s outgoing edges (equal to {@code successors(node).size()})
++   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
++   *
++   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  int outDegree(N node);
++
++  /**
++   * Returns true if there is an edge that directly connects {@code nodeU} to {@code nodeV}. This is
++   * equivalent to {@code nodes().contains(nodeU) && successors(nodeU).contains(nodeV)}.
++   *
++   * <p>In an undirected graph, this is equal to {@code hasEdgeConnecting(nodeV, nodeU)}.
++   *
++   * @since 23.0
++   */
++  boolean hasEdgeConnecting(N nodeU, N nodeV);
++
++  /**
++   * Returns true if there is an edge that directly connects {@code endpoints} (in the order, if
++   * any, specified by {@code endpoints}). This is equivalent to {@code
++   * edges().contains(endpoints)}.
++   *
++   * <p>Unlike the other {@code EndpointPair}-accepting methods, this method does not throw if the
++   * endpoints are unordered; it simply returns false. This is for consistency with the behavior of
++   * {@link Collection#contains(Object)} (which does not generally throw if the object cannot be
++   * present in the collection), and the desire to have this method's behavior be compatible with
++   * {@code edges().contains(endpoints)}.
++   *
++   * @since 27.1
++   */
++  boolean hasEdgeConnecting(EndpointPair<N> endpoints);
++}
+diff --git a/android/guava/src/com/google/common/graph/BaseGraph.java b/android/guava/src/com/google/common/graph/BaseGraph.java
+index a451989e712b..4d41f389f81a 100644
+--- a/android/guava/src/com/google/common/graph/BaseGraph.java
++++ b/android/guava/src/com/google/common/graph/BaseGraph.java
+@@ -24,38 +24,14 @@
+  * @author James Sexton
+  * @param <N> Node parameter type
+  */
+-interface BaseGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
++interface BaseGraph<N> extends ArchetypeGraph<N> {
+   //
+   // Graph-level accessors
+   //
+ 
+-  /** Returns all nodes in this graph, in the order specified by {@link #nodeOrder()}. */
+-  Set<N> nodes();
+-
+   /** Returns all edges in this graph. */
+   Set<EndpointPair<N>> edges();
+ 
+-  //
+-  // Graph properties
+-  //
+-
+-  /**
+-   * Returns true if the edges in this graph are directed. Directed edges connect a {@link
+-   * EndpointPair#source() source node} to a {@link EndpointPair#target() target node}, while
+-   * undirected edges connect a pair of nodes to each other.
+-   */
+-  boolean isDirected();
+-
+-  /**
+-   * Returns true if this graph allows self-loops (edges that connect a node to itself). Attempting
+-   * to add a self-loop to a graph that does not allow them will throw an {@link
+-   * IllegalArgumentException}.
+-   */
+-  boolean allowsSelfLoops();
+-
+-  /** Returns the order of iteration for the elements of {@link #nodes()}. */
+-  ElementOrder<N> nodeOrder();
+-
+   /**
+    * Returns an {@link ElementOrder} that specifies the order of iteration for the elements of
+    * {@link #edges()}, {@link #adjacentNodes(Object)}, {@link #predecessors(Object)}, {@link
+@@ -65,80 +41,21 @@ interface BaseGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
+    */
+   ElementOrder<N> incidentEdgeOrder();
+ 
+-  //
+-  // Element-level accessors
+-  //
+-
+-  /**
+-   * Returns a live view of the nodes which have an incident edge in common with {@code node} in
+-   * this graph.
+-   *
+-   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
+-   *       involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  Set<N> adjacentNodes(N node);
+-
+   /**
+-   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
+-   * traversing {@code node}'s incoming edges <i>against</i> the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
+-   *       involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   * Returns a live view of this graph as a {@link Network} whose edges {@code E} are {@code
++   * EndpointPair<N>} objects (that is, a {@code Network<N, EndpointPair<N>>}). The resulting {@code
++   * Network}'s edge-oriented methods (such as {@code inEdges()}) will return views transformed from
++   * the corresponding node-oriented methods (such as {@code predecessors()}).
++   *
++   * <p>This capability facilitates writing implementations of <a
++   * href="https://github.com/google/guava/wiki/GraphsExplained#graph-types-for-algorithms">edge-oriented
++   * code</a>.
+    */
+-  @Override
+-  Set<N> predecessors(N node);
++  Network<N, EndpointPair<N>> asNetwork();
+ 
+-  /**
+-   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
+-   * traversing {@code node}'s outgoing edges in the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>This is <i>not</i> the same as "all nodes reachable from {@code node} by following outgoing
+-   * edges". For that functionality, see {@link Graphs#reachableNodes(Graph, Object)}.
+-   *
+-   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
+-   *       involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  @Override
+-  Set<N> successors(N node);
++  //
++  // Element-level accessors
++  //
+ 
+   /**
+    * Returns a live view of the edges in this graph whose endpoints include {@code node}.
+@@ -161,64 +78,4 @@ interface BaseGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
+    * @since 24.0
+    */
+   Set<EndpointPair<N>> incidentEdges(N node);
+-
+-  /**
+-   * Returns the count of {@code node}'s incident edges, counting self-loops twice (equivalently,
+-   * the number of times an edge touches {@code node}).
+-   *
+-   * <p>For directed graphs, this is equal to {@code inDegree(node) + outDegree(node)}.
+-   *
+-   * <p>For undirected graphs, this is equal to {@code incidentEdges(node).size()} + (number of
+-   * self-loops incident to {@code node}).
+-   *
+-   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  int degree(N node);
+-
+-  /**
+-   * Returns the count of {@code node}'s incoming edges (equal to {@code predecessors(node).size()})
+-   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
+-   *
+-   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  int inDegree(N node);
+-
+-  /**
+-   * Returns the count of {@code node}'s outgoing edges (equal to {@code successors(node).size()})
+-   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
+-   *
+-   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  int outDegree(N node);
+-
+-  /**
+-   * Returns true if there is an edge that directly connects {@code nodeU} to {@code nodeV}. This is
+-   * equivalent to {@code nodes().contains(nodeU) && successors(nodeU).contains(nodeV)}.
+-   *
+-   * <p>In an undirected graph, this is equal to {@code hasEdgeConnecting(nodeV, nodeU)}.
+-   *
+-   * @since 23.0
+-   */
+-  boolean hasEdgeConnecting(N nodeU, N nodeV);
+-
+-  /**
+-   * Returns true if there is an edge that directly connects {@code endpoints} (in the order, if
+-   * any, specified by {@code endpoints}). This is equivalent to {@code
+-   * edges().contains(endpoints)}.
+-   *
+-   * <p>Unlike the other {@code EndpointPair}-accepting methods, this method does not throw if the
+-   * endpoints are unordered; it simply returns false. This is for consistency with the behavior of
+-   * {@link Collection#contains(Object)} (which does not generally throw if the object cannot be
+-   * present in the collection), and the desire to have this method's behavior be compatible with
+-   * {@code edges().contains(endpoints)}.
+-   *
+-   * @since 27.1
+-   */
+-  boolean hasEdgeConnecting(EndpointPair<N> endpoints);
+ }
+diff --git a/android/guava/src/com/google/common/graph/Graphs.java b/android/guava/src/com/google/common/graph/Graphs.java
+index ead5bdc90f87..fd24df13fe85 100644
+--- a/android/guava/src/com/google/common/graph/Graphs.java
++++ b/android/guava/src/com/google/common/graph/Graphs.java
+@@ -366,7 +366,7 @@ public Set<N> successors(N node) {
+ 
+     @Override
+     public Set<EndpointPair<N>> incidentEdges(N node) {
+-      return new IncidentEdgeSet<N>(this, node) {
++      return new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.BOTH) {
+         @Override
+         public Iterator<EndpointPair<N>> iterator() {
+           return Iterators.transform(
+diff --git a/android/guava/src/com/google/common/graph/IncidentEdgeSet.java b/android/guava/src/com/google/common/graph/IncidentEdgeSet.java
+index 19e882e0e84b..50153d8d24f9 100644
+--- a/android/guava/src/com/google/common/graph/IncidentEdgeSet.java
++++ b/android/guava/src/com/google/common/graph/IncidentEdgeSet.java
+@@ -16,6 +16,7 @@
+ 
+ package com.google.common.graph;
+ 
++import com.google.common.collect.ImmutableSet;
+ import java.util.AbstractSet;
+ import java.util.Set;
+ import org.jspecify.annotations.Nullable;
+@@ -26,11 +27,19 @@
+  */
+ abstract class IncidentEdgeSet<N> extends AbstractSet<EndpointPair<N>> {
+   final N node;
+-  final BaseGraph<N> graph;
++  final ArchetypeGraph<N> graph;
++  final EdgeType edgeType;
+ 
+-  IncidentEdgeSet(BaseGraph<N> graph, N node) {
++  enum EdgeType {
++    INCOMING, // incoming incident edges only
++    OUTGOING, // outgoing incident edges only
++    BOTH // both incoming and outgoing incident edges
++  }
++
++  IncidentEdgeSet(ArchetypeGraph<N> graph, N node, EdgeType edgeType) {
+     this.graph = graph;
+     this.node = node;
++    this.edgeType = edgeType;
+   }
+ 
+   @Override
+@@ -41,9 +50,9 @@ public boolean remove(@Nullable Object o) {
+   @Override
+   public int size() {
+     if (graph.isDirected()) {
+-      return graph.inDegree(node)
+-          + graph.outDegree(node)
+-          - (graph.successors(node).contains(node) ? 1 : 0);
++      return predecessorsOrEmpty(node).size()
++          + successorsOrEmpty(node).size()
++          - (edgeType == EdgeType.BOTH && predecessorsOrEmpty(node).contains(node) ? 1 : 0);
+     } else {
+       return graph.adjacentNodes(node).size();
+     }
+@@ -56,19 +65,16 @@ public boolean contains(@Nullable Object obj) {
+     }
+     EndpointPair<?> endpointPair = (EndpointPair<?>) obj;
+ 
+-    if (graph.isDirected()) {
+-      if (!endpointPair.isOrdered()) {
+-        return false;
+-      }
++    if (graph.isDirected() != endpointPair.isOrdered()) {
++      return false;
++    }
+ 
++    if (graph.isDirected()) {
+       Object source = endpointPair.source();
+       Object target = endpointPair.target();
+-      return (node.equals(source) && graph.successors(node).contains(target))
+-          || (node.equals(target) && graph.predecessors(node).contains(source));
++      return (node.equals(source) && successorsOrEmpty(node).contains(target))
++          || (node.equals(target) && predecessorsOrEmpty(node).contains(source));
+     } else {
+-      if (endpointPair.isOrdered()) {
+-        return false;
+-      }
+       Set<N> adjacent = graph.adjacentNodes(node);
+       Object nodeU = endpointPair.nodeU();
+       Object nodeV = endpointPair.nodeV();
+@@ -77,4 +83,28 @@ public boolean contains(@Nullable Object obj) {
+           || (node.equals(nodeU) && adjacent.contains(nodeV));
+     }
+   }
++
++  /**
++   * Returns the predecessors of the given node, or an empty set if this set does not represent
++   * incoming edges.
++   */
++  private Set<N> predecessorsOrEmpty(N node) {
++    if (edgeType == EdgeType.INCOMING || edgeType == EdgeType.BOTH) {
++      return graph.predecessors(node);
++    } else {
++      return ImmutableSet.of();
++    }
++  }
++
++  /**
++   * Returns the successors of the given node, or an empty set if this set does not represent
++   * outgoing edges.
++   */
++  private Set<N> successorsOrEmpty(N node) {
++    if (edgeType == EdgeType.OUTGOING || edgeType == EdgeType.BOTH) {
++      return graph.successors(node);
++    } else {
++      return ImmutableSet.of();
++    }
++  }
+ }
+diff --git a/android/guava/src/com/google/common/graph/Network.java b/android/guava/src/com/google/common/graph/Network.java
+index 1368c4a062d7..42fec77e34d5 100644
+--- a/android/guava/src/com/google/common/graph/Network.java
++++ b/android/guava/src/com/google/common/graph/Network.java
+@@ -105,14 +105,11 @@
+  */
+ @Beta
+ @DoNotMock("Use NetworkBuilder to create a real instance")
+-public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
++public interface Network<N, E> extends ArchetypeGraph<N> {
+   //
+   // Network-level accessors
+   //
+ 
+-  /** Returns all nodes in this network, in the order specified by {@link #nodeOrder()}. */
+-  Set<N> nodes();
+-
+   /** Returns all edges in this network, in the order specified by {@link #edgeOrder()}. */
+   Set<E> edges();
+ 
+@@ -130,29 +127,12 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+   // Network properties
+   //
+ 
+-  /**
+-   * Returns true if the edges in this network are directed. Directed edges connect a {@link
+-   * EndpointPair#source() source node} to a {@link EndpointPair#target() target node}, while
+-   * undirected edges connect a pair of nodes to each other.
+-   */
+-  boolean isDirected();
+-
+   /**
+    * Returns true if this network allows parallel edges. Attempting to add a parallel edge to a
+    * network that does not allow them will throw an {@link IllegalArgumentException}.
+    */
+   boolean allowsParallelEdges();
+ 
+-  /**
+-   * Returns true if this network allows self-loops (edges that connect a node to itself).
+-   * Attempting to add a self-loop to a network that does not allow them will throw an {@link
+-   * IllegalArgumentException}.
+-   */
+-  boolean allowsSelfLoops();
+-
+-  /** Returns the order of iteration for the elements of {@link #nodes()}. */
+-  ElementOrder<N> nodeOrder();
+-
+   /** Returns the order of iteration for the elements of {@link #edges()}. */
+   ElementOrder<E> edgeOrder();
+ 
+@@ -160,69 +140,6 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+   // Element-level accessors
+   //
+ 
+-  /**
+-   * Returns a live view of the nodes which have an incident edge in common with {@code node} in
+-   * this network.
+-   *
+-   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the network after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other {@code equals()}
+-   *       expression involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the network after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this network
+-   */
+-  Set<N> adjacentNodes(N node);
+-
+-  /**
+-   * Returns a live view of all nodes in this network adjacent to {@code node} which can be reached
+-   * by traversing {@code node}'s incoming edges <i>against</i> the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected network, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the network after this method is called, the {@code Set}
+-   * returned by this method will be invalidated, and will throw {@code IllegalStateException} if it
+-   * is accessed in any way.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this network
+-   */
+-  @Override
+-  Set<N> predecessors(N node);
+-
+-  /**
+-   * Returns a live view of all nodes in this network adjacent to {@code node} which can be reached
+-   * by traversing {@code node}'s outgoing edges in the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected network, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>This is <i>not</i> the same as "all nodes reachable from {@code node} by following outgoing
+-   * edges". For that functionality, see {@link Graphs#reachableNodes(Graph, Object)}.
+-   *
+-   * <p>If {@code node} is removed from the network after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other {@code equals()}
+-   *       expression involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the network after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this network
+-   */
+-  @Override
+-  Set<N> successors(N node);
+-
+   /**
+    * Returns a live view of the edges whose {@link #incidentNodes(Object) incident nodes} in this
+    * network include {@code node}.
+@@ -307,6 +224,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @throws IllegalArgumentException if {@code node} is not an element of this network
+    */
++  @Override
+   int degree(N node);
+ 
+   /**
+@@ -317,6 +235,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @throws IllegalArgumentException if {@code node} is not an element of this network
+    */
++  @Override
+   int inDegree(N node);
+ 
+   /**
+@@ -327,6 +246,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @throws IllegalArgumentException if {@code node} is not an element of this network
+    */
++  @Override
+   int outDegree(N node);
+ 
+   /**
+@@ -452,6 +372,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @since 23.0
+    */
++  @Override
+   boolean hasEdgeConnecting(N nodeU, N nodeV);
+ 
+   /**
+@@ -465,6 +386,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @since 27.1
+    */
++  @Override
+   boolean hasEdgeConnecting(EndpointPair<N> endpoints);
+ 
+   //
+diff --git a/android/guava/src/com/google/common/graph/StandardValueGraph.java b/android/guava/src/com/google/common/graph/StandardValueGraph.java
+index 568f0f63274d..12a5183d1827 100644
+--- a/android/guava/src/com/google/common/graph/StandardValueGraph.java
++++ b/android/guava/src/com/google/common/graph/StandardValueGraph.java
+@@ -119,7 +119,7 @@ public Set<N> successors(N node) {
+   public Set<EndpointPair<N>> incidentEdges(N node) {
+     GraphConnections<N, V> connections = checkedConnections(node);
+     IncidentEdgeSet<N> incident =
+-        new IncidentEdgeSet<N>(this, node) {
++        new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.BOTH) {
+           @Override
+           public Iterator<EndpointPair<N>> iterator() {
+             return connections.incidentEdgeIterator(node);
+diff --git a/guava-tests/test/com/google/common/graph/AbstractGraphTest.java b/guava-tests/test/com/google/common/graph/AbstractGraphTest.java
+index bcf9cf6d7680..071b040d8e9b 100644
+--- a/guava-tests/test/com/google/common/graph/AbstractGraphTest.java
++++ b/guava-tests/test/com/google/common/graph/AbstractGraphTest.java
+@@ -121,6 +121,17 @@ static <N> void validateGraph(Graph<N> graph) {
+     int edgeStart = graphString.indexOf("edges:");
+     String nodeString = graphString.substring(nodeStart, edgeStart);
+ 
++    Network<N, EndpointPair<N>> asNetwork = graph.asNetwork();
++    // Don't call AbstractNetworkTest.validateNetwork(asNetwork).  Mutual recursion.
++    assertThat(graph.nodes()).isEqualTo(asNetwork.nodes());
++    assertThat(graph.edges()).hasSize(asNetwork.edges().size());
++    assertThat(graph.nodeOrder()).isEqualTo(asNetwork.nodeOrder());
++    assertThat(graph.isDirected()).isEqualTo(asNetwork.isDirected());
++    assertThat(graph.allowsSelfLoops()).isEqualTo(asNetwork.allowsSelfLoops());
++    assertThat(asNetwork.edgeOrder()).isEqualTo(ElementOrder.unordered());
++    assertThat(asNetwork.allowsParallelEdges()).isFalse();
++    assertThat(asNetwork.asGraph()).isEqualTo(graph);
++
+     Set<EndpointPair<N>> allEndpointPairs = new HashSet<>();
+ 
+     for (N node : sanityCheckSet(graph.nodes())) {
+diff --git a/guava-tests/test/com/google/common/graph/ValueGraphTest.java b/guava-tests/test/com/google/common/graph/ValueGraphTest.java
+index b71db5d0be99..e13d0662ed34 100644
+--- a/guava-tests/test/com/google/common/graph/ValueGraphTest.java
++++ b/guava-tests/test/com/google/common/graph/ValueGraphTest.java
+@@ -58,6 +58,17 @@ public void validateGraphState() {
+     assertThat(graph.isDirected()).isEqualTo(asGraph.isDirected());
+     assertThat(graph.allowsSelfLoops()).isEqualTo(asGraph.allowsSelfLoops());
+ 
++    Network<Integer, EndpointPair<Integer>> asNetwork = graph.asNetwork();
++    AbstractNetworkTest.validateNetwork(asNetwork);
++    assertThat(graph.nodes()).isEqualTo(asNetwork.nodes());
++    assertThat(graph.edges()).hasSize(asNetwork.edges().size());
++    assertThat(graph.nodeOrder()).isEqualTo(asNetwork.nodeOrder());
++    assertThat(graph.isDirected()).isEqualTo(asNetwork.isDirected());
++    assertThat(graph.allowsSelfLoops()).isEqualTo(asNetwork.allowsSelfLoops());
++    assertThat(asNetwork.edgeOrder()).isEqualTo(ElementOrder.unordered());
++    assertThat(asNetwork.allowsParallelEdges()).isFalse();
++    assertThat(asNetwork.asGraph()).isEqualTo(graph.asGraph());
++
+     for (Integer node : graph.nodes()) {
+       assertThat(graph.adjacentNodes(node)).isEqualTo(asGraph.adjacentNodes(node));
+       assertThat(graph.predecessors(node)).isEqualTo(asGraph.predecessors(node));
+diff --git a/guava/src/com/google/common/graph/AbstractBaseGraph.java b/guava/src/com/google/common/graph/AbstractBaseGraph.java
+index 9ce3838947b8..c1ec51da5c5a 100644
+--- a/guava/src/com/google/common/graph/AbstractBaseGraph.java
++++ b/guava/src/com/google/common/graph/AbstractBaseGraph.java
+@@ -108,7 +108,7 @@ public Set<EndpointPair<N>> incidentEdges(N node) {
+     checkNotNull(node);
+     checkArgument(nodes().contains(node), "Node %s is not an element of this graph.", node);
+     IncidentEdgeSet<N> incident =
+-        new IncidentEdgeSet<N>(this, node) {
++        new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.BOTH) {
+           @Override
+           public UnmodifiableIterator<EndpointPair<N>> iterator() {
+             if (graph.isDirected()) {
+@@ -172,6 +172,137 @@ public boolean hasEdgeConnecting(EndpointPair<N> endpoints) {
+     return nodes().contains(nodeU) && successors(nodeU).contains(nodeV);
+   }
+ 
++  @Override
++  public Network<N, EndpointPair<N>> asNetwork() {
++    return new AbstractNetwork<N, EndpointPair<N>>() {
++      @Override
++      public Set<N> nodes() {
++        return AbstractBaseGraph.this.nodes();
++      }
++
++      @Override
++      public Set<EndpointPair<N>> edges() {
++        return AbstractBaseGraph.this.edges();
++      }
++
++      @Override
++      public Graph<N> asGraph() {
++        if (AbstractBaseGraph.this instanceof Graph) {
++          return (Graph<N>) AbstractBaseGraph.this;
++        } else if (AbstractBaseGraph.this instanceof ValueGraph) {
++          return ((ValueGraph<N, ?>) AbstractBaseGraph.this).asGraph();
++        }
++        throw new UnsupportedOperationException(
++            "Unexpected graph type: " + AbstractBaseGraph.this.getClass());
++      }
++
++      @Override
++      public boolean isDirected() {
++        return AbstractBaseGraph.this.isDirected();
++      }
++
++      @Override
++      public boolean allowsParallelEdges() {
++        return false; // Graph doesn't allow parallel edges
++      }
++
++      @Override
++      public boolean allowsSelfLoops() {
++        return AbstractBaseGraph.this.allowsSelfLoops();
++      }
++
++      @Override
++      public ElementOrder<N> nodeOrder() {
++        return AbstractBaseGraph.this.nodeOrder();
++      }
++
++      @Override
++      public ElementOrder<EndpointPair<N>> edgeOrder() {
++        return ElementOrder.unordered(); // Graph doesn't define edge order
++      }
++
++      @Override
++      public Set<N> adjacentNodes(N node) {
++        return AbstractBaseGraph.this.adjacentNodes(node);
++      }
++
++      @Override
++      public Set<N> predecessors(N node) {
++        return AbstractBaseGraph.this.predecessors(node);
++      }
++
++      @Override
++      public Set<N> successors(N node) {
++        return AbstractBaseGraph.this.successors(node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> incidentEdges(N node) {
++        return AbstractBaseGraph.this.incidentEdges(node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> inEdges(N node) {
++        checkNotNull(node);
++        checkArgument(nodes().contains(node));
++        IncidentEdgeSet<N> incident =
++            new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.INCOMING) {
++              @Override
++              public UnmodifiableIterator<EndpointPair<N>> iterator() {
++                return Iterators.unmodifiableIterator(
++                    Iterators.transform(
++                        graph.predecessors(node).iterator(),
++                        (N predecessor) ->
++                            graph.isDirected()
++                                ? EndpointPair.ordered(predecessor, node)
++                                : EndpointPair.unordered(predecessor, node)));
++              }
++            };
++        return nodeInvalidatableSet(incident, node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> outEdges(N node) {
++        checkNotNull(node);
++        checkArgument(nodes().contains(node));
++        IncidentEdgeSet<N> incident =
++            new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.OUTGOING) {
++              @Override
++              public UnmodifiableIterator<EndpointPair<N>> iterator() {
++                return Iterators.unmodifiableIterator(
++                    Iterators.transform(
++                        graph.successors(node).iterator(),
++                        (N successor) ->
++                            graph.isDirected()
++                                ? EndpointPair.ordered(node, successor)
++                                : EndpointPair.unordered(node, successor)));
++              }
++            };
++        return nodeInvalidatableSet(incident, node);
++      }
++
++      @Override
++      public Set<EndpointPair<N>> adjacentEdges(EndpointPair<N> edge) {
++        checkArgument(edges().contains(edge));
++        N nodeU = edge.nodeU();
++        N nodeV = edge.nodeV();
++        Set<EndpointPair<N>> endpointPairIncidentEdges =
++            Sets.union(incidentEdges(nodeU), incidentEdges(nodeV));
++        return nodePairInvalidatableSet(
++            Sets.difference(endpointPairIncidentEdges, ImmutableSet.of(edge)), nodeU, nodeV);
++      }
++
++      @Override
++      public EndpointPair<N> incidentNodes(EndpointPair<N> edge) {
++        checkArgument(edges().contains(edge));
++        return edge;
++      }
++
++      // Don't override the existing edge[s]Connecting() or *degree() AbstractNetwork
++      // implementations; they call in/outEdges() and should be fine.
++    };
++  }
++
+   /**
+    * Throws {@code IllegalArgumentException} if the ordering of {@code endpoints} is not compatible
+    * with the directionality of this graph.
+diff --git a/guava/src/com/google/common/graph/ArchetypeGraph.java b/guava/src/com/google/common/graph/ArchetypeGraph.java
+new file mode 100644
+index 000000000000..bbbefe6103d7
+--- /dev/null
++++ b/guava/src/com/google/common/graph/ArchetypeGraph.java
+@@ -0,0 +1,191 @@
++/*
++ * Copyright (C) 2017 The Guava Authors
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.google.common.graph;
++
++import java.util.Set;
++
++/**
++ * A non-public interface for the methods shared between {@link Graph}, {@link ValueGraph}, and
++ * {@link Network}.
++ *
++ * @author Joshua O'Madadhain
++ * @param <N> Node parameter type
++ */
++interface ArchetypeGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
++  //
++  // Graph-level accessors
++  //
++
++  /** Returns all nodes in this graph, in the order specified by {@link #nodeOrder()}. */
++  Set<N> nodes();
++
++  //
++  // Graph properties
++  //
++
++  /**
++   * Returns true if the edges in this graph are directed. Directed edges connect a {@link
++   * EndpointPair#source() source node} to a {@link EndpointPair#target() target node}, while
++   * undirected edges connect a pair of nodes to each other.
++   */
++  boolean isDirected();
++
++  /**
++   * Returns true if this graph allows self-loops (edges that connect a node to itself). Attempting
++   * to add a self-loop to a graph that does not allow them will throw an {@link
++   * IllegalArgumentException}.
++   */
++  boolean allowsSelfLoops();
++
++  /** Returns the order of iteration for the elements of {@link #nodes()}. */
++  ElementOrder<N> nodeOrder();
++
++  //
++  // Element-level accessors
++  //
++
++  /**
++   * Returns a live view of the nodes which have an incident edge in common with {@code node} in
++   * this graph.
++   *
++   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
++   *
++   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
++   * {@code view} returned by this method will be invalidated, and will throw {@code
++   * IllegalStateException} if it is accessed in any way, with the following exceptions:
++   *
++   * <ul>
++   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
++   *       involving {@code view} will throw)
++   *   <li>{@code hashCode()} does not throw
++   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
++   *       behavior is undefined
++   * </ul>
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  Set<N> adjacentNodes(N node);
++
++  /**
++   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
++   * traversing {@code node}'s incoming edges <i>against</i> the direction (if any) of the edge.
++   *
++   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
++   *
++   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
++   * {@code view} returned by this method will be invalidated, and will throw {@code
++   * IllegalStateException} if it is accessed in any way, with the following exceptions:
++   *
++   * <ul>
++   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
++   *       involving {@code view} will throw)
++   *   <li>{@code hashCode()} does not throw
++   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
++   *       behavior is undefined
++   * </ul>
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  @Override
++  Set<N> predecessors(N node);
++
++  /**
++   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
++   * traversing {@code node}'s outgoing edges in the direction (if any) of the edge.
++   *
++   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
++   *
++   * <p>This is <i>not</i> the same as "all nodes reachable from {@code node} by following outgoing
++   * edges". For that functionality, see {@link Graphs#reachableNodes(Graph, Object)}.
++   *
++   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
++   * {@code view} returned by this method will be invalidated, and will throw {@code
++   * IllegalStateException} if it is accessed in any way, with the following exceptions:
++   *
++   * <ul>
++   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
++   *       involving {@code view} will throw)
++   *   <li>{@code hashCode()} does not throw
++   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
++   *       behavior is undefined
++   * </ul>
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  @Override
++  Set<N> successors(N node);
++
++  /**
++   * Returns the count of {@code node}'s incident edges, counting self-loops twice (equivalently,
++   * the number of times an edge touches {@code node}).
++   *
++   * <p>For directed graphs, this is equal to {@code inDegree(node) + outDegree(node)}.
++   *
++   * <p>For undirected graphs, this is equal to {@code incidentEdges(node).size()} + (number of
++   * self-loops incident to {@code node}).
++   *
++   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  int degree(N node);
++
++  /**
++   * Returns the count of {@code node}'s incoming edges (equal to {@code predecessors(node).size()})
++   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
++   *
++   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  int inDegree(N node);
++
++  /**
++   * Returns the count of {@code node}'s outgoing edges (equal to {@code successors(node).size()})
++   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
++   *
++   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
++   *
++   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   */
++  int outDegree(N node);
++
++  /**
++   * Returns true if there is an edge that directly connects {@code nodeU} to {@code nodeV}. This is
++   * equivalent to {@code nodes().contains(nodeU) && successors(nodeU).contains(nodeV)}.
++   *
++   * <p>In an undirected graph, this is equal to {@code hasEdgeConnecting(nodeV, nodeU)}.
++   *
++   * @since 23.0
++   */
++  boolean hasEdgeConnecting(N nodeU, N nodeV);
++
++  /**
++   * Returns true if there is an edge that directly connects {@code endpoints} (in the order, if
++   * any, specified by {@code endpoints}). This is equivalent to {@code
++   * edges().contains(endpoints)}.
++   *
++   * <p>Unlike the other {@code EndpointPair}-accepting methods, this method does not throw if the
++   * endpoints are unordered; it simply returns false. This is for consistency with the behavior of
++   * {@link Collection#contains(Object)} (which does not generally throw if the object cannot be
++   * present in the collection), and the desire to have this method's behavior be compatible with
++   * {@code edges().contains(endpoints)}.
++   *
++   * @since 27.1
++   */
++  boolean hasEdgeConnecting(EndpointPair<N> endpoints);
++}
+diff --git a/guava/src/com/google/common/graph/BaseGraph.java b/guava/src/com/google/common/graph/BaseGraph.java
+index a451989e712b..4d41f389f81a 100644
+--- a/guava/src/com/google/common/graph/BaseGraph.java
++++ b/guava/src/com/google/common/graph/BaseGraph.java
+@@ -24,38 +24,14 @@
+  * @author James Sexton
+  * @param <N> Node parameter type
+  */
+-interface BaseGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
++interface BaseGraph<N> extends ArchetypeGraph<N> {
+   //
+   // Graph-level accessors
+   //
+ 
+-  /** Returns all nodes in this graph, in the order specified by {@link #nodeOrder()}. */
+-  Set<N> nodes();
+-
+   /** Returns all edges in this graph. */
+   Set<EndpointPair<N>> edges();
+ 
+-  //
+-  // Graph properties
+-  //
+-
+-  /**
+-   * Returns true if the edges in this graph are directed. Directed edges connect a {@link
+-   * EndpointPair#source() source node} to a {@link EndpointPair#target() target node}, while
+-   * undirected edges connect a pair of nodes to each other.
+-   */
+-  boolean isDirected();
+-
+-  /**
+-   * Returns true if this graph allows self-loops (edges that connect a node to itself). Attempting
+-   * to add a self-loop to a graph that does not allow them will throw an {@link
+-   * IllegalArgumentException}.
+-   */
+-  boolean allowsSelfLoops();
+-
+-  /** Returns the order of iteration for the elements of {@link #nodes()}. */
+-  ElementOrder<N> nodeOrder();
+-
+   /**
+    * Returns an {@link ElementOrder} that specifies the order of iteration for the elements of
+    * {@link #edges()}, {@link #adjacentNodes(Object)}, {@link #predecessors(Object)}, {@link
+@@ -65,80 +41,21 @@ interface BaseGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
+    */
+   ElementOrder<N> incidentEdgeOrder();
+ 
+-  //
+-  // Element-level accessors
+-  //
+-
+-  /**
+-   * Returns a live view of the nodes which have an incident edge in common with {@code node} in
+-   * this graph.
+-   *
+-   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
+-   *       involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  Set<N> adjacentNodes(N node);
+-
+   /**
+-   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
+-   * traversing {@code node}'s incoming edges <i>against</i> the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
+-   *       involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
++   * Returns a live view of this graph as a {@link Network} whose edges {@code E} are {@code
++   * EndpointPair<N>} objects (that is, a {@code Network<N, EndpointPair<N>>}). The resulting {@code
++   * Network}'s edge-oriented methods (such as {@code inEdges()}) will return views transformed from
++   * the corresponding node-oriented methods (such as {@code predecessors()}).
++   *
++   * <p>This capability facilitates writing implementations of <a
++   * href="https://github.com/google/guava/wiki/GraphsExplained#graph-types-for-algorithms">edge-oriented
++   * code</a>.
+    */
+-  @Override
+-  Set<N> predecessors(N node);
++  Network<N, EndpointPair<N>> asNetwork();
+ 
+-  /**
+-   * Returns a live view of all nodes in this graph adjacent to {@code node} which can be reached by
+-   * traversing {@code node}'s outgoing edges in the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected graph, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>This is <i>not</i> the same as "all nodes reachable from {@code node} by following outgoing
+-   * edges". For that functionality, see {@link Graphs#reachableNodes(Graph, Object)}.
+-   *
+-   * <p>If {@code node} is removed from the graph after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other `equals()` expression
+-   *       involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the graph after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  @Override
+-  Set<N> successors(N node);
++  //
++  // Element-level accessors
++  //
+ 
+   /**
+    * Returns a live view of the edges in this graph whose endpoints include {@code node}.
+@@ -161,64 +78,4 @@ interface BaseGraph<N> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
+    * @since 24.0
+    */
+   Set<EndpointPair<N>> incidentEdges(N node);
+-
+-  /**
+-   * Returns the count of {@code node}'s incident edges, counting self-loops twice (equivalently,
+-   * the number of times an edge touches {@code node}).
+-   *
+-   * <p>For directed graphs, this is equal to {@code inDegree(node) + outDegree(node)}.
+-   *
+-   * <p>For undirected graphs, this is equal to {@code incidentEdges(node).size()} + (number of
+-   * self-loops incident to {@code node}).
+-   *
+-   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  int degree(N node);
+-
+-  /**
+-   * Returns the count of {@code node}'s incoming edges (equal to {@code predecessors(node).size()})
+-   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
+-   *
+-   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  int inDegree(N node);
+-
+-  /**
+-   * Returns the count of {@code node}'s outgoing edges (equal to {@code successors(node).size()})
+-   * in a directed graph. In an undirected graph, returns the {@link #degree(Object)}.
+-   *
+-   * <p>If the count is greater than {@code Integer.MAX_VALUE}, returns {@code Integer.MAX_VALUE}.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this graph
+-   */
+-  int outDegree(N node);
+-
+-  /**
+-   * Returns true if there is an edge that directly connects {@code nodeU} to {@code nodeV}. This is
+-   * equivalent to {@code nodes().contains(nodeU) && successors(nodeU).contains(nodeV)}.
+-   *
+-   * <p>In an undirected graph, this is equal to {@code hasEdgeConnecting(nodeV, nodeU)}.
+-   *
+-   * @since 23.0
+-   */
+-  boolean hasEdgeConnecting(N nodeU, N nodeV);
+-
+-  /**
+-   * Returns true if there is an edge that directly connects {@code endpoints} (in the order, if
+-   * any, specified by {@code endpoints}). This is equivalent to {@code
+-   * edges().contains(endpoints)}.
+-   *
+-   * <p>Unlike the other {@code EndpointPair}-accepting methods, this method does not throw if the
+-   * endpoints are unordered; it simply returns false. This is for consistency with the behavior of
+-   * {@link Collection#contains(Object)} (which does not generally throw if the object cannot be
+-   * present in the collection), and the desire to have this method's behavior be compatible with
+-   * {@code edges().contains(endpoints)}.
+-   *
+-   * @since 27.1
+-   */
+-  boolean hasEdgeConnecting(EndpointPair<N> endpoints);
+ }
+diff --git a/guava/src/com/google/common/graph/Graphs.java b/guava/src/com/google/common/graph/Graphs.java
+index ee54e392c1de..4966ed62b30d 100644
+--- a/guava/src/com/google/common/graph/Graphs.java
++++ b/guava/src/com/google/common/graph/Graphs.java
+@@ -367,7 +367,7 @@ public Set<N> successors(N node) {
+ 
+     @Override
+     public Set<EndpointPair<N>> incidentEdges(N node) {
+-      return new IncidentEdgeSet<N>(this, node) {
++      return new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.BOTH) {
+         @Override
+         public Iterator<EndpointPair<N>> iterator() {
+           return Iterators.transform(
+diff --git a/guava/src/com/google/common/graph/IncidentEdgeSet.java b/guava/src/com/google/common/graph/IncidentEdgeSet.java
+index 19e882e0e84b..50153d8d24f9 100644
+--- a/guava/src/com/google/common/graph/IncidentEdgeSet.java
++++ b/guava/src/com/google/common/graph/IncidentEdgeSet.java
+@@ -16,6 +16,7 @@
+ 
+ package com.google.common.graph;
+ 
++import com.google.common.collect.ImmutableSet;
+ import java.util.AbstractSet;
+ import java.util.Set;
+ import org.jspecify.annotations.Nullable;
+@@ -26,11 +27,19 @@
+  */
+ abstract class IncidentEdgeSet<N> extends AbstractSet<EndpointPair<N>> {
+   final N node;
+-  final BaseGraph<N> graph;
++  final ArchetypeGraph<N> graph;
++  final EdgeType edgeType;
+ 
+-  IncidentEdgeSet(BaseGraph<N> graph, N node) {
++  enum EdgeType {
++    INCOMING, // incoming incident edges only
++    OUTGOING, // outgoing incident edges only
++    BOTH // both incoming and outgoing incident edges
++  }
++
++  IncidentEdgeSet(ArchetypeGraph<N> graph, N node, EdgeType edgeType) {
+     this.graph = graph;
+     this.node = node;
++    this.edgeType = edgeType;
+   }
+ 
+   @Override
+@@ -41,9 +50,9 @@ public boolean remove(@Nullable Object o) {
+   @Override
+   public int size() {
+     if (graph.isDirected()) {
+-      return graph.inDegree(node)
+-          + graph.outDegree(node)
+-          - (graph.successors(node).contains(node) ? 1 : 0);
++      return predecessorsOrEmpty(node).size()
++          + successorsOrEmpty(node).size()
++          - (edgeType == EdgeType.BOTH && predecessorsOrEmpty(node).contains(node) ? 1 : 0);
+     } else {
+       return graph.adjacentNodes(node).size();
+     }
+@@ -56,19 +65,16 @@ public boolean contains(@Nullable Object obj) {
+     }
+     EndpointPair<?> endpointPair = (EndpointPair<?>) obj;
+ 
+-    if (graph.isDirected()) {
+-      if (!endpointPair.isOrdered()) {
+-        return false;
+-      }
++    if (graph.isDirected() != endpointPair.isOrdered()) {
++      return false;
++    }
+ 
++    if (graph.isDirected()) {
+       Object source = endpointPair.source();
+       Object target = endpointPair.target();
+-      return (node.equals(source) && graph.successors(node).contains(target))
+-          || (node.equals(target) && graph.predecessors(node).contains(source));
++      return (node.equals(source) && successorsOrEmpty(node).contains(target))
++          || (node.equals(target) && predecessorsOrEmpty(node).contains(source));
+     } else {
+-      if (endpointPair.isOrdered()) {
+-        return false;
+-      }
+       Set<N> adjacent = graph.adjacentNodes(node);
+       Object nodeU = endpointPair.nodeU();
+       Object nodeV = endpointPair.nodeV();
+@@ -77,4 +83,28 @@ public boolean contains(@Nullable Object obj) {
+           || (node.equals(nodeU) && adjacent.contains(nodeV));
+     }
+   }
++
++  /**
++   * Returns the predecessors of the given node, or an empty set if this set does not represent
++   * incoming edges.
++   */
++  private Set<N> predecessorsOrEmpty(N node) {
++    if (edgeType == EdgeType.INCOMING || edgeType == EdgeType.BOTH) {
++      return graph.predecessors(node);
++    } else {
++      return ImmutableSet.of();
++    }
++  }
++
++  /**
++   * Returns the successors of the given node, or an empty set if this set does not represent
++   * outgoing edges.
++   */
++  private Set<N> successorsOrEmpty(N node) {
++    if (edgeType == EdgeType.OUTGOING || edgeType == EdgeType.BOTH) {
++      return graph.successors(node);
++    } else {
++      return ImmutableSet.of();
++    }
++  }
+ }
+diff --git a/guava/src/com/google/common/graph/Network.java b/guava/src/com/google/common/graph/Network.java
+index 80c4d5c135b5..a87bc6c6cd54 100644
+--- a/guava/src/com/google/common/graph/Network.java
++++ b/guava/src/com/google/common/graph/Network.java
+@@ -106,14 +106,11 @@
+  */
+ @Beta
+ @DoNotMock("Use NetworkBuilder to create a real instance")
+-public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
++public interface Network<N, E> extends ArchetypeGraph<N> {
+   //
+   // Network-level accessors
+   //
+ 
+-  /** Returns all nodes in this network, in the order specified by {@link #nodeOrder()}. */
+-  Set<N> nodes();
+-
+   /** Returns all edges in this network, in the order specified by {@link #edgeOrder()}. */
+   Set<E> edges();
+ 
+@@ -131,29 +128,12 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+   // Network properties
+   //
+ 
+-  /**
+-   * Returns true if the edges in this network are directed. Directed edges connect a {@link
+-   * EndpointPair#source() source node} to a {@link EndpointPair#target() target node}, while
+-   * undirected edges connect a pair of nodes to each other.
+-   */
+-  boolean isDirected();
+-
+   /**
+    * Returns true if this network allows parallel edges. Attempting to add a parallel edge to a
+    * network that does not allow them will throw an {@link IllegalArgumentException}.
+    */
+   boolean allowsParallelEdges();
+ 
+-  /**
+-   * Returns true if this network allows self-loops (edges that connect a node to itself).
+-   * Attempting to add a self-loop to a network that does not allow them will throw an {@link
+-   * IllegalArgumentException}.
+-   */
+-  boolean allowsSelfLoops();
+-
+-  /** Returns the order of iteration for the elements of {@link #nodes()}. */
+-  ElementOrder<N> nodeOrder();
+-
+   /** Returns the order of iteration for the elements of {@link #edges()}. */
+   ElementOrder<E> edgeOrder();
+ 
+@@ -161,69 +141,6 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+   // Element-level accessors
+   //
+ 
+-  /**
+-   * Returns a live view of the nodes which have an incident edge in common with {@code node} in
+-   * this graph.
+-   *
+-   * <p>This is equal to the union of {@link #predecessors(Object)} and {@link #successors(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the network after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other {@code equals()}
+-   *       expression involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the network after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this network
+-   */
+-  Set<N> adjacentNodes(N node);
+-
+-  /**
+-   * Returns a live view of all nodes in this network adjacent to {@code node} which can be reached
+-   * by traversing {@code node}'s incoming edges <i>against</i> the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected network, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>If {@code node} is removed from the network after this method is called, the {@code Set}
+-   * returned by this method will be invalidated, and will throw {@code IllegalStateException} if it
+-   * is accessed in any way.
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this network
+-   */
+-  @Override
+-  Set<N> predecessors(N node);
+-
+-  /**
+-   * Returns a live view of all nodes in this network adjacent to {@code node} which can be reached
+-   * by traversing {@code node}'s outgoing edges in the direction (if any) of the edge.
+-   *
+-   * <p>In an undirected network, this is equivalent to {@link #adjacentNodes(Object)}.
+-   *
+-   * <p>This is <i>not</i> the same as "all nodes reachable from {@code node} by following outgoing
+-   * edges". For that functionality, see {@link Graphs#reachableNodes(Graph, Object)}.
+-   *
+-   * <p>If {@code node} is removed from the network after this method is called, the {@code Set}
+-   * {@code view} returned by this method will be invalidated, and will throw {@code
+-   * IllegalStateException} if it is accessed in any way, with the following exceptions:
+-   *
+-   * <ul>
+-   *   <li>{@code view.equals(view)} evaluates to {@code true} (but any other {@code equals()}
+-   *       expression involving {@code view} will throw)
+-   *   <li>{@code hashCode()} does not throw
+-   *   <li>if {@code node} is re-added to the network after having been removed, {@code view}'s
+-   *       behavior is undefined
+-   * </ul>
+-   *
+-   * @throws IllegalArgumentException if {@code node} is not an element of this network
+-   */
+-  @Override
+-  Set<N> successors(N node);
+-
+   /**
+    * Returns a live view of the edges whose {@link #incidentNodes(Object) incident nodes} in this
+    * network include {@code node}.
+@@ -308,6 +225,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @throws IllegalArgumentException if {@code node} is not an element of this network
+    */
++   @Override
+   int degree(N node);
+ 
+   /**
+@@ -318,6 +236,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @throws IllegalArgumentException if {@code node} is not an element of this network
+    */
++  @Override
+   int inDegree(N node);
+ 
+   /**
+@@ -328,6 +247,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @throws IllegalArgumentException if {@code node} is not an element of this network
+    */
++  @Override
+   int outDegree(N node);
+ 
+   /**
+@@ -482,6 +402,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @since 23.0
+    */
++  @Override
+   boolean hasEdgeConnecting(N nodeU, N nodeV);
+ 
+   /**
+@@ -495,6 +416,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
+    *
+    * @since 27.1
+    */
++   @Override
+   boolean hasEdgeConnecting(EndpointPair<N> endpoints);
+ 
+   //
+diff --git a/guava/src/com/google/common/graph/StandardValueGraph.java b/guava/src/com/google/common/graph/StandardValueGraph.java
+index 568f0f63274d..12a5183d1827 100644
+--- a/guava/src/com/google/common/graph/StandardValueGraph.java
++++ b/guava/src/com/google/common/graph/StandardValueGraph.java
+@@ -119,7 +119,7 @@ public Set<N> successors(N node) {
+   public Set<EndpointPair<N>> incidentEdges(N node) {
+     GraphConnections<N, V> connections = checkedConnections(node);
+     IncidentEdgeSet<N> incident =
+-        new IncidentEdgeSet<N>(this, node) {
++        new IncidentEdgeSet<N>(this, node, IncidentEdgeSet.EdgeType.BOTH) {
+           @Override
+           public Iterator<EndpointPair<N>> iterator() {
+             return connections.incidentEdgeIterator(node);

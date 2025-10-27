@@ -1,0 +1,116 @@
+diff --git a/android/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java b/android/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java
+index d25a42fb26d2..b9fa89379f68 100644
+--- a/android/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java
++++ b/android/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java
+@@ -564,7 +564,7 @@ public void hasEdgeConnecting_disconnectedNodes() {
+   }
+ 
+   @Test
+-  public void hasEdgesConnecting_nodesNotInGraph() {
++  public void hasEdgeConnecting_nodesNotInGraph() {
+     addNode(N1);
+     addNode(N2);
+     assertThat(network.hasEdgeConnecting(N1, NODE_NOT_IN_GRAPH)).isFalse();
+diff --git a/android/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java b/android/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java
+index 8bca34facc66..313879f9f6ab 100644
+--- a/android/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java
++++ b/android/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java
+@@ -150,6 +150,17 @@ public void hasEdgeConnecting_mismatch() {
+     assertThat(graph.hasEdgeConnecting(EndpointPair.unordered(N2, N1))).isFalse();
+   }
+ 
++  @Test
++  public void hasEdgeConnecting_missingNode() {
++    // both nodes missing
++    assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(NODE_NOT_IN_GRAPH, NODE_NOT_IN_GRAPH)))
++        .isFalse();
++
++    // one node present, the other missing
++    assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(NODE_NOT_IN_GRAPH, N4))).isFalse();
++    assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(N4, NODE_NOT_IN_GRAPH))).isFalse();
++  }
++
+   @Test
+   public void adjacentNodes_selfLoop() {
+     assume().that(graph.allowsSelfLoops()).isTrue();
+diff --git a/android/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java b/android/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java
+index 0af4dad4e9b1..d243858cc391 100644
+--- a/android/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java
++++ b/android/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java
+@@ -153,6 +153,18 @@ public void hasEdgeConnecting_mismatch() {
+     assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(N2, N1))).isFalse();
+   }
+ 
++  @Test
++  public void hasEdgeConnecting_missingNode() {
++    // both nodes missing
++    assertThat(
++            graph.hasEdgeConnecting(EndpointPair.unordered(NODE_NOT_IN_GRAPH, NODE_NOT_IN_GRAPH)))
++        .isFalse();
++
++    // one node present, the other missing
++    assertThat(graph.hasEdgeConnecting(EndpointPair.unordered(NODE_NOT_IN_GRAPH, N4))).isFalse();
++    assertThat(graph.hasEdgeConnecting(EndpointPair.unordered(N4, NODE_NOT_IN_GRAPH))).isFalse();
++  }
++
+   @Test
+   public void adjacentNodes_selfLoop() {
+     assume().that(graph.allowsSelfLoops()).isTrue();
+diff --git a/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java b/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java
+index 1bb639a5a3d1..da6bc5bd660b 100644
+--- a/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java
++++ b/guava-tests/test/com/google/common/graph/AbstractNetworkTest.java
+@@ -571,7 +571,7 @@ public void hasEdgeConnecting_disconnectedNodes() {
+   }
+ 
+   @Test
+-  public void hasEdgesConnecting_nodesNotInGraph() {
++  public void hasEdgeConnecting_nodesNotInGraph() {
+     addNode(N1);
+     addNode(N2);
+     assertThat(network.hasEdgeConnecting(N1, NODE_NOT_IN_GRAPH)).isFalse();
+diff --git a/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java b/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java
+index 8bca34facc66..313879f9f6ab 100644
+--- a/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java
++++ b/guava-tests/test/com/google/common/graph/AbstractStandardDirectedGraphTest.java
+@@ -150,6 +150,17 @@ public void hasEdgeConnecting_mismatch() {
+     assertThat(graph.hasEdgeConnecting(EndpointPair.unordered(N2, N1))).isFalse();
+   }
+ 
++  @Test
++  public void hasEdgeConnecting_missingNode() {
++    // both nodes missing
++    assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(NODE_NOT_IN_GRAPH, NODE_NOT_IN_GRAPH)))
++        .isFalse();
++
++    // one node present, the other missing
++    assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(NODE_NOT_IN_GRAPH, N4))).isFalse();
++    assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(N4, NODE_NOT_IN_GRAPH))).isFalse();
++  }
++
+   @Test
+   public void adjacentNodes_selfLoop() {
+     assume().that(graph.allowsSelfLoops()).isTrue();
+diff --git a/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java b/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java
+index 0af4dad4e9b1..d243858cc391 100644
+--- a/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java
++++ b/guava-tests/test/com/google/common/graph/AbstractStandardUndirectedGraphTest.java
+@@ -153,6 +153,18 @@ public void hasEdgeConnecting_mismatch() {
+     assertThat(graph.hasEdgeConnecting(EndpointPair.ordered(N2, N1))).isFalse();
+   }
+ 
++  @Test
++  public void hasEdgeConnecting_missingNode() {
++    // both nodes missing
++    assertThat(
++            graph.hasEdgeConnecting(EndpointPair.unordered(NODE_NOT_IN_GRAPH, NODE_NOT_IN_GRAPH)))
++        .isFalse();
++
++    // one node present, the other missing
++    assertThat(graph.hasEdgeConnecting(EndpointPair.unordered(NODE_NOT_IN_GRAPH, N4))).isFalse();
++    assertThat(graph.hasEdgeConnecting(EndpointPair.unordered(N4, NODE_NOT_IN_GRAPH))).isFalse();
++  }
++
+   @Test
+   public void adjacentNodes_selfLoop() {
+     assume().that(graph.allowsSelfLoops()).isTrue();

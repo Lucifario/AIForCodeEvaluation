@@ -1,0 +1,24 @@
+diff --git a/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java b/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java
+index bb2783a9d4f9..0b0c18c24330 100644
+--- a/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java
++++ b/android/guava-tests/test/com/google/common/reflect/TypeTokenTest.java
+@@ -1746,7 +1746,6 @@ Type type() {
+     }
+   }
+ 
+-  @SuppressWarnings("RestrictedApiChecker") // crashes under JDK8, which EP no longer supports
+   public <T> void testRejectTypeVariable_withOwnerType() {
+     // Neither has subclass
+     assertHasTypeVariable(new From<Integer>().new To<String>().type());
+diff --git a/guava-tests/test/com/google/common/reflect/TypeTokenTest.java b/guava-tests/test/com/google/common/reflect/TypeTokenTest.java
+index bb2783a9d4f9..0b0c18c24330 100644
+--- a/guava-tests/test/com/google/common/reflect/TypeTokenTest.java
++++ b/guava-tests/test/com/google/common/reflect/TypeTokenTest.java
+@@ -1746,7 +1746,6 @@ Type type() {
+     }
+   }
+ 
+-  @SuppressWarnings("RestrictedApiChecker") // crashes under JDK8, which EP no longer supports
+   public <T> void testRejectTypeVariable_withOwnerType() {
+     // Neither has subclass
+     assertHasTypeVariable(new From<Integer>().new To<String>().type());

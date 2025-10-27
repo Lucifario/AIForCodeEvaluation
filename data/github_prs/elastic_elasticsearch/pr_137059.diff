@@ -1,0 +1,12 @@
+diff --git a/docs/reference/query-languages/esql/functions-operators/search-functions.md b/docs/reference/query-languages/esql/functions-operators/search-functions.md
+index 1e3bfc8986e1b..05a27459b5ee8 100644
+--- a/docs/reference/query-languages/esql/functions-operators/search-functions.md
++++ b/docs/reference/query-languages/esql/functions-operators/search-functions.md
+@@ -20,6 +20,7 @@ including [KNN](dense-vector-functions.md#esql-knn), please refer to
+ the [Dense vector functions](dense-vector-functions.md) documentation.
+ :::
+ 
++Use these functions for [full-text search](docs-content://solutions/search/full-text.md) 
+ and [semantic search](docs-content://solutions/search/semantic-search/semantic-search-semantic-text.md).
+ 
+ Full text functions can be used to

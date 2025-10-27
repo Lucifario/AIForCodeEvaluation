@@ -1,0 +1,204 @@
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java b/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+index a8596bfb7eee..f2503d42b808 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+@@ -17,6 +17,7 @@
+ import static com.google.common.truth.Truth.assertThat;
+ import static com.google.common.util.concurrent.Futures.allAsList;
+ import static com.google.common.util.concurrent.Futures.getDone;
++import static com.google.common.util.concurrent.Futures.immediateVoidFuture;
+ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+ import static java.util.concurrent.Executors.newCachedThreadPool;
+ import static java.util.concurrent.Executors.newFixedThreadPool;
+@@ -66,7 +67,7 @@ public void tearDown() throws Exception {
+   public void testCallableStartsAfterFirstFutureCompletes() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(immediateVoidFuture());
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(secondCallable, directExecutor());
+     assertThat(firstCallable.called).isTrue();
+@@ -78,10 +79,10 @@ public void testCallableStartsAfterFirstFutureCompletes() {
+   public void testCancellationDoesNotViolateSerialization() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(immediateVoidFuture());
+     ListenableFuture<@Nullable Void> secondFuture =
+         serializer.submitAsync(secondCallable, directExecutor());
+-    TestCallable thirdCallable = new TestCallable(Futures.immediateFuture(null));
++    TestCallable thirdCallable = new TestCallable(immediateVoidFuture());
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(thirdCallable, directExecutor());
+     secondFuture.cancel(true);
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java b/android/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java
+index 7c8cf27d1914..9a8f7d65b652 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java
+@@ -19,6 +19,7 @@
+ import static com.google.common.util.concurrent.Futures.immediateCancelledFuture;
+ import static com.google.common.util.concurrent.Futures.immediateFailedFuture;
+ import static com.google.common.util.concurrent.Futures.immediateFuture;
++import static com.google.common.util.concurrent.Futures.immediateVoidFuture;
+ import static com.google.common.util.concurrent.ReflectionFreeAssertThrows.assertThrows;
+ 
+ import com.google.common.annotations.GwtCompatible;
+@@ -26,7 +27,6 @@
+ import java.util.concurrent.ExecutionException;
+ import junit.framework.TestCase;
+ import org.jspecify.annotations.NullUnmarked;
+-import org.jspecify.annotations.Nullable;
+ 
+ /** Unit tests for {@link Futures#getDone}. */
+ @GwtCompatible
+@@ -37,7 +37,7 @@ public void testSuccessful() throws ExecutionException {
+   }
+ 
+   public void testSuccessfulNull() throws ExecutionException {
+-    assertThat(getDone(Futures.<@Nullable String>immediateFuture(null))).isEqualTo(null);
++    assertThat(getDone(immediateVoidFuture())).isEqualTo(null);
+   }
+ 
+   public void testFailed() {
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java b/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+index 695af568a2b4..697febc40fb8 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+@@ -237,7 +237,7 @@ private static class BarChild extends Bar {}
+ 
+   @J2ktIncompatible // TODO(b/324550390): Enable
+   public void testTransform_genericsNull() throws Exception {
+-    ListenableFuture<?> nullFuture = immediateFuture(null);
++    ListenableFuture<?> nullFuture = immediateVoidFuture();
+     ListenableFuture<?> transformedFuture = transform(nullFuture, constant(null), directExecutor());
+     assertNull(getDone(transformedFuture));
+   }
+@@ -1555,7 +1555,7 @@ public ListenableFuture<O> apply(I input) {
+ 
+   @J2ktIncompatible // Wildcard generics
+   public void testTransformAsync_genericsWildcard_asyncFunction() throws Exception {
+-    ListenableFuture<?> nullFuture = immediateFuture(null);
++    ListenableFuture<?> nullFuture = immediateVoidFuture();
+     ListenableFuture<?> chainedFuture =
+         transformAsync(nullFuture, constantAsyncFunction(nullFuture), directExecutor());
+     assertNull(getDone(chainedFuture));
+diff --git a/android/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java b/android/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java
+index d8aa18a5155a..557f42fc6868 100644
+--- a/android/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java
++++ b/android/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java
+@@ -222,9 +222,9 @@ public String toString() {
+     Runnable listener =
+         () -> {
+           if (taskFuture.isDone()) {
+-            // Since the value of oldFuture can only ever be immediateFuture(null) or setFuture of
+-            // a future that eventually came from immediateFuture(null), this doesn't leak
+-            // throwables or completion values.
++            // Since the value of oldFuture can only ever be immediateVoidFuture() or setFuture of a
++            // future that eventually came from immediateVoidFuture(), this doesn't leak throwables
++            // or completion values.
+             newFuture.setFuture(oldFuture);
+           } else if (outputFuture.isCancelled() && taskExecutor.trySetCancelled()) {
+             // If this CAS succeeds, we know that the provided callable will never be invoked,
+diff --git a/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java b/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+index a8596bfb7eee..f2503d42b808 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/ExecutionSequencerTest.java
+@@ -17,6 +17,7 @@
+ import static com.google.common.truth.Truth.assertThat;
+ import static com.google.common.util.concurrent.Futures.allAsList;
+ import static com.google.common.util.concurrent.Futures.getDone;
++import static com.google.common.util.concurrent.Futures.immediateVoidFuture;
+ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+ import static java.util.concurrent.Executors.newCachedThreadPool;
+ import static java.util.concurrent.Executors.newFixedThreadPool;
+@@ -66,7 +67,7 @@ public void tearDown() throws Exception {
+   public void testCallableStartsAfterFirstFutureCompletes() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(immediateVoidFuture());
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(secondCallable, directExecutor());
+     assertThat(firstCallable.called).isTrue();
+@@ -78,10 +79,10 @@ public void testCallableStartsAfterFirstFutureCompletes() {
+   public void testCancellationDoesNotViolateSerialization() {
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError = serializer.submitAsync(firstCallable, directExecutor());
+-    TestCallable secondCallable = new TestCallable(Futures.immediateFuture(null));
++    TestCallable secondCallable = new TestCallable(immediateVoidFuture());
+     ListenableFuture<@Nullable Void> secondFuture =
+         serializer.submitAsync(secondCallable, directExecutor());
+-    TestCallable thirdCallable = new TestCallable(Futures.immediateFuture(null));
++    TestCallable thirdCallable = new TestCallable(immediateVoidFuture());
+     @SuppressWarnings({"unused", "nullness"})
+     Future<?> possiblyIgnoredError1 = serializer.submitAsync(thirdCallable, directExecutor());
+     secondFuture.cancel(true);
+diff --git a/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java b/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java
+index 7c8cf27d1914..9a8f7d65b652 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/FuturesGetDoneTest.java
+@@ -19,6 +19,7 @@
+ import static com.google.common.util.concurrent.Futures.immediateCancelledFuture;
+ import static com.google.common.util.concurrent.Futures.immediateFailedFuture;
+ import static com.google.common.util.concurrent.Futures.immediateFuture;
++import static com.google.common.util.concurrent.Futures.immediateVoidFuture;
+ import static com.google.common.util.concurrent.ReflectionFreeAssertThrows.assertThrows;
+ 
+ import com.google.common.annotations.GwtCompatible;
+@@ -26,7 +27,6 @@
+ import java.util.concurrent.ExecutionException;
+ import junit.framework.TestCase;
+ import org.jspecify.annotations.NullUnmarked;
+-import org.jspecify.annotations.Nullable;
+ 
+ /** Unit tests for {@link Futures#getDone}. */
+ @GwtCompatible
+@@ -37,7 +37,7 @@ public void testSuccessful() throws ExecutionException {
+   }
+ 
+   public void testSuccessfulNull() throws ExecutionException {
+-    assertThat(getDone(Futures.<@Nullable String>immediateFuture(null))).isEqualTo(null);
++    assertThat(getDone(immediateVoidFuture())).isEqualTo(null);
+   }
+ 
+   public void testFailed() {
+diff --git a/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java b/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+index 695af568a2b4..697febc40fb8 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java
+@@ -237,7 +237,7 @@ private static class BarChild extends Bar {}
+ 
+   @J2ktIncompatible // TODO(b/324550390): Enable
+   public void testTransform_genericsNull() throws Exception {
+-    ListenableFuture<?> nullFuture = immediateFuture(null);
++    ListenableFuture<?> nullFuture = immediateVoidFuture();
+     ListenableFuture<?> transformedFuture = transform(nullFuture, constant(null), directExecutor());
+     assertNull(getDone(transformedFuture));
+   }
+@@ -1555,7 +1555,7 @@ public ListenableFuture<O> apply(I input) {
+ 
+   @J2ktIncompatible // Wildcard generics
+   public void testTransformAsync_genericsWildcard_asyncFunction() throws Exception {
+-    ListenableFuture<?> nullFuture = immediateFuture(null);
++    ListenableFuture<?> nullFuture = immediateVoidFuture();
+     ListenableFuture<?> chainedFuture =
+         transformAsync(nullFuture, constantAsyncFunction(nullFuture), directExecutor());
+     assertNull(getDone(chainedFuture));
+diff --git a/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java b/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java
+index d8aa18a5155a..557f42fc6868 100644
+--- a/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java
++++ b/guava/src/com/google/common/util/concurrent/ExecutionSequencer.java
+@@ -222,9 +222,9 @@ public String toString() {
+     Runnable listener =
+         () -> {
+           if (taskFuture.isDone()) {
+-            // Since the value of oldFuture can only ever be immediateFuture(null) or setFuture of
+-            // a future that eventually came from immediateFuture(null), this doesn't leak
+-            // throwables or completion values.
++            // Since the value of oldFuture can only ever be immediateVoidFuture() or setFuture of a
++            // future that eventually came from immediateVoidFuture(), this doesn't leak throwables
++            // or completion values.
+             newFuture.setFuture(oldFuture);
+           } else if (outputFuture.isCancelled() && taskExecutor.trySetCancelled()) {
+             // If this CAS succeeds, we know that the provided callable will never be invoked,

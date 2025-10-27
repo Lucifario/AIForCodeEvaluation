@@ -1,0 +1,47 @@
+{
+  "id": 137056,
+  "repository": "elastic/elasticsearch",
+  "title": "Unmute testPartialResults",
+  "body": "Relate #131481\r\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-23T19:50:16+00:00",
+  "created_at": "2025-10-23T18:40:21+00:00",
+  "updated_at": "2025-10-23T19:50:39+00:00",
+  "author": "dnhatn",
+  "reviewers": [],
+  "base_sha": "8cbccc6531529da7901e06cb6d86b2c5c7023d16",
+  "head_sha": "b11d534cc1f772f3860c84fbaecccd1c89760217",
+  "review_comments": [],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/es-analytical-engine (Team:Analytics)",
+      "created_at": "2025-10-23T18:40:46+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "muted-tests.yml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -372,9 +372,6 @@ tests:\n - class: org.elasticsearch.xpack.ml.integration.InferenceIT\n   method: testInferClassificationModel\n   issue: https://github.com/elastic/elasticsearch/issues/133448\n-- class: org.elasticsearch.xpack.esql.action.CrossClusterQueryWithPartialResultsIT\n-  method: testPartialResults\n-  issue: https://github.com/elastic/elasticsearch/issues/131481\n - class: org.elasticsearch.xpack.ml.integration.ClassificationIT\n   method: testWithCustomFeatureProcessors\n   issue: https://github.com/elastic/elasticsearch/issues/134001"
+    },
+    {
+      "filename": "x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/CrossClusterQueryWithPartialResultsIT.java",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 3,
+      "changes": 11,
+      "patch": "@@ -102,17 +102,20 @@ private void assertClusterSuccess(EsqlQueryResponse resp, String clusterAlias, i\n \n     public void testPartialResults() throws Exception {\n         populateIndices();\n-        EsqlQueryRequest request = new EsqlQueryRequest();\n-        request.query(\"FROM ok*,fail*,*:ok*,*:fail* | KEEP id, fail_me | LIMIT 1000\");\n-        request.includeCCSMetadata(randomBoolean());\n         {\n+            EsqlQueryRequest request = new EsqlQueryRequest();\n+            request.query(\"FROM ok*,fail*,*:ok*,*:fail* | KEEP id, fail_me | LIMIT 1000\");\n+            request.includeCCSMetadata(randomBoolean());\n             request.allowPartialResults(false);\n             Exception error = expectThrows(Exception.class, () -> runQuery(request).close());\n             error = EsqlTestUtils.unwrapIfWrappedInRemoteException(error);\n \n             assertThat(error, instanceOf(IllegalStateException.class));\n             assertThat(error.getMessage(), containsString(\"Accessing failing field\"));\n         }\n+        EsqlQueryRequest request = new EsqlQueryRequest();\n+        request.query(\"FROM ok*,fail*,*:ok*,*:fail* | KEEP id, fail_me | LIMIT 1000\");\n+        request.includeCCSMetadata(randomBoolean());\n         request.allowPartialResults(true);\n         try (var resp = runQuery(request)) {\n             assertTrue(resp.isPartial());\n@@ -134,6 +137,8 @@ public void testPartialResults() throws Exception {\n             for (String cluster : List.of(LOCAL_CLUSTER, REMOTE_CLUSTER_1, REMOTE_CLUSTER_2)) {\n                 assertClusterFailure(resp, cluster, \"Accessing failing field\");\n             }\n+        } catch (Exception e) {\n+            throw new AssertionError(\"failed to execute query\", e);\n         }\n     }\n "
+    }
+  ],
+  "diff": "diff --git a/muted-tests.yml b/muted-tests.yml\nindex 667f99c046975..ece853d749214 100644\n--- a/muted-tests.yml\n+++ b/muted-tests.yml\n@@ -372,9 +372,6 @@ tests:\n - class: org.elasticsearch.xpack.ml.integration.InferenceIT\n   method: testInferClassificationModel\n   issue: https://github.com/elastic/elasticsearch/issues/133448\n-- class: org.elasticsearch.xpack.esql.action.CrossClusterQueryWithPartialResultsIT\n-  method: testPartialResults\n-  issue: https://github.com/elastic/elasticsearch/issues/131481\n - class: org.elasticsearch.xpack.ml.integration.ClassificationIT\n   method: testWithCustomFeatureProcessors\n   issue: https://github.com/elastic/elasticsearch/issues/134001\ndiff --git a/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/CrossClusterQueryWithPartialResultsIT.java b/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/CrossClusterQueryWithPartialResultsIT.java\nindex b1034b5130fe1..a202ede73be20 100644\n--- a/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/CrossClusterQueryWithPartialResultsIT.java\n+++ b/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/CrossClusterQueryWithPartialResultsIT.java\n@@ -102,10 +102,10 @@ private void assertClusterSuccess(EsqlQueryResponse resp, String clusterAlias, i\n \n     public void testPartialResults() throws Exception {\n         populateIndices();\n-        EsqlQueryRequest request = new EsqlQueryRequest();\n-        request.query(\"FROM ok*,fail*,*:ok*,*:fail* | KEEP id, fail_me | LIMIT 1000\");\n-        request.includeCCSMetadata(randomBoolean());\n         {\n+            EsqlQueryRequest request = new EsqlQueryRequest();\n+            request.query(\"FROM ok*,fail*,*:ok*,*:fail* | KEEP id, fail_me | LIMIT 1000\");\n+            request.includeCCSMetadata(randomBoolean());\n             request.allowPartialResults(false);\n             Exception error = expectThrows(Exception.class, () -> runQuery(request).close());\n             error = EsqlTestUtils.unwrapIfWrappedInRemoteException(error);\n@@ -113,6 +113,9 @@ public void testPartialResults() throws Exception {\n             assertThat(error, instanceOf(IllegalStateException.class));\n             assertThat(error.getMessage(), containsString(\"Accessing failing field\"));\n         }\n+        EsqlQueryRequest request = new EsqlQueryRequest();\n+        request.query(\"FROM ok*,fail*,*:ok*,*:fail* | KEEP id, fail_me | LIMIT 1000\");\n+        request.includeCCSMetadata(randomBoolean());\n         request.allowPartialResults(true);\n         try (var resp = runQuery(request)) {\n             assertTrue(resp.isPartial());\n@@ -134,6 +137,8 @@ public void testPartialResults() throws Exception {\n             for (String cluster : List.of(LOCAL_CLUSTER, REMOTE_CLUSTER_1, REMOTE_CLUSTER_2)) {\n                 assertClusterFailure(resp, cluster, \"Accessing failing field\");\n             }\n+        } catch (Exception e) {\n+            throw new AssertionError(\"failed to execute query\", e);\n         }\n     }\n \n",
+  "additions": 8,
+  "deletions": 6,
+  "changed_files": 2,
+  "url": "https://github.com/elastic/elasticsearch/pull/137056",
+  "mined_at": "2025-10-25T13:38:25.155952"
+}

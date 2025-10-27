@@ -1,0 +1,940 @@
+diff --git a/android/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java b/android/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java
+index bc7aea37832f..0ecc76ae861a 100644
+--- a/android/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java
++++ b/android/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java
+@@ -17,6 +17,7 @@
+ package com.google.common.testing;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
++import static com.google.common.collect.Iterators.peekingIterator;
+ import static java.nio.charset.StandardCharsets.UTF_8;
+ import static java.util.Objects.requireNonNull;
+ import static java.util.concurrent.TimeUnit.SECONDS;
+@@ -48,7 +49,6 @@
+ import com.google.common.collect.ImmutableSortedMultiset;
+ import com.google.common.collect.ImmutableSortedSet;
+ import com.google.common.collect.ImmutableTable;
+-import com.google.common.collect.Iterators;
+ import com.google.common.collect.ListMultimap;
+ import com.google.common.collect.MapDifference;
+ import com.google.common.collect.Maps;
+@@ -242,7 +242,7 @@ private static MatchResult createMatchResult() {
+           .put(CharSink.class, NullByteSink.INSTANCE.asCharSink(UTF_8))
+           // All collections are immutable empty. So safe for any type parameter.
+           .put(Iterator.class, ImmutableSet.of().iterator())
+-          .put(PeekingIterator.class, Iterators.peekingIterator(ImmutableSet.of().iterator()))
++          .put(PeekingIterator.class, peekingIterator(ImmutableSet.of().iterator()))
+           .put(ListIterator.class, ImmutableList.of().listIterator())
+           .put(Iterable.class, ImmutableSet.of())
+           .put(Collection.class, ImmutableList.of())
+diff --git a/android/guava-tests/test/com/google/common/collect/IteratorsTest.java b/android/guava-tests/test/com/google/common/collect/IteratorsTest.java
+index 330328c30a56..86454fe97485 100644
+--- a/android/guava-tests/test/com/google/common/collect/IteratorsTest.java
++++ b/android/guava-tests/test/com/google/common/collect/IteratorsTest.java
+@@ -29,6 +29,7 @@
+ import static com.google.common.collect.Iterators.get;
+ import static com.google.common.collect.Iterators.getLast;
+ import static com.google.common.collect.Iterators.getOnlyElement;
++import static com.google.common.collect.Iterators.peekingIterator;
+ import static com.google.common.collect.Iterators.singletonIterator;
+ import static com.google.common.collect.Iterators.tryFind;
+ import static com.google.common.collect.Lists.newArrayList;
+@@ -1543,10 +1544,10 @@ public void testUnmodifiableIteratorShortCircuit() {
+   @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
+   public void testPeekingIteratorShortCircuit() {
+     Iterator<String> nonpeek = Lists.newArrayList("a", "b", "c").iterator();
+-    PeekingIterator<String> peek = Iterators.peekingIterator(nonpeek);
++    PeekingIterator<String> peek = peekingIterator(nonpeek);
+     assertNotSame(peek, nonpeek);
+-    assertSame(peek, Iterators.peekingIterator(peek));
+-    assertSame(peek, Iterators.peekingIterator((Iterator<String>) peek));
++    assertSame(peek, peekingIterator(peek));
++    assertSame(peek, peekingIterator((Iterator<String>) peek));
+   }
+ 
+   public void testMergeSorted_stable_issue5773Example() {
+diff --git a/android/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java b/android/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java
+index ff284a10ec5a..fae3d9bdd673 100644
+--- a/android/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java
++++ b/android/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java
+@@ -68,7 +68,7 @@ protected Iterator<T> newTargetIterator() {
+       // make copy from master to verify later
+       targetList = Lists.newArrayList(master);
+       Iterator<T> iterator = targetList.iterator();
+-      return Iterators.peekingIterator(iterator);
++      return peekingIterator(iterator);
+     }
+ 
+     @Override
+@@ -88,7 +88,7 @@ protected void verify(List<T> elements) {
+       @Override
+       protected Iterator<T> newTargetIterator() {
+         Iterator<T> iterator = unmodifiableList(list).iterator();
+-        return Iterators.peekingIterator(iterator);
++        return peekingIterator(iterator);
+       }
+     }.test();
+   }
+@@ -115,7 +115,7 @@ public void testPeekingIteratorAcceptsNullElements() {
+   public void testPeekOnEmptyList() {
+     List<?> list = emptyList();
+     Iterator<?> iterator = list.iterator();
+-    PeekingIterator<?> peekingIterator = Iterators.peekingIterator(iterator);
++    PeekingIterator<?> peekingIterator = peekingIterator(iterator);
+ 
+     assertThrows(NoSuchElementException.class, () -> peekingIterator.peek());
+   }
+@@ -123,7 +123,7 @@ public void testPeekOnEmptyList() {
+   public void testPeekDoesntChangeIteration() {
+     List<?> list = Lists.newArrayList("A", "B", "C");
+     Iterator<?> iterator = list.iterator();
+-    PeekingIterator<?> peekingIterator = Iterators.peekingIterator(iterator);
++    PeekingIterator<?> peekingIterator = peekingIterator(iterator);
+ 
+     assertEquals("Should be able to peek() at first element", "A", peekingIterator.peek());
+     assertEquals(
+@@ -151,7 +151,7 @@ public void testPeekDoesntChangeIteration() {
+   public void testCantRemoveAfterPeek() {
+     List<String> list = Lists.newArrayList("A", "B", "C");
+     Iterator<String> iterator = list.iterator();
+-    PeekingIterator<?> peekingIterator = Iterators.peekingIterator(iterator);
++    PeekingIterator<?> peekingIterator = peekingIterator(iterator);
+ 
+     assertEquals("A", peekingIterator.next());
+     assertEquals("B", peekingIterator.peek());
+diff --git a/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java b/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+index 7cb128962b0b..90b037d87ffd 100644
+--- a/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
++++ b/android/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+@@ -105,7 +105,7 @@ public void testCatchingAsync() throws Exception {
+                 new AsyncFunction<Throwable, Class<?>>() {
+                   @Override
+                   public ListenableFuture<Class<?>> apply(Throwable input) {
+-                    return Futures.immediateFuture(input.getClass());
++                    return immediateFuture(input.getClass());
+                   }
+                 },
+                 directExecutor());
+diff --git a/android/guava/src/com/google/common/collect/ImmutableList.java b/android/guava/src/com/google/common/collect/ImmutableList.java
+index 8d3b939e2420..8d8cbafbf234 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableList.java
++++ b/android/guava/src/com/google/common/collect/ImmutableList.java
+@@ -256,7 +256,7 @@ public static <E> ImmutableList<E> copyOf(Collection<? extends E> elements) {
+     if (elements instanceof ImmutableCollection) {
+       @SuppressWarnings("unchecked") // all supported methods are covariant
+       ImmutableList<E> list = ((ImmutableCollection<E>) elements).asList();
+-      return list.isPartialView() ? ImmutableList.asImmutableList(list.toArray()) : list;
++      return list.isPartialView() ? asImmutableList(list.toArray()) : list;
+     }
+     return construct(elements.toArray());
+   }
+diff --git a/android/guava/src/com/google/common/collect/ImmutableMap.java b/android/guava/src/com/google/common/collect/ImmutableMap.java
+index 67499303baa7..2728851254c1 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableMap.java
++++ b/android/guava/src/com/google/common/collect/ImmutableMap.java
+@@ -661,8 +661,7 @@ static <V> void sortEntries(
+         V value = (V) requireNonNull(alternatingKeysAndValues[2 * i + 1]);
+         entries[i] = new AbstractMap.SimpleImmutableEntry<Object, V>(key, value);
+       }
+-      Arrays.sort(
+-          entries, 0, size, Ordering.from(valueComparator).onResultOf(Maps.<V>valueFunction()));
++      Arrays.sort(entries, 0, size, Ordering.from(valueComparator).onResultOf(Entry::getValue));
+       for (int i = 0; i < size; i++) {
+         alternatingKeysAndValues[2 * i] = entries[i].getKey();
+         alternatingKeysAndValues[2 * i + 1] = entries[i].getValue();
+diff --git a/android/guava/src/com/google/common/collect/ImmutableMapEntrySet.java b/android/guava/src/com/google/common/collect/ImmutableMapEntrySet.java
+index d8ef3064a72d..f4c90b74e305 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableMapEntrySet.java
++++ b/android/guava/src/com/google/common/collect/ImmutableMapEntrySet.java
+@@ -16,6 +16,8 @@
+ 
+ package com.google.common.collect;
+ 
++import static com.google.common.collect.ImmutableList.asImmutableList;
++
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.GwtIncompatible;
+ import com.google.common.annotations.J2ktIncompatible;
+@@ -38,7 +40,7 @@ static final class RegularEntrySet<K, V> extends ImmutableMapEntrySet<K, V> {
+     private final transient ImmutableList<Entry<K, V>> entries;
+ 
+     RegularEntrySet(ImmutableMap<K, V> map, Entry<K, V>[] entries) {
+-      this(map, ImmutableList.asImmutableList(entries));
++      this(map, asImmutableList(entries));
+     }
+ 
+     RegularEntrySet(ImmutableMap<K, V> map, ImmutableList<Entry<K, V>> entries) {
+diff --git a/android/guava/src/com/google/common/collect/ImmutableRangeMap.java b/android/guava/src/com/google/common/collect/ImmutableRangeMap.java
+index bf648e3424b4..fe692ad91b91 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableRangeMap.java
++++ b/android/guava/src/com/google/common/collect/ImmutableRangeMap.java
+@@ -18,6 +18,7 @@
+ import static com.google.common.base.Preconditions.checkElementIndex;
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.Maps.immutableEntry;
++import static com.google.common.collect.Range.rangeLexOrdering;
+ import static java.util.Collections.sort;
+ 
+ import com.google.common.annotations.GwtIncompatible;
+@@ -293,7 +294,7 @@ public ImmutableMap<Range<K>, V> asMapOfRanges() {
+       return ImmutableMap.of();
+     }
+     RegularImmutableSortedSet<Range<K>> rangeSet =
+-        new RegularImmutableSortedSet<>(ranges, Range.rangeLexOrdering());
++        new RegularImmutableSortedSet<>(ranges, rangeLexOrdering());
+     return new ImmutableSortedMap<>(rangeSet, values);
+   }
+ 
+diff --git a/android/guava/src/com/google/common/collect/ImmutableRangeSet.java b/android/guava/src/com/google/common/collect/ImmutableRangeSet.java
+index 21216278aeba..1bef7dd8a39b 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableRangeSet.java
++++ b/android/guava/src/com/google/common/collect/ImmutableRangeSet.java
+@@ -19,6 +19,8 @@
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.Iterables.getOnlyElement;
+ import static com.google.common.collect.Iterators.emptyIterator;
++import static com.google.common.collect.Iterators.peekingIterator;
++import static com.google.common.collect.Range.rangeLexOrdering;
+ import static com.google.common.collect.SortedLists.KeyAbsentBehavior.NEXT_HIGHER;
+ import static com.google.common.collect.SortedLists.KeyAbsentBehavior.NEXT_LOWER;
+ import static com.google.common.collect.SortedLists.KeyPresentBehavior.ANY_PRESENT;
+@@ -309,7 +311,7 @@ public ImmutableSet<Range<C>> asRanges() {
+     if (ranges.isEmpty()) {
+       return ImmutableSet.of();
+     }
+-    return new RegularImmutableSortedSet<>(ranges, Range.rangeLexOrdering());
++    return new RegularImmutableSortedSet<>(ranges, rangeLexOrdering());
+   }
+ 
+   @Override
+@@ -829,8 +831,8 @@ Builder<C> combine(Builder<C> builder) {
+     public ImmutableRangeSet<C> build() {
+       ImmutableList.Builder<Range<C>> mergedRangesBuilder =
+           new ImmutableList.Builder<>(ranges.size());
+-      sort(ranges, Range.rangeLexOrdering());
+-      PeekingIterator<Range<C>> peekingItr = Iterators.peekingIterator(ranges.iterator());
++      sort(ranges, rangeLexOrdering());
++      PeekingIterator<Range<C>> peekingItr = peekingIterator(ranges.iterator());
+       while (peekingItr.hasNext()) {
+         Range<C> range = peekingItr.next();
+         while (peekingItr.hasNext()) {
+diff --git a/android/guava/src/com/google/common/collect/ImmutableSet.java b/android/guava/src/com/google/common/collect/ImmutableSet.java
+index 37ca69835cc9..98722999c64b 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableSet.java
++++ b/android/guava/src/com/google/common/collect/ImmutableSet.java
+@@ -19,6 +19,7 @@
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.CollectPreconditions.checkNonnegative;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ import static com.google.common.collect.ObjectArrays.checkElementNotNull;
+ import static java.lang.Math.max;
+ import static java.util.Objects.requireNonNull;
+@@ -378,7 +379,7 @@ public ImmutableList<E> asList() {
+   }
+ 
+   ImmutableList<E> createAsList() {
+-    return ImmutableList.asImmutableList(toArray());
++    return asImmutableList(toArray());
+   }
+ 
+   /*
+diff --git a/android/guava/src/com/google/common/collect/ImmutableSortedSet.java b/android/guava/src/com/google/common/collect/ImmutableSortedSet.java
+index 6342a52b694f..069750cd36a8 100644
+--- a/android/guava/src/com/google/common/collect/ImmutableSortedSet.java
++++ b/android/guava/src/com/google/common/collect/ImmutableSortedSet.java
+@@ -18,6 +18,7 @@
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.base.Preconditions.checkNotNull;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ import static com.google.common.collect.ObjectArrays.checkElementsNotNull;
+ import static java.lang.System.arraycopy;
+ import static java.util.Arrays.sort;
+@@ -381,8 +382,7 @@ static <E> ImmutableSortedSet<E> construct(
+       // large array relative to the number of elements, so we cap the ratio.
+       contents = Arrays.copyOf(contents, uniques);
+     }
+-    return new RegularImmutableSortedSet<>(
+-        ImmutableList.asImmutableList(contents, uniques), comparator);
++    return new RegularImmutableSortedSet<>(asImmutableList(contents, uniques), comparator);
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/Maps.java b/android/guava/src/com/google/common/collect/Maps.java
+index 1c75888c388e..27ad271e917a 100644
+--- a/android/guava/src/com/google/common/collect/Maps.java
++++ b/android/guava/src/com/google/common/collect/Maps.java
+@@ -91,31 +91,6 @@
+ public final class Maps {
+   private Maps() {}
+ 
+-  private enum EntryFunction implements Function<Entry<?, ?>, @Nullable Object> {
+-    KEY {
+-      @Override
+-      public @Nullable Object apply(Entry<?, ?> entry) {
+-        return entry.getKey();
+-      }
+-    },
+-    VALUE {
+-      @Override
+-      public @Nullable Object apply(Entry<?, ?> entry) {
+-        return entry.getValue();
+-      }
+-    };
+-  }
+-
+-  @SuppressWarnings("unchecked")
+-  static <K extends @Nullable Object> Function<Entry<K, ?>, K> keyFunction() {
+-    return (Function) EntryFunction.KEY;
+-  }
+-
+-  @SuppressWarnings("unchecked")
+-  static <V extends @Nullable Object> Function<Entry<?, V>, V> valueFunction() {
+-    return (Function) EntryFunction.VALUE;
+-  }
+-
+   static <K extends @Nullable Object, V extends @Nullable Object> Iterator<K> keyIterator(
+       Iterator<Entry<K, V>> entryIterator) {
+     return new TransformedIterator<Entry<K, V>, K>(entryIterator) {
+@@ -2294,12 +2269,12 @@ protected NavigableMap<K, V1> fromMap() {
+ 
+   static <K extends @Nullable Object> Predicate<Entry<K, ?>> keyPredicateOnEntries(
+       Predicate<? super K> keyPredicate) {
+-    return compose(keyPredicate, keyFunction());
++    return compose(keyPredicate, Entry::getKey);
+   }
+ 
+   static <V extends @Nullable Object> Predicate<Entry<?, V>> valuePredicateOnEntries(
+       Predicate<? super V> valuePredicate) {
+-    return compose(valuePredicate, valueFunction());
++    return compose(valuePredicate, Entry::getValue);
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/Ordering.java b/android/guava/src/com/google/common/collect/Ordering.java
+index e3229f672c45..ec7eef09118a 100644
+--- a/android/guava/src/com/google/common/collect/Ordering.java
++++ b/android/guava/src/com/google/common/collect/Ordering.java
+@@ -461,7 +461,7 @@ public <S extends T> Ordering<S> reverse() {
+   }
+ 
+   <T2 extends T> Ordering<Entry<T2, ?>> onKeys() {
+-    return onResultOf(Maps.keyFunction());
++    return onResultOf(Entry::getKey);
+   }
+ 
+   /**
+diff --git a/android/guava/src/com/google/common/collect/RegularImmutableAsList.java b/android/guava/src/com/google/common/collect/RegularImmutableAsList.java
+index a2a439ff811d..68806c6854b8 100644
+--- a/android/guava/src/com/google/common/collect/RegularImmutableAsList.java
++++ b/android/guava/src/com/google/common/collect/RegularImmutableAsList.java
+@@ -39,11 +39,11 @@ class RegularImmutableAsList<E> extends ImmutableAsList<E> {
+   }
+ 
+   RegularImmutableAsList(ImmutableCollection<E> delegate, Object[] array) {
+-    this(delegate, ImmutableList.asImmutableList(array));
++    this(delegate, asImmutableList(array));
+   }
+ 
+   RegularImmutableAsList(ImmutableCollection<E> delegate, Object[] array, int size) {
+-    this(delegate, ImmutableList.<E>asImmutableList(array, size));
++    this(delegate, asImmutableList(array, size));
+   }
+ 
+   @Override
+diff --git a/android/guava/src/com/google/common/collect/TreeRangeMap.java b/android/guava/src/com/google/common/collect/TreeRangeMap.java
+index d427041ef762..6d0b98089f4a 100644
+--- a/android/guava/src/com/google/common/collect/TreeRangeMap.java
++++ b/android/guava/src/com/google/common/collect/TreeRangeMap.java
+@@ -627,7 +627,7 @@ public boolean remove(@Nullable Object o) {
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.keyFunction()));
++            return removeEntryIf(compose(not(in(c)), Entry::getKey));
+           }
+         };
+       }
+@@ -694,12 +694,12 @@ public Collection<V> values() {
+         return new Maps.Values<Range<K>, V>(this) {
+           @Override
+           public boolean removeAll(Collection<?> c) {
+-            return removeEntryIf(compose(in(c), Maps.valueFunction()));
++            return removeEntryIf(compose(in(c), Entry::getValue));
+           }
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.valueFunction()));
++            return removeEntryIf(compose(not(in(c)), Entry::getValue));
+           }
+         };
+       }
+diff --git a/android/guava/src/com/google/common/collect/TreeRangeSet.java b/android/guava/src/com/google/common/collect/TreeRangeSet.java
+index 66f85c617214..3083fd7ad290 100644
+--- a/android/guava/src/com/google/common/collect/TreeRangeSet.java
++++ b/android/guava/src/com/google/common/collect/TreeRangeSet.java
+@@ -18,6 +18,7 @@
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.Iterators.emptyIterator;
++import static com.google.common.collect.Iterators.peekingIterator;
+ import static com.google.common.collect.Maps.immutableEntry;
+ 
+ import com.google.common.annotations.GwtIncompatible;
+@@ -411,7 +412,7 @@ Iterator<Entry<Cut<C>, Range<C>>> descendingEntryIterator() {
+       } else {
+         candidates = rangesByLowerBound.descendingMap().values();
+       }
+-      PeekingIterator<Range<C>> backingItr = Iterators.peekingIterator(candidates.iterator());
++      PeekingIterator<Range<C>> backingItr = peekingIterator(candidates.iterator());
+       if (backingItr.hasNext()
+           && upperBoundWindow.upperBound.isLessThan(backingItr.peek().upperBound)) {
+         backingItr.next();
+@@ -524,7 +525,7 @@ Iterator<Entry<Cut<C>, Range<C>>> entryIterator() {
+       } else {
+         positiveRanges = positiveRangesByUpperBound.values();
+       }
+-      PeekingIterator<Range<C>> positiveItr = Iterators.peekingIterator(positiveRanges.iterator());
++      PeekingIterator<Range<C>> positiveItr = peekingIterator(positiveRanges.iterator());
+       Cut<C> firstComplementRangeLowerBound;
+       if (complementLowerBoundWindow.contains(Cut.belowAll())
+           && (!positiveItr.hasNext() || positiveItr.peek().lowerBound != Cut.<C>belowAll())) {
+@@ -575,7 +576,7 @@ Iterator<Entry<Cut<C>, Range<C>>> descendingEntryIterator() {
+           complementLowerBoundWindow.hasUpperBound()
+               && complementLowerBoundWindow.upperBoundType() == BoundType.CLOSED;
+       PeekingIterator<Range<C>> positiveItr =
+-          Iterators.peekingIterator(
++          peekingIterator(
+               positiveRangesByUpperBound
+                   .headMap(startingPoint, inclusive)
+                   .descendingMap()
+diff --git a/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/ImmutableMap.java b/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/ImmutableMap.java
+index eb0cdc2a144a..4d2f0cc362ea 100644
+--- a/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/ImmutableMap.java
++++ b/guava-gwt/src-super/com/google/common/collect/super/com/google/common/collect/ImmutableMap.java
+@@ -312,7 +312,7 @@ public ImmutableMap<K, V> build() {
+ 
+     private ImmutableMap<K, V> build(boolean throwIfDuplicateKeys) {
+       if (valueComparator != null) {
+-        Collections.sort(entries, Ordering.from(valueComparator).onResultOf(Maps.valueFunction()));
++        Collections.sort(entries, Ordering.from(valueComparator).onResultOf(Entry::getValue));
+       }
+       return fromEntryList(throwIfDuplicateKeys, entries);
+     }
+diff --git a/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java b/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java
+index b7f684f568ba..4d2b68896e84 100644
+--- a/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java
++++ b/guava-testlib/src/com/google/common/testing/ArbitraryInstances.java
+@@ -17,6 +17,7 @@
+ package com.google.common.testing;
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
++import static com.google.common.collect.Iterators.peekingIterator;
+ import static java.nio.charset.StandardCharsets.UTF_8;
+ import static java.util.Objects.requireNonNull;
+ import static java.util.concurrent.TimeUnit.SECONDS;
+@@ -48,7 +49,6 @@
+ import com.google.common.collect.ImmutableSortedMultiset;
+ import com.google.common.collect.ImmutableSortedSet;
+ import com.google.common.collect.ImmutableTable;
+-import com.google.common.collect.Iterators;
+ import com.google.common.collect.ListMultimap;
+ import com.google.common.collect.MapDifference;
+ import com.google.common.collect.Maps;
+@@ -251,7 +251,7 @@ private static MatchResult createMatchResult() {
+           .put(CharSink.class, NullByteSink.INSTANCE.asCharSink(UTF_8))
+           // All collections are immutable empty. So safe for any type parameter.
+           .put(Iterator.class, ImmutableSet.of().iterator())
+-          .put(PeekingIterator.class, Iterators.peekingIterator(ImmutableSet.of().iterator()))
++          .put(PeekingIterator.class, peekingIterator(ImmutableSet.of().iterator()))
+           .put(ListIterator.class, ImmutableList.of().listIterator())
+           .put(Iterable.class, ImmutableSet.of())
+           .put(Collection.class, ImmutableList.of())
+diff --git a/guava-tests/test/com/google/common/collect/IteratorsTest.java b/guava-tests/test/com/google/common/collect/IteratorsTest.java
+index 330328c30a56..86454fe97485 100644
+--- a/guava-tests/test/com/google/common/collect/IteratorsTest.java
++++ b/guava-tests/test/com/google/common/collect/IteratorsTest.java
+@@ -29,6 +29,7 @@
+ import static com.google.common.collect.Iterators.get;
+ import static com.google.common.collect.Iterators.getLast;
+ import static com.google.common.collect.Iterators.getOnlyElement;
++import static com.google.common.collect.Iterators.peekingIterator;
+ import static com.google.common.collect.Iterators.singletonIterator;
+ import static com.google.common.collect.Iterators.tryFind;
+ import static com.google.common.collect.Lists.newArrayList;
+@@ -1543,10 +1544,10 @@ public void testUnmodifiableIteratorShortCircuit() {
+   @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
+   public void testPeekingIteratorShortCircuit() {
+     Iterator<String> nonpeek = Lists.newArrayList("a", "b", "c").iterator();
+-    PeekingIterator<String> peek = Iterators.peekingIterator(nonpeek);
++    PeekingIterator<String> peek = peekingIterator(nonpeek);
+     assertNotSame(peek, nonpeek);
+-    assertSame(peek, Iterators.peekingIterator(peek));
+-    assertSame(peek, Iterators.peekingIterator((Iterator<String>) peek));
++    assertSame(peek, peekingIterator(peek));
++    assertSame(peek, peekingIterator((Iterator<String>) peek));
+   }
+ 
+   public void testMergeSorted_stable_issue5773Example() {
+diff --git a/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java b/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java
+index ff284a10ec5a..fae3d9bdd673 100644
+--- a/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java
++++ b/guava-tests/test/com/google/common/collect/PeekingIteratorTest.java
+@@ -68,7 +68,7 @@ protected Iterator<T> newTargetIterator() {
+       // make copy from master to verify later
+       targetList = Lists.newArrayList(master);
+       Iterator<T> iterator = targetList.iterator();
+-      return Iterators.peekingIterator(iterator);
++      return peekingIterator(iterator);
+     }
+ 
+     @Override
+@@ -88,7 +88,7 @@ protected void verify(List<T> elements) {
+       @Override
+       protected Iterator<T> newTargetIterator() {
+         Iterator<T> iterator = unmodifiableList(list).iterator();
+-        return Iterators.peekingIterator(iterator);
++        return peekingIterator(iterator);
+       }
+     }.test();
+   }
+@@ -115,7 +115,7 @@ public void testPeekingIteratorAcceptsNullElements() {
+   public void testPeekOnEmptyList() {
+     List<?> list = emptyList();
+     Iterator<?> iterator = list.iterator();
+-    PeekingIterator<?> peekingIterator = Iterators.peekingIterator(iterator);
++    PeekingIterator<?> peekingIterator = peekingIterator(iterator);
+ 
+     assertThrows(NoSuchElementException.class, () -> peekingIterator.peek());
+   }
+@@ -123,7 +123,7 @@ public void testPeekOnEmptyList() {
+   public void testPeekDoesntChangeIteration() {
+     List<?> list = Lists.newArrayList("A", "B", "C");
+     Iterator<?> iterator = list.iterator();
+-    PeekingIterator<?> peekingIterator = Iterators.peekingIterator(iterator);
++    PeekingIterator<?> peekingIterator = peekingIterator(iterator);
+ 
+     assertEquals("Should be able to peek() at first element", "A", peekingIterator.peek());
+     assertEquals(
+@@ -151,7 +151,7 @@ public void testPeekDoesntChangeIteration() {
+   public void testCantRemoveAfterPeek() {
+     List<String> list = Lists.newArrayList("A", "B", "C");
+     Iterator<String> iterator = list.iterator();
+-    PeekingIterator<?> peekingIterator = Iterators.peekingIterator(iterator);
++    PeekingIterator<?> peekingIterator = peekingIterator(iterator);
+ 
+     assertEquals("A", peekingIterator.next());
+     assertEquals("B", peekingIterator.peek());
+diff --git a/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java b/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+index 7cb128962b0b..90b037d87ffd 100644
+--- a/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
++++ b/guava-tests/test/com/google/common/util/concurrent/FluentFutureTest.java
+@@ -105,7 +105,7 @@ public void testCatchingAsync() throws Exception {
+                 new AsyncFunction<Throwable, Class<?>>() {
+                   @Override
+                   public ListenableFuture<Class<?>> apply(Throwable input) {
+-                    return Futures.immediateFuture(input.getClass());
++                    return immediateFuture(input.getClass());
+                   }
+                 },
+                 directExecutor());
+diff --git a/guava/src/com/google/common/collect/ImmutableBiMap.java b/guava/src/com/google/common/collect/ImmutableBiMap.java
+index 7a7382a58c1c..e5f2072327fe 100644
+--- a/guava/src/com/google/common/collect/ImmutableBiMap.java
++++ b/guava/src/com/google/common/collect/ImmutableBiMap.java
+@@ -473,7 +473,7 @@ public ImmutableBiMap<K, V> buildOrThrow() {
+                 (Entry<K, V>[]) entries, // Entries up to size are not null
+                 0,
+                 size,
+-                Ordering.from(valueComparator).onResultOf(Maps.valueFunction()));
++                Ordering.from(valueComparator).onResultOf(Entry::getValue));
+           }
+           entriesUsed = true;
+           return RegularImmutableBiMap.fromEntryArray(size, entries);
+diff --git a/guava/src/com/google/common/collect/ImmutableList.java b/guava/src/com/google/common/collect/ImmutableList.java
+index 91c282396b87..6e3b35f478dd 100644
+--- a/guava/src/com/google/common/collect/ImmutableList.java
++++ b/guava/src/com/google/common/collect/ImmutableList.java
+@@ -259,7 +259,7 @@ public static <E> ImmutableList<E> copyOf(Collection<? extends E> elements) {
+     if (elements instanceof ImmutableCollection) {
+       @SuppressWarnings("unchecked") // all supported methods are covariant
+       ImmutableList<E> list = ((ImmutableCollection<E>) elements).asList();
+-      return list.isPartialView() ? ImmutableList.asImmutableList(list.toArray()) : list;
++      return list.isPartialView() ? asImmutableList(list.toArray()) : list;
+     }
+     return construct(elements.toArray());
+   }
+diff --git a/guava/src/com/google/common/collect/ImmutableMap.java b/guava/src/com/google/common/collect/ImmutableMap.java
+index 2eb0b4889414..c927d2d53297 100644
+--- a/guava/src/com/google/common/collect/ImmutableMap.java
++++ b/guava/src/com/google/common/collect/ImmutableMap.java
+@@ -572,7 +572,7 @@ private ImmutableMap<K, V> build(boolean throwIfDuplicateKeys) {
+             nonNullEntries,
+             0,
+             localSize,
+-            Ordering.from(valueComparator).onResultOf(Maps.valueFunction()));
++            Ordering.from(valueComparator).onResultOf(Entry::getValue));
+         localEntries = (@Nullable Entry<K, V>[]) nonNullEntries;
+       }
+       entriesUsed = true;
+diff --git a/guava/src/com/google/common/collect/ImmutableMapEntrySet.java b/guava/src/com/google/common/collect/ImmutableMapEntrySet.java
+index a940cca178ab..61449cbf4d4b 100644
+--- a/guava/src/com/google/common/collect/ImmutableMapEntrySet.java
++++ b/guava/src/com/google/common/collect/ImmutableMapEntrySet.java
+@@ -16,6 +16,8 @@
+ 
+ package com.google.common.collect;
+ 
++import static com.google.common.collect.ImmutableList.asImmutableList;
++
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.GwtIncompatible;
+ import com.google.common.annotations.J2ktIncompatible;
+@@ -40,7 +42,7 @@ static final class RegularEntrySet<K, V> extends ImmutableMapEntrySet<K, V> {
+     private final transient ImmutableList<Entry<K, V>> entries;
+ 
+     RegularEntrySet(ImmutableMap<K, V> map, Entry<K, V>[] entries) {
+-      this(map, ImmutableList.asImmutableList(entries));
++      this(map, asImmutableList(entries));
+     }
+ 
+     RegularEntrySet(ImmutableMap<K, V> map, ImmutableList<Entry<K, V>> entries) {
+diff --git a/guava/src/com/google/common/collect/ImmutableRangeMap.java b/guava/src/com/google/common/collect/ImmutableRangeMap.java
+index 8aab0c34db31..7eda4ddd620c 100644
+--- a/guava/src/com/google/common/collect/ImmutableRangeMap.java
++++ b/guava/src/com/google/common/collect/ImmutableRangeMap.java
+@@ -18,6 +18,7 @@
+ import static com.google.common.base.Preconditions.checkElementIndex;
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.Maps.immutableEntry;
++import static com.google.common.collect.Range.rangeLexOrdering;
+ import static java.util.Collections.sort;
+ 
+ import com.google.common.annotations.GwtIncompatible;
+@@ -310,7 +311,7 @@ public ImmutableMap<Range<K>, V> asMapOfRanges() {
+       return ImmutableMap.of();
+     }
+     RegularImmutableSortedSet<Range<K>> rangeSet =
+-        new RegularImmutableSortedSet<>(ranges, Range.rangeLexOrdering());
++        new RegularImmutableSortedSet<>(ranges, rangeLexOrdering());
+     return new ImmutableSortedMap<>(rangeSet, values);
+   }
+ 
+diff --git a/guava/src/com/google/common/collect/ImmutableRangeSet.java b/guava/src/com/google/common/collect/ImmutableRangeSet.java
+index 7dddc859bf3c..6918602527f1 100644
+--- a/guava/src/com/google/common/collect/ImmutableRangeSet.java
++++ b/guava/src/com/google/common/collect/ImmutableRangeSet.java
+@@ -19,6 +19,8 @@
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.Iterables.getOnlyElement;
+ import static com.google.common.collect.Iterators.emptyIterator;
++import static com.google.common.collect.Iterators.peekingIterator;
++import static com.google.common.collect.Range.rangeLexOrdering;
+ import static com.google.common.collect.SortedLists.KeyAbsentBehavior.NEXT_HIGHER;
+ import static com.google.common.collect.SortedLists.KeyAbsentBehavior.NEXT_LOWER;
+ import static com.google.common.collect.SortedLists.KeyPresentBehavior.ANY_PRESENT;
+@@ -308,7 +310,7 @@ public ImmutableSet<Range<C>> asRanges() {
+     if (ranges.isEmpty()) {
+       return ImmutableSet.of();
+     }
+-    return new RegularImmutableSortedSet<>(ranges, Range.rangeLexOrdering());
++    return new RegularImmutableSortedSet<>(ranges, rangeLexOrdering());
+   }
+ 
+   @Override
+@@ -828,8 +830,8 @@ Builder<C> combine(Builder<C> builder) {
+     public ImmutableRangeSet<C> build() {
+       ImmutableList.Builder<Range<C>> mergedRangesBuilder =
+           new ImmutableList.Builder<>(ranges.size());
+-      sort(ranges, Range.rangeLexOrdering());
+-      PeekingIterator<Range<C>> peekingItr = Iterators.peekingIterator(ranges.iterator());
++      sort(ranges, rangeLexOrdering());
++      PeekingIterator<Range<C>> peekingItr = peekingIterator(ranges.iterator());
+       while (peekingItr.hasNext()) {
+         Range<C> range = peekingItr.next();
+         while (peekingItr.hasNext()) {
+diff --git a/guava/src/com/google/common/collect/ImmutableSet.java b/guava/src/com/google/common/collect/ImmutableSet.java
+index 32367852828f..5aae4e9977ee 100644
+--- a/guava/src/com/google/common/collect/ImmutableSet.java
++++ b/guava/src/com/google/common/collect/ImmutableSet.java
+@@ -19,6 +19,7 @@
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.CollectPreconditions.checkNonnegative;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ import static com.google.common.math.IntMath.sqrt;
+ import static java.lang.Math.max;
+ import static java.util.Objects.requireNonNull;
+@@ -978,8 +979,7 @@ ImmutableSet<E> build() {
+            */
+           return of(requireNonNull(dedupedElements[0]));
+         default:
+-          return new JdkBackedImmutableSet<>(
+-              delegate, ImmutableList.asImmutableList(dedupedElements, distinct));
++          return new JdkBackedImmutableSet<>(delegate, asImmutableList(dedupedElements, distinct));
+       }
+     }
+   }
+diff --git a/guava/src/com/google/common/collect/ImmutableSortedSet.java b/guava/src/com/google/common/collect/ImmutableSortedSet.java
+index c9ea839c7967..d072644543eb 100644
+--- a/guava/src/com/google/common/collect/ImmutableSortedSet.java
++++ b/guava/src/com/google/common/collect/ImmutableSortedSet.java
+@@ -18,6 +18,7 @@
+ 
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.base.Preconditions.checkNotNull;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ import static com.google.common.collect.ObjectArrays.checkElementsNotNull;
+ import static java.lang.System.arraycopy;
+ import static java.util.Arrays.sort;
+@@ -381,8 +382,7 @@ static <E> ImmutableSortedSet<E> construct(
+       }
+     }
+     Arrays.fill(contents, uniques, n, null);
+-    return new RegularImmutableSortedSet<>(
+-        ImmutableList.asImmutableList(contents, uniques), comparator);
++    return new RegularImmutableSortedSet<>(asImmutableList(contents, uniques), comparator);
+   }
+ 
+   /**
+@@ -590,8 +590,7 @@ public ImmutableSortedSet<E> build() {
+         return emptySet(comparator);
+       } else {
+         forceCopy = true;
+-        return new RegularImmutableSortedSet<>(
+-            ImmutableList.asImmutableList(elements, n), comparator);
++        return new RegularImmutableSortedSet<>(asImmutableList(elements, n), comparator);
+       }
+     }
+   }
+diff --git a/guava/src/com/google/common/collect/JdkBackedImmutableBiMap.java b/guava/src/com/google/common/collect/JdkBackedImmutableBiMap.java
+index 6e5f8759cbf0..a4bf54e168d6 100644
+--- a/guava/src/com/google/common/collect/JdkBackedImmutableBiMap.java
++++ b/guava/src/com/google/common/collect/JdkBackedImmutableBiMap.java
+@@ -15,6 +15,7 @@
+  */
+ package com.google.common.collect;
+ 
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ import static com.google.common.collect.Maps.immutableEntry;
+ import static java.util.Objects.requireNonNull;
+ 
+@@ -47,7 +48,7 @@ static <K, V> ImmutableBiMap<K, V> create(int n, @Nullable Entry<K, V>[] entryAr
+         throw conflictException("value", oldKey + "=" + e.getValue(), entryArray[i]);
+       }
+     }
+-    ImmutableList<Entry<K, V>> entryList = ImmutableList.asImmutableList(entryArray, n);
++    ImmutableList<Entry<K, V>> entryList = asImmutableList(entryArray, n);
+     return new JdkBackedImmutableBiMap<>(
+         entryList, forwardDelegate, backwardDelegate, /* inverse= */ null);
+   }
+diff --git a/guava/src/com/google/common/collect/JdkBackedImmutableMap.java b/guava/src/com/google/common/collect/JdkBackedImmutableMap.java
+index f5d73371cc4c..a608b3b33c02 100644
+--- a/guava/src/com/google/common/collect/JdkBackedImmutableMap.java
++++ b/guava/src/com/google/common/collect/JdkBackedImmutableMap.java
+@@ -17,6 +17,7 @@
+ package com.google.common.collect;
+ 
+ import static com.google.common.base.Preconditions.checkNotNull;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ import static com.google.common.collect.RegularImmutableMap.makeImmutable;
+ import static java.util.Objects.requireNonNull;
+ 
+@@ -82,7 +83,7 @@ static <K, V> ImmutableMap<K, V> create(
+       }
+       entryArray = newEntryArray;
+     }
+-    return new JdkBackedImmutableMap<>(delegateMap, ImmutableList.asImmutableList(entryArray, n));
++    return new JdkBackedImmutableMap<>(delegateMap, asImmutableList(entryArray, n));
+   }
+ 
+   private final transient Map<K, V> delegateMap;
+diff --git a/guava/src/com/google/common/collect/JdkBackedImmutableMultiset.java b/guava/src/com/google/common/collect/JdkBackedImmutableMultiset.java
+index 4f9f9619e453..25d6c8c91f77 100644
+--- a/guava/src/com/google/common/collect/JdkBackedImmutableMultiset.java
++++ b/guava/src/com/google/common/collect/JdkBackedImmutableMultiset.java
+@@ -15,6 +15,7 @@
+ package com.google.common.collect;
+ 
+ import static com.google.common.base.Preconditions.checkNotNull;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ 
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.GwtIncompatible;
+@@ -52,8 +53,7 @@ static <E> ImmutableMultiset<E> create(Collection<? extends Entry<? extends E>>
+         entriesArray[i] = Multisets.immutableEntry(element, count);
+       }
+     }
+-    return new JdkBackedImmutableMultiset<>(
+-        delegateMap, ImmutableList.asImmutableList(entriesArray), size);
++    return new JdkBackedImmutableMultiset<>(delegateMap, asImmutableList(entriesArray), size);
+   }
+ 
+   private JdkBackedImmutableMultiset(
+diff --git a/guava/src/com/google/common/collect/Maps.java b/guava/src/com/google/common/collect/Maps.java
+index d26913393048..6904cc496f84 100644
+--- a/guava/src/com/google/common/collect/Maps.java
++++ b/guava/src/com/google/common/collect/Maps.java
+@@ -96,31 +96,6 @@
+ public final class Maps {
+   private Maps() {}
+ 
+-  private enum EntryFunction implements Function<Entry<?, ?>, @Nullable Object> {
+-    KEY {
+-      @Override
+-      public @Nullable Object apply(Entry<?, ?> entry) {
+-        return entry.getKey();
+-      }
+-    },
+-    VALUE {
+-      @Override
+-      public @Nullable Object apply(Entry<?, ?> entry) {
+-        return entry.getValue();
+-      }
+-    };
+-  }
+-
+-  @SuppressWarnings("unchecked")
+-  static <K extends @Nullable Object> Function<Entry<K, ?>, K> keyFunction() {
+-    return (Function) EntryFunction.KEY;
+-  }
+-
+-  @SuppressWarnings("unchecked")
+-  static <V extends @Nullable Object> Function<Entry<?, V>, V> valueFunction() {
+-    return (Function) EntryFunction.VALUE;
+-  }
+-
+   static <K extends @Nullable Object, V extends @Nullable Object> Iterator<K> keyIterator(
+       Iterator<Entry<K, V>> entryIterator) {
+     return new TransformedIterator<Entry<K, V>, K>(entryIterator) {
+@@ -2395,12 +2370,12 @@ protected NavigableMap<K, V1> fromMap() {
+ 
+   static <K extends @Nullable Object> Predicate<Entry<K, ?>> keyPredicateOnEntries(
+       Predicate<? super K> keyPredicate) {
+-    return compose(keyPredicate, keyFunction());
++    return compose(keyPredicate, Entry::getKey);
+   }
+ 
+   static <V extends @Nullable Object> Predicate<Entry<?, V>> valuePredicateOnEntries(
+       Predicate<? super V> valuePredicate) {
+-    return compose(valuePredicate, valueFunction());
++    return compose(valuePredicate, Entry::getValue);
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/Ordering.java b/guava/src/com/google/common/collect/Ordering.java
+index e3229f672c45..ec7eef09118a 100644
+--- a/guava/src/com/google/common/collect/Ordering.java
++++ b/guava/src/com/google/common/collect/Ordering.java
+@@ -461,7 +461,7 @@ public <S extends T> Ordering<S> reverse() {
+   }
+ 
+   <T2 extends T> Ordering<Entry<T2, ?>> onKeys() {
+-    return onResultOf(Maps.keyFunction());
++    return onResultOf(Entry::getKey);
+   }
+ 
+   /**
+diff --git a/guava/src/com/google/common/collect/RegularImmutableAsList.java b/guava/src/com/google/common/collect/RegularImmutableAsList.java
+index accd6989d24f..876ff9a14bad 100644
+--- a/guava/src/com/google/common/collect/RegularImmutableAsList.java
++++ b/guava/src/com/google/common/collect/RegularImmutableAsList.java
+@@ -40,7 +40,7 @@ class RegularImmutableAsList<E> extends ImmutableAsList<E> {
+   }
+ 
+   RegularImmutableAsList(ImmutableCollection<E> delegate, Object[] array) {
+-    this(delegate, ImmutableList.asImmutableList(array));
++    this(delegate, asImmutableList(array));
+   }
+ 
+   @Override
+diff --git a/guava/src/com/google/common/collect/RegularImmutableMultiset.java b/guava/src/com/google/common/collect/RegularImmutableMultiset.java
+index 70a3d2ea9586..61ea433703bb 100644
+--- a/guava/src/com/google/common/collect/RegularImmutableMultiset.java
++++ b/guava/src/com/google/common/collect/RegularImmutableMultiset.java
+@@ -15,6 +15,7 @@
+ package com.google.common.collect;
+ 
+ import static com.google.common.base.Preconditions.checkNotNull;
++import static com.google.common.collect.ImmutableList.asImmutableList;
+ 
+ import com.google.common.annotations.GwtCompatible;
+ import com.google.common.annotations.GwtIncompatible;
+@@ -79,7 +80,7 @@ static <E> ImmutableMultiset<E> create(Collection<? extends Entry<? extends E>>
+     }
+ 
+     return hashFloodingDetected(hashTable)
+-        ? JdkBackedImmutableMultiset.create(ImmutableList.asImmutableList(entryArray))
++        ? JdkBackedImmutableMultiset.create(asImmutableList(entryArray))
+         : new RegularImmutableMultiset<E>(
+             entryArray, hashTable, Ints.saturatedCast(size), hashCode, null);
+   }
+diff --git a/guava/src/com/google/common/collect/TreeRangeMap.java b/guava/src/com/google/common/collect/TreeRangeMap.java
+index 59e34787f0c6..92e3310c8ac2 100644
+--- a/guava/src/com/google/common/collect/TreeRangeMap.java
++++ b/guava/src/com/google/common/collect/TreeRangeMap.java
+@@ -730,7 +730,7 @@ public boolean remove(@Nullable Object o) {
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.keyFunction()));
++            return removeEntryIf(compose(not(in(c)), Entry::getKey));
+           }
+         };
+       }
+@@ -797,12 +797,12 @@ public Collection<V> values() {
+         return new Maps.Values<Range<K>, V>(this) {
+           @Override
+           public boolean removeAll(Collection<?> c) {
+-            return removeEntryIf(compose(in(c), Maps.valueFunction()));
++            return removeEntryIf(compose(in(c), Entry::getValue));
+           }
+ 
+           @Override
+           public boolean retainAll(Collection<?> c) {
+-            return removeEntryIf(compose(not(in(c)), Maps.valueFunction()));
++            return removeEntryIf(compose(not(in(c)), Entry::getValue));
+           }
+         };
+       }
+diff --git a/guava/src/com/google/common/collect/TreeRangeSet.java b/guava/src/com/google/common/collect/TreeRangeSet.java
+index 66f85c617214..3083fd7ad290 100644
+--- a/guava/src/com/google/common/collect/TreeRangeSet.java
++++ b/guava/src/com/google/common/collect/TreeRangeSet.java
+@@ -18,6 +18,7 @@
+ import static com.google.common.base.Preconditions.checkArgument;
+ import static com.google.common.base.Preconditions.checkNotNull;
+ import static com.google.common.collect.Iterators.emptyIterator;
++import static com.google.common.collect.Iterators.peekingIterator;
+ import static com.google.common.collect.Maps.immutableEntry;
+ 
+ import com.google.common.annotations.GwtIncompatible;
+@@ -411,7 +412,7 @@ Iterator<Entry<Cut<C>, Range<C>>> descendingEntryIterator() {
+       } else {
+         candidates = rangesByLowerBound.descendingMap().values();
+       }
+-      PeekingIterator<Range<C>> backingItr = Iterators.peekingIterator(candidates.iterator());
++      PeekingIterator<Range<C>> backingItr = peekingIterator(candidates.iterator());
+       if (backingItr.hasNext()
+           && upperBoundWindow.upperBound.isLessThan(backingItr.peek().upperBound)) {
+         backingItr.next();
+@@ -524,7 +525,7 @@ Iterator<Entry<Cut<C>, Range<C>>> entryIterator() {
+       } else {
+         positiveRanges = positiveRangesByUpperBound.values();
+       }
+-      PeekingIterator<Range<C>> positiveItr = Iterators.peekingIterator(positiveRanges.iterator());
++      PeekingIterator<Range<C>> positiveItr = peekingIterator(positiveRanges.iterator());
+       Cut<C> firstComplementRangeLowerBound;
+       if (complementLowerBoundWindow.contains(Cut.belowAll())
+           && (!positiveItr.hasNext() || positiveItr.peek().lowerBound != Cut.<C>belowAll())) {
+@@ -575,7 +576,7 @@ Iterator<Entry<Cut<C>, Range<C>>> descendingEntryIterator() {
+           complementLowerBoundWindow.hasUpperBound()
+               && complementLowerBoundWindow.upperBoundType() == BoundType.CLOSED;
+       PeekingIterator<Range<C>> positiveItr =
+-          Iterators.peekingIterator(
++          peekingIterator(
+               positiveRangesByUpperBound
+                   .headMap(startingPoint, inclusive)
+                   .descendingMap()

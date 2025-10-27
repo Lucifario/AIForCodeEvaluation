@@ -1,0 +1,160 @@
+diff --git a/android/guava-bom/pom.xml b/android/guava-bom/pom.xml
+index 7a83854afa74..f8dfba31659b 100644
+--- a/android/guava-bom/pom.xml
++++ b/android/guava-bom/pom.xml
+@@ -24,6 +24,21 @@
+     </license>
+   </licenses>
+ 
++  <developers>
++    <!-- Sonatype requires that we list someone here. Guava has many contributors: https://github.com/google/guava/graphs/contributors -->
++    <developer>
++      <id>cpovirk</id>
++      <name>Chris Povirk</name>
++      <email>cpovirk@google.com</email>
++    </developer>
++  </developers>
++
++  <scm>
++    <connection>scm:git:https://github.com/google/guava.git</connection>
++    <developerConnection>scm:git:git@github.com:google/guava.git</developerConnection>
++    <url>https://github.com/google/guava</url>
++  </scm>
++
+   <issueManagement>
+     <system>GitHub Issues</system>
+     <url>https://github.com/google/guava/issues</url>
+@@ -54,4 +69,27 @@
+       </plugin>
+     </plugins>
+   </build>
++
++  <profiles>
++    <profile>
++      <id>sonatype-oss-release</id>
++      <build>
++        <plugins>
++          <plugin>
++            <artifactId>maven-gpg-plugin</artifactId>
++            <version>3.0.1</version>
++            <executions>
++              <execution>
++                <id>sign-artifacts</id>
++                <phase>verify</phase>
++                <goals>
++                  <goal>sign</goal>
++                </goals>
++              </execution>
++            </executions>
++          </plugin>
++        </plugins>
++      </build>
++    </profile>
++  </profiles>
+ </project>
+diff --git a/android/pom.xml b/android/pom.xml
+index e5b9618b4b45..c01ea8605e26 100644
+--- a/android/pom.xml
++++ b/android/pom.xml
+@@ -20,17 +20,11 @@
+     </license>
+   </licenses>
+   <developers>
++    <!-- Sonatype requires that we list someone here. Guava has many contributors: https://github.com/google/guava/graphs/contributors -->
+     <developer>
+-      <id>kevinb9n</id>
+-      <name>Kevin Bourrillion</name>
+-      <email>kevinb@google.com</email>
+-      <organization>Google</organization>
+-      <organizationUrl>http://www.google.com</organizationUrl>
+-      <roles>
+-        <role>owner</role>
+-        <role>developer</role>
+-      </roles>
+-      <timezone>-8</timezone>
++      <id>cpovirk</id>
++      <name>Chris Povirk</name>
++      <email>cpovirk@google.com</email>
+     </developer>
+   </developers>
+   <modules>
+diff --git a/guava-bom/pom.xml b/guava-bom/pom.xml
+index 4c4eeecbd357..20e52ecd029c 100644
+--- a/guava-bom/pom.xml
++++ b/guava-bom/pom.xml
+@@ -24,6 +24,21 @@
+     </license>
+   </licenses>
+ 
++  <developers>
++    <!-- Sonatype requires that we list someone here. Guava has many contributors: https://github.com/google/guava/graphs/contributors -->
++    <developer>
++      <id>cpovirk</id>
++      <name>Chris Povirk</name>
++      <email>cpovirk@google.com</email>
++    </developer>
++  </developers>
++
++  <scm>
++    <connection>scm:git:https://github.com/google/guava.git</connection>
++    <developerConnection>scm:git:git@github.com:google/guava.git</developerConnection>
++    <url>https://github.com/google/guava</url>
++  </scm>
++
+   <issueManagement>
+     <system>GitHub Issues</system>
+     <url>https://github.com/google/guava/issues</url>
+@@ -59,4 +74,27 @@
+       </plugin>
+     </plugins>
+   </build>
++
++  <profiles>
++    <profile>
++      <id>sonatype-oss-release</id>
++      <build>
++        <plugins>
++          <plugin>
++            <artifactId>maven-gpg-plugin</artifactId>
++            <version>3.0.1</version>
++            <executions>
++              <execution>
++                <id>sign-artifacts</id>
++                <phase>verify</phase>
++                <goals>
++                  <goal>sign</goal>
++                </goals>
++              </execution>
++            </executions>
++          </plugin>
++        </plugins>
++      </build>
++    </profile>
++  </profiles>
+ </project>
+diff --git a/pom.xml b/pom.xml
+index df92795bfea3..89339eb23aba 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -20,17 +20,11 @@
+     </license>
+   </licenses>
+   <developers>
++    <!-- Sonatype requires that we list someone here. Guava has many contributors: https://github.com/google/guava/graphs/contributors -->
+     <developer>
+-      <id>kevinb9n</id>
+-      <name>Kevin Bourrillion</name>
+-      <email>kevinb@google.com</email>
+-      <organization>Google</organization>
+-      <organizationUrl>http://www.google.com</organizationUrl>
+-      <roles>
+-        <role>owner</role>
+-        <role>developer</role>
+-      </roles>
+-      <timezone>-8</timezone>
++      <id>cpovirk</id>
++      <name>Chris Povirk</name>
++      <email>cpovirk@google.com</email>
+     </developer>
+   </developers>
+   <modules>

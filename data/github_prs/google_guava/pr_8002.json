@@ -1,0 +1,33 @@
+{
+  "id": 8002,
+  "repository": "google/guava",
+  "title": "Bump plugins.",
+  "body": "Bump plugins.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-09-16T21:57:14+00:00",
+  "created_at": "2025-09-16T21:35:25+00:00",
+  "updated_at": "2025-09-16T21:57:14+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "0edab3dd4a967fb6e094326c8bce32ffc5f5dc9c",
+  "head_sha": "d594f610b68b0c89ffbf85c7846ac2e18e17b4ae",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "futures/failureaccess/pom.xml",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "patch": "@@ -96,7 +96,7 @@\n         <extensions>true</extensions>\n         <groupId>org.apache.felix</groupId>\n         <artifactId>maven-bundle-plugin</artifactId>\n-        <version>5.1.8</version>\n+        <version>6.0.0</version>\n         <executions>\n           <execution>\n             <id>bundle-manifest</id>\n@@ -137,7 +137,7 @@\n           <plugins>\n             <plugin>\n               <artifactId>maven-gpg-plugin</artifactId>\n-              <version>3.0.1</version>\n+              <version>3.2.8</version>\n               <executions>\n                 <execution>\n                   <id>sign-artifacts</id>"
+    }
+  ],
+  "diff": "diff --git a/futures/failureaccess/pom.xml b/futures/failureaccess/pom.xml\nindex 077a86accc81..25bc789bec7b 100644\n--- a/futures/failureaccess/pom.xml\n+++ b/futures/failureaccess/pom.xml\n@@ -96,7 +96,7 @@\n         <extensions>true</extensions>\n         <groupId>org.apache.felix</groupId>\n         <artifactId>maven-bundle-plugin</artifactId>\n-        <version>5.1.8</version>\n+        <version>6.0.0</version>\n         <executions>\n           <execution>\n             <id>bundle-manifest</id>\n@@ -137,7 +137,7 @@\n           <plugins>\n             <plugin>\n               <artifactId>maven-gpg-plugin</artifactId>\n-              <version>3.0.1</version>\n+              <version>3.2.8</version>\n               <executions>\n                 <execution>\n                   <id>sign-artifacts</id>\n",
+  "additions": 2,
+  "deletions": 2,
+  "changed_files": 1,
+  "url": "https://github.com/google/guava/pull/8002",
+  "mined_at": "2025-10-25T13:02:14.096194"
+}

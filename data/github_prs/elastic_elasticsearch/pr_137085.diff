@@ -1,0 +1,88 @@
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java
+index 57c0de6c82983..5ddb98699808b 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/KeywordFieldMapper.java
+@@ -287,7 +287,7 @@ private Builder(
+                 m -> ((KeywordFieldMapper) m).isNormalizerSkipStoreOriginalValue(),
+                 () -> "lowercase".equals(normalizer.getValue())
+                     && indexAnalyzers.getNormalizer(normalizer.getValue()).analyzer() instanceof LowercaseNormalizer
+-            ).setSerializerCheck((includeDefaults, isConfigured, value) -> includeDefaults || isConfigured || value);
++            );
+ 
+             this.script.precludesParameters(nullValue);
+             addScriptValidation(script, indexed, hasDocValues);
+diff --git a/server/src/test/java/org/elasticsearch/index/mapper/KeywordFieldMapperTests.java b/server/src/test/java/org/elasticsearch/index/mapper/KeywordFieldMapperTests.java
+index 69118286eb40f..520ec8a8c3400 100644
+--- a/server/src/test/java/org/elasticsearch/index/mapper/KeywordFieldMapperTests.java
++++ b/server/src/test/java/org/elasticsearch/index/mapper/KeywordFieldMapperTests.java
+@@ -582,7 +582,15 @@ public void testNormalizerSyntheticSourceKeepOriginalValue() throws IOException
+                 b -> b.field("type", "keyword").field("normalizer", "lowercase").field("normalizer_skip_store_original_value", false)
+             )
+         );
++        var keywordMapper = mapper.mappingLookup().getMapper("field");
++        assertThat(keywordMapper, Matchers.instanceOf(KeywordFieldMapper.class));
++        assertFalse(((KeywordFieldMapper) keywordMapper).isNormalizerSkipStoreOriginalValue());
++
+         assertEquals("{\"field\":\"AbC\"}", syntheticSource(mapper.documentMapper(), b -> b.field("field", "AbC")));
++
++        String expected = """
++            {"field":{"type":"keyword","normalizer":"lowercase","normalizer_skip_store_original_value":false}}""";
++        assertThat(keywordMapper.toString(), equalTo(expected));
+     }
+ 
+     public void testNormalizerSyntheticSourceSkipStoreOriginalValue() throws IOException {
+@@ -591,7 +599,17 @@ public void testNormalizerSyntheticSourceSkipStoreOriginalValue() throws IOExcep
+                 b -> b.field("type", "keyword").field("normalizer", "lowercase").field("normalizer_skip_store_original_value", true)
+             )
+         );
++        var keywordMapper = mapper.mappingLookup().getMapper("field");
++        assertThat(keywordMapper, Matchers.instanceOf(KeywordFieldMapper.class));
++        assertTrue(((KeywordFieldMapper) keywordMapper).isNormalizerSkipStoreOriginalValue());
++
+         assertEquals("{\"field\":\"abc\"}", syntheticSource(mapper.documentMapper(), b -> b.field("field", "AbC")));
++
++        // normalizer_skip_store_original_value is configured, but it is the same as the default value, and therefor it isn't serialized
++        // (See default serializerCheck in Parameter.java)
++        String expected = """
++            {"field":{"type":"keyword","normalizer":"lowercase"}}""";
++        assertThat(keywordMapper.toString(), equalTo(expected));
+     }
+ 
+     public void testSkipStoreOriginalValueForLowercaseNormalizer() throws IOException {
+@@ -604,6 +622,9 @@ public void testSkipStoreOriginalValueForLowercaseNormalizer() throws IOExceptio
+         assertTrue(((KeywordFieldMapper) keywordMapper).isNormalizerSkipStoreOriginalValue());
+ 
+         assertEquals("{\"field\":\"abc\"}", syntheticSource(mapper.documentMapper(), b -> b.field("field", "AbC")));
++        String expected = """
++            {"field":{"type":"keyword","normalizer":"lowercase"}}""";
++        assertThat(keywordMapper.toString(), equalTo(expected));
+     }
+ 
+     public void testSkipStoreOriginalValueForCustomNormalizer() throws IOException {
+@@ -616,6 +637,26 @@ public void testSkipStoreOriginalValueForCustomNormalizer() throws IOException {
+         assertFalse(((KeywordFieldMapper) keywordMapper).isNormalizerSkipStoreOriginalValue());
+ 
+         assertEquals("{\"field\":\"AbC\"}", syntheticSource(mapper.documentMapper(), b -> b.field("field", "AbC")));
++        String expected = """
++            {"field":{"type":"keyword","normalizer":"other_lowercase"}}""";
++        assertThat(keywordMapper.toString(), equalTo(expected));
++    }
++
++    public void testSkipStoreOriginalValueForCustomNormalizerOverwriteSkipStoreOriginalValue() throws IOException {
++        MapperService mapper = createSytheticSourceMapperService(
++            fieldMapping(
++                b -> b.field("type", "keyword").field("normalizer", "other_lowercase").field("normalizer_skip_store_original_value", true)
++            )
++        );
++
++        var keywordMapper = mapper.mappingLookup().getMapper("field");
++        assertThat(keywordMapper, Matchers.instanceOf(KeywordFieldMapper.class));
++        assertTrue(((KeywordFieldMapper) keywordMapper).isNormalizerSkipStoreOriginalValue());
++
++        assertEquals("{\"field\":\"abc\"}", syntheticSource(mapper.documentMapper(), b -> b.field("field", "AbC")));
++        String expected = """
++            {"field":{"type":"keyword","normalizer":"other_lowercase","normalizer_skip_store_original_value":true}}""";
++        assertThat(keywordMapper.toString(), equalTo(expected));
+     }
+ 
+     public void testParsesKeywordNestedEmptyObjectStrict() throws IOException {

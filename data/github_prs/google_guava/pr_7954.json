@@ -1,0 +1,57 @@
+{
+  "id": 7954,
+  "repository": "google/guava",
+  "title": "Don't bother to explicitly set [`publishingServerId`](https://central.sonatype.org/publish/publish-portal-maven/#publishingserverid) to its default value.",
+  "body": "Don't bother to explicitly set [`publishingServerId`](https://central.sonatype.org/publish/publish-portal-maven/#publishingserverid) to its default value.\n\nRELNOTES=n/a\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-08-26T00:48:44+00:00",
+  "created_at": "2025-08-25T22:14:29+00:00",
+  "updated_at": "2025-08-26T00:48:44+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "9e793c8b527b89538e800e02e1b0354b90bb6ccb",
+  "head_sha": "47b7e9e5ef3f2267f8ac327d68cc56b99e186aa8",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-bom/pom.xml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -61,9 +61,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>"
+    },
+    {
+      "filename": "android/pom.xml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -488,9 +488,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>"
+    },
+    {
+      "filename": "guava-bom/pom.xml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -66,9 +66,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>"
+    },
+    {
+      "filename": "pom.xml",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 3,
+      "changes": 3,
+      "patch": "@@ -483,9 +483,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>"
+    }
+  ],
+  "diff": "diff --git a/android/guava-bom/pom.xml b/android/guava-bom/pom.xml\nindex 3affa2ec365d..4ca945c7ace3 100644\n--- a/android/guava-bom/pom.xml\n+++ b/android/guava-bom/pom.xml\n@@ -61,9 +61,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>\ndiff --git a/android/pom.xml b/android/pom.xml\nindex a696ef94e4cc..03f9fc37863e 100644\n--- a/android/pom.xml\n+++ b/android/pom.xml\n@@ -488,9 +488,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>\ndiff --git a/guava-bom/pom.xml b/guava-bom/pom.xml\nindex 790dfeebb340..64bc74cb5cd0 100644\n--- a/guava-bom/pom.xml\n+++ b/guava-bom/pom.xml\n@@ -66,9 +66,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>\ndiff --git a/pom.xml b/pom.xml\nindex ce2de5bfad2c..d1eaee8aae32 100644\n--- a/pom.xml\n+++ b/pom.xml\n@@ -483,9 +483,6 @@\n             <artifactId>central-publishing-maven-plugin</artifactId>\n             <version>0.8.0</version>\n             <extensions>true</extensions>\n-            <configuration>\n-              <publishingServerId>central</publishingServerId>\n-            </configuration>\n           </plugin>\n         </plugins>\n       </build>\n",
+  "additions": 0,
+  "deletions": 12,
+  "changed_files": 4,
+  "url": "https://github.com/google/guava/pull/7954",
+  "mined_at": "2025-10-25T13:07:03.273364"
+}

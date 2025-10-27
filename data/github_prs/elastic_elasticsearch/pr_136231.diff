@@ -1,0 +1,685 @@
+diff --git a/docs/changelog/136231.yaml b/docs/changelog/136231.yaml
+new file mode 100644
+index 0000000000000..f2e365ca2d480
+--- /dev/null
++++ b/docs/changelog/136231.yaml
+@@ -0,0 +1,6 @@
++pr: 136231
++summary: Return a better error message when Timestamp is renamed in TS queries
++area: ES|QL
++type: bug
++issues:
++ - 134994
+diff --git a/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/capabilities/Unresolvable.java b/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/capabilities/Unresolvable.java
+index 11bfe4df35e3a..21bbc23bb20df 100644
+--- a/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/capabilities/Unresolvable.java
++++ b/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/capabilities/Unresolvable.java
+@@ -15,5 +15,8 @@ default boolean resolved() {
+         return false;
+     }
+ 
++    /**
++     * NOTE: Any non-null return value from this method indicates that the item in question could not be resolved.
++     */
+     String unresolvedMessage();
+ }
+diff --git a/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedAttribute.java b/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedAttribute.java
+index ff19c06cbec9d..ec1bb882a46b8 100644
+--- a/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedAttribute.java
++++ b/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedAttribute.java
+@@ -31,9 +31,9 @@
+  */
+ public class UnresolvedAttribute extends Attribute implements Unresolvable {
+     private final boolean customMessage;
+-    private final String unresolvedMsg;
++    protected final String unresolvedMsg;
+     // TODO: unused and always null, remove this.
+-    private final Object resolutionMetadata;
++    protected final Object resolutionMetadata;
+ 
+     // TODO: Check usage of constructors without qualifiers, that's likely where qualifiers need to be plugged into resolution logic.
+     public UnresolvedAttribute(Source source, String name) {
+@@ -86,7 +86,7 @@ public String getWriteableName() {
+     }
+ 
+     @Override
+-    protected NodeInfo<UnresolvedAttribute> info() {
++    protected NodeInfo<? extends UnresolvedAttribute> info() {
+         return NodeInfo.create(this, UnresolvedAttribute::new, qualifier(), name(), id(), unresolvedMsg, resolutionMetadata);
+     }
+ 
+diff --git a/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedTimestamp.java b/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedTimestamp.java
+new file mode 100644
+index 0000000000000..b86d9b1a41567
+--- /dev/null
++++ b/x-pack/plugin/esql-core/src/main/java/org/elasticsearch/xpack/esql/core/expression/UnresolvedTimestamp.java
+@@ -0,0 +1,71 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the Elastic License
++ * 2.0; you may not use this file except in compliance with the Elastic License
++ * 2.0.
++ */
++
++package org.elasticsearch.xpack.esql.core.expression;
++
++import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
++import org.elasticsearch.xpack.esql.core.tree.Source;
++
++import java.util.Objects;
++
++public class UnresolvedTimestamp extends UnresolvedAttribute {
++    private final String errorMessage;
++
++    public UnresolvedTimestamp(Source source, String errorMessage) {
++        this(source, null, MetadataAttribute.TIMESTAMP_FIELD, null, null, null, errorMessage);
++    }
++
++    public UnresolvedTimestamp(
++        Source source,
++        String qualifier,
++        String name,
++        NameId id,
++        String unresolvedMessage,
++        Object resolutionMetadata,
++        String errorMessage
++    ) {
++        super(source, qualifier, name, id, unresolvedMessage, resolutionMetadata);
++        this.errorMessage = errorMessage;
++    }
++
++    @Override
++    protected NodeInfo<UnresolvedTimestamp> info() {
++        return NodeInfo.create(
++            this,
++            UnresolvedTimestamp::new,
++            qualifier(),
++            name(),
++            id(),
++            super.unresolvedMessage(),
++            resolutionMetadata(),
++            errorMessage
++        );
++    }
++
++    @Override
++    public UnresolvedTimestamp withUnresolvedMessage(String unresolvedMessage) {
++        return new UnresolvedTimestamp(source(), qualifier(), name(), id(), unresolvedMessage, resolutionMetadata(), errorMessage);
++    }
++
++    @Override
++    public String unresolvedMessage() {
++        if (super.unresolvedMessage() != null) {
++            return errorMessage;
++        }
++        return null;
++    }
++
++    @Override
++    protected int innerHashCode(boolean ignoreIds) {
++        return Objects.hash(super.innerHashCode(ignoreIds), errorMessage);
++    }
++
++    @Override
++    protected boolean innerEquals(Object o, boolean ignoreIds) {
++        return super.innerEquals(o, ignoreIds) && Objects.equals(errorMessage, ((UnresolvedTimestamp) o).errorMessage);
++    }
++}
+diff --git a/x-pack/plugin/esql/qa/testFixtures/src/main/resources/k8s-timeseries.csv-spec b/x-pack/plugin/esql/qa/testFixtures/src/main/resources/k8s-timeseries.csv-spec
+index 4109312b16f1c..033d89f0cb54d 100644
+--- a/x-pack/plugin/esql/qa/testFixtures/src/main/resources/k8s-timeseries.csv-spec
++++ b/x-pack/plugin/esql/qa/testFixtures/src/main/resources/k8s-timeseries.csv-spec
+@@ -593,3 +593,52 @@ max_cost:integer | pod:keyword | time_bucket:datetime     | max_cluster_cost:int
+ 1209             | three       | 2024-05-10T00:00:00.000Z | 1209                     | staging
+ 973              | two         | 2024-05-10T00:00:00.000Z | 1209                     | staging
+ ;
++
++Max of Rate with Bucket
++required_capability: ts_command_v0
++
++TS k8s
++| STATS maxRate = max(rate(network.total_cost))  BY tbucket = bucket(@timestamp, 1hour) 
++;
++
++maxRate:double | tbucket:datetime
++0.058979885057471274 | 2024-05-10T00:00:00.000Z
++;
++
++Max of Rate with Bucket, rename _tsid
++required_capability: ts_command_v0
++
++TS k8s METADATA _tsid
++| RENAME _tsid AS newTsid
++| STATS maxRate = max(rate(network.total_cost))  BY tbucket = bucket(@timestamp, 1hour) 
++;
++
++maxRate:double | tbucket:datetime
++0.058979885057471274 | 2024-05-10T00:00:00.000Z
++;
++
++Max of Rate with Bucket, drop _tsid
++required_capability: ts_command_v0
++
++TS k8s METADATA _tsid
++| DROP _tsid
++| STATS maxRate = max(rate(network.total_cost))  BY tbucket = bucket(@timestamp, 1hour) 
++;
++
++maxRate:double | tbucket:datetime
++0.058979885057471274 | 2024-05-10T00:00:00.000Z
++;
++
++
++Rename timestamp when aggs don't require timestamp
++required_capability: ts_command_v0
++
++TS k8s 
++| RENAME @timestamp AS newTs 
++| STATS mx = max(max_over_time(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)
++;
++
++mx:integer | tbucket:datetime
++1716       | 2024-05-10T00:00:00.000Z
++;
++
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java
+index e637481c7e058..9d5e41df38f3d 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java
+@@ -1461,6 +1461,10 @@ public enum Cap {
+          */
+         TS_COMMAND_V0(),
+ 
++        /**
++         * Custom error for renamed timestamp
++         */
++        TS_RENAME_TIMESTAMP_ERROR_MESSAGE,
+         /**
+          * Add support for counter doubles, ints, and longs in first_ and last_over_time
+          */
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java
+index 2ffe4ebb56299..dfab95275f2d2 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java
+@@ -1137,6 +1137,7 @@ private Attribute maybeResolveAttribute(UnresolvedAttribute ua, List<Attribute>
+         }
+ 
+         private static Attribute maybeResolveAttribute(UnresolvedAttribute ua, List<Attribute> childrenOutput, Logger logger) {
++            // if we already tried and failed to resolve this attribute, don't try again
+             if (ua.customMessage()) {
+                 return ua;
+             }
+@@ -1149,7 +1150,7 @@ private Attribute resolveAttribute(UnresolvedAttribute ua, List<Attribute> child
+ 
+         private static Attribute resolveAttribute(UnresolvedAttribute ua, List<Attribute> childrenOutput, Logger logger) {
+             Attribute resolved = ua;
+-            var named = resolveAgainstList(ua, childrenOutput);
++            List<Attribute> named = resolveAgainstList(ua, childrenOutput);
+             // if resolved, return it; otherwise keep it in place to be resolved later
+             if (named.size() == 1) {
+                 resolved = named.get(0);
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Delta.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Delta.java
+index f1883499a59cf..dcba073e5fb9a 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Delta.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Delta.java
+@@ -16,7 +16,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -51,7 +51,11 @@ public class Delta extends TimeSeriesAggregateFunction implements OptionalArgume
+         examples = { @Example(file = "k8s-timeseries-delta", tag = "delta") }
+     )
+     public Delta(Source source, @Param(name = "field", type = { "long", "integer", "double" }) Expression field) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "Delta aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public Delta(Source source, @Param(name = "field", type = { "long", "integer", "double" }) Expression field, Expression timestamp) {
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/FirstOverTime.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/FirstOverTime.java
+index 9270c8d301b4e..095764c4371bc 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/FirstOverTime.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/FirstOverTime.java
+@@ -17,7 +17,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -60,7 +60,11 @@ public FirstOverTime(
+         Source source,
+         @Param(name = "field", type = { "counter_long", "counter_integer", "counter_double", "long", "integer", "double" }) Expression field
+     ) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "First Over Time aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public FirstOverTime(Source source, Expression field, Expression timestamp) {
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Idelta.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Idelta.java
+index a6950439e541f..bed8a7842e407 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Idelta.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Idelta.java
+@@ -16,7 +16,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -53,7 +53,11 @@ public class Idelta extends TimeSeriesAggregateFunction implements OptionalArgum
+         examples = { @Example(file = "k8s-timeseries-idelta", tag = "idelta") }
+     )
+     public Idelta(Source source, @Param(name = "field", type = { "long", "integer", "double" }) Expression field) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "IDelta aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public Idelta(Source source, @Param(name = "field", type = { "long", "integer", "double" }) Expression field, Expression timestamp) {
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Increase.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Increase.java
+index eb5089b86f0fe..661bdeddd5ee2 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Increase.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Increase.java
+@@ -16,7 +16,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -59,7 +59,11 @@ public Increase(
+         Source source,
+         @Param(name = "field", type = { "counter_long", "counter_integer", "counter_double" }) Expression field
+     ) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "Increase aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public Increase(
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Irate.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Irate.java
+index d75e4456f7f06..79391fbf1f4fb 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Irate.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Irate.java
+@@ -16,7 +16,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -52,7 +52,11 @@ public class Irate extends TimeSeriesAggregateFunction implements OptionalArgume
+         examples = { @Example(file = "k8s-timeseries-irate", tag = "irate") }
+     )
+     public Irate(Source source, @Param(name = "field", type = { "counter_long", "counter_integer", "counter_double" }) Expression field) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "Irate aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public Irate(
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/LastOverTime.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/LastOverTime.java
+index e754c83dd9d90..14da771971be5 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/LastOverTime.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/LastOverTime.java
+@@ -18,7 +18,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -64,7 +64,11 @@ public LastOverTime(
+             type = { "counter_long", "counter_integer", "counter_double", "long", "integer", "double", "_tsid" }
+         ) Expression field
+     ) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "Last Over Time aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public LastOverTime(Source source, Expression field, Expression timestamp) {
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Rate.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Rate.java
+index a3406959931be..e773ed84c22c3 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Rate.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/aggregate/Rate.java
+@@ -16,7 +16,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -56,7 +56,11 @@ public class Rate extends TimeSeriesAggregateFunction implements OptionalArgumen
+     )
+ 
+     public Rate(Source source, @Param(name = "field", type = { "counter_long", "counter_integer", "counter_double" }) Expression field) {
+-        this(source, field, new UnresolvedAttribute(source, "@timestamp"));
++        this(
++            source,
++            field,
++            new UnresolvedTimestamp(source, "Rate aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public Rate(
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/grouping/TBucket.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/grouping/TBucket.java
+index f20e3420b9055..5e2307459abd4 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/grouping/TBucket.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/grouping/TBucket.java
+@@ -10,8 +10,7 @@
+ import org.elasticsearch.common.io.stream.StreamOutput;
+ import org.elasticsearch.compute.operator.EvalOperator;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+-import org.elasticsearch.xpack.esql.core.expression.MetadataAttribute;
+-import org.elasticsearch.xpack.esql.core.expression.UnresolvedAttribute;
++import org.elasticsearch.xpack.esql.core.expression.UnresolvedTimestamp;
+ import org.elasticsearch.xpack.esql.core.tree.NodeInfo;
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+@@ -65,7 +64,11 @@ public TBucket(
+         Source source,
+         @Param(name = "buckets", type = { "date_period", "time_duration" }, description = "Desired bucket size.") Expression buckets
+     ) {
+-        this(source, buckets, new UnresolvedAttribute(source, MetadataAttribute.TIMESTAMP_FIELD));
++        this(
++            source,
++            buckets,
++            new UnresolvedTimestamp(source, "TBucket function requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+     }
+ 
+     public TBucket(Source source, Expression buckets, Expression timestamp) {
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java
+index 9afc89b8cd8a8..8ebd4279bdf51 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java
+@@ -366,6 +366,10 @@ public static IndexResolution tsdbIndexResolution() {
+         return loadMapping("tsdb-mapping.json", "test");
+     }
+ 
++    public static IndexResolution k8sIndexResolution() {
++        return loadMapping("k8s-mappings.json", "k8s");
++    }
++
+     public static <E> E randomValueOtherThanTest(Predicate<E> exclude, Supplier<E> supplier) {
+         while (true) {
+             E value = supplier.get();
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java
+index 9d05b33d81c01..b28372046f4ca 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java
+@@ -10,15 +10,19 @@
+ import org.elasticsearch.Build;
+ import org.elasticsearch.TransportVersion;
+ import org.elasticsearch.common.Strings;
++import org.elasticsearch.index.IndexMode;
+ import org.elasticsearch.test.ESTestCase;
++import org.elasticsearch.xpack.esql.EsqlTestUtils;
+ import org.elasticsearch.xpack.esql.VerificationException;
+ import org.elasticsearch.xpack.esql.action.EsqlCapabilities;
+ import org.elasticsearch.xpack.esql.core.InvalidArgumentException;
++import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+ import org.elasticsearch.xpack.esql.core.type.DataTypeConverter;
+ import org.elasticsearch.xpack.esql.core.type.EsField;
+ import org.elasticsearch.xpack.esql.core.type.InvalidMappedField;
+ import org.elasticsearch.xpack.esql.core.type.UnsupportedEsField;
++import org.elasticsearch.xpack.esql.expression.function.EsqlFunctionRegistry;
+ import org.elasticsearch.xpack.esql.expression.function.fulltext.Kql;
+ import org.elasticsearch.xpack.esql.expression.function.fulltext.Match;
+ import org.elasticsearch.xpack.esql.expression.function.fulltext.MatchPhrase;
+@@ -31,6 +35,7 @@
+ import org.elasticsearch.xpack.esql.parser.ParsingException;
+ import org.elasticsearch.xpack.esql.parser.QueryParam;
+ import org.elasticsearch.xpack.esql.parser.QueryParams;
++import org.elasticsearch.xpack.esql.plan.IndexPattern;
+ 
+ import java.util.ArrayList;
+ import java.util.LinkedHashMap;
+@@ -40,10 +45,14 @@
+ import java.util.Map;
+ import java.util.Set;
+ 
++import static org.elasticsearch.xpack.esql.EsqlTestUtils.TEST_VERIFIER;
++import static org.elasticsearch.xpack.esql.EsqlTestUtils.emptyInferenceResolution;
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.paramAsConstant;
++import static org.elasticsearch.xpack.esql.EsqlTestUtils.testAnalyzerContext;
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.withDefaultLimitWarning;
+ import static org.elasticsearch.xpack.esql.analysis.Analyzer.ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION;
+ import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.TEXT_EMBEDDING_INFERENCE_ID;
++import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.defaultLookupResolution;
+ import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.loadMapping;
+ import static org.elasticsearch.xpack.esql.core.type.DataType.BOOLEAN;
+ import static org.elasticsearch.xpack.esql.core.type.DataType.CARTESIAN_POINT;
+@@ -88,7 +97,24 @@ public class VerifierTests extends ESTestCase {
+     private final Analyzer sampleDataAnalyzer = AnalyzerTestUtils.analyzer(loadMapping("mapping-sample_data.json", "test"));
+     private final Analyzer oddSampleDataAnalyzer = AnalyzerTestUtils.analyzer(loadMapping("mapping-odd-timestamp.json", "test"));
+     private final Analyzer tsdb = AnalyzerTestUtils.analyzer(AnalyzerTestUtils.tsdbIndexResolution());
+-
++    private Analyzer k8s;
++    {
++        // Load Time Series mappings for these tests
++        Map<String, EsField> mappingK8s = EsqlTestUtils.loadMapping("k8s-mappings.json");
++        EsIndex k8sIndex = new EsIndex("k8s", mappingK8s, Map.of("k8s", IndexMode.TIME_SERIES));
++        IndexResolution getIndexResult = IndexResolution.valid(k8sIndex);
++        k8s = new Analyzer(
++            testAnalyzerContext(
++                EsqlTestUtils.TEST_CFG,
++                new EsqlFunctionRegistry(),
++                Map.of(new IndexPattern(Source.EMPTY, "k8s"), getIndexResult),
++                defaultLookupResolution(),
++                new EnrichResolution(),
++                emptyInferenceResolution()
++            ),
++            TEST_VERIFIER
++        );
++    }
+     private final List<String> TIME_DURATIONS = List.of("millisecond", "second", "minute", "hour");
+     private final List<String> DATE_PERIODS = List.of("day", "week", "month", "year");
+ 
+@@ -1160,6 +1186,108 @@ public void testGroupByCounter() {
+         );
+     }
+ 
++    public void testRenameOrDropTimestmapWithRate() {
++        assertThat(
++            error("TS k8s | RENAME @timestamp AS newTs | STATS max(rate(network.total_cost))  BY tbucket = bucket(newTs, 1hour)", k8s),
++            equalTo("1:49: Rate aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(rate(network.total_cost))", k8s),
++            equalTo("1:38: Rate aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestmapWithLastOverTime() {
++        assertThat(
++            error(
++                "TS k8s | RENAME @timestamp AS newTs | STATS max(last_over_time(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)",
++                k8s
++            ),
++            equalTo("1:49: Last Over Time aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(last_over_time(network.eth0.tx))", k8s),
++            equalTo("1:38: Last Over Time aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestmapWithFirstOverTime() {
++        assertThat(
++            error(
++                "TS k8s | RENAME @timestamp AS newTs | STATS max(first_over_time(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)",
++                k8s
++            ),
++            equalTo("1:49: First Over Time aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(first_over_time(network.eth0.tx))", k8s),
++            equalTo("1:38: First Over Time aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestmapWithIncrease() {
++        assertThat(
++            error("TS k8s | RENAME @timestamp AS newTs | STATS max(increase(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)", k8s),
++            equalTo("1:49: Increase aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(increase(network.eth0.tx))", k8s),
++            equalTo("1:38: Increase aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestmapWithIRate() {
++        assertThat(
++            error("TS k8s | RENAME @timestamp AS newTs | STATS max(irate(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)", k8s),
++            equalTo("1:49: Irate aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(irate(network.eth0.tx))", k8s),
++            equalTo("1:38: Irate aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestmapWithDelta() {
++        assertThat(
++            error("TS k8s | RENAME @timestamp AS newTs | STATS max(delta(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)", k8s),
++            equalTo("1:49: Delta aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(delta(network.eth0.tx))", k8s),
++            equalTo("1:38: Delta aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestmapWithIDelta() {
++        assertThat(
++            error("TS k8s | RENAME @timestamp AS newTs | STATS max(idelta(network.eth0.tx))  BY tbucket = bucket(newTs, 1hour)", k8s),
++            equalTo("1:49: IDelta aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(idelta(network.eth0.tx))", k8s),
++            equalTo("1:38: IDelta aggregation requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
++    public void testRenameOrDropTimestampWithTBucket() {
++        assertThat(
++            error("TS k8s | RENAME @timestamp AS newTs | STATS max(max_over_time(network.eth0.tx))  BY tbucket = tbucket(1hour)", k8s),
++            equalTo("1:95: TBucket function requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++
++        assertThat(
++            error("TS k8s | DROP @timestamp | STATS max(max_over_time(network.eth0.tx)) BY tbucket = tbucket(1hour)", k8s),
++            equalTo("1:83: TBucket function requires @timestamp field, but @timestamp was renamed or dropped")
++        );
++    }
++
+     public void testAggsResolutionWithUnresolvedGroupings() {
+         String agg_func = randomFrom(
+             new String[] { "avg", "count", "count_distinct", "min", "max", "median", "median_absolute_deviation", "sum", "values" }
+@@ -2605,7 +2733,10 @@ public void testToIPInvalidOptions() {
+     }
+ 
+     public void testInvalidTBucketCalls() {
+-        assertThat(error("from test | stats max(emp_no) by tbucket(1 hour)"), equalTo("1:34: Unknown column [@timestamp]"));
++        assertThat(
++            error("from test | stats max(emp_no) by tbucket(1 hour)"),
++            equalTo("1:34: TBucket function requires @timestamp field, but @timestamp was renamed or dropped")
++        );
+         assertThat(
+             error("from test | stats max(event_duration) by tbucket()", sampleDataAnalyzer, ParsingException.class),
+             equalTo("1:42: error building [tbucket]: expects exactly one argument")
+@@ -2901,6 +3032,13 @@ STATS max(max_over_time(network.connections)) BY host, time_bucket = bucket(@tim
+             can only be used after STATS when used with TS command"""));
+     }
+ 
++    public void testInlineStatsWithRateNotAllowed() {
++        assertThat(error("TS test | INLINE STATS max(60 * rate(network.bytes_in)), max(network.connections)", tsdb), equalTo("""
++            1:11: INLINE STATS [INLINE STATS max(60 * rate(network.bytes_in)), max(network.connections)] \
++            can only be used after STATS when used with TS command"""));
++
++    }
++
+     public void testLimitBeforeInlineStats_WithTS() {
+         assumeTrue("LIMIT before INLINE STATS limitation check", EsqlCapabilities.Cap.FORBID_LIMIT_BEFORE_INLINE_STATS.isEnabled());
+         assertThat(
+diff --git a/x-pack/plugin/src/yamlRestTest/resources/rest-api-spec/test/esql/40_tsdb.yml b/x-pack/plugin/src/yamlRestTest/resources/rest-api-spec/test/esql/40_tsdb.yml
+index 0478548f51da1..7f8ebb5b7f09d 100644
+--- a/x-pack/plugin/src/yamlRestTest/resources/rest-api-spec/test/esql/40_tsdb.yml
++++ b/x-pack/plugin/src/yamlRestTest/resources/rest-api-spec/test/esql/40_tsdb.yml
+@@ -837,3 +837,28 @@ TS Command grouping on text field:
+   - match: {values.2.0: 530604797}
+   - match: {values.2.1: "why cant i hold all these text"}
+   - match: {values.2.2: "2021-04-28T18:00:00.000Z"}
++
++---
++error on rename timestamp:
++  - requires:
++      test_runner_features: [ capabilities ]
++      capabilities:
++        - method: POST
++          path: /_query
++          parameters: [ ]
++          capabilities: [ ts_command_v0, ts_rename_timestamp_error_message ]
++      reason: "TS specific check"
++
++  - do:
++      allowed_warnings_regex:
++        - "No limit defined, adding default limit of \\[.*\\]"
++      catch: bad_request
++      esql.query:
++        body:
++          query: |
++            TS test
++            | RENAME @timestamp AS newTs
++            | STATS max(rate(k8s.pod.network.tx))  BY tbucket = bucket(newTs, 1hour)
++
++  - match: { error.reason: "Found 1 problem\nline 3:13: Rate aggregation requires @timestamp field, but @timestamp was renamed or dropped" }
++

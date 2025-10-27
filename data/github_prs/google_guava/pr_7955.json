@@ -1,0 +1,57 @@
+{
+  "id": 7955,
+  "repository": "google/guava",
+  "title": "In `Strings.lenientFormat`, don't assign into the varargs array.",
+  "body": "In `Strings.lenientFormat`, don't assign into the varargs array.\n\nWhen the method is called with an actual array argument, rather than as varargs, assigning into that array is at best surprising. It may also cause an `ArrayStoreException` if the component type of the array is not compatible with `String`.\n\nRELNOTES=`Strings.lenientFormat` no longer assigns into its varargs array argument.\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-08-27T17:53:47+00:00",
+  "created_at": "2025-08-27T17:27:37+00:00",
+  "updated_at": "2025-08-27T17:53:48+00:00",
+  "author": "copybara-service[bot]",
+  "reviewers": [],
+  "base_sha": "47b7e9e5ef3f2267f8ac327d68cc56b99e186aa8",
+  "head_sha": "148cea0778b7ea2e362c794c02b29a62bd93daa2",
+  "review_comments": [],
+  "pr_comments": [],
+  "files_changed": [
+    {
+      "filename": "android/guava-tests/test/com/google/common/base/StringsTest.java",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "patch": "@@ -213,6 +213,8 @@ public void testLenientFormat() {\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + %s = 11\", 6));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + 6 = %s\", 11));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", 5, 6, 11));\n+    assertEquals(\n+        \"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", (Object[]) new Integer[] {5, 6, 11}));\n     assertEquals(\"null [null, null]\", Strings.lenientFormat(\"%s\", null, null, null));\n     assertEquals(\"null [5, 6]\", Strings.lenientFormat(null, 5, 6));\n     assertEquals(\"null\", Strings.lenientFormat(\"%s\", (Object) null));"
+    },
+    {
+      "filename": "android/guava/src/com/google/common/base/Strings.java",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 11,
+      "changes": 18,
+      "patch": "@@ -263,10 +263,6 @@ public static String lenientFormat(\n \n     if (args == null) {\n       args = new Object[] {\"(Object[])null\"};\n-    } else {\n-      for (int i = 0; i < args.length; i++) {\n-        args[i] = lenientToString(args[i]);\n-      }\n     }\n \n     // start substituting the arguments into the '%s' placeholders\n@@ -279,18 +275,18 @@ public static String lenientFormat(\n         break;\n       }\n       builder.append(template, templateStart, placeholderStart);\n-      builder.append(args[i++]);\n+      builder.append(lenientToString(args[i++]));\n       templateStart = placeholderStart + 2;\n     }\n     builder.append(template, templateStart, template.length());\n \n-    // if we run out of placeholders, append the extra args in square braces\n+    // if we run out of placeholders, append the extra args in square brackets\n     if (i < args.length) {\n-      builder.append(\" [\");\n-      builder.append(args[i++]);\n-      while (i < args.length) {\n-        builder.append(\", \");\n-        builder.append(args[i++]);\n+      String prefix = \" [\";\n+      for (; i < args.length; i++) {\n+        builder.append(prefix);\n+        builder.append(lenientToString(args[i]));\n+        prefix = \", \";\n       }\n       builder.append(']');\n     }"
+    },
+    {
+      "filename": "guava-tests/test/com/google/common/base/StringsTest.java",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "patch": "@@ -213,6 +213,8 @@ public void testLenientFormat() {\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + %s = 11\", 6));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + 6 = %s\", 11));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", 5, 6, 11));\n+    assertEquals(\n+        \"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", (Object[]) new Integer[] {5, 6, 11}));\n     assertEquals(\"null [null, null]\", Strings.lenientFormat(\"%s\", null, null, null));\n     assertEquals(\"null [5, 6]\", Strings.lenientFormat(null, 5, 6));\n     assertEquals(\"null\", Strings.lenientFormat(\"%s\", (Object) null));"
+    },
+    {
+      "filename": "guava/src/com/google/common/base/Strings.java",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 11,
+      "changes": 18,
+      "patch": "@@ -269,10 +269,6 @@ public static String lenientFormat(\n \n     if (args == null) {\n       args = new Object[] {\"(Object[])null\"};\n-    } else {\n-      for (int i = 0; i < args.length; i++) {\n-        args[i] = lenientToString(args[i]);\n-      }\n     }\n \n     // start substituting the arguments into the '%s' placeholders\n@@ -285,18 +281,18 @@ public static String lenientFormat(\n         break;\n       }\n       builder.append(template, templateStart, placeholderStart);\n-      builder.append(args[i++]);\n+      builder.append(lenientToString(args[i++]));\n       templateStart = placeholderStart + 2;\n     }\n     builder.append(template, templateStart, template.length());\n \n-    // if we run out of placeholders, append the extra args in square braces\n+    // if we run out of placeholders, append the extra args in square brackets\n     if (i < args.length) {\n-      builder.append(\" [\");\n-      builder.append(args[i++]);\n-      while (i < args.length) {\n-        builder.append(\", \");\n-        builder.append(args[i++]);\n+      String prefix = \" [\";\n+      for (; i < args.length; i++) {\n+        builder.append(prefix);\n+        builder.append(lenientToString(args[i]));\n+        prefix = \", \";\n       }\n       builder.append(']');\n     }"
+    }
+  ],
+  "diff": "diff --git a/android/guava-tests/test/com/google/common/base/StringsTest.java b/android/guava-tests/test/com/google/common/base/StringsTest.java\nindex c5fd2f98bdb7..61de698e2e9f 100644\n--- a/android/guava-tests/test/com/google/common/base/StringsTest.java\n+++ b/android/guava-tests/test/com/google/common/base/StringsTest.java\n@@ -213,6 +213,8 @@ public void testLenientFormat() {\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + %s = 11\", 6));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + 6 = %s\", 11));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", 5, 6, 11));\n+    assertEquals(\n+        \"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", (Object[]) new Integer[] {5, 6, 11}));\n     assertEquals(\"null [null, null]\", Strings.lenientFormat(\"%s\", null, null, null));\n     assertEquals(\"null [5, 6]\", Strings.lenientFormat(null, 5, 6));\n     assertEquals(\"null\", Strings.lenientFormat(\"%s\", (Object) null));\ndiff --git a/android/guava/src/com/google/common/base/Strings.java b/android/guava/src/com/google/common/base/Strings.java\nindex 0f26ec985fbb..feb5915ca2f8 100644\n--- a/android/guava/src/com/google/common/base/Strings.java\n+++ b/android/guava/src/com/google/common/base/Strings.java\n@@ -263,10 +263,6 @@ public static String lenientFormat(\n \n     if (args == null) {\n       args = new Object[] {\"(Object[])null\"};\n-    } else {\n-      for (int i = 0; i < args.length; i++) {\n-        args[i] = lenientToString(args[i]);\n-      }\n     }\n \n     // start substituting the arguments into the '%s' placeholders\n@@ -279,18 +275,18 @@ public static String lenientFormat(\n         break;\n       }\n       builder.append(template, templateStart, placeholderStart);\n-      builder.append(args[i++]);\n+      builder.append(lenientToString(args[i++]));\n       templateStart = placeholderStart + 2;\n     }\n     builder.append(template, templateStart, template.length());\n \n-    // if we run out of placeholders, append the extra args in square braces\n+    // if we run out of placeholders, append the extra args in square brackets\n     if (i < args.length) {\n-      builder.append(\" [\");\n-      builder.append(args[i++]);\n-      while (i < args.length) {\n-        builder.append(\", \");\n-        builder.append(args[i++]);\n+      String prefix = \" [\";\n+      for (; i < args.length; i++) {\n+        builder.append(prefix);\n+        builder.append(lenientToString(args[i]));\n+        prefix = \", \";\n       }\n       builder.append(']');\n     }\ndiff --git a/guava-tests/test/com/google/common/base/StringsTest.java b/guava-tests/test/com/google/common/base/StringsTest.java\nindex c5fd2f98bdb7..61de698e2e9f 100644\n--- a/guava-tests/test/com/google/common/base/StringsTest.java\n+++ b/guava-tests/test/com/google/common/base/StringsTest.java\n@@ -213,6 +213,8 @@ public void testLenientFormat() {\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + %s = 11\", 6));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"5 + 6 = %s\", 11));\n     assertEquals(\"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", 5, 6, 11));\n+    assertEquals(\n+        \"5 + 6 = 11\", Strings.lenientFormat(\"%s + %s = %s\", (Object[]) new Integer[] {5, 6, 11}));\n     assertEquals(\"null [null, null]\", Strings.lenientFormat(\"%s\", null, null, null));\n     assertEquals(\"null [5, 6]\", Strings.lenientFormat(null, 5, 6));\n     assertEquals(\"null\", Strings.lenientFormat(\"%s\", (Object) null));\ndiff --git a/guava/src/com/google/common/base/Strings.java b/guava/src/com/google/common/base/Strings.java\nindex 27c1076e374e..ff95a5268fd6 100644\n--- a/guava/src/com/google/common/base/Strings.java\n+++ b/guava/src/com/google/common/base/Strings.java\n@@ -269,10 +269,6 @@ public static String lenientFormat(\n \n     if (args == null) {\n       args = new Object[] {\"(Object[])null\"};\n-    } else {\n-      for (int i = 0; i < args.length; i++) {\n-        args[i] = lenientToString(args[i]);\n-      }\n     }\n \n     // start substituting the arguments into the '%s' placeholders\n@@ -285,18 +281,18 @@ public static String lenientFormat(\n         break;\n       }\n       builder.append(template, templateStart, placeholderStart);\n-      builder.append(args[i++]);\n+      builder.append(lenientToString(args[i++]));\n       templateStart = placeholderStart + 2;\n     }\n     builder.append(template, templateStart, template.length());\n \n-    // if we run out of placeholders, append the extra args in square braces\n+    // if we run out of placeholders, append the extra args in square brackets\n     if (i < args.length) {\n-      builder.append(\" [\");\n-      builder.append(args[i++]);\n-      while (i < args.length) {\n-        builder.append(\", \");\n-        builder.append(args[i++]);\n+      String prefix = \" [\";\n+      for (; i < args.length; i++) {\n+        builder.append(prefix);\n+        builder.append(lenientToString(args[i]));\n+        prefix = \", \";\n       }\n       builder.append(']');\n     }\n",
+  "additions": 18,
+  "deletions": 22,
+  "changed_files": 4,
+  "url": "https://github.com/google/guava/pull/7955",
+  "mined_at": "2025-10-25T13:06:53.183425"
+}

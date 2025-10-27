@@ -1,0 +1,47 @@
+{
+  "id": 35573,
+  "repository": "spring-projects/spring-framework",
+  "title": "Fix Javadoc link and remove unnecessary semicolon",
+  "body": null,
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-06T14:54:08+00:00",
+  "created_at": "2025-10-06T13:09:44+00:00",
+  "updated_at": "2025-10-06T23:18:04+00:00",
+  "author": "NeatGuyCoding",
+  "reviewers": [],
+  "base_sha": "3a1a0e6e95630199d8ede5cdf04091054f313359",
+  "head_sha": "c580afc095998e9ff6538becca502a37ee2e83e2",
+  "review_comments": [],
+  "pr_comments": [
+    {
+      "user": "sbrannen",
+      "body": "This has been merged into `main`.\r\n\r\nThanks",
+      "created_at": "2025-10-06T14:54:18+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "spring-web/src/main/java/org/springframework/http/codec/CodecConfigurer.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -206,7 +206,7 @@ default void jackson2SmileDecoder(Decoder<?> decoder) {\n \t\t@Deprecated(since = \"7.0\", forRemoval = true)\n \t\tdefault void jackson2SmileEncoder(Encoder<?> encoder) {\n \t\t\tjacksonSmileEncoder(encoder);\n-\t\t};\n+\t\t}\n \n \t\t/**\n \t\t * Override the default Protobuf {@code Decoder}."
+    },
+    {
+      "filename": "spring-web/src/main/java/org/springframework/http/codec/support/BaseDefaultCodecs.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -827,7 +827,7 @@ else if (JACKSON_2_PRESENT) {\n \n \t/**\n \t * Get or initialize a Jackson JSON decoder.\n-\t * @deprecated in favor of {@link #getJacksonJsonEncoder()}\n+\t * @deprecated in favor of {@link #getJacksonJsonDecoder()}\n \t */\n \t@Deprecated(since = \"7.0\", forRemoval = true)\n \tprotected Decoder<?> getJackson2JsonDecoder() {"
+    }
+  ],
+  "diff": "diff --git a/spring-web/src/main/java/org/springframework/http/codec/CodecConfigurer.java b/spring-web/src/main/java/org/springframework/http/codec/CodecConfigurer.java\nindex 05d134171ec8..28c713a7bfff 100644\n--- a/spring-web/src/main/java/org/springframework/http/codec/CodecConfigurer.java\n+++ b/spring-web/src/main/java/org/springframework/http/codec/CodecConfigurer.java\n@@ -206,7 +206,7 @@ default void jackson2SmileDecoder(Decoder<?> decoder) {\n \t\t@Deprecated(since = \"7.0\", forRemoval = true)\n \t\tdefault void jackson2SmileEncoder(Encoder<?> encoder) {\n \t\t\tjacksonSmileEncoder(encoder);\n-\t\t};\n+\t\t}\n \n \t\t/**\n \t\t * Override the default Protobuf {@code Decoder}.\ndiff --git a/spring-web/src/main/java/org/springframework/http/codec/support/BaseDefaultCodecs.java b/spring-web/src/main/java/org/springframework/http/codec/support/BaseDefaultCodecs.java\nindex d534c7154e10..8a4ab22d9b5f 100644\n--- a/spring-web/src/main/java/org/springframework/http/codec/support/BaseDefaultCodecs.java\n+++ b/spring-web/src/main/java/org/springframework/http/codec/support/BaseDefaultCodecs.java\n@@ -827,7 +827,7 @@ else if (JACKSON_2_PRESENT) {\n \n \t/**\n \t * Get or initialize a Jackson JSON decoder.\n-\t * @deprecated in favor of {@link #getJacksonJsonEncoder()}\n+\t * @deprecated in favor of {@link #getJacksonJsonDecoder()}\n \t */\n \t@Deprecated(since = \"7.0\", forRemoval = true)\n \tprotected Decoder<?> getJackson2JsonDecoder() {\n",
+  "additions": 2,
+  "deletions": 2,
+  "changed_files": 2,
+  "url": "https://github.com/spring-projects/spring-framework/pull/35573",
+  "mined_at": "2025-10-25T13:08:21.710441"
+}

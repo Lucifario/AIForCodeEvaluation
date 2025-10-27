@@ -1,0 +1,14 @@
+diff --git a/muted-tests.yml b/muted-tests.yml
+index aebdbf85c13f8..41a6c5a4b1ef3 100644
+--- a/muted-tests.yml
++++ b/muted-tests.yml
+@@ -519,9 +519,6 @@ tests:
+ - class: org.elasticsearch.xpack.ml.integration.BasicDistributedJobsIT
+   method: testFailOverBasics
+   issue: https://github.com/elastic/elasticsearch/issues/136778
+-- class: org.elasticsearch.xpack.esql.heap_attack.HeapAttackIT
+-  method: testLookupExplosionManyMatchesManyFields
+-  issue: https://github.com/elastic/elasticsearch/issues/136791
+ - class: org.elasticsearch.xpack.inference.qa.mixed.CohereServiceMixedIT
+   method: testRerank
+   issue: https://github.com/elastic/elasticsearch/issues/136872

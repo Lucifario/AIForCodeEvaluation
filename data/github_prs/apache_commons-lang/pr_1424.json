@@ -1,0 +1,54 @@
+{
+  "id": 1424,
+  "repository": "apache/commons-lang",
+  "title": "[javadoc] Fix @deprecated link for StringUtils#startsWithAny",
+  "body": "The wrong Javadoc pointed to Strings.CI where this is a case sensitive operation.\r\n\r\n<!--\r\n  Licensed to the Apache Software Foundation (ASF) under one\r\n  or more contributor license agreements.  See the NOTICE file\r\n  distributed with this work for additional information\r\n  regarding copyright ownership.  The ASF licenses this file\r\n  to you under the Apache License, Version 2.0 (the\r\n  \"License\"); you may not use this file except in compliance\r\n  with the License.  You may obtain a copy of the License at\r\n\r\n    https://www.apache.org/licenses/LICENSE-2.0\r\n\r\n  Unless required by applicable law or agreed to in writing,\r\n  software distributed under the License is distributed on an\r\n  \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\r\n  KIND, either express or implied.  See the License for the\r\n  specific language governing permissions and limitations\r\n  under the License.\r\n-->\r\n\r\nThanks for your contribution to [Apache Commons](https://commons.apache.org/)! Your help is appreciated!\r\n\r\nBefore you push a pull request, review this list:\r\n\r\n- [x] Read the [contribution guidelines](CONTRIBUTING.md) for this project.\r\n- [x] Read the [ASF Generative Tooling Guidance](https://www.apache.org/legal/generative-tooling.html) if you use Artificial Intelligence (AI).\r\n- [ ] I used AI to create any part of, or all of, this pull request.\r\n- [ ] Run a successful build using the default [Maven](https://maven.apache.org/) goal with `mvn`; that's `mvn` on the command line by itself.\r\n- [ ] Write unit tests that match behavioral changes, where the tests fail if the changes to the runtime are not applied. This may not always be possible, but it is a best-practice.\r\n- [x] Write a pull request description that is detailed enough to understand what the pull request does, how, and why.\r\n- [x] Each commit in the pull request should have a meaningful subject line and body. Note that a maintainer may squash commits during the merge process.\r\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-08-08T11:29:03+00:00",
+  "created_at": "2025-08-08T09:08:44+00:00",
+  "updated_at": "2025-08-10T19:27:16+00:00",
+  "author": "mfg92",
+  "reviewers": [],
+  "base_sha": "9f97963dbff52c1a08a8bc6f1572ca91b98c0e9b",
+  "head_sha": "f8ff356652b9820852ff788590d8ee3b0ebba3ea",
+  "review_comments": [],
+  "pr_comments": [
+    {
+      "user": "garydgregory",
+      "body": "TY @mfg92 ! 👍 \r\n",
+      "created_at": "2025-08-08T11:29:20+00:00"
+    },
+    {
+      "user": "garydgregory",
+      "body": "Hi @mfg92 \r\n\r\nDo you see any other Javadoc improvements?\r\n",
+      "created_at": "2025-08-08T11:34:51+00:00"
+    },
+    {
+      "user": "mfg92",
+      "body": "> Hi @mfg92\r\n> \r\n> Do you see any other Javadoc improvements?\r\n\r\nI checked that all the @deprecated tags in StringUtils correspond to the actual Strings CS or CI variants, and found no inconsistencies.",
+      "created_at": "2025-08-10T19:06:50+00:00"
+    },
+    {
+      "user": "garydgregory",
+      "body": "> > Hi @mfg92\r\n> > Do you see any other Javadoc improvements?\r\n> \r\n> I checked that all the @deprecated tags in StringUtils correspond to the actual Strings CS or CI variants, and found no inconsistencies.\r\n\r\nTy @mfg92 !",
+      "created_at": "2025-08-10T19:27:16+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "src/main/java/org/apache/commons/lang3/StringUtils.java",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -7707,7 +7707,7 @@ public static boolean startsWith(final CharSequence str, final CharSequence pref\n      * @see StringUtils#startsWith(CharSequence, CharSequence)\n      * @since 2.5\n      * @since 3.0 Changed signature from startsWithAny(String, String[]) to startsWithAny(CharSequence, CharSequence...)\n-     * @deprecated Use {@link Strings#startsWithAny(CharSequence, CharSequence...) Strings.CI.startsWithAny(CharSequence, CharSequence...)}\n+     * @deprecated Use {@link Strings#startsWithAny(CharSequence, CharSequence...) Strings.CS.startsWithAny(CharSequence, CharSequence...)}\n      */\n     @Deprecated\n     public static boolean startsWithAny(final CharSequence sequence, final CharSequence... searchStrings) {"
+    }
+  ],
+  "diff": "diff --git a/src/main/java/org/apache/commons/lang3/StringUtils.java b/src/main/java/org/apache/commons/lang3/StringUtils.java\nindex cc34db07e47..6076d719480 100644\n--- a/src/main/java/org/apache/commons/lang3/StringUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/StringUtils.java\n@@ -7707,7 +7707,7 @@ public static boolean startsWith(final CharSequence str, final CharSequence pref\n      * @see StringUtils#startsWith(CharSequence, CharSequence)\n      * @since 2.5\n      * @since 3.0 Changed signature from startsWithAny(String, String[]) to startsWithAny(CharSequence, CharSequence...)\n-     * @deprecated Use {@link Strings#startsWithAny(CharSequence, CharSequence...) Strings.CI.startsWithAny(CharSequence, CharSequence...)}\n+     * @deprecated Use {@link Strings#startsWithAny(CharSequence, CharSequence...) Strings.CS.startsWithAny(CharSequence, CharSequence...)}\n      */\n     @Deprecated\n     public static boolean startsWithAny(final CharSequence sequence, final CharSequence... searchStrings) {\n",
+  "additions": 1,
+  "deletions": 1,
+  "changed_files": 1,
+  "url": "https://github.com/apache/commons-lang/pull/1424",
+  "mined_at": "2025-10-25T12:47:54.103265"
+}

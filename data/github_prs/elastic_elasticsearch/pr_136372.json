@@ -1,0 +1,114 @@
+{
+  "id": 136372,
+  "repository": "elastic/elasticsearch",
+  "title": "Use lowercase values for default_operator parameter",
+  "body": "This is also accepted, and is used in the Elasticsearch specification.",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-13T05:53:28+00:00",
+  "created_at": "2025-10-10T12:01:10+00:00",
+  "updated_at": "2025-10-24T13:40:49+00:00",
+  "author": "pquentin",
+  "reviewers": [
+    "rjernst"
+  ],
+  "base_sha": "cb779fc5ce1628448552d85b714ca6ad342557fe",
+  "head_sha": "d18c6da0aebe5b2b18353935fc5563c794986838",
+  "review_comments": [
+    {
+      "user": "rjernst",
+      "state": "APPROVED",
+      "body": "LGTM",
+      "submitted_at": "2025-10-10T15:39:25+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/es-core-infra (Team:Core/Infra)",
+      "created_at": "2025-10-10T12:01:37+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "## 💔 Backport failed\n| Status | Branch | Result |\n|:------:|:------:|:------:|\n| ❌ |  8.19  | Commit could not be cherrypicked due to conflicts |\n| ✅ |  [9.2](https://github.com/elastic/elasticsearch/pull/136462)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/136462\">](https://github.com/elastic/elasticsearch/pull/136462) |\n\nYou can use [sqren/backport](https://github.com/sqren/backport) to manually backport by running `backport --upstream elastic/elasticsearch --pr 136372`",
+      "created_at": "2025-10-13T05:55:09+00:00"
+    },
+    {
+      "user": "pquentin",
+      "body": "## 💚 All backports created successfully\n\n| Status | Branch | Result |\n|:------:|:------:|:------|\n|✅|8.19|[<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137109\">](https://github.com/elastic/elasticsearch/pull/137109)|\n\n### Questions ?\nPlease refer to the [Backport tool documentation](https://github.com/sorenlouv/backport)\n\n<!--- Backport version: 10.0.1 -->",
+      "created_at": "2025-10-24T13:40:49+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/async_search.submit.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -78,10 +78,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/count.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -98,10 +98,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/delete_by_query.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -43,10 +43,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/explain.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -48,10 +48,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/indices.validate_query.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -82,10 +82,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/project.tags.json",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 2,
+      "changes": 8,
+      "patch": "@@ -7,13 +7,17 @@\n     \"stability\": \"experimental\",\n     \"visibility\": \"public\",\n     \"headers\": {\n-      \"accept\": [\"application/json\"]\n+      \"accept\": [\n+        \"application/json\"\n+      ]\n     },\n     \"url\": {\n       \"paths\": [\n         {\n           \"path\": \"/_project/tags\",\n-          \"methods\": [\"GET\"]\n+          \"methods\": [\n+            \"GET\"\n+          ]\n         }\n       ]\n     }"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/search.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -56,10 +56,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    },
+    {
+      "filename": "rest-api-spec/src/main/resources/rest-api-spec/api/update_by_query.json",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "changes": 6,
+      "patch": "@@ -43,10 +43,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {"
+    }
+  ],
+  "diff": "diff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/async_search.submit.json b/rest-api-spec/src/main/resources/rest-api-spec/api/async_search.submit.json\nindex 23ab6b99ef907..6afad4132fc2b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/async_search.submit.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/async_search.submit.json\n@@ -78,10 +78,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/count.json b/rest-api-spec/src/main/resources/rest-api-spec/api/count.json\nindex 11b9235e24c23..f7db82eeef05b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/count.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/count.json\n@@ -98,10 +98,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/delete_by_query.json b/rest-api-spec/src/main/resources/rest-api-spec/api/delete_by_query.json\nindex b64f005c9866a..ae09a150796db 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/delete_by_query.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/delete_by_query.json\n@@ -43,10 +43,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/explain.json b/rest-api-spec/src/main/resources/rest-api-spec/api/explain.json\nindex a2e1a84b7e372..92295971ad2f6 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/explain.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/explain.json\n@@ -48,10 +48,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.validate_query.json b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.validate_query.json\nindex 24904395a6a36..0b2e82ff869d2 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/indices.validate_query.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/indices.validate_query.json\n@@ -82,10 +82,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/project.tags.json b/rest-api-spec/src/main/resources/rest-api-spec/api/project.tags.json\nindex 5647ab285af16..f3c4521e6e5e2 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/project.tags.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/project.tags.json\n@@ -7,13 +7,17 @@\n     \"stability\": \"experimental\",\n     \"visibility\": \"public\",\n     \"headers\": {\n-      \"accept\": [\"application/json\"]\n+      \"accept\": [\n+        \"application/json\"\n+      ]\n     },\n     \"url\": {\n       \"paths\": [\n         {\n           \"path\": \"/_project/tags\",\n-          \"methods\": [\"GET\"]\n+          \"methods\": [\n+            \"GET\"\n+          ]\n         }\n       ]\n     }\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/search.json b/rest-api-spec/src/main/resources/rest-api-spec/api/search.json\nindex 52282f2b7ecf4..af39196b7a23b 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/search.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/search.json\n@@ -56,10 +56,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\ndiff --git a/rest-api-spec/src/main/resources/rest-api-spec/api/update_by_query.json b/rest-api-spec/src/main/resources/rest-api-spec/api/update_by_query.json\nindex 62f7d7815a85d..367ccaada2174 100644\n--- a/rest-api-spec/src/main/resources/rest-api-spec/api/update_by_query.json\n+++ b/rest-api-spec/src/main/resources/rest-api-spec/api/update_by_query.json\n@@ -43,10 +43,10 @@\n       \"default_operator\": {\n         \"type\": \"enum\",\n         \"options\": [\n-          \"AND\",\n-          \"OR\"\n+          \"and\",\n+          \"or\"\n         ],\n-        \"default\": \"OR\",\n+        \"default\": \"or\",\n         \"description\": \"The default operator for query string query (AND or OR)\"\n       },\n       \"df\": {\n",
+  "additions": 27,
+  "deletions": 23,
+  "changed_files": 8,
+  "url": "https://github.com/elastic/elasticsearch/pull/136372",
+  "mined_at": "2025-10-25T13:21:53.200052"
+}

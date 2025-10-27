@@ -1,0 +1,13 @@
+diff --git a/pom.xml b/pom.xml
+index 276d71f4c7e..ee6b49e96d0 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -22,7 +22,7 @@
+   <parent>
+     <groupId>org.apache.commons</groupId>
+     <artifactId>commons-parent</artifactId>
+-    <version>89</version>
++    <version>90</version>
+   </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>commons-lang3</artifactId>

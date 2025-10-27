@@ -1,0 +1,236 @@
+diff --git a/android/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java b/android/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java
+index 05c727e44bed..091d9f28a6bd 100644
+--- a/android/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java
++++ b/android/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java
+@@ -226,7 +226,7 @@ private static boolean unsafeComparatorAvailable() {
+        *
+        * A note on exception types:
+        *
+-       * Android API level 10 throws ExceptionInInitializerError the first time and
++       * Android API level 23 throws ExceptionInInitializerError the first time and
+        * ClassNotFoundException thereafter.
+        *
+        * Android API level 26 and JVM8 both let our Error propagate directly the first time and
+diff --git a/android/guava/src/com/google/common/base/Stopwatch.java b/android/guava/src/com/google/common/base/Stopwatch.java
+index 1f5cb2cebd39..dd01826e83d0 100644
+--- a/android/guava/src/com/google/common/base/Stopwatch.java
++++ b/android/guava/src/com/google/common/base/Stopwatch.java
+@@ -86,7 +86,7 @@
+  * Stopwatch.createStarted(
+  *      new Ticker() {
+  *        public long read() {
+- *          return android.os.SystemClock.elapsedRealtimeNanos(); // requires API Level 17
++ *          return android.os.SystemClock.elapsedRealtimeNanos();
+  *        }
+  *      });
+  * }
+diff --git a/android/guava/src/com/google/common/util/concurrent/ClosingFuture.java b/android/guava/src/com/google/common/util/concurrent/ClosingFuture.java
+index 98aab964a96d..1b010ec0adab 100644
+--- a/android/guava/src/com/google/common/util/concurrent/ClosingFuture.java
++++ b/android/guava/src/com/google/common/util/concurrent/ClosingFuture.java
+@@ -48,7 +48,6 @@
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+ import com.google.errorprone.annotations.DoNotMock;
+ import com.google.j2objc.annotations.RetainedWith;
+-import java.io.Closeable;
+ import java.util.IdentityHashMap;
+ import java.util.Map;
+ import java.util.concurrent.Callable;
+@@ -210,23 +209,15 @@ public static final class DeferredCloser {
+     /**
+      * Captures an object to be closed when a {@link ClosingFuture} pipeline is done.
+      *
+-     * <p>For users of the {@code -jre} flavor of Guava, the object can be any {@code
+-     * AutoCloseable}. For users of the {@code -android} flavor, the object must be a {@code
+-     * Closeable}. (For more about the flavors, see <a
+-     * href="https://github.com/google/guava#adding-guava-to-your-build">Adding Guava to your
+-     * build</a>.)
+-     *
+      * <p>Be careful when targeting an older SDK than you are building against (most commonly when
+      * building for Android): Ensure that any object you pass implements the interface not just in
+      * your current SDK version but also at the oldest version you support. For example, <a
+-     * href="https://developer.android.com/sdk/api_diff/16/">API Level 16</a> is the first version
+-     * in which {@code Cursor} is {@code Closeable}. To support older versions, pass a wrapper
+-     * {@code Closeable} with a method reference like {@code cursor::close}.
+-     *
+-     * <p>Note that this method is still binary-compatible between flavors because the erasure of
+-     * its parameter type is {@code Object}, not {@code AutoCloseable} or {@code Closeable}.
++     * href="https://developer.android.com/sdk/api_diff/28/changes/android.media.MediaDrm#android.media.MediaDrm.close_added()">API
++     * Level 28</a> is the first version in which {@code MediaDrm} is {@code AutoCloseable}. To
++     * support older versions, pass a wrapper {@code AutoCloseable} with a method reference like
++     * {@code mediaDrm::release}.
+      *
+-     * @param closeable the object to be closed (see notes above)
++     * @param closeable the object to be closed
+      * @param closingExecutor the object will be closed on this executor
+      * @return the first argument
+      */
+@@ -440,7 +431,7 @@ public String toString() {
+    * Starts a {@link ClosingFuture} pipeline with a {@link ListenableFuture}.
+    *
+    * <p>{@code future}'s value will not be closed when the pipeline is done even if {@code V}
+-   * implements {@link Closeable}. In order to start a pipeline with a value that will be closed
++   * implements {@link AutoCloseable}. In order to start a pipeline with a value that will be closed
+    * when the pipeline is done, use {@link #submit(ClosingCallable, Executor)} instead.
+    */
+   public static <V extends @Nullable Object> ClosingFuture<V> from(ListenableFuture<V> future) {
+@@ -741,7 +732,7 @@ public String toString() {
+    *
+    * // Result.writeRowsToOutputStreamFuture() returns a ListenableFuture that resolves to the
+    * // number of written rows. openOutputFile() returns a FileOutputStream (which implements
+-   * // Closeable).
++   * // AutoCloseable).
+    * ClosingFuture<Integer> rowsFuture2 =
+    *     queryFuture.transformAsync(
+    *         (closer, result) -> {
+@@ -803,7 +794,7 @@ public String toString() {
+    * meets these conditions:
+    *
+    * <ul>
+-   *   <li>It does not need to capture any {@link Closeable} objects by calling {@link
++   *   <li>It does not need to capture any {@link AutoCloseable} objects by calling {@link
+    *       DeferredCloser#eventuallyClose(Object, Executor)}.
+    *   <li>It returns a {@link ListenableFuture}.
+    * </ul>
+@@ -2121,14 +2112,6 @@ private static void closeQuietly(@Nullable AutoCloseable closeable, Executor exe
+             try {
+               closeable.close();
+             } catch (Exception e) {
+-              /*
+-               * In guava-jre, any kind of Exception may be thrown because `closeable` has type
+-               * `AutoCloseable`.
+-               *
+-               * In guava-android, the only kinds of Exception that may be thrown are
+-               * RuntimeException and IOException because `closeable` has type `Closeable`—except
+-               * that we have to account for sneaky checked exception.
+-               */
+               restoreInterruptIfIsInterruptedException(e);
+               logger.get().log(WARNING, "thrown by close()", e);
+             }
+@@ -2160,7 +2143,7 @@ private boolean compareAndUpdateState(State oldState, State newState) {
+ 
+   // TODO(dpb): Should we use a pair of ArrayLists instead of an IdentityHashMap?
+   private static final class CloseableList extends IdentityHashMap<AutoCloseable, Executor>
+-      implements Closeable {
++      implements AutoCloseable {
+     private final DeferredCloser closer = new DeferredCloser(this);
+     private volatile boolean closed;
+     private volatile @Nullable CountDownLatch whenClosed;
+diff --git a/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java b/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java
+index e50f1b1e969c..fa511774aa2e 100644
+--- a/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java
++++ b/guava-tests/test/com/google/common/primitives/UnsignedBytesTest.java
+@@ -227,7 +227,7 @@ private static boolean unsafeComparatorAvailable() {
+        *
+        * A note on exception types:
+        *
+-       * Android API level 10 throws ExceptionInInitializerError the first time and
++       * Android API level 23 throws ExceptionInInitializerError the first time and
+        * ClassNotFoundException thereafter.
+        *
+        * Android API level 26 and JVM8 both let our Error propagate directly the first time and
+diff --git a/guava/src/com/google/common/base/Stopwatch.java b/guava/src/com/google/common/base/Stopwatch.java
+index 8ca352b536e8..d46ef81747ae 100644
+--- a/guava/src/com/google/common/base/Stopwatch.java
++++ b/guava/src/com/google/common/base/Stopwatch.java
+@@ -86,7 +86,7 @@
+  * Stopwatch.createStarted(
+  *      new Ticker() {
+  *        public long read() {
+- *          return android.os.SystemClock.elapsedRealtimeNanos(); // requires API Level 17
++ *          return android.os.SystemClock.elapsedRealtimeNanos();
+  *        }
+  *      });
+  * }
+diff --git a/guava/src/com/google/common/util/concurrent/ClosingFuture.java b/guava/src/com/google/common/util/concurrent/ClosingFuture.java
+index 551930381b11..435740ccadf5 100644
+--- a/guava/src/com/google/common/util/concurrent/ClosingFuture.java
++++ b/guava/src/com/google/common/util/concurrent/ClosingFuture.java
+@@ -48,7 +48,6 @@
+ import com.google.errorprone.annotations.CanIgnoreReturnValue;
+ import com.google.errorprone.annotations.DoNotMock;
+ import com.google.j2objc.annotations.RetainedWith;
+-import java.io.Closeable;
+ import java.util.IdentityHashMap;
+ import java.util.Map;
+ import java.util.concurrent.Callable;
+@@ -210,23 +209,15 @@ public static final class DeferredCloser {
+     /**
+      * Captures an object to be closed when a {@link ClosingFuture} pipeline is done.
+      *
+-     * <p>For users of the {@code -jre} flavor of Guava, the object can be any {@code
+-     * AutoCloseable}. For users of the {@code -android} flavor, the object must be a {@code
+-     * Closeable}. (For more about the flavors, see <a
+-     * href="https://github.com/google/guava#adding-guava-to-your-build">Adding Guava to your
+-     * build</a>.)
+-     *
+      * <p>Be careful when targeting an older SDK than you are building against (most commonly when
+      * building for Android): Ensure that any object you pass implements the interface not just in
+      * your current SDK version but also at the oldest version you support. For example, <a
+-     * href="https://developer.android.com/sdk/api_diff/16/">API Level 16</a> is the first version
+-     * in which {@code Cursor} is {@code Closeable}. To support older versions, pass a wrapper
+-     * {@code Closeable} with a method reference like {@code cursor::close}.
+-     *
+-     * <p>Note that this method is still binary-compatible between flavors because the erasure of
+-     * its parameter type is {@code Object}, not {@code AutoCloseable} or {@code Closeable}.
++     * href="https://developer.android.com/sdk/api_diff/28/changes/android.media.MediaDrm#android.media.MediaDrm.close_added()">API
++     * Level 28</a> is the first version in which {@code MediaDrm} is {@code AutoCloseable}. To
++     * support older versions, pass a wrapper {@code AutoCloseable} with a method reference like
++     * {@code mediaDrm::release}.
+      *
+-     * @param closeable the object to be closed (see notes above)
++     * @param closeable the object to be closed
+      * @param closingExecutor the object will be closed on this executor
+      * @return the first argument
+      */
+@@ -445,7 +436,7 @@ public String toString() {
+    * Starts a {@link ClosingFuture} pipeline with a {@link ListenableFuture}.
+    *
+    * <p>{@code future}'s value will not be closed when the pipeline is done even if {@code V}
+-   * implements {@link Closeable}. In order to start a pipeline with a value that will be closed
++   * implements {@link AutoCloseable}. In order to start a pipeline with a value that will be closed
+    * when the pipeline is done, use {@link #submit(ClosingCallable, Executor)} instead.
+    */
+   public static <V extends @Nullable Object> ClosingFuture<V> from(ListenableFuture<V> future) {
+@@ -746,7 +737,7 @@ public String toString() {
+    *
+    * // Result.writeRowsToOutputStreamFuture() returns a ListenableFuture that resolves to the
+    * // number of written rows. openOutputFile() returns a FileOutputStream (which implements
+-   * // Closeable).
++   * // AutoCloseable).
+    * ClosingFuture<Integer> rowsFuture2 =
+    *     queryFuture.transformAsync(
+    *         (closer, result) -> {
+@@ -808,7 +799,7 @@ public String toString() {
+    * meets these conditions:
+    *
+    * <ul>
+-   *   <li>It does not need to capture any {@link Closeable} objects by calling {@link
++   *   <li>It does not need to capture any {@link AutoCloseable} objects by calling {@link
+    *       DeferredCloser#eventuallyClose(Object, Executor)}.
+    *   <li>It returns a {@link ListenableFuture}.
+    * </ul>
+@@ -2136,14 +2127,6 @@ private static void closeQuietly(@Nullable AutoCloseable closeable, Executor exe
+             try {
+               closeable.close();
+             } catch (Exception e) {
+-              /*
+-               * In guava-jre, any kind of Exception may be thrown because `closeable` has type
+-               * `AutoCloseable`.
+-               *
+-               * In guava-android, the only kinds of Exception that may be thrown are
+-               * RuntimeException and IOException because `closeable` has type `Closeable`—except
+-               * that we have to account for sneaky checked exception.
+-               */
+               restoreInterruptIfIsInterruptedException(e);
+               logger.get().log(WARNING, "thrown by close()", e);
+             }
+@@ -2175,7 +2158,7 @@ private boolean compareAndUpdateState(State oldState, State newState) {
+ 
+   // TODO(dpb): Should we use a pair of ArrayLists instead of an IdentityHashMap?
+   private static final class CloseableList extends IdentityHashMap<AutoCloseable, Executor>
+-      implements Closeable {
++      implements AutoCloseable {
+     private final DeferredCloser closer = new DeferredCloser(this);
+     private volatile boolean closed;
+     private volatile @Nullable CountDownLatch whenClosed;

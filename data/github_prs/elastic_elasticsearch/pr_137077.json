@@ -1,0 +1,81 @@
+{
+  "id": 137077,
+  "repository": "elastic/elasticsearch",
+  "title": "Catch exceptions from mapperService in StoreRecovery.recoverFromLocalShards",
+  "body": "The inline listener there must not throw, or the recovery task will leak.\r\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-24T15:31:41+00:00",
+  "created_at": "2025-10-24T04:06:19+00:00",
+  "updated_at": "2025-10-24T16:09:00+00:00",
+  "author": "bcully",
+  "reviewers": [
+    "jxie-1",
+    "tlrx"
+  ],
+  "base_sha": "5ea782ca7b7aface103eebab22d0b255b4e9e89e",
+  "head_sha": "9a123e8e537899425ef88aa0c9e3fbf8727e07db",
+  "review_comments": [
+    {
+      "user": "tlrx",
+      "state": "APPROVED",
+      "body": "LGTM",
+      "submitted_at": "2025-10-24T07:31:41+00:00"
+    },
+    {
+      "user": "jxie-1",
+      "state": "APPROVED",
+      "body": "",
+      "submitted_at": "2025-10-24T14:44:30+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/es-distributed-indexing (Team:Distributed Indexing)",
+      "created_at": "2025-10-24T04:06:44+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "Hi @bcully, I've created a changelog YAML for you.",
+      "created_at": "2025-10-24T04:07:27+00:00"
+    },
+    {
+      "user": "elasticsearchmachine",
+      "body": "## 💚 Backport successful\n| Status | Branch | Result |\n|:------:|:------:|:------:|\n| ✅ |  [9.2](https://github.com/elastic/elasticsearch/pull/137113)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137113\">](https://github.com/elastic/elasticsearch/pull/137113) |\n| ✅ |  [8.19](https://github.com/elastic/elasticsearch/pull/137114)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137114\">](https://github.com/elastic/elasticsearch/pull/137114) |\n| ✅ |  [9.1](https://github.com/elastic/elasticsearch/pull/137115)  | [<img src=\"https://img.shields.io/github/pulls/detail/state/elastic/elasticsearch/137115\">](https://github.com/elastic/elasticsearch/pull/137115) |",
+      "created_at": "2025-10-24T15:33:20+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/changelog/137077.yaml",
+      "status": "added",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "patch": "@@ -0,0 +1,5 @@\n+pr: 137077\n+summary: Catch exceptions from `mapperService` in `StoreRecovery.recoverFromLocalShards`\n+area: Recovery\n+type: bug\n+issues: []"
+    },
+    {
+      "filename": "server/src/main/java/org/elasticsearch/index/shard/StoreRecovery.java",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 7,
+      "changes": 15,
+      "patch": "@@ -128,15 +128,16 @@ void recoverFromLocalShards(\n                 mappingUpdateConsumer.accept(sourceMetadata.mapping(), mappingStep);\n             }\n             mappingStep.addListener(outerListener.delegateFailure((listener, ignored) -> {\n-                indexShard.mapperService().merge(sourceMetadata, MapperService.MergeReason.MAPPING_RECOVERY);\n-                // now that the mapping is merged we can validate the index sort configuration.\n-                Sort indexSort = indexShard.getIndexSort();\n-                final boolean hasNested = indexShard.mapperService().hasNested();\n-                final boolean isSplit = sourceMetadata.getNumberOfShards() < indexShard.indexSettings().getNumberOfShards();\n-\n                 final var recoveryListener = recoveryListener(indexShard, listener);\n-                logger.debug(\"starting recovery from local shards {}\", shards);\n+\n                 try {\n+                    indexShard.mapperService().merge(sourceMetadata, MapperService.MergeReason.MAPPING_RECOVERY);\n+                    // now that the mapping is merged we can validate the index sort configuration.\n+                    Sort indexSort = indexShard.getIndexSort();\n+                    final boolean hasNested = indexShard.mapperService().hasNested();\n+                    final boolean isSplit = sourceMetadata.getNumberOfShards() < indexShard.indexSettings().getNumberOfShards();\n+\n+                    logger.debug(\"starting recovery from local shards {}\", shards);\n                     final Directory directory = indexShard.store().directory(); // don't close this directory!!\n                     final Directory[] sources = shards.stream().map(LocalShardSnapshot::getSnapshotDirectory).toArray(Directory[]::new);\n                     final long maxSeqNo = shards.stream().mapToLong(LocalShardSnapshot::maxSeqNo).max().getAsLong();"
+    },
+    {
+      "filename": "server/src/test/java/org/elasticsearch/index/shard/IndexShardTests.java",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "patch": "@@ -208,6 +208,8 @@\n import static org.hamcrest.Matchers.nullValue;\n import static org.hamcrest.Matchers.oneOf;\n import static org.hamcrest.Matchers.sameInstance;\n+import static org.mockito.Mockito.doThrow;\n+import static org.mockito.Mockito.spy;\n \n /**\n  * Simple unit-test IndexShard related operations.\n@@ -3415,6 +3417,14 @@ public void testRecoverFromLocalShard() throws IOException {\n             });\n             closeShards(differentIndex);\n \n+            // check that an error from the mapper service is handled correctly\n+            final PlainActionFuture<Boolean> badMapperFuture = new PlainActionFuture<>();\n+            final IndexShard badMapper = spy(targetShard);\n+            doThrow(IllegalArgumentException.class).when(badMapper).mapperService();\n+            final BiConsumer<MappingMetadata, ActionListener<Void>> noopConsumer = (mapping, listener) -> listener.onResponse(null);\n+            badMapper.recoverFromLocalShards(noopConsumer, List.of(sourceShard), badMapperFuture);\n+            assertThrows(IndexShardRecoveryException.class, badMapperFuture::actionGet);\n+\n             final PlainActionFuture<Boolean> future = new PlainActionFuture<>();\n             targetShard.recoverFromLocalShards(mappingConsumer, Arrays.asList(sourceShard), future);\n             assertTrue(future.actionGet());"
+    }
+  ],
+  "diff": "diff --git a/docs/changelog/137077.yaml b/docs/changelog/137077.yaml\nnew file mode 100644\nindex 0000000000000..fed7a6d1975d3\n--- /dev/null\n+++ b/docs/changelog/137077.yaml\n@@ -0,0 +1,5 @@\n+pr: 137077\n+summary: Catch exceptions from `mapperService` in `StoreRecovery.recoverFromLocalShards`\n+area: Recovery\n+type: bug\n+issues: []\ndiff --git a/server/src/main/java/org/elasticsearch/index/shard/StoreRecovery.java b/server/src/main/java/org/elasticsearch/index/shard/StoreRecovery.java\nindex 290d0e98ef632..c003660f36e46 100644\n--- a/server/src/main/java/org/elasticsearch/index/shard/StoreRecovery.java\n+++ b/server/src/main/java/org/elasticsearch/index/shard/StoreRecovery.java\n@@ -128,15 +128,16 @@ void recoverFromLocalShards(\n                 mappingUpdateConsumer.accept(sourceMetadata.mapping(), mappingStep);\n             }\n             mappingStep.addListener(outerListener.delegateFailure((listener, ignored) -> {\n-                indexShard.mapperService().merge(sourceMetadata, MapperService.MergeReason.MAPPING_RECOVERY);\n-                // now that the mapping is merged we can validate the index sort configuration.\n-                Sort indexSort = indexShard.getIndexSort();\n-                final boolean hasNested = indexShard.mapperService().hasNested();\n-                final boolean isSplit = sourceMetadata.getNumberOfShards() < indexShard.indexSettings().getNumberOfShards();\n-\n                 final var recoveryListener = recoveryListener(indexShard, listener);\n-                logger.debug(\"starting recovery from local shards {}\", shards);\n+\n                 try {\n+                    indexShard.mapperService().merge(sourceMetadata, MapperService.MergeReason.MAPPING_RECOVERY);\n+                    // now that the mapping is merged we can validate the index sort configuration.\n+                    Sort indexSort = indexShard.getIndexSort();\n+                    final boolean hasNested = indexShard.mapperService().hasNested();\n+                    final boolean isSplit = sourceMetadata.getNumberOfShards() < indexShard.indexSettings().getNumberOfShards();\n+\n+                    logger.debug(\"starting recovery from local shards {}\", shards);\n                     final Directory directory = indexShard.store().directory(); // don't close this directory!!\n                     final Directory[] sources = shards.stream().map(LocalShardSnapshot::getSnapshotDirectory).toArray(Directory[]::new);\n                     final long maxSeqNo = shards.stream().mapToLong(LocalShardSnapshot::maxSeqNo).max().getAsLong();\ndiff --git a/server/src/test/java/org/elasticsearch/index/shard/IndexShardTests.java b/server/src/test/java/org/elasticsearch/index/shard/IndexShardTests.java\nindex a553dc6578807..94d3548c23793 100644\n--- a/server/src/test/java/org/elasticsearch/index/shard/IndexShardTests.java\n+++ b/server/src/test/java/org/elasticsearch/index/shard/IndexShardTests.java\n@@ -208,6 +208,8 @@\n import static org.hamcrest.Matchers.nullValue;\n import static org.hamcrest.Matchers.oneOf;\n import static org.hamcrest.Matchers.sameInstance;\n+import static org.mockito.Mockito.doThrow;\n+import static org.mockito.Mockito.spy;\n \n /**\n  * Simple unit-test IndexShard related operations.\n@@ -3415,6 +3417,14 @@ public void testRecoverFromLocalShard() throws IOException {\n             });\n             closeShards(differentIndex);\n \n+            // check that an error from the mapper service is handled correctly\n+            final PlainActionFuture<Boolean> badMapperFuture = new PlainActionFuture<>();\n+            final IndexShard badMapper = spy(targetShard);\n+            doThrow(IllegalArgumentException.class).when(badMapper).mapperService();\n+            final BiConsumer<MappingMetadata, ActionListener<Void>> noopConsumer = (mapping, listener) -> listener.onResponse(null);\n+            badMapper.recoverFromLocalShards(noopConsumer, List.of(sourceShard), badMapperFuture);\n+            assertThrows(IndexShardRecoveryException.class, badMapperFuture::actionGet);\n+\n             final PlainActionFuture<Boolean> future = new PlainActionFuture<>();\n             targetShard.recoverFromLocalShards(mappingConsumer, Arrays.asList(sourceShard), future);\n             assertTrue(future.actionGet());\n",
+  "additions": 23,
+  "deletions": 7,
+  "changed_files": 3,
+  "url": "https://github.com/elastic/elasticsearch/pull/137077",
+  "mined_at": "2025-10-25T13:17:08.080293"
+}

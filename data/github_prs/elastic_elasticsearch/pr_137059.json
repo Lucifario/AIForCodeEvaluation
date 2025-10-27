@@ -1,0 +1,58 @@
+{
+  "id": 137059,
+  "repository": "elastic/elasticsearch",
+  "title": "Restore fragmented sentence",
+  "body": "What it says on the tin. Copy restored from a couple of commits ago\r\n",
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2025-10-23T19:40:05+00:00",
+  "created_at": "2025-10-23T19:14:39+00:00",
+  "updated_at": "2025-10-23T19:40:08+00:00",
+  "author": "shainaraskas",
+  "reviewers": [
+    "leemthompo"
+  ],
+  "base_sha": "8cbccc6531529da7901e06cb6d86b2c5c7023d16",
+  "head_sha": "64dc79aabde3191a6c114f1d362478047821f1af",
+  "review_comments": [
+    {
+      "user": "leemthompo",
+      "state": "APPROVED",
+      "body": "🙏 ",
+      "submitted_at": "2025-10-23T19:39:12+00:00"
+    }
+  ],
+  "pr_comments": [
+    {
+      "user": "elasticsearchmachine",
+      "body": "Pinging @elastic/core-docs (Team:Docs)",
+      "created_at": "2025-10-23T19:15:03+00:00"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "## 🔍 Preview links for changed docs\n- [docs/reference/query-languages/esql/functions-operators/search-functions.md](https://docs-v3-preview.elastic.dev/elastic/elasticsearch/pull/137059/reference/query-languages/esql/functions-operators/search-functions)",
+      "created_at": "2025-10-23T19:17:28+00:00"
+    },
+    {
+      "user": "github-actions[bot]",
+      "body": "## ℹ️ Important: Docs version tagging\n\n👋 Thanks for updating the docs! Just a friendly reminder that our docs are now **cumulative**. This means all 9.x versions are documented on the same page and published off of the main branch, instead of creating separate pages for each minor version.\n\nWe use [applies_to tags](https://elastic.github.io/docs-builder/syntax/applies) to mark version-specific features and changes.\n\n<details>\n<summary>Expand for a quick overview</summary>\n\n### When to use applies_to tags:\n✅ At the page level to indicate which products/deployments the content applies to (mandatory)\n✅ When features change state (e.g. preview, ga) in a specific version\n✅ When availability differs across deployments and environments\n\n### What NOT to do:\n❌ Don't remove or replace information that applies to an older version\n❌ Don't add new information that applies to a specific version without an applies_to tag\n❌ Don't forget that applies_to tags can be used at the page, section, and inline level\n</details>\n\n### 🤔 Need help?\n- Check out the [cumulative docs guidelines](https://elastic.github.io/docs-builder/contribute/cumulative-docs/)\n- Reach out in the [#docs](https://elastic.slack.com/archives/C0JF80CJZ) Slack channel",
+      "created_at": "2025-10-23T19:17:29+00:00"
+    }
+  ],
+  "files_changed": [
+    {
+      "filename": "docs/reference/query-languages/esql/functions-operators/search-functions.md",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "patch": "@@ -20,6 +20,7 @@ including [KNN](dense-vector-functions.md#esql-knn), please refer to\n the [Dense vector functions](dense-vector-functions.md) documentation.\n :::\n \n+Use these functions for [full-text search](docs-content://solutions/search/full-text.md) \n and [semantic search](docs-content://solutions/search/semantic-search/semantic-search-semantic-text.md).\n \n Full text functions can be used to"
+    }
+  ],
+  "diff": "diff --git a/docs/reference/query-languages/esql/functions-operators/search-functions.md b/docs/reference/query-languages/esql/functions-operators/search-functions.md\nindex 1e3bfc8986e1b..05a27459b5ee8 100644\n--- a/docs/reference/query-languages/esql/functions-operators/search-functions.md\n+++ b/docs/reference/query-languages/esql/functions-operators/search-functions.md\n@@ -20,6 +20,7 @@ including [KNN](dense-vector-functions.md#esql-knn), please refer to\n the [Dense vector functions](dense-vector-functions.md) documentation.\n :::\n \n+Use these functions for [full-text search](docs-content://solutions/search/full-text.md) \n and [semantic search](docs-content://solutions/search/semantic-search/semantic-search-semantic-text.md).\n \n Full text functions can be used to\n",
+  "additions": 1,
+  "deletions": 0,
+  "changed_files": 1,
+  "url": "https://github.com/elastic/elasticsearch/pull/137059",
+  "mined_at": "2025-10-25T13:38:43.647179"
+}

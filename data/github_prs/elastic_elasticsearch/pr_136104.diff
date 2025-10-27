@@ -1,0 +1,2513 @@
+diff --git a/docs/changelog/136104.yaml b/docs/changelog/136104.yaml
+new file mode 100644
+index 0000000000000..ecb1a01ce87c5
+--- /dev/null
++++ b/docs/changelog/136104.yaml
+@@ -0,0 +1,5 @@
++pr: 136104
++summary: Add support for Full Text Functions and Lucene pushable conditions on fields from the Lookup Index for Lookup Join
++area: ES|QL
++type: enhancement
++issues: [ ]
+diff --git a/server/src/main/resources/transport/definitions/referable/esql_lookup_join_full_text_function.csv b/server/src/main/resources/transport/definitions/referable/esql_lookup_join_full_text_function.csv
+new file mode 100644
+index 0000000000000..d8997da1b2882
+--- /dev/null
++++ b/server/src/main/resources/transport/definitions/referable/esql_lookup_join_full_text_function.csv
+@@ -0,0 +1 @@
++9201000
+diff --git a/server/src/main/resources/transport/upper_bounds/9.3.csv b/server/src/main/resources/transport/upper_bounds/9.3.csv
+index 311c14ca764ac..238cf894d79b4 100644
+--- a/server/src/main/resources/transport/upper_bounds/9.3.csv
++++ b/server/src/main/resources/transport/upper_bounds/9.3.csv
+@@ -1 +1 @@
+-inference_cached_tokens,9200000
++esql_lookup_join_full_text_function,9201000
+diff --git a/test/external-modules/esql-heap-attack/src/javaRestTest/java/org/elasticsearch/xpack/esql/heap_attack/HeapAttackIT.java b/test/external-modules/esql-heap-attack/src/javaRestTest/java/org/elasticsearch/xpack/esql/heap_attack/HeapAttackIT.java
+index d5a12db64d291..50ada817970a6 100644
+--- a/test/external-modules/esql-heap-attack/src/javaRestTest/java/org/elasticsearch/xpack/esql/heap_attack/HeapAttackIT.java
++++ b/test/external-modules/esql-heap-attack/src/javaRestTest/java/org/elasticsearch/xpack/esql/heap_attack/HeapAttackIT.java
+@@ -861,11 +861,22 @@ private Map<String, Object> lookupExplosion(
+                 }
+             }
+             if (lookupEntries != lookupEntriesToKeep) {
+-                // add a filter to reduce the number of matches
+-                // we add both a Lucene pushable filter and a non-pushable filter
+-                // this is to make sure that even if there are non-pushable filters the pushable filters is still applied
+-                query.append(" | WHERE ABS(filter_key) > -1 AND filter_key < ").append(lookupEntriesToKeep);
+-
++                boolean applyAsExpressionJoinFilter = expressionBasedJoin && randomBoolean();
++                // we randomly add the filter after the join or as part of the join
++                // in both cases we should have the same amount of results
++                if (applyAsExpressionJoinFilter == false) {
++                    // add a filter after the join to reduce the number of matches
++                    // we add both a Lucene pushable filter and a non-pushable filter
++                    // this is to make sure that even if there are non-pushable filters the pushable filters is still applied
++                    query.append(" | WHERE ABS(filter_key) > -1 AND filter_key < ").append(lookupEntriesToKeep);
++                } else {
++                    // apply the filter as part of the join
++                    // then we filter out the rows that do not match the filter after
++                    // so the number of rows is the same as in the field based join case
++                    // and can get the same number of rows for verification purposes
++                    query.append(" AND filter_key < ").append(lookupEntriesToKeep);
++                    query.append(" | WHERE filter_key IS NOT NULL ");
++                }
+             }
+             query.append(" | STATS COUNT(location) | LIMIT 100\"}");
+             return responseAsMap(query(query.toString(), null));
+diff --git a/x-pack/plugin/esql/qa/security/src/javaRestTest/java/org/elasticsearch/xpack/esql/EsqlSecurityIT.java b/x-pack/plugin/esql/qa/security/src/javaRestTest/java/org/elasticsearch/xpack/esql/EsqlSecurityIT.java
+index f398485768587..8b7331248bd2c 100644
+--- a/x-pack/plugin/esql/qa/security/src/javaRestTest/java/org/elasticsearch/xpack/esql/EsqlSecurityIT.java
++++ b/x-pack/plugin/esql/qa/security/src/javaRestTest/java/org/elasticsearch/xpack/esql/EsqlSecurityIT.java
+@@ -828,7 +828,7 @@ private void testLookupJoinFieldLevelSecurityHelper(boolean useExpressionJoin) t
+         ResponseException error = expectThrows(ResponseException.class, () -> runESQLCommand("fls_user4_1", query));
+         assertThat(error.getResponse().getStatusLine().getStatusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+         if (useExpressionJoin) {
+-            assertThat(error.getMessage(), containsString("Unsupported join filter expression:value_left == value"));
++            assertThat(error.getMessage(), containsString("Unknown column [value], did you mean [value_left]?"));
+         } else {
+             assertThat(error.getMessage(), containsString("Unknown column [value] in right side of join"));
+         }
+@@ -902,7 +902,7 @@ private void testLookupJoinFieldLevelSecurityOnAliasHelper(boolean useExpression
+         ResponseException error = expectThrows(ResponseException.class, () -> runESQLCommand("fls_user4_1_alias", query));
+         assertThat(error.getResponse().getStatusLine().getStatusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+         if (useExpressionJoin) {
+-            assertThat(error.getMessage(), containsString("Unsupported join filter expression:value_left == value"));
++            assertThat(error.getMessage(), containsString("Unknown column [value], did you mean [value_left]?"));
+         } else {
+             assertThat(error.getMessage(), containsString("Unknown column [value] in right side of join"));
+         }
+diff --git a/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/CsvTestsDataLoader.java b/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/CsvTestsDataLoader.java
+index ef3514308a436..70f0c9fd1d57a 100644
+--- a/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/CsvTestsDataLoader.java
++++ b/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/CsvTestsDataLoader.java
+@@ -149,7 +149,9 @@ public class CsvTestsDataLoader {
+     private static final TestDataset DATE_NANOS_UNION_TYPES = new TestDataset("date_nanos_union_types");
+     private static final TestDataset COUNTRIES_BBOX = new TestDataset("countries_bbox");
+     private static final TestDataset COUNTRIES_BBOX_WEB = new TestDataset("countries_bbox_web");
+-    private static final TestDataset AIRPORT_CITY_BOUNDARIES = new TestDataset("airport_city_boundaries");
++    private static final TestDataset AIRPORT_CITY_BOUNDARIES = new TestDataset("airport_city_boundaries").withSetting(
++        "lookup-settings.json"
++    );
+     private static final TestDataset CARTESIAN_MULTIPOLYGONS = new TestDataset("cartesian_multipolygons");
+     private static final TestDataset CARTESIAN_MULTIPOLYGONS_NO_DOC_VALUES = new TestDataset("cartesian_multipolygons_no_doc_values")
+         .withData("cartesian_multipolygons.csv");
+diff --git a/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/EsqlTestUtils.java b/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/EsqlTestUtils.java
+index a0f40813bb99f..39cfe2f28ece7 100644
+--- a/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/EsqlTestUtils.java
++++ b/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/EsqlTestUtils.java
+@@ -62,9 +62,9 @@
+ import org.elasticsearch.xcontent.XContentType;
+ import org.elasticsearch.xcontent.json.JsonXContent;
+ import org.elasticsearch.xpack.esql.action.EsqlQueryResponse;
+-import org.elasticsearch.xpack.esql.analysis.AnalyzerContext;
+ import org.elasticsearch.xpack.esql.analysis.AnalyzerSettings;
+ import org.elasticsearch.xpack.esql.analysis.EnrichResolution;
++import org.elasticsearch.xpack.esql.analysis.MutableAnalyzerContext;
+ import org.elasticsearch.xpack.esql.analysis.Verifier;
+ import org.elasticsearch.xpack.esql.core.expression.Alias;
+ import org.elasticsearch.xpack.esql.core.expression.Attribute;
+@@ -449,7 +449,7 @@ public static TransportVersion randomMinimumVersion() {
+     }
+ 
+     // TODO: make this even simpler, remove the enrichResolution for tests that do not require it (most tests)
+-    public static AnalyzerContext testAnalyzerContext(
++    public static MutableAnalyzerContext testAnalyzerContext(
+         Configuration configuration,
+         EsqlFunctionRegistry functionRegistry,
+         Map<IndexPattern, IndexResolution> indexResolutions,
+@@ -462,7 +462,7 @@ public static AnalyzerContext testAnalyzerContext(
+     /**
+      * Analyzer context for a random (but compatible) minimum transport version.
+      */
+-    public static AnalyzerContext testAnalyzerContext(
++    public static MutableAnalyzerContext testAnalyzerContext(
+         Configuration configuration,
+         EsqlFunctionRegistry functionRegistry,
+         Map<IndexPattern, IndexResolution> indexResolutions,
+@@ -470,7 +470,7 @@ public static AnalyzerContext testAnalyzerContext(
+         EnrichResolution enrichResolution,
+         InferenceResolution inferenceResolution
+     ) {
+-        return new AnalyzerContext(
++        return new MutableAnalyzerContext(
+             configuration,
+             functionRegistry,
+             indexResolutions,
+diff --git a/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/analysis/MutableAnalyzerContext.java b/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/analysis/MutableAnalyzerContext.java
+new file mode 100644
+index 0000000000000..69e7b5bdb980f
+--- /dev/null
++++ b/x-pack/plugin/esql/qa/testFixtures/src/main/java/org/elasticsearch/xpack/esql/analysis/MutableAnalyzerContext.java
+@@ -0,0 +1,74 @@
++/*
++ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
++ * or more contributor license agreements. Licensed under the Elastic License
++ * 2.0; you may not use this file except in compliance with the Elastic License
++ * 2.0.
++ */
++
++package org.elasticsearch.xpack.esql.analysis;
++
++import org.elasticsearch.TransportVersion;
++import org.elasticsearch.test.ESTestCase;
++import org.elasticsearch.test.TransportVersionUtils;
++import org.elasticsearch.xpack.esql.expression.function.EsqlFunctionRegistry;
++import org.elasticsearch.xpack.esql.index.IndexResolution;
++import org.elasticsearch.xpack.esql.inference.InferenceResolution;
++import org.elasticsearch.xpack.esql.plan.IndexPattern;
++import org.elasticsearch.xpack.esql.session.Configuration;
++
++import java.util.Map;
++
++/**
++ * A mutable version of AnalyzerContext that allows temporarily changing the transport version.
++ * This is useful for testing scenarios where different transport versions need to be tested.
++ */
++public class MutableAnalyzerContext extends AnalyzerContext {
++    private TransportVersion currentVersion;
++
++    public MutableAnalyzerContext(
++        Configuration configuration,
++        EsqlFunctionRegistry functionRegistry,
++        Map<IndexPattern, IndexResolution> indexResolution,
++        Map<String, IndexResolution> lookupResolution,
++        EnrichResolution enrichResolution,
++        InferenceResolution inferenceResolution,
++        TransportVersion minimumVersion
++    ) {
++        super(configuration, functionRegistry, indexResolution, lookupResolution, enrichResolution, inferenceResolution, minimumVersion);
++        this.currentVersion = minimumVersion;
++    }
++
++    @Override
++    public TransportVersion minimumVersion() {
++        return currentVersion;
++    }
++
++    /**
++     * Temporarily set the transport version to a random version between the passed-in version and the latest,
++     * and return an AutoCloseable to restore it.
++     * Usage:
++     * try (var restore = context.setTemporaryTransportVersionOnOrAfter(minVersion)) {...}
++     */
++    public RestoreTransportVersion setTemporaryTransportVersionOnOrAfter(TransportVersion minVersion) {
++        TransportVersion oldVersion = this.currentVersion;
++        // Set to a random version between minVersion and current
++        this.currentVersion = TransportVersionUtils.randomVersionBetween(ESTestCase.random(), minVersion, TransportVersion.current());
++        return new RestoreTransportVersion(oldVersion);
++    }
++
++    /**
++     * AutoCloseable that restores the original transport version when closed.
++     */
++    public class RestoreTransportVersion implements AutoCloseable {
++        private final TransportVersion originalVersion;
++
++        private RestoreTransportVersion(TransportVersion originalVersion) {
++            this.originalVersion = originalVersion;
++        }
++
++        @Override
++        public void close() {
++            MutableAnalyzerContext.this.currentVersion = originalVersion;
++        }
++    }
++}
+diff --git a/x-pack/plugin/esql/qa/testFixtures/src/main/resources/lookup-join-expression.csv-spec b/x-pack/plugin/esql/qa/testFixtures/src/main/resources/lookup-join-expression.csv-spec
+index 44a16bbcf0c31..f0f961f7d6c2d 100644
+--- a/x-pack/plugin/esql/qa/testFixtures/src/main/resources/lookup-join-expression.csv-spec
++++ b/x-pack/plugin/esql/qa/testFixtures/src/main/resources/lookup-join-expression.csv-spec
+@@ -725,6 +725,9 @@ id_int:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:int
+ 14             | Nina             | foo2           | omicron        | 15000
+ ;
+ 
++
++
++
+ lookupJoinExpressionOnUnionTypes
+ required_capability: join_lookup_v12
+ required_capability: lookup_join_on_boolean_expression
+@@ -747,3 +750,504 @@ apps           | 2                     | French
+ apps_short     | 1                     | English
+ apps_short     | 2                     | French
+ ;
++
++lookupJoinWithGreaterThanCondition
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON id_int == id_left and is_active_left == is_active_bool AND other2 > 10000
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON id_int == id_left and is_active_left == is_active_bool AND other2 > 10000] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | null             | foo            | null           | null
++[1, 19, 21]     | null             | zyx            | null           | null
++2               | null             | bar            | null           | null
++3               | null             | baz            | null           | null
++4               | null             | qux            | null           | null
++5               | null             | quux           | null           | null
++6               | null             | corge          | null           | null
++7               | null             | grault         | null           | null
++8               | Hank             | garply         | lambda         | 11000
++9               | null             | waldo          | null           | null
++10              | null             | fred           | null           | null
++12              | Liam             | xyzzy          | nu             | 13000
++13              | Mia              | thud           | xi             | 14000
++14              | Nina             | foo2           | omicron        | 15000
++15              | null             | bar2           | null           | null
++[17, 18]        | null             | xyz            | null           | null
++null            | null             | plugh          | null           | null
++;
++
++lookupJoinWithLikeCondition
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON id_int == id_left and is_active_left == is_active_bool AND other1 like "*ta"
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON id_int == id_left and is_active_left == is_active_bool AND other1 like \"*ta\"] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++[1, 19, 21]     | null             | zyx            | null           | null
++2               | null             | bar            | null           | null
++3               | Charlie          | baz            | delta          | 4000
++4               | David            | qux            | zeta           | 6000
++5               | Eve              | quux           | eta            | 7000
++5               | Eve              | quux           | theta          | 8000
++6               | null             | corge          | iota           | 9000
++7               | null             | grault         | null           | null
++8               | null             | garply         | null           | null
++9               | null             | waldo          | null           | null
++10              | null             | fred           | null           | null
++12              | null             | xyzzy          | null           | null
++13              | null             | thud           | null           | null
++14              | null             | foo2           | null           | null
++15              | null             | bar2           | null           | null
++[17, 18]        | null             | xyz            | null           | null
++null            | null             | plugh          | null           | null
++;
++
++lookupJoinWithOrOfLikeGt
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON id_int == id_left and is_active_left == is_active_bool AND (other1 like "*ta" OR other2 > 10000)
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON id_int == id_left and is_active_left == is_active_bool AND (other1 like \"*ta\" OR other2 > 10000)] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++[1, 19, 21]     | null             | zyx            | null           | null
++2               | null             | bar            | null           | null
++3               | Charlie          | baz            | delta          | 4000
++4               | David            | qux            | zeta           | 6000
++5               | Eve              | quux           | eta            | 7000
++5               | Eve              | quux           | theta          | 8000
++6               | null             | corge          | iota           | 9000
++7               | null             | grault         | null           | null
++8               | Hank             | garply         | lambda         | 11000
++9               | null             | waldo          | null           | null
++10              | null             | fred           | null           | null
++12              | Liam             | xyzzy          | nu             | 13000
++13              | Mia              | thud           | xi             | 14000
++14              | Nina             | foo2           | omicron        | 15000
++15              | null             | bar2           | null           | null
++[17, 18]        | null             | xyz            | null           | null
++null            | null             | plugh          | null           | null
++;
++
++lookupJoinExpressionWithMatch
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON MATCH(other1, "beta") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON MATCH(other1, \"beta\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++;
++
++lookupJoinOnSameFieldTwiceWithOrNot
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, name_str AS name_left, is_active_bool AS is_active_left, ip_addr AS ip_addr_left
++| LOOKUP JOIN multi_column_joinable_lookup ON (other2 < 12000 OR NOT (other1 != "omicron" AND other1 != "nu")) AND id_left == id_int AND  name_left == name_str AND  id_left < other2
++| KEEP id_left, name_left, extra1, other1, other2
++| SORT id_left, name_left, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON (other2 < 12000 OR NOT (other1 != \"omicron\" AND other1 != \"nu\")) AND id_left == id_int AND  name_left == name_str AND  id_left < other2] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_left:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice             | foo            | alpha          | 1000
++1               | Alice             | foo            | beta           | 2000
++[1, 19, 21]     | Sophia            | zyx            | null           | null
++2               | Bob               | bar            | gamma          | 3000
++3               | Charlie           | baz            | delta          | 4000
++3               | Charlie           | baz            | epsilon        | 5000
++4               | David             | qux            | zeta           | 6000
++5               | Eve               | quux           | eta            | 7000
++5               | Eve               | quux           | theta          | 8000
++6               | null              | corge          | null           | null
++7               | Grace             | grault         | kappa          | 10000
++8               | Hank              | garply         | lambda         | 11000
++9               | Ivy               | waldo          | null           | null
++10              | John              | fred           | null           | null
++12              | Liam              | xyzzy          | nu             | 13000
++13              | Mia               | thud           | null           | null
++14              | Nina              | foo2           | omicron        | 15000
++15              | Oscar             | bar2           | null           | null
++[17, 18]        | Olivia            | xyz            | null           | null
++null            | Kate              | plugh          | null           | null
++;
++
++
++lookupJoinOnSameFieldWithPushableRightFilterAfter
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, name_str AS name_left, is_active_bool AS is_active_left, ip_addr AS ip_addr_left
++| LOOKUP JOIN multi_column_joinable_lookup ON (other2 < 12000 OR NOT (other1 != "omicron" AND other1 != "nu")) AND id_left == id_int AND  name_left == name_str AND  id_left < other2
++| WHERE other1 like ("a*", "b*", "o*")
++| KEEP id_left, name_left, extra1, other1, other2
++| SORT id_left, name_left, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON (other2 < 12000 OR NOT (other1 != \"omicron\" AND other1 != \"nu\")) AND id_left == id_int AND  name_left == name_str AND  id_left < other2] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_left:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice             | foo            | alpha          | 1000
++1               | Alice             | foo            | beta           | 2000
++14              | Nina              | foo2           | omicron        | 15000
++;
++
++twoLookupJoinsInSameQueryOtherFilter
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| WHERE id_int == 1
++| RENAME id_int AS id_left, name_str AS name_left
++| LOOKUP JOIN multi_column_joinable_lookup ON id_left == id_int AND name_left == name_str
++| RENAME other1 AS other1_from_first_join, id_int AS id_from_first_join, name_str AS name_from_first_join
++| LOOKUP JOIN multi_column_joinable_lookup ON id_left == id_int AND other1_from_first_join != other1 AND other1 like ("a*", "c*")
++| KEEP id_left, name_left, other1_from_first_join, other1
++| SORT id_left, name_left, other1_from_first_join, other1
++;
++
++warning:Line 2:9: evaluation of [id_int == 1] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 2:9: java.lang.IllegalArgumentException: single-value function encountered multi-value
++
++id_left:integer | name_left:keyword | other1_from_first_join:keyword | other1:keyword
++1               | Alice             | alpha                          | null
++1               | Alice             | beta                           | alpha
++;
++
++lookupJoinExpressionWithTerm
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON TERM(other1, "beta") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON TERM(other1, \"beta\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++;
++
++lookupJoinExpressionWithQueryString
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON QSTR("other1:alpha OR other1:beta") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON QSTR(\"other1:alpha OR other1:beta\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | alpha          | 1000
++1               | Alice            | foo            | beta           | 2000
++;
++
++lookupJoinExpressionWithKql
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON KQL("other1:alpha OR other1:beta") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON KQL(\"other1:alpha OR other1:beta\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | alpha          | 1000
++1               | Alice            | foo            | beta           | 2000
++;
++
++lookupJoinExpressionWithMultiMatch
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left, name_str AS name_str_left
++| LOOKUP JOIN multi_column_joinable_lookup ON MULTI_MATCH("beta", other1, name_str) AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON MULTI_MATCH(\"beta\", other1, name_str) AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++;
++
++lookupJoinExpressionWithMatchPhrase
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON MATCH_PHRASE(other1, "beta") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON MATCH_PHRASE(other1, \"beta\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++;
++
++lookupJoinExpressionWithCidrMatch
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left, ip_addr AS ip_addr_left
++| LOOKUP JOIN multi_column_joinable_lookup ON CIDR_MATCH(ip_addr, "192.168.1.0/30") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2, ip_addr
++| SORT id_left, name_str, extra1, other1, other2, ip_addr
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON CIDR_MATCH(ip_addr, \"192.168.1.0/30\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer | ip_addr:ip
++1               | Alice            | foo            | alpha          | 1000           | 192.168.1.1
++1               | Alice            | foo            | beta           | 2000           | 192.168.1.2
++2               | Bob              | bar            | gamma          | 3000           | 192.168.1.3
++3               | Charlie          | baz            | delta          | 4000           | 192.168.1.3
++;
++
++lookupJoinExpressionWithIn
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON other1 IN ("alpha", "beta", "gamma") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON other1 IN (\"alpha\", \"beta\", \"gamma\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | alpha          | 1000
++1               | Alice            | foo            | beta           | 2000
++2               | Bob              | bar            | gamma          | 3000
++;
++
++lookupJoinExpressionWithIsNull
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON other1 IS NULL AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON other1 IS NULL AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++;
++
++lookupJoinExpressionWithIsNotNull
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON other1 IS NOT NULL AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON other1 IS NOT NULL AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | alpha          | 1000
++1               | Alice            | foo            | beta           | 2000
++2               | Bob              | bar            | gamma          | 3000
++3               | Charlie          | baz            | delta          | 4000
++4               | David            | qux            | zeta           | 6000
++5               | Eve              | quux           | eta            | 7000
++5               | Eve              | quux           | theta          | 8000
++6               | null             | corge          | iota           | 9000
++7               | Grace            | grault         | kappa          | 10000
++8               | Hank             | garply         | lambda         | 11000
++12              | Liam             | xyzzy          | nu             | 13000
++13              | Mia              | thud           | xi             | 14000
++14              | Nina             | foo2           | omicron        | 15000
++;
++
++lookupJoinExpressionWithStartsWith
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON STARTS_WITH(other1, "al") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON STARTS_WITH(other1, \"al\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | alpha          | 1000
++;
++
++lookupJoinExpressionWithEndsWith
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM multi_column_joinable
++| RENAME id_int AS id_left, is_active_bool AS is_active_left
++| LOOKUP JOIN multi_column_joinable_lookup ON ENDS_WITH(other1, "ta") AND id_int == id_left and is_active_left == is_active_bool
++| WHERE other2 IS NOT NULL
++| KEEP id_left, name_str, extra1, other1, other2
++| SORT id_left, name_str, extra1, other1, other2
++;
++
++warning:Line 3:3: evaluation of [LOOKUP JOIN multi_column_joinable_lookup ON ENDS_WITH(other1, \"ta\") AND id_int == id_left and is_active_left == is_active_bool] failed, treating result as null. Only first 20 failures recorded.
++warning:Line 3:3: java.lang.IllegalArgumentException: LOOKUP JOIN encountered multi-value
++
++id_left:integer | name_str:keyword | extra1:keyword | other1:keyword | other2:integer
++1               | Alice            | foo            | beta           | 2000
++3               | Charlie          | baz            | delta          | 4000
++4               | David            | qux            | zeta           | 6000
++5               | Eve              | quux           | eta            | 7000
++5               | Eve              | quux           | theta          | 8000
++6               | null             | corge          | iota           | 9000
++;
++
++lookupJoinExpressionWithAirportIntersects
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM airports
++| RENAME abbrev AS airport_code
++| LOOKUP JOIN airport_city_boundaries ON airport_code == abbrev AND ST_INTERSECTS(TO_GEOSHAPE("POLYGON((-74.5 40.4, -73.5 40.4, -73.5 41.0, -74.5 41.0, -74.5 40.4))"), city_boundary)
++| WHERE city is not null
++| KEEP airport_code, name, city, country, city_boundary
++| SORT airport_code, name, city, country
++;
++
++airport_code:keyword | name:text | city:keyword | country:keyword | city_boundary:geo_shape
++EWR                  | Newark Int'l         | New York     | United States   | POLYGON ((-74.2588 40.4989, -74.2253 40.4766, -73.9779 40.5191, -73.9021 40.4921, -73.8126 40.53, -73.7572 40.5312, -73.7565 40.5862, -73.7381 40.6026, -73.7681 40.6263, -73.7248 40.6523, -73.7303 40.7222, -73.7002 40.7393, -73.7797 40.8121, -73.7484 40.8718, -73.8382 40.8941, -73.8511 40.9101, -73.8593 40.9005, -73.9183 40.9176, -74.014 40.7576, -74.0558 40.6515, -74.1914 40.642, -74.2146 40.5605, -74.2475 40.5494, -74.2588 40.4989))
++JFK                  | John F Kennedy Int'l | New York     | United States   | POLYGON ((-74.2588 40.4989, -74.2253 40.4766, -73.9779 40.5191, -73.9021 40.4921, -73.8126 40.53, -73.7572 40.5312, -73.7565 40.5862, -73.7381 40.6026, -73.7681 40.6263, -73.7248 40.6523, -73.7303 40.7222, -73.7002 40.7393, -73.7797 40.8121, -73.7484 40.8718, -73.8382 40.8941, -73.8511 40.9101, -73.8593 40.9005, -73.9183 40.9176, -74.014 40.7576, -74.0558 40.6515, -74.1914 40.642, -74.2146 40.5605, -74.2475 40.5494, -74.2588 40.4989))
++LGA                  | LaGuardia            | New York     | United States   | POLYGON ((-74.2588 40.4989, -74.2253 40.4766, -73.9779 40.5191, -73.9021 40.4921, -73.8126 40.53, -73.7572 40.5312, -73.7565 40.5862, -73.7381 40.6026, -73.7681 40.6263, -73.7248 40.6523, -73.7303 40.7222, -73.7002 40.7393, -73.7797 40.8121, -73.7484 40.8718, -73.8382 40.8941, -73.8511 40.9101, -73.8593 40.9005, -73.9183 40.9176, -74.014 40.7576, -74.0558 40.6515, -74.1914 40.642, -74.2146 40.5605, -74.2475 40.5494, -74.2588 40.4989))
++;
++
++lookupJoinExpressionWithAirportWithin
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM airports
++| RENAME abbrev AS airport_code
++| LOOKUP JOIN airport_city_boundaries ON airport_code == abbrev AND ST_INTERSECTS(TO_GEOSHAPE("POLYGON((-0.5 51.4, -0.2 51.4, -0.2 51.5, -0.5 51.5, -0.5 51.4))"), city_boundary)
++| WHERE city is not null
++| KEEP airport_code, name, city, country, city_boundary
++| SORT airport_code, name, city, country
++;
++
++airport_code:keyword | name:text | city:keyword | country:keyword | city_boundary:geo_shape
++LHR                  | London Heathrow | Hounslow | United Kingdom | POLYGON((-0.4615 51.449, -0.3855 51.4206, -0.3668 51.4416, -0.3878 51.4494, -0.327 51.457, -0.2921 51.4873, -0.2565 51.4715, -0.2444 51.4979, -0.4092 51.5003, -0.4112 51.4699, -0.4615 51.449))
++;
++
++lookupJoinExpressionWithAirportContains
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM airports
++| RENAME abbrev AS airport_code
++| LOOKUP JOIN airport_city_boundaries ON airport_code == abbrev AND ST_CONTAINS(TO_GEOSHAPE("POLYGON((-0.3 51.0, -0.1 51.0, -0.1 51.2, -0.3 51.2, -0.3 51.0))"), city_boundary)
++| WHERE city is not null
++| KEEP airport_code, name, city, country, city_boundary
++| SORT airport_code, name, city, country
++;
++
++airport_code:keyword | name:text | city:keyword | country:keyword | city_boundary:geo_shape
++LGW                  | London Gatwick | Crawley | United Kingdom | POLYGON((-0.2556 51.1418, -0.2003 51.1391, -0.2369 51.1094, -0.1964 51.0848, -0.1395 51.1081, -0.133 51.1589, -0.1785 51.1672, -0.2556 51.1418))
++;
++
++lookupJoinExpressionWithAirportGeoPoint
++required_capability: join_lookup_v12
++required_capability: lookup_join_with_full_text_function
++
++FROM airports
++| RENAME abbrev AS airport_code
++| LOOKUP JOIN airport_city_boundaries ON airport_code == abbrev AND ST_INTERSECTS(TO_GEOPOINT("POINT(-0.376227267397439 51.8802952570969)"), city_boundary)
++| WHERE city is not null
++| KEEP airport_code, name, city, country, location, city_boundary
++| SORT airport_code, name, city, country
++;
++
++airport_code:keyword | name:text | city:keyword | country:keyword | location:geo_point | city_boundary:geo_shape
++LTN                  | London Luton | Luton | United Kingdom | POINT(-0.376227267397439 51.8802952570969) | POLYGON((-0.5059 51.9006, -0.4225 51.8545, -0.3499 51.8787, -0.3856 51.9157, -0.4191 51.9123, -0.4263 51.9267, -0.4857 51.9227, -0.4823 51.9078, -0.5059 51.9006))
++;
+diff --git a/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/LookupFromIndexIT.java b/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/LookupFromIndexIT.java
+index 9af360dd1695c..f2fdb24e88dc4 100644
+--- a/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/LookupFromIndexIT.java
++++ b/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/action/LookupFromIndexIT.java
+@@ -250,7 +250,7 @@ private PhysicalPlan buildGreaterThanFilter(long value) {
+         return new FragmentExec(filter);
+     }
+ 
+-    private void runLookup(List<DataType> keyTypes, PopulateIndices populateIndices, PhysicalPlan filters) throws IOException {
++    private void runLookup(List<DataType> keyTypes, PopulateIndices populateIndices, PhysicalPlan pushedDownFilter) throws IOException {
+         String[] fieldMappers = new String[keyTypes.size() * 2];
+         for (int i = 0; i < keyTypes.size(); i++) {
+             fieldMappers[2 * i] = "key" + i;
+@@ -283,17 +283,8 @@ private void runLookup(List<DataType> keyTypes, PopulateIndices populateIndices,
+         client().admin().cluster().prepareHealth(TEST_REQUEST_TIMEOUT).setWaitForGreenStatus().get();
+ 
+         Predicate<Integer> filterPredicate = l -> true;
+-        if (filters instanceof FragmentExec fragmentExec) {
+-            if (fragmentExec.fragment() instanceof Filter filter
+-                && filter.condition() instanceof GreaterThan gt
+-                && gt.left() instanceof FieldAttribute fa
+-                && fa.name().equals("l")
+-                && gt.right() instanceof Literal lit) {
+-                long value = ((Number) lit.value()).longValue();
+-                filterPredicate = l -> l > value;
+-            } else {
+-                fail("Unsupported filter type in test baseline generation: " + filters);
+-            }
++        if (pushedDownFilter instanceof FragmentExec fragmentExec && fragmentExec.fragment() instanceof Filter filter) {
++            filterPredicate = getPredicateFromFilter(filter);
+         }
+ 
+         int docCount = between(10, 1000);
+@@ -396,6 +387,16 @@ private void runLookup(List<DataType> keyTypes, PopulateIndices populateIndices,
+                         new EsField("rkey" + i, keyTypes.get(i), Collections.emptyMap(), true, EsField.TimeSeriesFieldType.NONE)
+                     );
+                     joinOnConditions.add(new Equals(Source.EMPTY, leftAttr, rightAttr));
++                    // randomly decide to apply the filter as additional join on filter instead of pushed down filter
++                    boolean applyAsJoinOnCondition = EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++                        ? randomBoolean()
++                        : false;
++                    if (applyAsJoinOnCondition
++                        && pushedDownFilter instanceof FragmentExec fragmentExec
++                        && fragmentExec.fragment() instanceof Filter filter) {
++                        joinOnConditions.add(filter.condition());
++                        pushedDownFilter = null;
++                    }
+                 }
+             }
+             // the matchFields are shared for both types of join
+@@ -412,7 +413,7 @@ private void runLookup(List<DataType> keyTypes, PopulateIndices populateIndices,
+                 "lookup",
+                 List.of(new Alias(Source.EMPTY, "l", new ReferenceAttribute(Source.EMPTY, "l", DataType.LONG))),
+                 Source.EMPTY,
+-                filters,
++                pushedDownFilter,
+                 Predicates.combineAnd(joinOnConditions)
+             );
+             DriverContext driverContext = driverContext();
+@@ -478,6 +479,19 @@ protected void start(Driver driver, ActionListener<Void> driverListener) {
+         }
+     }
+ 
++    private static Predicate<Integer> getPredicateFromFilter(Filter filter) {
++        if (filter.condition() instanceof GreaterThan gt
++            && gt.left() instanceof FieldAttribute fa
++            && fa.name().equals("l")
++            && gt.right() instanceof Literal lit) {
++            long value = ((Number) lit.value()).longValue();
++            return l -> l > value;
++        } else {
++            fail("Unsupported filter type in test baseline generation: " + filter);
++        }
++        return null;
++    }
++
+     /**
+      * Creates a {@link BigArrays} that tracks releases but doesn't throw circuit breaking exceptions.
+      */
+diff --git a/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/plugin/MatchFunctionIT.java b/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/plugin/MatchFunctionIT.java
+index 82124c4c85bb8..98a1a86df645b 100644
+--- a/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/plugin/MatchFunctionIT.java
++++ b/x-pack/plugin/esql/src/internalClusterTest/java/org/elasticsearch/xpack/esql/plugin/MatchFunctionIT.java
+@@ -313,6 +313,27 @@ public void testMatchWithLookupJoin() {
+         );
+     }
+ 
++    public void testMatchWithLookupJoinOnMatch() {
++        var query = """
++            FROM test
++            | rename id as id_left
++            | LOOKUP JOIN test_lookup ON id_left == id and MATCH(lookup_content, "fox")
++            | WHERE id > 0
++            """;
++        try (var resp = run(query)) {
++            assertColumnNames(resp.columns(), List.of("content", "id_left", "id", "lookup_content"));
++            assertColumnTypes(resp.columns(), List.of("text", "integer", "integer", "text"));
++            // Should return rows where lookup_content matches "fox" (ids 1 and 6)
++            assertValues(
++                resp.values(),
++                List.of(
++                    List.of("This is a brown fox", 1, 1, "This is a brown fox"),
++                    List.of("The quick brown fox jumps over the lazy dog", 6, 6, "The quick brown fox jumps over the lazy dog")
++                )
++            );
++        }
++    }
++
+     static void createAndPopulateIndex(Consumer<String[]> ensureYellow) {
+         var indexName = "test";
+         var client = client().admin().indices();
+@@ -341,5 +362,19 @@ static void createAndPopulateLookupIndex(IndicesAdminClient client, String looku
+             .setSettings(Settings.builder().put("index.number_of_shards", 1).put("index.mode", "lookup"))
+             .setMapping("id", "type=integer", "lookup_content", "type=text");
+         assertAcked(createRequest);
++
++        // Populate the lookup index with test data
++        client().prepareBulk()
++            .add(new IndexRequest(lookupIndexName).id("1").source("id", 1, "lookup_content", "This is a brown fox"))
++            .add(new IndexRequest(lookupIndexName).id("2").source("id", 2, "lookup_content", "This is a brown dog"))
++            .add(new IndexRequest(lookupIndexName).id("3").source("id", 3, "lookup_content", "This dog is really brown"))
++            .add(
++                new IndexRequest(lookupIndexName).id("4")
++                    .source("id", 4, "lookup_content", "The dog is brown but this document is very very long")
++            )
++            .add(new IndexRequest(lookupIndexName).id("5").source("id", 5, "lookup_content", "There is also a white cat"))
++            .add(new IndexRequest(lookupIndexName).id("6").source("id", 6, "lookup_content", "The quick brown fox jumps over the lazy dog"))
++            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
++            .get();
+     }
+ }
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java
+index 1338d337b1eaa..9cff541ca5569 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/action/EsqlCapabilities.java
+@@ -1411,7 +1411,11 @@ public enum Cap {
+          * Allow lookup join on boolean expressions
+          */
+         LOOKUP_JOIN_ON_BOOLEAN_EXPRESSION,
+-
++        /**
++         * Lookup join with Full Text Function or other Lucene Pushable condition
++         * to be applied to the lookup index used
++         */
++        LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION,
+         /**
+          * FORK with remote indices
+          */
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java
+index a1774c5ddcf77..2ffe4ebb56299 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/Analyzer.java
+@@ -7,6 +7,7 @@
+ 
+ package org.elasticsearch.xpack.esql.analysis;
+ 
++import org.elasticsearch.TransportVersion;
+ import org.elasticsearch.common.logging.HeaderWarning;
+ import org.elasticsearch.common.logging.LoggerMessageFormat;
+ import org.elasticsearch.common.lucene.BytesRefs;
+@@ -21,6 +22,7 @@
+ import org.elasticsearch.xpack.esql.EsqlIllegalArgumentException;
+ import org.elasticsearch.xpack.esql.VerificationException;
+ import org.elasticsearch.xpack.esql.analysis.AnalyzerRules.ParameterizedAnalyzerRule;
++import org.elasticsearch.xpack.esql.capabilities.TranslationAware;
+ import org.elasticsearch.xpack.esql.common.Failure;
+ import org.elasticsearch.xpack.esql.core.capabilities.Resolvables;
+ import org.elasticsearch.xpack.esql.core.expression.Alias;
+@@ -102,6 +104,7 @@
+ import org.elasticsearch.xpack.esql.index.IndexResolution;
+ import org.elasticsearch.xpack.esql.inference.ResolvedInference;
+ import org.elasticsearch.xpack.esql.optimizer.rules.logical.SubstituteSurrogateExpressions;
++import org.elasticsearch.xpack.esql.optimizer.rules.physical.local.LucenePushdownPredicates;
+ import org.elasticsearch.xpack.esql.parser.ParsingException;
+ import org.elasticsearch.xpack.esql.plan.IndexPattern;
+ import org.elasticsearch.xpack.esql.plan.logical.Aggregate;
+@@ -162,6 +165,7 @@
+ import static java.util.Collections.emptyList;
+ import static java.util.Collections.singletonList;
+ import static org.elasticsearch.xpack.core.enrich.EnrichPolicy.GEO_MATCH_TYPE;
++import static org.elasticsearch.xpack.esql.capabilities.TranslationAware.translatable;
+ import static org.elasticsearch.xpack.esql.core.type.DataType.AGGREGATE_METRIC_DOUBLE;
+ import static org.elasticsearch.xpack.esql.core.type.DataType.BOOLEAN;
+ import static org.elasticsearch.xpack.esql.core.type.DataType.DATETIME;
+@@ -217,6 +221,9 @@ public class Analyzer extends ParameterizedRuleExecutor<LogicalPlan, AnalyzerCon
+         ),
+         new Batch<>("Finish Analysis", Limiter.ONCE, new AddImplicitLimit(), new AddImplicitForkLimit(), new UnionTypesCleanup())
+     );
++    public static final TransportVersion ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION = TransportVersion.fromName(
++        "esql_lookup_join_full_text_function"
++    );
+ 
+     private final Verifier verifier;
+ 
+@@ -532,7 +539,7 @@ protected LogicalPlan rule(LogicalPlan plan, AnalyzerContext context) {
+             }
+ 
+             if (plan instanceof LookupJoin j) {
+-                return resolveLookupJoin(j);
++                return resolveLookupJoin(j, context);
+             }
+ 
+             if (plan instanceof Insist i) {
+@@ -721,55 +728,114 @@ private LogicalPlan resolveLookup(Lookup l, List<Attribute> childrenOutput) {
+             return l;
+         }
+ 
+-        private List<Expression> resolveJoinFiltersAndSwapIfNeeded(
+-            List<Expression> filters,
+-            AttributeSet leftOutput,
+-            AttributeSet rightOutput
++        private Expression resolveJoinFiltersAndSwapIfNeeded(
++            Expression joinOnCondition,
++            AttributeSet leftChildOutput,
++            AttributeSet rightChildOutput,
++            List<Attribute> leftJoinKeysToPopulate,
++            List<Attribute> rightJoinKeysToPopulate,
++            AnalyzerContext context
+         ) {
+-            if (filters.isEmpty()) {
+-                return emptyList();
++            if (joinOnCondition == null) {
++                return joinOnCondition;
+             }
+-            List<Attribute> childrenOutput = new ArrayList<>(leftOutput);
+-            childrenOutput.addAll(rightOutput);
++            List<Expression> filters = Predicates.splitAnd(joinOnCondition);
++            List<Attribute> childrenOutput = new ArrayList<>(leftChildOutput);
++            childrenOutput.addAll(rightChildOutput);
+ 
+             List<Expression> resolvedFilters = new ArrayList<>(filters.size());
+             for (Expression filter : filters) {
+                 Expression filterResolved = filter.transformUp(UnresolvedAttribute.class, ua -> maybeResolveAttribute(ua, childrenOutput));
+-                resolvedFilters.add(resolveAndOrientJoinCondition(filterResolved, leftOutput, rightOutput));
++                // Check if the filterResolved contains unresolved attributes, if it does, we cannot process it further
++                // and the error message about the unresolved attribute is already appropriate
++                if (filterResolved.anyMatch(UnresolvedAttribute.class::isInstance)) {
++                    resolvedFilters.add(filterResolved);
++                    continue;
++                }
++                Expression result = resolveAndOrientJoinCondition(
++                    filterResolved,
++                    leftChildOutput,
++                    rightChildOutput,
++                    leftJoinKeysToPopulate,
++                    rightJoinKeysToPopulate,
++                    context
++                );
++                resolvedFilters.add(result);
+             }
+-            return resolvedFilters;
++            return Predicates.combineAndWithSource(resolvedFilters, joinOnCondition.source());
+         }
+ 
+-        private Expression resolveAndOrientJoinCondition(Expression condition, AttributeSet leftOutput, AttributeSet rightOutput) {
++        /**
++         * This function resolves and orients a single join on condition.
++         * We support AND of such conditions, here we handle a single child of the AND
++         * We support the following 2 cases:
++         * 1) Binary comparisons between a left and a right attribute.
++         * We resolve all attributes and orient them so that the attribute on the left side of the join
++         * is on the left side of the binary comparison
++         *  and the attribute from the lookup index is on the right side of the binary comparison
++         * 2) A Lucene pushable expression containing only attributes from the lookup side of the join
++         * We resolve all attributes in the expression, verify they are from the right side of the join
++         * and also verify that the expression is potentially Lucene pushable
++         */
++        private Expression resolveAndOrientJoinCondition(
++            Expression condition,
++            AttributeSet leftChildOutput,
++            AttributeSet rightChildOutput,
++            List<Attribute> leftJoinKeysToPopulate,
++            List<Attribute> rightJoinKeysToPopulate,
++            AnalyzerContext context
++        ) {
+             if (condition instanceof EsqlBinaryComparison comp
+                 && comp.left() instanceof Attribute leftAttr
+                 && comp.right() instanceof Attribute rightAttr) {
+ 
+-                boolean leftIsFromLeft = leftOutput.contains(leftAttr);
+-                boolean rightIsFromRight = rightOutput.contains(rightAttr);
++                boolean leftIsFromLeft = leftChildOutput.contains(leftAttr);
++                boolean rightIsFromRight = rightChildOutput.contains(rightAttr);
+ 
+                 if (leftIsFromLeft && rightIsFromRight) {
++                    leftJoinKeysToPopulate.add(leftAttr);
++                    rightJoinKeysToPopulate.add(rightAttr);
+                     return comp; // Correct orientation
+                 }
+ 
+-                boolean leftIsFromRight = rightOutput.contains(leftAttr);
+-                boolean rightIsFromLeft = leftOutput.contains(rightAttr);
++                boolean leftIsFromRight = rightChildOutput.contains(leftAttr);
++                boolean rightIsFromLeft = leftChildOutput.contains(rightAttr);
+ 
+                 if (leftIsFromRight && rightIsFromLeft) {
++                    leftJoinKeysToPopulate.add(rightAttr);
++                    rightJoinKeysToPopulate.add(leftAttr);
+                     return comp.swapLeftAndRight(); // Swapped orientation
+                 }
++            }
++            if (context.minimumVersion().onOrAfter(ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION) == false) {
+                 return new UnresolvedAttribute(
+                     condition.source(),
+                     "unsupported",
+-                    "Join condition must be between one attribute on the left side and "
+-                        + "one attribute on the right side of the join, but found: "
++                    "Lookup join on condition is not supported on the remote node,"
++                        + " consider upgrading the remote node. Unsupported join filter expression:"
+                         + condition.sourceText()
+                 );
+             }
+-            return condition; // Not a binary comparison between two attributes, no change needed.
++            return handleRightOnlyPushableFilter(condition, rightChildOutput);
++        }
++
++        private Expression handleRightOnlyPushableFilter(Expression condition, AttributeSet rightChildOutput) {
++            if (isCompletelyRightSideAndTranslatable(condition, rightChildOutput)) {
++                // The condition is completely on the right side and is translation aware, so it can be (potentially) pushed down
++                return condition;
++            } else {
++                // The condition cannot be used in the join on clause for now
++                // It is not a binary comparison between left and right attributes
++                // It is not using fields from the right side only and translation aware
++                return new UnresolvedAttribute(
++                    condition.source(),
++                    "unsupported",
++                    "Unsupported join filter expression:" + condition.sourceText()
++                );
++            }
+         }
+ 
+-        private Join resolveLookupJoin(LookupJoin join) {
++        private Join resolveLookupJoin(LookupJoin join, AnalyzerContext context) {
+             JoinConfig config = join.config();
+             // for now, support only (LEFT) USING clauses
+             JoinType type = config.type();
+@@ -785,38 +851,22 @@ private Join resolveLookupJoin(LookupJoin join) {
+                 }
+                 List<Attribute> leftKeys = new ArrayList<>();
+                 List<Attribute> rightKeys = new ArrayList<>();
+-                List<Expression> resolvedFilters = new ArrayList<>();
++                Expression joinOnConditions = null;
+                 if (join.config().joinOnConditions() != null) {
+-                    resolvedFilters = resolveJoinFiltersAndSwapIfNeeded(
+-                        Predicates.splitAnd(join.config().joinOnConditions()),
++                    joinOnConditions = resolveJoinFiltersAndSwapIfNeeded(
++                        join.config().joinOnConditions(),
+                         join.left().outputSet(),
+-                        join.right().outputSet()
++                        join.right().outputSet(),
++                        leftKeys,
++                        rightKeys,
++                        context
+                     );
+-                    // build leftKeys and rightKeys using the correct side of the resolvedFilters.
+-                    // resolveJoinFiltersAndSwapIfNeeded already put the left and right on the correct side
+-                    for (Expression expression : resolvedFilters) {
+-                        if (expression instanceof EsqlBinaryComparison binaryComparison
+-                            && binaryComparison.left() instanceof Attribute leftAttribute
+-                            && binaryComparison.right() instanceof Attribute rightAttribute) {
+-                            leftKeys.add(leftAttribute);
+-                            rightKeys.add(rightAttribute);
+-                        } else {
+-                            UnresolvedAttribute errorAttribute = new UnresolvedAttribute(
+-                                expression.source(),
+-                                "unsupported",
+-                                "Unsupported join filter expression:" + expression.sourceText()
+-                            );
+-                            return join.withConfig(new JoinConfig(type, singletonList(errorAttribute), emptyList(), null));
+-
+-                        }
+-                    }
+                 } else {
+                     // resolve the using columns against the left and the right side then assemble the new join config
+                     leftKeys = resolveUsingColumns(join.config().leftFields(), join.left().output(), "left");
+                     rightKeys = resolveUsingColumns(join.config().rightFields(), join.right().output(), "right");
+                 }
+-
+-                config = new JoinConfig(type, leftKeys, rightKeys, Predicates.combineAnd(resolvedFilters));
++                config = new JoinConfig(type, leftKeys, rightKeys, joinOnConditions);
+                 return new LookupJoin(join.source(), join.left(), join.right(), config, join.isRemote());
+             } else {
+                 // everything else is unsupported for now
+@@ -826,6 +876,18 @@ private Join resolveLookupJoin(LookupJoin join) {
+             }
+         }
+ 
++        private boolean isCompletelyRightSideAndTranslatable(Expression expression, AttributeSet rightOutputSet) {
++            return rightOutputSet.containsAll(expression.references()) && isTranslatable(expression);
++        }
++
++        private boolean isTranslatable(Expression expression) {
++            // Here we are trying to eliminate cases where the expression is definitely not translatable.
++            // We do this early and without access to search stats for the lookup index that are only on the lookup node,
++            // so we only eliminate some of the not translatable cases here
++            // Later we will do a more thorough check on the lookup node
++            return translatable(expression, LucenePushdownPredicates.DEFAULT) != TranslationAware.Translatable.NO;
++        }
++
+         private LogicalPlan resolveFork(Fork fork, AnalyzerContext context) {
+             // we align the outputs of the sub plans such that they have the same columns
+             boolean changed = false;
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/AnalyzerContext.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/AnalyzerContext.java
+index adebb69407e15..b6ca354175c77 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/AnalyzerContext.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/analysis/AnalyzerContext.java
+@@ -17,15 +17,14 @@
+ 
+ import java.util.Map;
+ 
+-public record AnalyzerContext(
+-    Configuration configuration,
+-    EsqlFunctionRegistry functionRegistry,
+-    Map<IndexPattern, IndexResolution> indexResolution,
+-    Map<String, IndexResolution> lookupResolution,
+-    EnrichResolution enrichResolution,
+-    InferenceResolution inferenceResolution,
+-    TransportVersion minimumVersion
+-) {
++public class AnalyzerContext {
++    private final Configuration configuration;
++    private final EsqlFunctionRegistry functionRegistry;
++    private final Map<IndexPattern, IndexResolution> indexResolution;
++    private final Map<String, IndexResolution> lookupResolution;
++    private final EnrichResolution enrichResolution;
++    private final InferenceResolution inferenceResolution;
++    private final TransportVersion minimumVersion;
+ 
+     public AnalyzerContext(
+         Configuration configuration,
+@@ -49,6 +48,34 @@ public AnalyzerContext(
+             : "AnalyzerContext [" + minimumVersion + "] is not on or before current transport version [" + TransportVersion.current() + "]";
+     }
+ 
++    public Configuration configuration() {
++        return configuration;
++    }
++
++    public EsqlFunctionRegistry functionRegistry() {
++        return functionRegistry;
++    }
++
++    public Map<IndexPattern, IndexResolution> indexResolution() {
++        return indexResolution;
++    }
++
++    public Map<String, IndexResolution> lookupResolution() {
++        return lookupResolution;
++    }
++
++    public EnrichResolution enrichResolution() {
++        return enrichResolution;
++    }
++
++    public InferenceResolution inferenceResolution() {
++        return inferenceResolution;
++    }
++
++    public TransportVersion minimumVersion() {
++        return minimumVersion;
++    }
++
+     public AnalyzerContext(Configuration configuration, EsqlFunctionRegistry functionRegistry, EsqlSession.PreAnalysisResult result) {
+         this(
+             configuration,
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/BinaryComparisonQueryList.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/BinaryComparisonQueryList.java
+index 883589e3b93cf..9805d944089fc 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/BinaryComparisonQueryList.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/BinaryComparisonQueryList.java
+@@ -92,7 +92,7 @@ public Query doGetQuery(int position, int firstValueIndex, int valueCount) {
+                 new Literal(binaryComparison.right().source(), value, binaryComparison.right().dataType())
+             );
+         try {
+-            if (TranslationAware.Translatable.YES.equals(comparison.translatable(lucenePushdownPredicates))) {
++            if (TranslationAware.Translatable.YES == comparison.translatable(lucenePushdownPredicates)) {
+                 return comparison.asQuery(lucenePushdownPredicates, TranslatorHandler.TRANSLATOR_HANDLER)
+                     .toQueryBuilder()
+                     .toQuery(searchExecutionContext);
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/ExpressionQueryList.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/ExpressionQueryList.java
+index d881644849f2f..934dd94770e73 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/ExpressionQueryList.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/enrich/ExpressionQueryList.java
+@@ -18,11 +18,13 @@
+ import org.elasticsearch.compute.operator.lookup.QueryList;
+ import org.elasticsearch.index.mapper.MappedFieldType;
+ import org.elasticsearch.index.query.QueryBuilder;
++import org.elasticsearch.index.query.Rewriteable;
+ import org.elasticsearch.index.query.SearchExecutionContext;
+ import org.elasticsearch.search.internal.AliasFilter;
+ import org.elasticsearch.xpack.esql.capabilities.TranslationAware;
+ import org.elasticsearch.xpack.esql.core.expression.Attribute;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
++import org.elasticsearch.xpack.esql.core.type.DataType;
+ import org.elasticsearch.xpack.esql.expression.predicate.Predicates;
+ import org.elasticsearch.xpack.esql.expression.predicate.operator.comparison.Equals;
+ import org.elasticsearch.xpack.esql.expression.predicate.operator.comparison.EsqlBinaryComparison;
+@@ -56,9 +58,10 @@
+  */
+ public class ExpressionQueryList implements LookupEnrichQueryGenerator {
+     private final List<QueryList> queryLists;
+-    private final List<Query> preJoinFilters = new ArrayList<>();
++    private final List<Query> lucenePushableFilters = new ArrayList<>();
+     private final SearchExecutionContext context;
+     private final AliasFilter aliasFilter;
++    private final LucenePushdownPredicates lucenePushdownPredicates;
+ 
+     private ExpressionQueryList(
+         List<QueryList> queryLists,
+@@ -70,6 +73,10 @@ private ExpressionQueryList(
+         this.queryLists = new ArrayList<>(queryLists);
+         this.context = context;
+         this.aliasFilter = aliasFilter;
++        this.lucenePushdownPredicates = LucenePushdownPredicates.from(
++            SearchContextStats.from(List.of(context)),
++            new EsqlFlags(clusterService.getClusterSettings())
++        );
+         buildPreJoinFilter(rightPreJoinPlan, clusterService);
+     }
+ 
+@@ -141,98 +148,104 @@ private void buildJoinOnForExpressionJoin(
+     ) {
+         List<Expression> expressions = Predicates.splitAnd(joinOnConditions);
+         for (Expression expr : expressions) {
+-            if (expr instanceof EsqlBinaryComparison binaryComparison) {
+-                // the left side comes from the page that was sent to the lookup node
+-                // the right side is the field from the lookup index
+-                // check if the left side is in the matchFields
+-                // if it is its corresponding page is the corresponding number in inputPage
+-                Expression left = binaryComparison.left();
+-                if (left instanceof Attribute leftAttribute) {
+-                    boolean matched = false;
+-                    for (int i = 0; i < matchFields.size(); i++) {
+-                        if (matchFields.get(i).fieldName().equals(leftAttribute.name())) {
+-                            Block block = inputPage.getBlock(i);
+-                            Expression right = binaryComparison.right();
+-                            if (right instanceof Attribute rightAttribute) {
+-                                MappedFieldType fieldType = context.getFieldType(rightAttribute.name());
+-                                if (fieldType != null) {
+-                                    // special handle Equals operator
+-                                    // TermQuery is faster than BinaryComparisonQueryList, as it does less work per row
+-                                    // so here we reuse the existing logic from field based join to build a termQueryList for Equals
+-                                    if (binaryComparison instanceof Equals) {
+-                                        QueryList termQueryForEquals = termQueryList(
+-                                            fieldType,
+-                                            context,
+-                                            aliasFilter,
+-                                            inputPage.getBlock(matchFields.get(i).channel()),
+-                                            matchFields.get(i).type()
+-                                        ).onlySingleValues(warnings, "LOOKUP JOIN encountered multi-value");
+-                                        queryLists.add(termQueryForEquals);
+-                                    } else {
+-                                        queryLists.add(
+-                                            new BinaryComparisonQueryList(
+-                                                fieldType,
+-                                                context,
+-                                                block,
+-                                                binaryComparison,
+-                                                clusterService,
+-                                                aliasFilter,
+-                                                warnings
+-                                            )
+-                                        );
+-                                    }
+-                                    matched = true;
+-                                    break;
+-                                } else {
+-                                    throw new IllegalStateException(
+-                                        "Could not find field [" + rightAttribute.name() + "] in the lookup join index"
+-                                    );
+-                                }
+-                            } else {
+-                                throw new IllegalStateException(
+-                                    "Only field from the right dataset are supported on the right of the join on condition but got: " + expr
+-                                );
+-                            }
+-                        }
+-                    }
+-                    if (matched == false) {
+-                        throw new IllegalStateException(
+-                            "Could not find field [" + leftAttribute.name() + "] in the left side of the lookup join"
+-                        );
+-                    }
++            boolean applied = applyAsLeftRightBinaryComparison(expr, matchFields, inputPage, clusterService, warnings);
++            if (applied == false) {
++                applied = applyAsRightSidePushableFilter(expr);
++            }
++            if (applied == false) {
++                throw new IllegalArgumentException("Cannot apply join condition: " + expr);
++            }
++        }
++    }
++
++    private boolean applyAsRightSidePushableFilter(Expression filter) {
++        if (filter instanceof TranslationAware translationAware) {
++            if (TranslationAware.Translatable.YES.equals(translationAware.translatable(lucenePushdownPredicates))) {
++                QueryBuilder queryBuilder = translationAware.asQuery(lucenePushdownPredicates, TRANSLATOR_HANDLER).toQueryBuilder();
++                // Rewrite the query builder to ensure doIndexMetadataRewrite is called
++                // Some functions, such as KQL require rewriting to work properly
++                try {
++                    queryBuilder = Rewriteable.rewrite(queryBuilder, context, true);
++                } catch (IOException e) {
++                    throw new UncheckedIOException("Error while rewriting query for Lucene pushable filter", e);
++                }
++                addToLucenePushableFilters(queryBuilder);
++                return true;
++            }
++        }
++        return false;
++    }
++
++    private boolean applyAsLeftRightBinaryComparison(
++        Expression expr,
++        List<MatchConfig> matchFields,
++        Page inputPage,
++        ClusterService clusterService,
++        Warnings warnings
++    ) {
++        if (expr instanceof EsqlBinaryComparison binaryComparison
++            && binaryComparison.left() instanceof Attribute leftAttribute
++            && binaryComparison.right() instanceof Attribute rightAttribute) {
++            // the left side comes from the page that was sent to the lookup node
++            // the right side is the field from the lookup index
++            // check if the left side is in the matchFields
++            // if it is its corresponding page is the corresponding number in inputPage
++            Block block = null;
++            DataType dataType = null;
++            for (int i = 0; i < matchFields.size(); i++) {
++                if (matchFields.get(i).fieldName().equals(leftAttribute.name())) {
++                    block = inputPage.getBlock(i);
++                    dataType = matchFields.get(i).type();
++                    break;
++                }
++            }
++            MappedFieldType rightFieldType = context.getFieldType(rightAttribute.name());
++            if (block != null && rightFieldType != null && dataType != null) {
++                // special handle Equals operator
++                // TermQuery is faster than BinaryComparisonQueryList, as it does less work per row
++                // so here we reuse the existing logic from field based join to build a termQueryList for Equals
++                if (binaryComparison instanceof Equals) {
++                    QueryList termQueryForEquals = termQueryList(rightFieldType, context, aliasFilter, block, dataType).onlySingleValues(
++                        warnings,
++                        "LOOKUP JOIN encountered multi-value"
++                    );
++                    queryLists.add(termQueryForEquals);
+                 } else {
+-                    throw new IllegalStateException(
+-                        "Only field from the left dataset are supported on the left of the join on condition but got: " + expr
++                    queryLists.add(
++                        new BinaryComparisonQueryList(
++                            rightFieldType,
++                            context,
++                            block,
++                            binaryComparison,
++                            clusterService,
++                            aliasFilter,
++                            warnings
++                        )
+                     );
+                 }
+-            } else {
+-                // we only support binary comparisons in the join on conditions
+-                throw new IllegalStateException("Only binary comparisons are supported in join ON conditions, but got: " + expr);
++                return true;
+             }
+         }
++        return false;
+     }
+ 
+-    private void addToPreJoinFilters(QueryBuilder query) {
++    private void addToLucenePushableFilters(QueryBuilder query) {
+         try {
+             if (query != null) {
+-                preJoinFilters.add(query.toQuery(context));
++                lucenePushableFilters.add(query.toQuery(context));
+             }
+         } catch (IOException e) {
+-            throw new UncheckedIOException("Error while building query for PreJoinFilters filter", e);
++            throw new UncheckedIOException("Error while building query for Lucene pushable filter", e);
+         }
+     }
+ 
+     private void buildPreJoinFilter(PhysicalPlan rightPreJoinPlan, ClusterService clusterService) {
+         if (rightPreJoinPlan instanceof FilterExec filterExec) {
+             List<Expression> candidateRightHandFilters = Predicates.splitAnd(filterExec.condition());
+-            LucenePushdownPredicates lucenePushdownPredicates = LucenePushdownPredicates.from(
+-                SearchContextStats.from(List.of(context)),
+-                new EsqlFlags(clusterService.getClusterSettings())
+-            );
+             for (Expression filter : candidateRightHandFilters) {
+                 if (filter instanceof TranslationAware translationAware) {
+                     if (TranslationAware.Translatable.YES.equals(translationAware.translatable(lucenePushdownPredicates))) {
+-                        addToPreJoinFilters(translationAware.asQuery(lucenePushdownPredicates, TRANSLATOR_HANDLER).toQueryBuilder());
++                        addToLucenePushableFilters(translationAware.asQuery(lucenePushdownPredicates, TRANSLATOR_HANDLER).toQueryBuilder());
+                     }
+                 }
+                 // If the filter is not translatable we will not apply it for now
+@@ -268,7 +281,7 @@ public Query getQuery(int position) {
+             builder.add(q, BooleanClause.Occur.FILTER);
+         }
+         // also attach the pre-join filter if it exists
+-        for (Query preJoinFilter : preJoinFilters) {
++        for (Query preJoinFilter : lucenePushableFilters) {
+             builder.add(preJoinFilter, BooleanClause.Occur.FILTER);
+         }
+         return builder.build();
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/fulltext/FullTextFunction.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/fulltext/FullTextFunction.java
+index 7ab187fe060fa..147d2e6bbfa4c 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/fulltext/FullTextFunction.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/function/fulltext/FullTextFunction.java
+@@ -30,6 +30,7 @@
+ import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.core.type.DataType;
+ import org.elasticsearch.xpack.esql.core.type.MultiTypeEsField;
++import org.elasticsearch.xpack.esql.core.util.Holder;
+ import org.elasticsearch.xpack.esql.evaluator.mapper.EvaluatorMapper;
+ import org.elasticsearch.xpack.esql.expression.function.scalar.convert.AbstractConvertFunction;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.BinaryLogic;
+@@ -42,6 +43,7 @@
+ import org.elasticsearch.xpack.esql.plan.logical.Limit;
+ import org.elasticsearch.xpack.esql.plan.logical.LogicalPlan;
+ import org.elasticsearch.xpack.esql.plan.logical.OrderBy;
++import org.elasticsearch.xpack.esql.plan.logical.join.LookupJoin;
+ import org.elasticsearch.xpack.esql.planner.EsPhysicalOperationProviders;
+ import org.elasticsearch.xpack.esql.planner.TranslatorHandler;
+ import org.elasticsearch.xpack.esql.querydsl.query.TranslationAwareExpressionQuery;
+@@ -188,34 +190,11 @@ public BiConsumer<LogicalPlan, Failures> postAnalysisPlanVerification() {
+     private static void checkFullTextQueryFunctions(LogicalPlan plan, Failures failures) {
+         if (plan instanceof Filter f) {
+             Expression condition = f.condition();
+-
+-            if (condition instanceof Score) {
+-                failures.add(fail(condition, "[SCORE] function can't be used in WHERE"));
+-            }
+-
+-            List.of(QueryString.class, Kql.class).forEach(functionClass -> {
+-                // Check for limitations of QSTR and KQL function.
+-                checkCommandsBeforeExpression(
+-                    plan,
+-                    condition,
+-                    functionClass,
+-                    lp -> (lp instanceof Filter || lp instanceof OrderBy || lp instanceof EsRelation),
+-                    fullTextFunction -> "[" + fullTextFunction.functionName() + "] " + fullTextFunction.functionType(),
+-                    failures
+-                );
+-            });
+-
+-            checkCommandsBeforeExpression(
+-                plan,
+-                condition,
+-                FullTextFunction.class,
+-                lp -> (lp instanceof Limit == false) && (lp instanceof Aggregate == false),
+-                m -> "[" + m.functionName() + "] " + m.functionType(),
+-                failures
+-            );
+-            checkFullTextFunctionsParents(condition, failures);
++            checkFullTextQueryFunctionForCondition(plan, failures, condition, false);
+         } else if (plan instanceof Aggregate agg) {
+             checkFullTextFunctionsInAggs(agg, failures);
++        } else if (plan instanceof LookupJoin lookupJoin) {
++            checkFullTextQueryFunctionForCondition(plan, failures, lookupJoin.config().joinOnConditions(), true);
+         } else {
+             List<FullTextFunction> scoredFTFs = new ArrayList<>();
+             plan.forEachExpression(Score.class, scoreFunction -> {
+@@ -238,6 +217,43 @@ private static void checkFullTextQueryFunctions(LogicalPlan plan, Failures failu
+         }
+     }
+ 
++    private static void checkFullTextQueryFunctionForCondition(
++        LogicalPlan plan,
++        Failures failures,
++        Expression condition,
++        boolean isLookupJoinOnCondition
++    ) {
++        if (condition == null) {
++            return;
++        }
++        if (condition instanceof Score) {
++            failures.add(fail(condition, "[SCORE] function can't be used in WHERE or LOOKUP JOIN ON conditions"));
++        }
++        if (isLookupJoinOnCondition == false) {
++            List.of(QueryString.class, Kql.class).forEach(functionClass -> {
++                // Check for limitations of QSTR and KQL function.
++                checkCommandsBeforeExpression(
++                    plan,
++                    condition,
++                    functionClass,
++                    lp -> (lp instanceof Filter || lp instanceof OrderBy || lp instanceof EsRelation),
++                    fullTextFunction -> "[" + fullTextFunction.functionName() + "] " + fullTextFunction.functionType(),
++                    failures
++                );
++            });
++        }
++
++        checkCommandsBeforeExpression(
++            plan,
++            condition,
++            FullTextFunction.class,
++            lp -> (lp instanceof Limit == false) && (lp instanceof Aggregate == false),
++            m -> "[" + m.functionName() + "] " + m.functionType(),
++            failures
++        );
++        checkFullTextFunctionsParents(condition, failures);
++    }
++
+     private static void checkScoreFunction(LogicalPlan plan, Failures failures, Score scoreFunction) {
+         checkCommandsBeforeExpression(
+             plan,
+@@ -341,6 +357,11 @@ private static FullTextFunction forEachFullTextFunctionParent(Expression conditi
+     }
+ 
+     public static void fieldVerifier(LogicalPlan plan, FullTextFunction function, Expression field, Failures failures) {
++        // Only run the check if the current node contains the full-text function
++        // This is to avoid running the check multiple times in the same plan
++        if (isInCurrentNode(plan, function) == false) {
++            return;
++        }
+         var fieldAttribute = fieldAsFieldAttribute(field);
+         if (fieldAttribute == null) {
+             plan.forEachExpression(function.getClass(), m -> {
+@@ -357,6 +378,12 @@ public static void fieldVerifier(LogicalPlan plan, FullTextFunction function, Ex
+                 }
+             });
+         } else {
++            if (plan instanceof LookupJoin) {
++                // Full Text Functions are allowed in LOOKUP JOIN ON conditions
++                // We are only running this code for the node containing the Full Text Function
++                // So if it is a Lookup Join we know the function is in the join on condition
++                return;
++            }
+             // Traverse the plan to find the EsRelation outputting the field
+             plan.forEachDown(p -> {
+                 if (p instanceof EsRelation esRelation && esRelation.indexMode() != IndexMode.STANDARD) {
+@@ -428,4 +455,17 @@ public static FieldAttribute fieldAsFieldAttribute(Expression field) {
+     public void postOptimizationVerification(Failures failures) {
+         resolveTypeQuery(query(), sourceText(), forPostOptimizationValidation(query(), failures));
+     }
++
++    /**
++     * Check if the full-text function exists only in the current node (not in child nodes)
++     */
++    private static boolean isInCurrentNode(LogicalPlan plan, FullTextFunction function) {
++        final Holder<Boolean> found = new Holder<>(false);
++        plan.forEachExpression(FullTextFunction.class, ftf -> {
++            if (ftf == function) {
++                found.set(true);
++            }
++        });
++        return found.get();
++    }
+ }
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/predicate/Predicates.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/predicate/Predicates.java
+index b9a58e82a2349..10f4f6a8a8500 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/predicate/Predicates.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/expression/predicate/Predicates.java
+@@ -9,6 +9,7 @@
+ import org.elasticsearch.core.Tuple;
+ import org.elasticsearch.xpack.esql.core.expression.Expression;
+ import org.elasticsearch.xpack.esql.core.expression.Literal;
++import org.elasticsearch.xpack.esql.core.tree.Source;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.And;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.Or;
+ 
+@@ -49,6 +50,10 @@ public static Expression combineAnd(List<Expression> exps) {
+         return combine(exps, (l, r) -> new And(l.source(), l, r));
+     }
+ 
++    public static Expression combineAndWithSource(List<Expression> exps, Source source) {
++        return combine(exps, (l, r) -> new And(source, l, r));
++    }
++
+     /**
+      * Build a binary 'pyramid' from the given list:
+      * <pre>
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java
+index 06b07117b5328..3caf9a9600f73 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/parser/LogicalPlanBuilder.java
+@@ -46,6 +46,7 @@
+ import org.elasticsearch.xpack.esql.expression.UnresolvedNamePattern;
+ import org.elasticsearch.xpack.esql.expression.function.UnresolvedFunction;
+ import org.elasticsearch.xpack.esql.expression.predicate.Predicates;
++import org.elasticsearch.xpack.esql.expression.predicate.logical.BinaryLogic;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.Not;
+ import org.elasticsearch.xpack.esql.expression.predicate.operator.comparison.Equals;
+ import org.elasticsearch.xpack.esql.expression.predicate.operator.comparison.EsqlBinaryComparison;
+@@ -721,7 +722,14 @@ public PlanFactory visitJoinCommand(EsqlBaseParser.JoinCommandContext ctx) {
+             if (hasRemotes && EsqlCapabilities.Cap.ENABLE_LOOKUP_JOIN_ON_REMOTE.isEnabled() == false) {
+                 throw new ParsingException(source, "remote clusters are not supported with LOOKUP JOIN");
+             }
+-            return new LookupJoin(source, p, right, joinInfo.joinFields(), hasRemotes, Predicates.combineAnd(joinInfo.joinExpressions()));
++            return new LookupJoin(
++                source,
++                p,
++                right,
++                joinInfo.joinFields(),
++                hasRemotes,
++                Predicates.combineAndWithSource(joinInfo.joinExpressions(), source(condition))
++            );
+         };
+     }
+ 
+@@ -734,8 +742,10 @@ public JoinInfo visitJoinCondition(EsqlBaseParser.JoinConditionContext ctx) {
+             throw new ParsingException(source(ctx), "JOIN ON clause cannot be empty");
+         }
+ 
+-        // inspect the first expression to determine the type of join (field-based or expression-based)
+-        boolean isFieldBased = expressions.get(0) instanceof UnresolvedAttribute;
++        // Inspect the first expression to determine the type of join (field-based or expression-based)
++        // We treat literals as field-based as it is more likely the user was trying to write a field name
++        // and so the field based error message is more helpful
++        boolean isFieldBased = expressions.get(0) instanceof UnresolvedAttribute || expressions.get(0) instanceof Literal;
+ 
+         if (isFieldBased) {
+             return processFieldBasedJoin(expressions);
+@@ -784,26 +794,53 @@ private JoinInfo processExpressionBasedJoin(List<Expression> expressions, EsqlBa
+         }
+         expressions = Predicates.splitAnd(expressions.get(0));
+         for (var f : expressions) {
+-            addJoinExpression(f, joinFields, joinExpressions);
++            addJoinExpression(f, joinFields, joinExpressions, ctx);
++        }
++        if (joinFields.isEmpty()) {
++            throw new ParsingException(
++                source(ctx),
++                "JOIN ON clause with expressions must contain at least one condition relating the left index and the lookup index"
++            );
+         }
+         return new JoinInfo(joinFields, joinExpressions);
+     }
+ 
+-    private void addJoinExpression(Expression exp, List<Attribute> joinFields, List<Expression> joinExpressions) {
++    private void addJoinExpression(
++        Expression exp,
++        List<Attribute> joinFields,
++        List<Expression> joinExpressions,
++        EsqlBaseParser.JoinConditionContext ctx
++    ) {
+         exp = handleNegationOfEquals(exp);
++        if (containsBareFieldsInBooleanExpression(exp)) {
++            throw new ParsingException(
++                source(ctx),
++                "JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found [{}]",
++                exp.sourceText()
++            );
++        }
+         if (exp instanceof EsqlBinaryComparison comparison
+             && comparison.left() instanceof UnresolvedAttribute left
+             && comparison.right() instanceof UnresolvedAttribute right) {
+             joinFields.add(left);
+             joinFields.add(right);
+-            joinExpressions.add(exp);
+-        } else {
+-            throw new ParsingException(
+-                exp.source(),
+-                "JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found [{}]",
+-                exp.sourceText()
+-            );
+         }
++        joinExpressions.add(exp);
++    }
++
++    private boolean containsBareFieldsInBooleanExpression(Expression expression) {
++        if (expression instanceof UnresolvedAttribute) {
++            return true; // This is a bare field
++        }
++        if (expression instanceof EsqlBinaryComparison) {
++            return false; // This is a binary comparison, not a bare field
++        }
++        if (expression instanceof BinaryLogic binaryLogic) {
++            // Check if either side contains bare fields
++            return containsBareFieldsInBooleanExpression(binaryLogic.left()) || containsBareFieldsInBooleanExpression(binaryLogic.right());
++        }
++        // For other expression types (functions, constants, etc.), they are not bare fields
++        return false;
+     }
+ 
+     private void validateJoinFields(List<Attribute> joinFields) {
+diff --git a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/plan/logical/join/JoinConfig.java b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/plan/logical/join/JoinConfig.java
+index e870580eecd17..682a3fdcc3027 100644
+--- a/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/plan/logical/join/JoinConfig.java
++++ b/x-pack/plugin/esql/src/main/java/org/elasticsearch/xpack/esql/plan/logical/join/JoinConfig.java
+@@ -20,6 +20,19 @@
+ import java.util.List;
+ 
+ /**
++ * Configuration of a join operation.
++ * We support equi-joins on a list of fields, as well as expression based joins.
++ * For list of fields based joins, the left and right lists must be of the same size and match positionally.
++ * For expression based joins, the join conditions are expressed as a boolean expression.
++ * The join on condition is stored in the {@code joinOnConditions} field.
++ * We support one or more binary expressions (e.g. {@code ==, <, >, <=, >=, !=}) combined with {@code AND}.
++ * One side of each binary expression must be an attribute from the left side of the join
++ * and the other side an attribute from the side of the join child.
++ * Those are populated in the {@code leftFields} and {@code rightFields} lists respectively.
++ * Notice however that {@code leftFields} and {@code rightFields} might have different size if a field is reused
++ * (e.g. {@code left_a == right_b AND left_a = right_c}).
++ * In addition, you can AND an optional Lucene pushable expression containing references to the right side of the join only.
++ * This expression can contain OR and NOT nodes, as those operators are Lucene pushable.
+  * @param type        type of join
+  * @param leftFields  fields from the left child to join on
+  * @param rightFields fields from the right child to join on
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java
+index 4b46c26f56f35..9afc89b8cd8a8 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTestUtils.java
+@@ -235,7 +235,9 @@ public static Map<String, IndexResolution> defaultLookupResolution() {
+             "languages_lookup",
+             loadMapping("mapping-languages.json", "languages_lookup", IndexMode.LOOKUP),
+             "test_lookup",
+-            loadMapping("mapping-basic.json", "test_lookup", IndexMode.LOOKUP)
++            loadMapping("mapping-basic.json", "test_lookup", IndexMode.LOOKUP),
++            "spatial_lookup",
++            loadMapping("mapping-multivalue_geometries.json", "spatial_lookup", IndexMode.LOOKUP)
+         );
+     }
+ 
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTests.java
+index 46c8b73213abe..5a66526c9af50 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTests.java
+@@ -163,6 +163,12 @@
+ import static org.hamcrest.Matchers.startsWith;
+ 
+ //@TestLogging(value = "org.elasticsearch.xpack.esql.analysis:TRACE", reason = "debug")
++/**
++ * Parses a plan, builds an AST for it, runs logical analysis.
++ * So if we don't error out in the process, analysis was successful
++ * Use this class if you want to test analysis phase
++ * and especially if you expect to get a VerificationException during analysis
++ */
+ public class AnalyzerTests extends ESTestCase {
+ 
+     private static final UnresolvedRelation UNRESOLVED_RELATION = unresolvedRelation("idx");
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/ParsingTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/ParsingTests.java
+index ae3426178e36b..4260f41187cc1 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/ParsingTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/ParsingTests.java
+@@ -51,6 +51,12 @@
+ import static org.hamcrest.Matchers.instanceOf;
+ import static org.hamcrest.Matchers.is;
+ 
++/**
++ * Parses a plan, builds an AST for it, and then runs logical analysis on it.
++ * So if we don't error out in the process,  all references were resolved correctly.
++ * Use this class if you want to test parsing and resolution of a query
++ *  and especially if you expect to get a ParsingException
++ */
+ public class ParsingTests extends ESTestCase {
+     private static final String INDEX_NAME = "test";
+     private static final EsqlParser parser = new EsqlParser();
+@@ -141,22 +147,92 @@ public void testTooBigQuery() {
+     public void testJoinOnConstant() {
+         assumeTrue(
+             "requires LOOKUP JOIN ON boolean expression capability",
+-            EsqlCapabilities.Cap.LOOKUP_JOIN_ON_BOOLEAN_EXPRESSION.isEnabled()
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
+         );
+         assertEquals(
+-            "1:55: JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found [123]",
++            "1:55: JOIN ON clause must be a comma separated list of fields or a single expression, found [123]",
+             error("row languages = 1, gender = \"f\" | lookup join test on 123")
+         );
+         assertEquals(
+-            "1:55: JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found [\"abc\"]",
++            "1:55: JOIN ON clause must be a comma separated list of fields or a single expression, found [\"abc\"]",
+             error("row languages = 1, gender = \"f\" | lookup join test on \"abc\"")
+         );
+         assertEquals(
+-            "1:55: JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found [false]",
++            "1:55: JOIN ON clause must be a comma separated list of fields or a single expression, found [false]",
+             error("row languages = 1, gender = \"f\" | lookup join test on false")
+         );
+     }
+ 
++    public void testLookupJoinExpressionMixed() {
++        assumeTrue("requires LOOKUP JOIN capability", EsqlCapabilities.Cap.JOIN_LOOKUP_V12.isEnabled());
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON languages_left == language_code or salary > 1000
++            """;
++
++        assertEquals(
++            "3:32: JOIN ON clause with expressions must contain at least one condition relating the left index and the lookup index",
++            error(queryString)
++        );
++    }
++
++    public void testLookupJoinExpressionOnlyRightFilter() {
++        assumeTrue("requires LOOKUP JOIN capability", EsqlCapabilities.Cap.JOIN_LOOKUP_V12.isEnabled());
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON salary > 1000
++            """;
++
++        assertEquals(
++            "3:32: JOIN ON clause with expressions must contain at least one condition relating the left index and the lookup index",
++            error(queryString)
++        );
++    }
++
++    public void testLookupJoinExpressionFieldBasePlusRightFilterAnd() {
++        assumeTrue("requires LOOKUP JOIN capability", EsqlCapabilities.Cap.JOIN_LOOKUP_V12.isEnabled());
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | lookup join languages_lookup ON languages and salary > 1000
++            """;
++
++        assertEquals(
++            "2:32: JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found [languages]",
++            error(queryString)
++        );
++    }
++
++    public void testLookupJoinExpressionFieldBasePlusRightFilterComma() {
++        assumeTrue("requires LOOKUP JOIN capability", EsqlCapabilities.Cap.JOIN_LOOKUP_V12.isEnabled());
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | lookup join languages_lookup ON languages, salary > 1000
++            """;
++
++        assertEquals(
++            "2:46: JOIN ON clause must be a comma separated list of fields or a single expression, found [salary > 1000]",
++            error(queryString)
++        );
++    }
++
+     public void testJoinTwiceOnTheSameField() {
+         assertEquals(
+             "1:66: JOIN ON clause does not support multiple fields with the same name, found multiple instances of [languages]",
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java
+index d8e84fd8abd51..9d05b33d81c01 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/VerifierTests.java
+@@ -8,6 +8,7 @@
+ package org.elasticsearch.xpack.esql.analysis;
+ 
+ import org.elasticsearch.Build;
++import org.elasticsearch.TransportVersion;
+ import org.elasticsearch.common.Strings;
+ import org.elasticsearch.test.ESTestCase;
+ import org.elasticsearch.xpack.esql.VerificationException;
+@@ -41,6 +42,7 @@
+ 
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.paramAsConstant;
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.withDefaultLimitWarning;
++import static org.elasticsearch.xpack.esql.analysis.Analyzer.ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION;
+ import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.TEXT_EMBEDDING_INFERENCE_ID;
+ import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.loadMapping;
+ import static org.elasticsearch.xpack.esql.core.type.DataType.BOOLEAN;
+@@ -72,6 +74,12 @@
+ import static org.hamcrest.Matchers.startsWith;
+ 
+ //@TestLogging(value = "org.elasticsearch.xpack.esql:TRACE,org.elasticsearch.compute:TRACE", reason = "debug")
++/**
++ * Parses a plan, builds an AST for it, runs logical analysis and post analysis verification.
++ * So if we don't error out in the process, post analysis verification passed
++ * Use this class if you want to test post analysis verification
++ * and especially if you expect to get a VerificationException
++ */
+ public class VerifierTests extends ESTestCase {
+ 
+     private static final EsqlParser parser = new EsqlParser();
+@@ -2251,6 +2259,88 @@ public void testLookupJoinExpressionAmbiguousRight() {
+         );
+     }
+ 
++    public void testLookupJoinExpressionRightNotPushable() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON languages_left == language_code and abs(salary) > 1000
++            """;
++
++        assertEquals(
++            "3:71: Unsupported join filter expression:abs(salary) > 1000",
++            error(queryString, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION)
++        );
++    }
++
++    public void testLookupJoinExpressionConstant() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON false and languages_left == language_code
++            """;
++
++        assertEquals("3:35: Unsupported join filter expression:false", error(queryString, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION));
++    }
++
++    public void testLookupJoinExpressionTranslatableButFromLeft() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON languages_left == language_code and languages_left == "English"
++            """;
++
++        assertEquals(
++            "3:71: Unsupported join filter expression:languages_left == \"English\"",
++            error(queryString, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION)
++        );
++    }
++
++    public void testLookupJoinExpressionTranslatableButMixedLeftRight() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON languages_left == language_code and CONCAT(languages_left, language_code) == "English"
++            """;
++
++        assertEquals(
++            "3:71: Unsupported join filter expression:CONCAT(languages_left, language_code) == \"English\"",
++            error(queryString, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION)
++        );
++    }
++
++    public void testLookupJoinExpressionComplexFormula() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++        String queryString = """
++            from test
++            | rename languages as languages_left
++            | lookup join languages_lookup ON languages_left == language_code AND STARTSWITH(languages_left, language_code)
++            """;
++
++        assertEquals(
++            "3:71: Unsupported join filter expression:STARTSWITH(languages_left, language_code)",
++            error(queryString, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION)
++        );
++    }
++
+     public void testLookupJoinExpressionAmbiguousLeft() {
+         assumeTrue(
+             "requires LOOKUP JOIN ON boolean expression capability",
+@@ -2993,13 +3083,17 @@ private String error(String query) {
+     }
+ 
+     private String error(String query, Object... params) {
+-        return error(query, defaultAnalyzer, params);
++        return error(query, defaultAnalyzer, VerificationException.class, params);
+     }
+ 
+     private String error(String query, Analyzer analyzer, Object... params) {
+         return error(query, analyzer, VerificationException.class, params);
+     }
+ 
++    private String error(String query, TransportVersion transportVersion, Object... params) {
++        return error(query, transportVersion, VerificationException.class, params);
++    }
++
+     private String error(String query, Analyzer analyzer, Class<? extends Exception> exception, Object... params) {
+         List<QueryParam> parameters = new ArrayList<>();
+         for (Object param : params) {
+@@ -3029,6 +3123,13 @@ private String error(String query, Analyzer analyzer, Class<? extends Exception>
+         return message.substring(index + pattern.length());
+     }
+ 
++    private String error(String query, TransportVersion transportVersion, Class<? extends Exception> exception, Object... params) {
++        MutableAnalyzerContext mutableContext = (MutableAnalyzerContext) defaultAnalyzer.context();
++        try (var restore = mutableContext.setTemporaryTransportVersionOnOrAfter(transportVersion)) {
++            return error(query, defaultAnalyzer, exception, params);
++        }
++    }
++
+     @Override
+     protected List<String> filteredWarnings() {
+         return withDefaultLimitWarning(super.filteredWarnings());
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/enrich/LookupFromIndexOperatorTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/enrich/LookupFromIndexOperatorTests.java
+index c342377e7894f..e02ef6110e5c4 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/enrich/LookupFromIndexOperatorTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/enrich/LookupFromIndexOperatorTests.java
+@@ -108,6 +108,7 @@ public class LookupFromIndexOperatorTests extends AsyncOperatorTestCase {
+     private final ThreadPool threadPool = threadPool();
+     private final Directory lookupIndexDirectory = newDirectory();
+     private final List<Releasable> releasables = new ArrayList<>();
++    private final boolean applyRightFilterAsJoinOnFilter;
+     private int numberOfJoinColumns; // we only allow 1 or 2 columns due to simpleInput() implementation
+     private EsqlBinaryComparison.BinaryComparisonOperation operation;
+ 
+@@ -129,6 +130,7 @@ public static Iterable<Object[]> parametersFactory() {
+     public LookupFromIndexOperatorTests(EsqlBinaryComparison.BinaryComparisonOperation operation) {
+         super();
+         this.operation = operation;
++        this.applyRightFilterAsJoinOnFilter = randomBoolean();
+     }
+ 
+     @Before
+@@ -248,6 +250,7 @@ protected Operator.OperatorFactory simple(SimpleOptions options) {
+             matchFields.add(new MatchConfig(matchField, i, inputDataType));
+         }
+         Expression joinOnExpression = null;
++        FragmentExec rightPlanWithOptionalPreJoinFilter = buildLessThanFilter(LESS_THAN_VALUE);
+         if (operation != null) {
+             List<Expression> conditions = new ArrayList<>();
+             for (int i = 0; i < numberOfJoinColumns; i++) {
+@@ -265,6 +268,13 @@ protected Operator.OperatorFactory simple(SimpleOptions options) {
+                 );
+                 conditions.add(operation.buildNewInstance(Source.EMPTY, left, right));
+             }
++            if (applyRightFilterAsJoinOnFilter) {
++                if (rightPlanWithOptionalPreJoinFilter instanceof FragmentExec fragmentExec
++                    && fragmentExec.fragment() instanceof Filter filterPlan) {
++                    conditions.add(filterPlan.condition());
++                    rightPlanWithOptionalPreJoinFilter = null;
++                }
++            }
+             joinOnExpression = Predicates.combineAnd(conditions);
+         }
+ 
+@@ -278,7 +288,7 @@ protected Operator.OperatorFactory simple(SimpleOptions options) {
+             lookupIndex,
+             loadFields,
+             Source.EMPTY,
+-            buildLessThanFilter(LESS_THAN_VALUE),
++            rightPlanWithOptionalPreJoinFilter,
+             joinOnExpression
+         );
+     }
+@@ -321,25 +331,41 @@ protected Matcher<String> expectedToStringOfSimple() {
+             // match_field=match<i>_left (index first, then suffix)
+             sb.append("input_type=LONG match_field=match").append(i).append(suffix).append(" inputChannel=").append(i).append(" ");
+         }
+-        // Accept either the legacy physical plan rendering (FilterExec/EsQueryExec) or the new FragmentExec rendering
+-        sb.append("right_pre_join_plan=(?:");
+-        // Legacy pattern
+-        sb.append("FilterExec\\[lint\\{f}#\\d+ < ")
+-            .append(LESS_THAN_VALUE)
+-            .append(
+-                "\\[INTEGER]]\\n\\\\_EsQueryExec\\[test], indexMode\\[lookup],\\s*(?:query\\[\\]|\\[\\])?,?\\s*"
+-                    + "limit\\[\\],?\\s*sort\\[(?:\\[\\])?\\]\\s*estimatedRowSize\\[null\\]\\s*queryBuilderAndTags \\[(?:\\[\\]\\])\\]"
+-            );
+-        sb.append("|");
+-        // New FragmentExec pattern - match the actual output format
+-        sb.append("FragmentExec\\[filter=null, estimatedRowSize=\\d+, reducer=\\[\\], fragment=\\[<>\\n")
+-            .append("Filter\\[lint\\{f}#\\d+ < ")
+-            .append(LESS_THAN_VALUE)
+-            .append("\\[INTEGER]]\\n")
+-            .append("\\\\_EsRelation\\[test]\\[LOOKUP]\\[\\]<>\\]\\]");
+-        sb.append(")");
++
++        if (applyRightFilterAsJoinOnFilter && operation != null) {
++            // When applyRightFilterAsJoinOnFilter is true, right_pre_join_plan should be null
++            sb.append("right_pre_join_plan=null");
++        } else {
++            // Accept either the legacy physical plan rendering (FilterExec/EsQueryExec) or the new FragmentExec rendering
++            sb.append("right_pre_join_plan=(?:");
++            // Legacy pattern
++            sb.append("FilterExec\\[lint\\{f}#\\d+ < ")
++                .append(LESS_THAN_VALUE)
++                .append(
++                    "\\[INTEGER]]\\n\\\\_EsQueryExec\\[test], indexMode\\[lookup],\\s*(?:query\\[\\]|\\[\\])?,?\\s*"
++                        + "limit\\[\\],?\\s*sort\\[(?:\\[\\])?\\]\\s*estimatedRowSize\\[null\\]\\s*queryBuilderAndTags \\[(?:\\[\\]\\])\\]"
++                );
++            sb.append("|");
++            // New FragmentExec pattern - match the actual output format
++            sb.append("FragmentExec\\[filter=null, estimatedRowSize=\\d+, reducer=\\[\\], fragment=\\[<>\\n")
++                .append("Filter\\[lint\\{f}#\\d+ < ")
++                .append(LESS_THAN_VALUE)
++                .append("\\[INTEGER]]\\n")
++                .append("\\\\_EsRelation\\[test]\\[LOOKUP]\\[\\]<>\\]\\]");
++            sb.append(")");
++        }
++
+         // Accept join_on_expression=null or a valid join predicate
+-        sb.append(" join_on_expression=(null|match\\d+left [=!<>]+ match\\d+right( AND match\\d+left [=!<>]+ match\\d+right)*|)\\]");
++        if (applyRightFilterAsJoinOnFilter && operation != null) {
++            // When applyRightFilterAsJoinOnFilter is true and operation is not null, the join expression includes the filter condition
++            sb.append(
++                " join_on_expression=(match\\d+left [=!<>]+ match\\d+right( "
++                    + "AND match\\d+left [=!<>]+ match\\d+right)* AND lint\\{f}#\\d+ < "
++            ).append(LESS_THAN_VALUE).append("\\[INTEGER]|)\\]");
++        } else {
++            // Standard pattern for other cases
++            sb.append(" join_on_expression=(null|match\\d+left [=!<>]+ match\\d+right( AND match\\d+left [=!<>]+ match\\d+right)*|)\\]");
++        }
+         return matchesPattern(sb.toString());
+     }
+ 
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/AbstractLogicalPlanOptimizerTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/AbstractLogicalPlanOptimizerTests.java
+index 498c138bb92bc..94f1e0bada932 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/AbstractLogicalPlanOptimizerTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/AbstractLogicalPlanOptimizerTests.java
+@@ -15,6 +15,7 @@
+ import org.elasticsearch.xpack.esql.analysis.Analyzer;
+ import org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils;
+ import org.elasticsearch.xpack.esql.analysis.EnrichResolution;
++import org.elasticsearch.xpack.esql.analysis.MutableAnalyzerContext;
+ import org.elasticsearch.xpack.esql.core.type.EsField;
+ import org.elasticsearch.xpack.esql.expression.function.EsqlFunctionRegistry;
+ import org.elasticsearch.xpack.esql.index.EsIndex;
+@@ -217,6 +218,13 @@ protected LogicalPlan optimizedPlan(String query) {
+         return plan(query);
+     }
+ 
++    protected LogicalPlan optimizedPlan(String query, TransportVersion transportVersion) {
++        MutableAnalyzerContext mutableContext = (MutableAnalyzerContext) analyzer.context();
++        try (var restore = mutableContext.setTemporaryTransportVersionOnOrAfter(transportVersion)) {
++            return optimizedPlan(query);
++        }
++    }
++
+     protected LogicalPlan plan(String query) {
+         return plan(query, logicalOptimizer);
+     }
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/LogicalPlanOptimizerTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/LogicalPlanOptimizerTests.java
+index a7ab9979104c3..542180a1b85e6 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/LogicalPlanOptimizerTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/optimizer/LogicalPlanOptimizerTests.java
+@@ -78,6 +78,7 @@
+ import org.elasticsearch.xpack.esql.expression.function.scalar.multivalue.MvSum;
+ import org.elasticsearch.xpack.esql.expression.function.scalar.nulls.Coalesce;
+ import org.elasticsearch.xpack.esql.expression.function.scalar.string.Concat;
++import org.elasticsearch.xpack.esql.expression.function.scalar.string.regex.WildcardLike;
+ import org.elasticsearch.xpack.esql.expression.function.vector.Knn;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.And;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.Not;
+@@ -177,6 +178,7 @@
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.singleValue;
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.testAnalyzerContext;
+ import static org.elasticsearch.xpack.esql.EsqlTestUtils.withDefaultLimitWarning;
++import static org.elasticsearch.xpack.esql.analysis.Analyzer.ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION;
+ import static org.elasticsearch.xpack.esql.analysis.Analyzer.NO_FIELDS;
+ import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.analyze;
+ import static org.elasticsearch.xpack.esql.analysis.AnalyzerTestUtils.defaultAnalyzer;
+@@ -5405,6 +5407,82 @@ public void testPlanSanityCheckWithBinaryPlans() {
+         assertThat(e.getMessage(), containsString(" optimized incorrectly due to missing references from right hand side [language_code"));
+     }
+ 
++    /**
++     * Expected
++     * <pre>{@code
++     * Limit[1000[INTEGER],true]
++     * \_Join[LEFT,[languages{f}#8],[language_code{f}#16],languages{f}#8 == language_code{f}#16 AND language_name{f}#17 == English
++     * [KEYWORD]]
++     *   |_Limit[1000[INTEGER],false]
++     *   | \_EsRelation[test][_meta_field{f}#11, emp_no{f}#5, first_name{f}#6, ge..]
++     *   \_EsRelation[languages_lookup][LOOKUP][language_code{f}#16, language_name{f}#17]
++     * }</pre>
++     */
++    public void testLookupJoinRightFilter() {
++        assumeTrue("Requires LOOKUP JOIN", EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled());
++
++        var plan = optimizedPlan("""
++              FROM test
++            | LOOKUP JOIN languages_lookup ON languages == language_code and language_name == "English"
++            """, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION);
++
++        var upperLimit = asLimit(plan, 1000, true);
++        var join = as(upperLimit.child(), Join.class);
++        assertEquals("ON languages == language_code and language_name == \"English\"", join.config().joinOnConditions().toString());
++        var limitPastJoin = asLimit(join.left(), 1000, false);
++        as(limitPastJoin.child(), EsRelation.class);
++        as(join.right(), EsRelation.class);
++    }
++
++    public void testLookupJoinRightFilterMatch() {
++        assumeTrue("Requires LOOKUP JOIN", EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled());
++
++        var plan = optimizedPlan("""
++              FROM test
++            | LOOKUP JOIN languages_lookup ON languages == language_code and MATCH(language_name,"English")
++            """, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION);
++
++        var upperLimit = asLimit(plan, 1000, true);
++        var join = as(upperLimit.child(), Join.class);
++        assertEquals("ON languages == language_code and MATCH(language_name,\"English\")", join.config().joinOnConditions().toString());
++        var limitPastJoin = asLimit(join.left(), 1000, false);
++        as(limitPastJoin.child(), EsRelation.class);
++        as(join.right(), EsRelation.class);
++    }
++
++    /**
++     * Limit[1000[INTEGER],false]
++     * \_Filter[LIKE(language_name{f}#18, "French*", false)]
++     *   \_Join[LEFT,[languages{f}#9],[language_code{f}#17],languages{f}#9 == language_code{f}#17 AND MATCH(language_name{f}#18,
++     * English[KEYWORD])]
++     *     |_EsRelation[test][_meta_field{f}#12, emp_no{f}#6, first_name{f}#7, ge..]
++     *     \_Filter[LIKE(language_name{f}#18, "French*", false)]
++     *       \_EsRelation[languages_lookup][LOOKUP][language_code{f}#17, language_name{f}#18]
++     */
++    public void testLookupJoinRightFilterMatchWithWhereClause() {
++        assumeTrue("Requires LOOKUP JOIN", EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled());
++
++        var plan = optimizedPlan("""
++              FROM test
++            | LOOKUP JOIN languages_lookup ON languages == language_code and MATCH(language_name,"English")
++            | WHERE language_name LIKE "French*"
++            """, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION);
++
++        var upperLimit = asLimit(plan, 1000, false);
++        var topFilter = as(upperLimit.child(), Filter.class);
++        var join = as(topFilter.child(), Join.class);
++        assertEquals("ON languages == language_code and MATCH(language_name,\"English\")", join.config().joinOnConditions().toString());
++
++        // Check that the LIKE condition is pushed down as a right pre-join filter
++        var rightFilter = as(join.right(), Filter.class);
++        var likeCondition = as(rightFilter.condition(), WildcardLike.class);
++        var field = as(likeCondition.field(), FieldAttribute.class);
++        assertEquals("language_name", field.name());
++        assertEquals("French*", likeCondition.pattern().pattern());
++
++        as(rightFilter.child(), EsRelation.class);
++    }
++
+     // https://github.com/elastic/elasticsearch/issues/104995
+     public void testNoWrongIsNotNullPruning() {
+         var plan = optimizedPlan("""
+@@ -7332,6 +7410,91 @@ public void testLookupJoinPushDownSeparatedForConjunctionBetweenLeftAndRightFiel
+         var rightRel = as(rightFilter.child(), EsRelation.class);
+     }
+ 
++    /**
++     * Limit[1000[INTEGER],true]
++     * \_Join[LEFT,[emp_no{f}#5],[id{f}#16],emp_no{f}#5 == id{f}#16 AND SPATIALINTERSECTS([1 3 0 0 0 1 0 0 0 5 0 0 0 0 0 0 0 0
++     * 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 f0 3f 0 0 0 0 0 0 0 0 0 0 0 0 0 0 f0 3f 0 0 0 0 0 0 f0 3f 0 0 0 0 0 0 0 0 0 0 0 0 0 0
++     * f0 3f 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0][GEO_SHAPE],shape{f}#19)]
++     *   |_Limit[1000[INTEGER],false]
++     *   | \_EsRelation[test][_meta_field{f}#11, emp_no{f}#5, first_name{f}#6, ge..]
++     *   \_EsRelation[spatial_lookup][LOOKUP][contains{f}#18, id{f}#16, intersects{f}#17, shape{f..]
++     */
++    public void testLookupJoinRightFilterSpatialIntersects() {
++        assumeTrue("Requires LOOKUP JOIN", EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled());
++
++        var plan = optimizedPlan("""
++              FROM test
++            | LOOKUP JOIN spatial_lookup ON emp_no == id AND ST_INTERSECTS(TO_GEOSHAPE("POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"), shape)
++            """, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION);
++
++        var upperLimit = asLimit(plan, 1000, true);
++        var join = as(upperLimit.child(), Join.class);
++        assertEquals(
++            "ON emp_no == id AND ST_INTERSECTS(TO_GEOSHAPE(\"POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))\"), shape)",
++            join.config().joinOnConditions().toString()
++        );
++        var limitPastJoin = asLimit(join.left(), 1000, false);
++        as(limitPastJoin.child(), EsRelation.class);
++        as(join.right(), EsRelation.class);
++    }
++
++    /**
++     * Limit[1000[INTEGER],true]
++     * \_Join[LEFT,[emp_no{f}#5],[id{f}#16],emp_no{f}#5 == id{f}#16 AND SPATIALINTERSECTS([1 3 0 0 0 1 0 0 0 5 0 0 0 0 0 0 0 0
++     * 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 f0 3f 0 0 0 0 0 0 0 0 0 0 0 0 0 0 f0 3f 0 0 0 0 0 0 f0 3f 0 0 0 0 0 0 0 0 0 0 0 0 0 0
++     * f0 3f 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0][GEO_SHAPE],shape{f}#19)]
++     *   |_Limit[1000[INTEGER],false]
++     *   | \_EsRelation[test][_meta_field{f}#11, emp_no{f}#5, first_name{f}#6, ge..]
++     *   \_EsRelation[spatial_lookup][LOOKUP][contains{f}#18, id{f}#16, intersects{f}#17, shape{f..]
++     */
++    public void testLookupJoinRightFilterSpatialWithin() {
++        assumeTrue("Requires LOOKUP JOIN", EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled());
++
++        var plan = optimizedPlan("""
++              FROM test
++            | LOOKUP JOIN spatial_lookup ON emp_no == id AND ST_WITHIN(shape, TO_GEOSHAPE("POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))"))
++            """, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION);
++
++        var upperLimit = asLimit(plan, 1000, true);
++        var join = as(upperLimit.child(), Join.class);
++        assertEquals(
++            "ON emp_no == id AND ST_WITHIN(shape, TO_GEOSHAPE(\"POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))\"))",
++            join.config().joinOnConditions().toString()
++        );
++        var limitPastJoin = asLimit(join.left(), 1000, false);
++        as(limitPastJoin.child(), EsRelation.class);
++        as(join.right(), EsRelation.class);
++    }
++
++    /**
++     * Limit[1000[INTEGER],true]
++     * \_Join[LEFT,[emp_no{f}#5],[id{f}#16],emp_no{f}#5 == id{f}#16 AND SPATIALCONTAINS(shape{f}#19,[1 3 0 0 0 1 0 0 0 5 0 0 0
++     * 0 0 0 0 0 0 e0 3f 0 0 0 0 0 0 e0 3f 0 0 0 0 0 0 f8 3f 0 0 0 0 0 0 e0 3f 0 0 0 0 0 0 f8 3f 0 0 0 0 0 0 f8 3f 0 0 0 0 0 0
++     * e0 3f 0 0 0 0 0 0 f8 3f 0 0 0 0 0 0 e0 3f 0 0 0 0 0 0 e0 3f][GEO_SHAPE])]
++     *   |_Limit[1000[INTEGER],false]
++     *   | \_EsRelation[test][_meta_field{f}#11, emp_no{f}#5, first_name{f}#6, ge..]
++     *   \_EsRelation[spatial_lookup][LOOKUP][contains{f}#18, id{f}#16, intersects{f}#17, shape{f..]
++     */
++    public void testLookupJoinRightFilterSpatialContains() {
++        assumeTrue("Requires LOOKUP JOIN", EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled());
++
++        var plan = optimizedPlan("""
++              FROM test
++            | LOOKUP JOIN spatial_lookup
++            ON emp_no == id AND ST_CONTAINS(shape, TO_GEOSHAPE("POLYGON((0.5 0.5, 1.5 0.5, 1.5 1.5, 0.5 1.5, 0.5 0.5))"))
++            """, ESQL_LOOKUP_JOIN_FULL_TEXT_FUNCTION);
++
++        var upperLimit = asLimit(plan, 1000, true);
++        var join = as(upperLimit.child(), Join.class);
++        assertEquals(
++            "ON emp_no == id AND ST_CONTAINS(shape, TO_GEOSHAPE(\"POLYGON((0.5 0.5, 1.5 0.5, 1.5 1.5, 0.5 1.5, 0.5 0.5))\"))",
++            join.config().joinOnConditions().toString()
++        );
++        var limitPastJoin = asLimit(join.left(), 1000, false);
++        as(limitPastJoin.child(), EsRelation.class);
++        as(join.right(), EsRelation.class);
++    }
++
+     /**
+      * Disjunctions however keep the filter in place, even on pushable fields
+      * <p>
+diff --git a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java
+index ffe6c102ed516..b61856ab5333e 100644
+--- a/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java
++++ b/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/parser/StatementParserTests.java
+@@ -35,6 +35,7 @@
+ import org.elasticsearch.xpack.esql.expression.function.scalar.string.regex.RLike;
+ import org.elasticsearch.xpack.esql.expression.function.scalar.string.regex.WildcardLike;
+ import org.elasticsearch.xpack.esql.expression.predicate.Predicates;
++import org.elasticsearch.xpack.esql.expression.predicate.logical.And;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.Not;
+ import org.elasticsearch.xpack.esql.expression.predicate.logical.Or;
+ import org.elasticsearch.xpack.esql.expression.predicate.operator.arithmetic.Add;
+@@ -116,6 +117,13 @@
+ import static org.hamcrest.Matchers.startsWith;
+ 
+ //@TestLogging(value = "org.elasticsearch.xpack.esql:TRACE", reason = "debug")
++
++/**
++ * Only parses a plan and builds an AST/Logical Plan for it.
++ * Analysis is not run, so the plan will contain unresolved references.
++ * Use this class to test cases where we throw a Parsing exception
++ * especially if it is throw before we get to the Analysis phase
++ */
+ public class StatementParserTests extends AbstractStatementParserTests {
+ 
+     private static final LogicalPlan PROCESSING_CMD_INPUT = new Row(EMPTY, List.of(new Alias(EMPTY, "a", integer(1))));
+@@ -3540,6 +3548,28 @@ public void testInvalidLookupJoinOnClause() {
+             "JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found"
+         );
+ 
++        expectError(
++            "FROM test  | LOOKUP JOIN test2 ON "
++                + singleExpressionJoinClause()
++                + " AND ("
++                + randomIdentifier()
++                + " OR "
++                + singleExpressionJoinClause()
++                + ")",
++            "JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found"
++        );
++
++        expectError(
++            "FROM test  | LOOKUP JOIN test2 ON "
++                + singleExpressionJoinClause()
++                + " AND ("
++                + randomIdentifier()
++                + "OR"
++                + randomIdentifier()
++                + ")",
++            "JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found"
++        );
++
+         expectError(
+             "FROM test  | LOOKUP JOIN test2 ON " + randomIdentifier() + " AND " + randomIdentifier(),
+             "JOIN ON clause only supports fields or AND of Binary Expressions at the moment, found"
+@@ -3703,6 +3733,78 @@ private void testInvalidJoinPatterns(String onClause) {
+         }
+     }
+ 
++    public void testLookupJoinOnExpressionWithNamedQueryParameters() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++
++        // Test LOOKUP JOIN ON expression with named query parameters and MATCH function
++        var plan = statement(
++            "FROM test | LOOKUP JOIN test2 ON left_field >= right_field AND match(left_field, ?search_term)",
++            new QueryParams(List.of(paramAsConstant("search_term", "elasticsearch")))
++        );
++
++        var join = as(plan, LookupJoin.class);
++        assertThat(as(join.left(), UnresolvedRelation.class).indexPattern().indexPattern(), equalTo("test"));
++        assertThat(as(join.right(), UnresolvedRelation.class).indexPattern().indexPattern(), equalTo("test2"));
++
++        // Verify the join condition contains both the comparison and MATCH function
++        var condition = join.config().joinOnConditions();
++        assertThat(condition, instanceOf(And.class));
++        var andCondition = (And) condition;
++
++        // Check that we have both conditions in the correct order
++        assertThat(andCondition.children().size(), equalTo(2));
++
++        // First child should be a binary comparison (left_field >= right_field)
++        var firstChild = andCondition.children().get(0);
++        assertThat("First condition should be binary comparison", firstChild, instanceOf(EsqlBinaryComparison.class));
++
++        // Second child should be a MATCH function (match(left_field, ?search_term))
++        var secondChild = andCondition.children().get(1);
++        assertThat("Second condition should be UnresolvedFunction", secondChild, instanceOf(UnresolvedFunction.class));
++        var function = (UnresolvedFunction) secondChild;
++        assertThat("Second condition should be MATCH function", function.name(), equalTo("match"));
++    }
++
++    public void testLookupJoinOnExpressionWithPositionalQueryParameters() {
++        assumeTrue(
++            "requires LOOKUP JOIN ON boolean expression capability",
++            EsqlCapabilities.Cap.LOOKUP_JOIN_WITH_FULL_TEXT_FUNCTION.isEnabled()
++        );
++
++        // Test LOOKUP JOIN ON expression with positional query parameters and MATCH function
++        var plan = statement(
++            "FROM test | LOOKUP JOIN test2 ON left_field >= right_field AND match(left_field, ?2)",
++            new QueryParams(List.of(paramAsConstant(null, "dummy"), paramAsConstant(null, "elasticsearch")))
++        );
++
++        var join = as(plan, LookupJoin.class);
++        assertThat(as(join.left(), UnresolvedRelation.class).indexPattern().indexPattern(), equalTo("test"));
++        assertThat(as(join.right(), UnresolvedRelation.class).indexPattern().indexPattern(), equalTo("test2"));
++
++        // Verify the join condition contains both the comparison and MATCH function
++        var condition = join.config().joinOnConditions();
++        assertThat(condition, instanceOf(And.class));
++        var andCondition = (And) condition;
++
++        // Check that we have both conditions in the correct order
++        assertThat(andCondition.children().size(), equalTo(2));
++
++        // First child should be a binary comparison (left_field >= right_field)
++        var firstChild = andCondition.children().get(0);
++        assertThat("First condition should be binary comparison", firstChild, instanceOf(EsqlBinaryComparison.class));
++
++        // Second child should be a MATCH function (match(left_field, ?))
++        var secondChild = andCondition.children().get(1);
++        assertThat("Second condition should be UnresolvedFunction", secondChild, instanceOf(UnresolvedFunction.class));
++        var function = (UnresolvedFunction) secondChild;
++        assertThat("Second condition should be MATCH function", function.name(), equalTo("match"));
++        assertEquals(2, function.children().size());
++        assertEquals("elasticsearch", function.children().get(1).toString());
++    }
++
+     public void testInvalidInsistAsterisk() {
+         assumeTrue("requires snapshot build", Build.current().isSnapshot());
+         expectError("FROM text | EVAL x = 4 | INSIST_🐔 *", "INSIST doesn't support wildcards, found [*]");
+@@ -5080,7 +5182,7 @@ public void testMixedSingleDoubleParams() {
+                     expectError(
+                         LoggerMessageFormat.format(null, "from test | " + command, param1, param2, param3),
+                         List.of(paramAsConstant("f1", "f1"), paramAsConstant("f2", "f2"), paramAsConstant("f3", "f3")),
+-                        "JOIN ON clause only supports fields or AND of Binary Expressions at the moment"
++                        "JOIN ON clause must be a comma separated list of fields or a single expression, found"
+                     );
+ 
+                 }

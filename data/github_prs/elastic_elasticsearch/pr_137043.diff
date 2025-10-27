@@ -1,0 +1,374 @@
+diff --git a/docs/changelog/136881.yaml b/docs/changelog/136881.yaml
+new file mode 100644
+index 0000000000000..6ec0c0f410a22
+--- /dev/null
++++ b/docs/changelog/136881.yaml
+@@ -0,0 +1,5 @@
++pr: 136881
++summary: Disallow `max_inner_product`, swap `dot_product` for `cosine` for int8_hnsw GPU type
++area: Search
++type: bug
++issues: []
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java b/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java
+index 8f92f1d0628ba..756e129c449e3 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldMapper.java
+@@ -2267,6 +2267,10 @@ public DenseVectorFieldType(
+             this.isSyntheticSource = isSyntheticSource;
+         }
+ 
++        public VectorSimilarity similarity() {
++            return similarity;
++        }
++
+         @Override
+         public String typeName() {
+             return CONTENT_TYPE;
+@@ -2863,7 +2867,7 @@ public KnnVectorsFormat getKnnVectorsFormatForField(KnnVectorsFormat defaultForm
+             // if plugins provided alternative KnnVectorsFormat for this indexOptions, use it instead of standard
+             KnnVectorsFormat extraKnnFormat = null;
+             for (VectorsFormatProvider vectorsFormatProvider : extraVectorsFormatProviders) {
+-                extraKnnFormat = vectorsFormatProvider.getKnnVectorsFormat(indexSettings, indexOptions);
++                extraKnnFormat = vectorsFormatProvider.getKnnVectorsFormat(indexSettings, indexOptions, fieldType().similarity());
+                 if (extraKnnFormat != null) {
+                     break;
+                 }
+diff --git a/server/src/main/java/org/elasticsearch/index/mapper/vectors/VectorsFormatProvider.java b/server/src/main/java/org/elasticsearch/index/mapper/vectors/VectorsFormatProvider.java
+index 4bc338e6680ec..7629b1032b98c 100644
+--- a/server/src/main/java/org/elasticsearch/index/mapper/vectors/VectorsFormatProvider.java
++++ b/server/src/main/java/org/elasticsearch/index/mapper/vectors/VectorsFormatProvider.java
+@@ -24,7 +24,12 @@ public interface VectorsFormatProvider {
+      *
+      * @param indexSettings The index settings.
+      * @param indexOptions The dense vector index options.
++     * @param similarity The vector similarity function.
+      * @return A KnnVectorsFormat instance.
+      */
+-    KnnVectorsFormat getKnnVectorsFormat(IndexSettings indexSettings, DenseVectorFieldMapper.DenseVectorIndexOptions indexOptions);
++    KnnVectorsFormat getKnnVectorsFormat(
++        IndexSettings indexSettings,
++        DenseVectorFieldMapper.DenseVectorIndexOptions indexOptions,
++        DenseVectorFieldMapper.VectorSimilarity similarity
++    );
+ }
+diff --git a/server/src/test/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldTypeTests.java b/server/src/test/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldTypeTests.java
+index 75d7e8609bf56..211fe73bc134b 100644
+--- a/server/src/test/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldTypeTests.java
++++ b/server/src/test/java/org/elasticsearch/index/mapper/vectors/DenseVectorFieldTypeTests.java
+@@ -96,6 +96,15 @@ public static DenseVectorFieldMapper.DenseVectorIndexOptions randomGpuSupportedI
+         );
+     }
+ 
++    public static DenseVectorFieldMapper.VectorSimilarity randomGPUSupportedSimilarity(
++        DenseVectorFieldMapper.VectorIndexType vectorIndexType
++    ) {
++        if (vectorIndexType == DenseVectorFieldMapper.VectorIndexType.INT8_HNSW) {
++            return randomFrom(VectorSimilarity.L2_NORM, VectorSimilarity.COSINE, VectorSimilarity.DOT_PRODUCT);
++        }
++        return randomFrom(VectorSimilarity.values());
++    }
++
+     public static DenseVectorFieldMapper.DenseVectorIndexOptions randomIndexOptionsAll() {
+         List<DenseVectorFieldMapper.DenseVectorIndexOptions> options = new ArrayList<>(
+             Arrays.asList(
+diff --git a/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUIndexIT.java b/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUIndexIT.java
+index b00d8d83143a9..92d91c7db22c5 100644
+--- a/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUIndexIT.java
++++ b/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUIndexIT.java
+@@ -27,6 +27,7 @@
+ import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertAcked;
+ import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertNoFailures;
+ import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertNoFailuresAndResponse;
++import static org.hamcrest.Matchers.containsString;
+ 
+ @LuceneTestCase.SuppressCodecs("*") // use our custom codec
+ public class GPUIndexIT extends ESIntegTestCase {
+@@ -160,6 +161,44 @@ public void testSearchWithoutGPU() {
+         assertSearch(indexName, randomFloatVector(dims), numDocs);
+     }
+ 
++    public void testInt8HnswMaxInnerProductProductFails() {
++        String indexName = "index_int8_max_inner_product_fails";
++        final int dims = randomIntBetween(4, 128);
++
++        Settings.Builder settingsBuilder = Settings.builder().put(indexSettings());
++        settingsBuilder.put("index.number_of_shards", 1);
++        settingsBuilder.put("index.vectors.indexing.use_gpu", true);
++
++        String mapping = String.format(Locale.ROOT, """
++            {
++              "properties": {
++                "my_vector": {
++                  "type": "dense_vector",
++                  "dims": %d,
++                  "similarity": "max_inner_product",
++                  "index_options": {
++                    "type": "int8_hnsw"
++                  }
++                }
++              }
++            }
++            """, dims);
++
++        // Index creation should succeed
++        assertAcked(prepareCreate(indexName).setSettings(settingsBuilder.build()).setMapping(mapping));
++        ensureGreen();
++
++        // Attempt to index a document and expect it to fail
++        IllegalArgumentException ex = expectThrows(
++            IllegalArgumentException.class,
++            () -> client().prepareIndex(indexName).setId("1").setSource("my_vector", randomFloatVector(dims)).get()
++        );
++        assertThat(
++            ex.getMessage(),
++            containsString("GPU vector indexing does not support [max_inner_product] similarity for [int8_hnsw] index type.")
++        );
++    }
++
+     private void createIndex(String indexName, int dims, boolean sorted) {
+         var settings = Settings.builder().put(indexSettings());
+         settings.put("index.number_of_shards", 1);
+diff --git a/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUPluginInitializationIT.java b/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUPluginInitializationIT.java
+index 65d8daf14d31e..29645f566a8e6 100644
+--- a/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUPluginInitializationIT.java
++++ b/x-pack/plugin/gpu/src/internalClusterTest/java/org/elasticsearch/plugin/gpu/GPUPluginInitializationIT.java
+@@ -109,7 +109,7 @@ public void testFFOff() {
+         GPUPlugin gpuPlugin = internalCluster().getInstance(GPUPlugin.class);
+         VectorsFormatProvider vectorsFormatProvider = gpuPlugin.getVectorsFormatProvider();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(null, null);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(null, null, null);
+         assertNull(format);
+     }
+ 
+@@ -136,7 +136,11 @@ public void testFFOffGPUFormatNull() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(
++            settings,
++            indexOptions,
++            DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++        );
+         assertNull(format);
+     }
+ 
+@@ -151,7 +155,11 @@ public void testIndexSettingOnIndexTypeSupportedGPUSupported() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(
++            settings,
++            indexOptions,
++            DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++        );
+         assertNotNull(format);
+     }
+ 
+@@ -166,7 +174,14 @@ public void testIndexSettingOnIndexTypeNotSupportedThrows() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomFlatIndexOptions();
+ 
+-        var ex = expectThrows(IllegalArgumentException.class, () -> vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions));
++        var ex = expectThrows(
++            IllegalArgumentException.class,
++            () -> vectorsFormatProvider.getKnnVectorsFormat(
++                settings,
++                indexOptions,
++                DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++            )
++        );
+         assertThat(ex.getMessage(), startsWith("[index.vectors.indexing.use_gpu] doesn't support [index_options.type] of"));
+     }
+ 
+@@ -181,7 +196,14 @@ public void testIndexSettingOnGPUNotSupportedThrows() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var ex = expectThrows(IllegalArgumentException.class, () -> vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions));
++        var ex = expectThrows(
++            IllegalArgumentException.class,
++            () -> vectorsFormatProvider.getKnnVectorsFormat(
++                settings,
++                indexOptions,
++                DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++            )
++        );
+         assertThat(
+             ex.getMessage(),
+             equalTo("[index.vectors.indexing.use_gpu] was set to [true], but GPU resources are not accessible on the node.")
+@@ -200,7 +222,14 @@ public void testIndexSettingOnGPUSupportThrowsRethrows() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var ex = expectThrows(IllegalArgumentException.class, () -> vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions));
++        var ex = expectThrows(
++            IllegalArgumentException.class,
++            () -> vectorsFormatProvider.getKnnVectorsFormat(
++                settings,
++                indexOptions,
++                DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++            )
++        );
+         assertThat(
+             ex.getMessage(),
+             equalTo("[index.vectors.indexing.use_gpu] was set to [true], but GPU resources are not accessible on the node.")
+@@ -218,7 +247,11 @@ public void testIndexSettingAutoIndexTypeSupportedGPUSupported() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(
++            settings,
++            indexOptions,
++            DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++        );
+         assertNotNull(format);
+     }
+ 
+@@ -233,7 +266,11 @@ public void testIndexSettingAutoGPUNotSupported() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(
++            settings,
++            indexOptions,
++            DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++        );
+         assertNull(format);
+     }
+ 
+@@ -248,7 +285,11 @@ public void testIndexSettingAutoIndexTypeNotSupported() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomFlatIndexOptions();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(
++            settings,
++            indexOptions,
++            DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++        );
+         assertNull(format);
+     }
+ 
+@@ -263,7 +304,11 @@ public void testIndexSettingOff() {
+         IndexSettings settings = getIndexSettings();
+         final var indexOptions = DenseVectorFieldTypeTests.randomGpuSupportedIndexOptions();
+ 
+-        var format = vectorsFormatProvider.getKnnVectorsFormat(settings, indexOptions);
++        var format = vectorsFormatProvider.getKnnVectorsFormat(
++            settings,
++            indexOptions,
++            DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(indexOptions.getType())
++        );
+         assertNull(format);
+     }
+ 
+diff --git a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java
+index 62190bc0fb752..5fe7746755c9e 100644
+--- a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java
++++ b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/GPUPlugin.java
+@@ -60,7 +60,7 @@ public List<Setting<?>> getSettings() {
+ 
+     @Override
+     public VectorsFormatProvider getVectorsFormatProvider() {
+-        return (indexSettings, indexOptions) -> {
++        return (indexSettings, indexOptions, similarity) -> {
+             if (GPU_FORMAT.isEnabled()) {
+                 GpuMode gpuMode = indexSettings.getValue(VECTORS_INDEXING_USE_GPU_SETTING);
+                 if (gpuMode == GpuMode.TRUE) {
+@@ -74,10 +74,10 @@ public VectorsFormatProvider getVectorsFormatProvider() {
+                             "[index.vectors.indexing.use_gpu] was set to [true], but GPU resources are not accessible on the node."
+                         );
+                     }
+-                    return getVectorsFormat(indexOptions);
++                    return getVectorsFormat(indexOptions, similarity);
+                 }
+                 if (gpuMode == GpuMode.AUTO && vectorIndexTypeSupported(indexOptions.getType()) && GPUSupport.isSupported(false)) {
+-                    return getVectorsFormat(indexOptions);
++                    return getVectorsFormat(indexOptions, similarity);
+                 }
+             }
+             return null;
+@@ -88,7 +88,10 @@ private boolean vectorIndexTypeSupported(DenseVectorFieldMapper.VectorIndexType
+         return type == DenseVectorFieldMapper.VectorIndexType.HNSW || type == DenseVectorFieldMapper.VectorIndexType.INT8_HNSW;
+     }
+ 
+-    private static KnnVectorsFormat getVectorsFormat(DenseVectorFieldMapper.DenseVectorIndexOptions indexOptions) {
++    private static KnnVectorsFormat getVectorsFormat(
++        DenseVectorFieldMapper.DenseVectorIndexOptions indexOptions,
++        DenseVectorFieldMapper.VectorSimilarity similarity
++    ) {
+         if (indexOptions.getType() == DenseVectorFieldMapper.VectorIndexType.HNSW) {
+             DenseVectorFieldMapper.HnswIndexOptions hnswIndexOptions = (DenseVectorFieldMapper.HnswIndexOptions) indexOptions;
+             int efConstruction = hnswIndexOptions.efConstruction();
+@@ -97,6 +100,17 @@ private static KnnVectorsFormat getVectorsFormat(DenseVectorFieldMapper.DenseVec
+             }
+             return new ES92GpuHnswVectorsFormat(hnswIndexOptions.m(), efConstruction);
+         } else if (indexOptions.getType() == DenseVectorFieldMapper.VectorIndexType.INT8_HNSW) {
++            if (similarity == DenseVectorFieldMapper.VectorSimilarity.MAX_INNER_PRODUCT) {
++                throw new IllegalArgumentException(
++                    "GPU vector indexing does not support ["
++                        + similarity
++                        + "] similarity for [int8_hnsw] index type. "
++                        + "Instead, consider using ["
++                        + DenseVectorFieldMapper.VectorSimilarity.COSINE
++                        + "] or "
++                        + " [hnsw] index type."
++                );
++            }
+             DenseVectorFieldMapper.Int8HnswIndexOptions int8HnswIndexOptions = (DenseVectorFieldMapper.Int8HnswIndexOptions) indexOptions;
+             int efConstruction = int8HnswIndexOptions.efConstruction();
+             if (efConstruction == HnswGraphBuilder.DEFAULT_BEAM_WIDTH) {
+diff --git a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java
+index 6702547314f2d..6cccda6333f2b 100644
+--- a/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java
++++ b/x-pack/plugin/gpu/src/main/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswVectorsWriter.java
+@@ -313,9 +313,18 @@ private CagraIndex buildGPUIndex(
+         CuVSMatrix dataset
+     ) throws Throwable {
+         CagraIndexParams.CuvsDistanceType distanceType = switch (similarityFunction) {
+-            case EUCLIDEAN -> CagraIndexParams.CuvsDistanceType.L2Expanded;
+-            case DOT_PRODUCT, MAXIMUM_INNER_PRODUCT -> CagraIndexParams.CuvsDistanceType.InnerProduct;
+             case COSINE -> CagraIndexParams.CuvsDistanceType.CosineExpanded;
++            case EUCLIDEAN -> CagraIndexParams.CuvsDistanceType.L2Expanded;
++            case DOT_PRODUCT -> {
++                if (dataType == CuVSMatrix.DataType.BYTE) {
++                    yield CagraIndexParams.CuvsDistanceType.CosineExpanded;
++                }
++                yield CagraIndexParams.CuvsDistanceType.InnerProduct;
++            }
++            case MAXIMUM_INNER_PRODUCT -> {
++                assert dataType != CuVSMatrix.DataType.BYTE;
++                yield CagraIndexParams.CuvsDistanceType.InnerProduct;
++            }
+         };
+ 
+         // TODO: expose cagra index params for algorithm, NNDescentNumIterations
+diff --git a/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswSQVectorsFormatTests.java b/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswSQVectorsFormatTests.java
+index f1c13b15795c5..798cb726427ce 100644
+--- a/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswSQVectorsFormatTests.java
++++ b/x-pack/plugin/gpu/src/test/java/org/elasticsearch/xpack/gpu/codec/ES92GpuHnswSQVectorsFormatTests.java
+@@ -13,6 +13,9 @@
+ import org.apache.lucene.tests.util.LuceneTestCase;
+ import org.apache.lucene.tests.util.TestUtil;
+ import org.elasticsearch.common.logging.LogConfigurator;
++import org.elasticsearch.index.IndexVersion;
++import org.elasticsearch.index.mapper.vectors.DenseVectorFieldMapper;
++import org.elasticsearch.index.mapper.vectors.DenseVectorFieldTypeTests;
+ import org.elasticsearch.xpack.gpu.GPUSupport;
+ import org.junit.BeforeClass;
+ 
+@@ -39,7 +42,8 @@ protected Codec getCodec() {
+ 
+     @Override
+     protected VectorSimilarityFunction randomSimilarity() {
+-        return VectorSimilarityFunction.values()[random().nextInt(VectorSimilarityFunction.values().length)];
++        return DenseVectorFieldTypeTests.randomGPUSupportedSimilarity(DenseVectorFieldMapper.VectorIndexType.INT8_HNSW)
++            .vectorSimilarityFunction(IndexVersion.current(), DenseVectorFieldMapper.ElementType.FLOAT);
+     }
+ 
+     @Override

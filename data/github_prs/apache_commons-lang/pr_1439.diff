@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/apache/commons/lang3/StringUtils.java b/src/main/java/org/apache/commons/lang3/StringUtils.java
+index 691724aefd9..1ef06f00b88 100644
+--- a/src/main/java/org/apache/commons/lang3/StringUtils.java
++++ b/src/main/java/org/apache/commons/lang3/StringUtils.java
+@@ -859,7 +859,7 @@ public static int compare(final String str1, final String str2, final boolean nu
+             return nullIsLess ? -1 : 1;
+         }
+         if (str2 == null) {
+-            return nullIsLess ? 1 : - 1;
++            return nullIsLess ? 1 : -1;
+         }
+         return str1.compareTo(str2);
+     }
