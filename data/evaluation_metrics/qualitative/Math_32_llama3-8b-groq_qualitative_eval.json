@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": \"1\",\n         \"description\": \"In method 'boxBoundary', the order of the lines in the array is not consistent. The lines should be in clockwise order.\",\n         \"type\": \"logic error\"\n      },\n      {\n         \"id\": \"2\",\n         \"description\": \"In method 'computeGeometricalProperties', the 'if (v.length == 0)' condition is not necessary. The 'getVertices' method should return an empty array if the polygons set is empty.\",\n         \"type\": \"logic error\"\n      },\n      {\n         \"id\": \"3\",\n         \"description\": \"The 'buildNew' method does not check if the input tree is null. It should throw an exception if the tree is null.\",\n         \"type\": \"null pointer exception\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.871131896972656,
+  "timestamp": "2025-12-02T05:14:48.990575",
+  "model_evaluated": "unknown"
+}

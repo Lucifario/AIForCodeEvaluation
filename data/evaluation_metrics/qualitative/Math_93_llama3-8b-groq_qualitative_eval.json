@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential Division by Zero\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.addAndCheck(long, long, String) does not check for division by zero in the case where a is zero.\"\n      },\n      {\n         \"type\": \"Potential Integer Overflow\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.addAndCheck(long, long, String) does not check for integer overflow in the case where the sum of a and b is greater than Long.MAX_VALUE.\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.addAndCheck(long, long, String) does not check for null input in the case where the input is a null long.\"\n      },\n      {\n         \"type\": \"Potential IllegalArgumentException\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.binomialCoefficient(int, int) does not check for n < 0.\"\n      },\n      {\n         \"type\": \"Potential IllegalArgumentException\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.binomialCoefficient(int, int) does not check for k < 0.\"\n      },\n      {\n         \"type\": \"Potential IllegalArgumentException\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.binomialCoefficient(int, int) does not check for k > n.\"\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"line\": 73,\n         \"description\": \"The method MathUtils.binomialCoefficient(int, int) does not check for the result being too large to be represented by a long integer.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.886831760406494,
+  "timestamp": "2025-12-02T05:23:08.604803",
+  "model_evaluated": "unknown"
+}

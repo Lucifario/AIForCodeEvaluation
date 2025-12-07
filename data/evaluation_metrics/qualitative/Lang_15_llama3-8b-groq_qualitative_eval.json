@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"The method isAssignable(Type, Type) is marked as public but should be private as per the JavaBean instance requirement.\",\n         \"line\": 43,\n         \"column\": 5\n      },\n      {\n         \"message\": \"The method isAssignable(Type, Class) is marked as private but should be public as it is being used in the isAssignable(Type, Type) method.\",\n         \"line\": 143,\n         \"column\": 5\n      },\n      {\n         \"message\": \"The method getRawType(ParameterizedType) is not defined in this class.\",\n         \"line\": 165,\n         \"column\": 21\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.90907120704651,
+  "timestamp": "2025-12-02T05:15:51.534627",
+  "model_evaluated": "unknown"
+}

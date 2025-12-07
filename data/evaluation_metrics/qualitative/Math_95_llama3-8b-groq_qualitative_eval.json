@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"The class FDistributionImpl extends AbstractContinuousDistribution but does not implement all the required methods. It is missing the implementation of the abstract method getSupportLowerBound().\",\n         \"severity\": \"MEDIUM\",\n         \"category\": \"Design\"\n      },\n      {\n         \"id\": 2,\n         \"description\": \"The method inverseCumulativeProbability() calls the abstract method super.inverseCumulativeProbability(p) which might throw a MathException. However, it does not handle this exception properly and returns Double.POSITIVE_INFINITY instead of re-throwing the exception.\",\n         \"severity\": \"LOW\",\n         \"category\": \"Error Handling\"\n      },\n      {\n         \"id\": 3,\n         \"description\": \"The method getInitialDomain(p) returns a value that is not necessarily the initial domain value for the inverse cumulative probability computation. It uses the mean of the denominator degrees of freedom, but this is not a valid initial domain value.\",\n         \"severity\": \"MEDIUM\",\n         \"category\": \"Logic\"\n      },\n      {\n         \"id\": 4,\n         \"description\": \"The class FDistributionImpl implements the Serializable interface but does not follow the standard naming convention for the serialVersionUID. It should be named 'serialVersionUID' instead of 'serialVersionUID'.\",\n         \"severity\": \"LOW\",\n         \"category\": \"Style\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.92039179801941,
+  "timestamp": "2025-12-02T05:24:11.327202",
+  "model_evaluated": "unknown"
+}

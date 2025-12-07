@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": \"1\",\n         \"description\": \"The class StringEscapeUtils is not final and can be subclassed, but the documentation states that instances should not be constructed in standard programming.\",\n         \"severity\": \"INFO\"\n      },\n      {\n         \"id\": \"2\",\n         \"description\": \"The escapeJavaStyleString method has a boolean parameter escapeForwardSlash which is not used anywhere in the method.\",\n         \"severity\": \"INFO\"\n      },\n      {\n         \"id\": \"3\",\n         \"description\": \"The escapeJava and escapeJavaScript methods are not thread-safe because they use a StringWriter which is not thread-safe.\",\n         \"severity\": \"WARNING\"\n      },\n      {\n         \"id\": \"4\",\n         \"description\": \"The escapeJava and escapeJavaScript methods do not handle the case where the input string is very large and the output string is much larger.\",\n         \"severity\": \"WARNING\"\n      },\n      {\n         \"id\": \"5\",\n         \"description\": \"The escapeJava and escapeJavaScript methods do not handle the case where the input string contains null characters.\",\n         \"severity\": \"WARNING\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.838835954666138,
+  "timestamp": "2025-12-02T05:23:47.754066",
+  "model_evaluated": "unknown"
+}

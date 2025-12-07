@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"Potential NullPointerException in init() method when pattern is null\",\n         \"severity\": \"Medium\",\n         \"location\": \"FastDateParser.java:83\"\n      },\n      {\n         \"id\": 2,\n         \"description\": \"Potential ClassCastException in init() method when timeZone is not a TimeZone object\",\n         \"severity\": \"High\",\n         \"location\": \"FastDateParser.java:85\"\n      },\n      {\n         \"id\": 3,\n         \"description\": \"Potential ClassCastException in init() method when locale is not a Locale object\",\n         \"severity\": \"High\",\n         \"location\": \"FastDateParser.java:86\"\n      },\n      {\n         \"id\": 4,\n         \"description\": \"Potential IndexOutOfBoundsException in init() method when pattern is empty\",\n         \"severity\": \"Low\",\n         \"location\": \"FastDateParser.java:93\"\n      },\n      {\n         \"id\": 5,\n         \"description\": \"Potential IllegalArgumentException in init() method when pattern is invalid\",\n         \"severity\": \"Medium\",\n         \"location\": \"FastDateParser.java:104\"\n      },\n      {\n         \"id\": 6,\n         \"description\": \"Potential NullPointerException in getStrategy() method when currentFormatField is null\",\n         \"severity\": \"Medium\",\n         \"location\": \"FastDateParser.java:133\"\n      },\n      {\n         \"id\": 7,\n         \"description\": \"Potential ClassCastException in getStrategy() method when currentFormatField is not a String\",\n         \"severity\": \"High\",\n         \"location\": \"FastDateParser.java:134\"\n      },\n      {\n         \"id\": 8,\n         \"description\": \"Potential NullPointerException in addRegex() method when regex is null\",\n         \"severity\": \"Medium\",\n         \"location\": \"FastDateParser.java:157\"\n      },\n      {\n         \"id\": 9,\n         \"description\": \"Potential IndexOutOfBoundsException in addRegex() method when regex is empty\",\n         \"severity\": \"Low\",\n         \"location\": \"FastDateParser.java:163\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.949907064437866,
+  "timestamp": "2025-12-02T05:19:59.888631",
+  "model_evaluated": "unknown"
+}

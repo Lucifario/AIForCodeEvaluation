@@ -1,0 +1,36 @@
+{
+  "original_review": "1.1",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is concise and mentions a specific issue (1.1), but it lacks detailed technical accuracy, concrete suggestions, and security considerations. It does not provide a deep analysis or constructive improvements, but it adheres to the guidelines by not commenting on style."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review simply states '1.1'. This provides absolutely no feedback on the code. It's not factually incorrect (as it doesn't *state* anything incorrect), but it's entirely unhelpful. There's no actionability, no analytical depth, no security consideration, and minimal constructiveness. Assuming the guidelines were to simply provide a score, it adheres to that. However, a useful review would contain *some* explanation."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.947205781936646,
+  "timestamp": "2025-12-02T04:57:01.915007",
+  "model_evaluated": "unknown"
+}

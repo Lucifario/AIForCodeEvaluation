@@ -1,0 +1,121 @@
+{
+  "total_repos_attempted": 36,
+  "total_repos_successful": 2,
+  "total_prs_found": 239,
+  "total_prs_collected": 239,
+  "total_prs_failed": 0,
+  "by_repo": {
+    "alibaba/fastjson": {
+      "total_found": 10,
+      "collected": 10,
+      "skipped": 15
+    },
+    "google/gson": {
+      "total_found": 229,
+      "collected": 229,
+      "skipped": 52
+    },
+    "FasterXML/jackson-databind": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C063:86F3EB:692E399D and timestamp 2025-12-02 00:58:05 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "google/protobuf": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C07D:86F414:692E399D and timestamp 2025-12-02 00:58:06 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "ecomfe/ecomfe-json-lib": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C094:86F435:692E399E and timestamp 2025-12-02 00:58:06 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "mockito/mockito": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0A5:86F45A:692E399F and timestamp 2025-12-02 00:58:07 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "junit-team/junit4": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0B8:86F480:692E399F and timestamp 2025-12-02 00:58:08 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "junit-team/junit5": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0D5:86F4AA:692E39A0 and timestamp 2025-12-02 00:58:08 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "powermock/powermock": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0F3:86F4DA:692E39A0 and timestamp 2025-12-02 00:58:09 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "easymock/easymock": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C110:86F505:692E39A1 and timestamp 2025-12-02 00:58:10 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "square/okhttp": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C12B:86F52D:692E39A2 and timestamp 2025-12-02 00:58:10 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "square/retrofit": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C13A:86F554:692E39A2 and timestamp 2025-12-02 00:58:11 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "Netflix/feign": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C152:86F573:692E39A3 and timestamp 2025-12-02 00:58:11 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/httpcomponents-client": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C15F:86F590:692E39A3 and timestamp 2025-12-02 00:58:12 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "AsyncHttpClient/async-http-client": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C16C:86F5A5:692E39A4 and timestamp 2025-12-02 00:58:12 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/commons-lang": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C176:86F5B4:692E39A4 and timestamp 2025-12-02 00:58:12 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/commons-collections": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C183:86F5CD:692E39A5 and timestamp 2025-12-02 00:58:13 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/commons-io": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C18F:86F5E4:692E39A5 and timestamp 2025-12-02 00:58:13 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/commons-math": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C19C:86F5FB:692E39A5 and timestamp 2025-12-02 00:58:13 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/commons-codec": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1BA:86F630:692E39A6 and timestamp 2025-12-02 00:58:14 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "spring-projects/spring-framework": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1DA:86F661:692E39A6 and timestamp 2025-12-02 00:58:15 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "spring-projects/spring-boot": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1EA:86F67B:692E39A7 and timestamp 2025-12-02 00:58:15 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "spring-projects/spring-security": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1FA:86F698:692E39A7 and timestamp 2025-12-02 00:58:16 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "google/guava": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C20C:86F6B7:692E39A8 and timestamp 2025-12-02 00:58:16 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "alibaba/arthas": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C225:86F6E0:692E39A8 and timestamp 2025-12-02 00:58:17 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "google/error-prone": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C235:86F6FB:692E39A9 and timestamp 2025-12-02 00:58:17 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "jd-com/jd-fastjson": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C24C:86F719:692E39A9 and timestamp 2025-12-02 00:58:18 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "Netflix/hystrix": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C259:86F72F:692E39AA and timestamp 2025-12-02 00:58:18 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "elastic/elasticsearch": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C267:86F744:692E39AA and timestamp 2025-12-02 00:58:18 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/lucene-solr": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C27B:86F769:692E39AA and timestamp 2025-12-02 00:58:19 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "mongodb/mongo-java-driver": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C28C:86F7A9:692E39AB and timestamp 2025-12-02 00:58:19 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/cassandra": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C29E:86F7C4:692E39AB and timestamp 2025-12-02 00:58:19 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "apache/maven": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2BA:86F7DB:692E39AB and timestamp 2025-12-02 00:58:20 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "gradle/gradle": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2CB:86F7FA:692E39AC and timestamp 2025-12-02 00:58:20 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "protostuff/protostuff": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2DD:86F815:692E39AC and timestamp 2025-12-02 00:58:20 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    },
+    "esotericsoftware/kryo": {
+      "error": "403 {\"message\": \"API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2EA:86F841:692E39AD and timestamp 2025-12-02 00:58:21 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)\", \"documentation_url\": \"https://docs.github.com/rest/overview/rate-limits-for-the-rest-api\", \"status\": \"403\"}"
+    }
+  }
+}

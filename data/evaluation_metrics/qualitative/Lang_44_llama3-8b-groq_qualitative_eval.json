@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"The class NumberUtils is deprecated and will be removed in Commons Lang 3.0.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils\"\n      },\n      {\n         \"message\": \"The constructor NumberUtils() is public, which is not necessary for a final class.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils\"\n      },\n      {\n         \"message\": \"The class NumberUtils is not thread-safe, as it uses static methods and no synchronization.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils\"\n      },\n      {\n         \"message\": \"The method stringToInt(String) is not thread-safe, as it uses a static method and no synchronization.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.stringToInt(String)\"\n      },\n      {\n         \"message\": \"The method stringToInt(String, int) is not thread-safe, as it uses a static method and no synchronization.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.stringToInt(String, int)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) is not thread-safe, as it uses a static method and no synchronization.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string is null.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string is empty.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string starts with '--'.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string starts with '0x' or '-0x'.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string contains a decimal point but no exponent.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string contains an exponent but no decimal point.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string contains a hexadecimal number.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      },\n      {\n         \"message\": \"The method createNumber(String) does not handle the case where the input string contains a binary number.\",\n         \"location\": \"org.apache.commons.lang.NumberUtils.createNumber(String)\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.89197611808777,
+  "timestamp": "2025-12-02T05:15:37.015584",
+  "model_evaluated": "unknown"
+}

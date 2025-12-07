@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"The constructor StrBuilder(int initialCapacity) does not check if the initial capacity is too small to hold the string \\\"null\\\" if nullText is set. This could lead to a StringIndexOutOfBoundsException.\",\n         \"category\": \"Potential Bug\"\n      },\n      {\n         \"id\": 2,\n         \"description\": \"The method append(String str) does not check if the string is null before calling str.length() on it. This could lead to a NullPointerException.\",\n         \"category\": \"Potential Bug\"\n      },\n      {\n         \"id\": 3,\n         \"description\": \"The method setNullText(String nullText) does not check if the nullText is null before setting it. This could lead to a NullPointerException.\",\n         \"category\": \"Potential Bug\"\n      },\n      {\n         \"id\": 4,\n         \"description\": \"The method setNullText(String nullText) does not check if the nullText is empty before setting it to null. This could lead to a NullPointerException.\",\n         \"category\": \"Potential Bug\"\n      },\n      {\n         \"id\": 5,\n         \"description\": \"The method length() does not check if the size is within the bounds of the buffer. This could lead to an ArrayIndexOutOfBoundsException.\",\n         \"category\": \"Potential Bug\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.91238021850586,
+  "timestamp": "2025-12-02T05:21:17.699612",
+  "model_evaluated": "unknown"
+}

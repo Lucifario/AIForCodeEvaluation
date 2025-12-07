@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"description\": \"The method `doOptimize()` is declared as `protected` but it's not overridden in any subclass. It should be declared as `private` or removed.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.doOptimize()\"\n      },\n      {\n         \"description\": \"The method `localMin()` is not thread-safe. It uses shared variables `a`, `b`, `x`, `v`, `w`, `d`, `e`, `fx`, `fv`, `fw` and `count` which can be modified by multiple threads.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.localMin()\"\n      },\n      {\n         \"description\": \"The method `localMin()` does not handle the case where `eps` or `t` is zero. It should throw a `NotStrictlyPositiveException` in this case.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.localMin()\"\n      },\n      {\n         \"description\": \"The method `localMin()` does not handle the case where `a` is equal to `b`. It should throw an exception in this case.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.localMin()\"\n      },\n      {\n         \"description\": \"The method `localMin()` does not handle the case where `a` is greater than `b`. It should swap `a` and `b` in this case.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.localMin()\"\n      },\n      {\n         \"description\": \"The method `localMin()` uses `maximalIterationCount` which is not declared as a field in the class. It should be declared as a field or removed.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.localMin()\"\n      },\n      {\n         \"description\": \"The method `localMin()` uses `computeObjectiveValue()` which is not declared as a method in the class. It should be declared as a method or removed.\",\n         \"location\": \"org.apache.commons.math.optimization.univariate.BrentOptimizer.localMin()\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.92898178100586,
+  "timestamp": "2025-12-02T05:24:16.698173",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"try {\\n    RealMatrixImpl jTj = new RealMatrixImpl(jTj);\\n    RealMatrix cov = jTj.inverse();\\n    return cov.getData();\\n} catch (InvalidMatrixException e) {\\n    throw new EstimationException(e.getMessage());\\n}\\n\"}, {\"code\": \"return null;\"} ]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review provides a concrete suggestion with ready-to-copy code, which is factually accurate and actionable. It offers a clear improvement by handling matrix inversion and potential exceptions. However, it lacks deep analytical insight into the root cause of potential issues and does not address security concerns. The review is constructive and adheres to the given constraints."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review provides code snippets to handle the `InvalidMatrixException` which is good practice. However, returning `null` in the second snippet is a very poor practice and will likely cause a `NullPointerException` downstream. It's better to re-throw the exception or handle it more gracefully. The analytical depth is low because it doesn't explore *why* the matrix might be invalid or suggest alternative approaches to avoid the exception in the first place. Security isn't addressed at all. The code is generally constructive, offering a solution to a potential problem, but the `null` return significantly detracts from that. Assuming no style guidelines were provided, adherence is perfect."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 19.561766147613525,
+  "timestamp": "2025-12-02T04:49:06.583388",
+  "model_evaluated": "unknown"
+}

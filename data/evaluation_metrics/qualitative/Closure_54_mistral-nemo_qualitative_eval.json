@@ -1,0 +1,20 @@
+{
+  "original_review": "[{\"name\": \"MULTIPLE_VAR_DEF\", \"message\": \"Multiple variable declarations are not allowed in a single statement.\"},\n{\"name\": \"ENUM_DUP\", \"message\": \"Duplicate enum value '{0}' found in enum '{1}'.\"},\n{\"name\": \"ENUM_NOT_CONSTANT\", \"message\": \"Enum value '{0}' in enum '{1}' is not a constant expression.\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.918359994888306,
+  "timestamp": "2025-12-02T05:24:06.528749",
+  "model_evaluated": "unknown"
+}

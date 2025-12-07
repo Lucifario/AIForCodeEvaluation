@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"description\": \"The method `inverseCumulativeProbability` does not handle the case where `p` is less than 0.\",\n         \"severity\": \"Error\"\n      },\n      {\n         \"description\": \"The method `inverseCumulativeProbability` does not handle the case where `p` is greater than 1.\",\n         \"severity\": \"Error\"\n      },\n      {\n         \"description\": \"The method `cumulativeProbability` catches `MaxIterationsExceededException` but does not rethrow it. This can lead to silent failures.\",\n         \"severity\": \"Warning\"\n      },\n      {\n         \"description\": \"The method `inverseCumulativeProbability` does not check if `p` is a valid probability before calling `Erf.erf`.\",\n         \"severity\": \"Warning\"\n      },\n      {\n         \"description\": \"The method `density` does not check if the input `x` is a valid value before calculating the density.\",\n         \"severity\": \"Warning\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.11302876472473,
+  "timestamp": "2025-12-02T05:22:10.268481",
+  "model_evaluated": "unknown"
+}

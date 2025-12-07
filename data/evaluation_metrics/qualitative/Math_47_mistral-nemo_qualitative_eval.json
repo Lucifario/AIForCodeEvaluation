@@ -1,0 +1,44 @@
+{
+  "original_review": "NaN",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review is a single word 'NaN' which does not provide any meaningful feedback. It fails on all criteria as it is not technically accurate, not actionable, lacks analytical depth, does not address security, is not constructive, and does not adhere to any guidelines."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review consists of a single word, \"NaN\". This provides no factual feedback, no actionable suggestions, no analytical depth, no security considerations, is not constructive, and doesn't adhere to any guidelines (as there are none specified beyond the implicit expectation of a review). It's essentially a null review."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 1,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 1,
+      "consensus_reasoning": "The review lacks meaningful feedback, failing to meet criteria for factual correctness, actionability, analytical depth, security awareness, constructiveness, and adherence to guidelines."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 1,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 1,\n   \"consensus_reasoning\": \"The review lacks meaningful feedback, failing to meet criteria for factual correctness, actionability, analytical depth, security awareness, constructiveness, and adherence to guidelines.\"\n}"
+  },
+  "duration_seconds": 10.926579236984253,
+  "timestamp": "2025-12-02T06:11:23.165587",
+  "model_evaluated": "unknown"
+}

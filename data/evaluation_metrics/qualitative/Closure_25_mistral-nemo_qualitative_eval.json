@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"name\": \"bugs\", \"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"message\": {\"type\": \"string\"}, \"code\": {\"type\": \"string\"}}}}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review provided is not a review but a JSON schema definition. It does not contain any feedback, suggestions, or analysis related to the code. Therefore, it scores low on all criteria."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review is just a JSON schema definition for a list of bugs. It doesn't contain any actual review comments or feedback on the code. Therefore, it scores 1 across all categories. It's not factually correct (as it's not a review), not actionable, lacks analytical depth, doesn't address security, isn't constructive, and doesn't adhere to any guidelines because there are none to adhere to *within the review itself*."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 19.463682174682617,
+  "timestamp": "2025-12-02T06:16:03.216437",
+  "model_evaluated": "unknown"
+}

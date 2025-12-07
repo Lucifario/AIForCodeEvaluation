@@ -1,0 +1,1699 @@
+[
+  {
+    "id": "Time_1",
+    "project": "Time",
+    "bug_id": 1,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_1b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.field.UnsupportedDurationField",
+          "org.joda.time.Partial"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPartial_Constructors::testConstructorEx7_TypeArray_intArray"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestPartial_Constructors::testConstructorEx7_TypeArray_intArray\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_1f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.field.UnsupportedDurationField",
+          "org.joda.time.Partial"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPartial_Constructors::testConstructorEx7_TypeArray_intArray"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_1",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.joda.time.field.UnsupportedDurationField",
+        "org.joda.time.Partial"
+      ]
+    },
+    "processed_at": "2025-12-01T08:57:12.779215",
+    "language": "java"
+  },
+  {
+    "id": "Time_2",
+    "project": "Time",
+    "bug_id": 2,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_2b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.field.UnsupportedDurationField",
+          "org.joda.time.Partial"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPartial_Basics::testWith_baseAndArgHaveNoRange"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestPartial_Basics::testWith_baseAndArgHaveNoRange\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_2f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.field.UnsupportedDurationField",
+          "org.joda.time.Partial"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPartial_Basics::testWith_baseAndArgHaveNoRange"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_2",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.joda.time.field.UnsupportedDurationField",
+        "org.joda.time.Partial"
+      ]
+    },
+    "processed_at": "2025-12-01T08:57:43.144670",
+    "language": "java"
+  },
+  {
+    "id": "Time_3",
+    "project": "Time",
+    "bug_id": 3,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_3b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.MutableDateTime"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestMutableDateTime_Adds::testAddYears_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAddDays_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAddWeeks_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAdd_DurationFieldType_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAddMonths_int_dstOverlapWinter_addZero"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 5\n  - org.joda.time.TestMutableDateTime_Adds::testAddYears_int_dstOverlapWinter_addZero\n  - org.joda.time.TestMutableDateTime_Adds::testAddDays_int_dstOverlapWinter_addZero\n  - org.joda.time.TestMutableDateTime_Adds::testAddWeeks_int_dstOverlapWinter_addZero\n  - org.joda.time.TestMutableDateTime_Adds::testAdd_DurationFieldType_int_dstOverlapWinter_addZero\n  - org.joda.time.TestMutableDateTime_Adds::testAddMonths_int_dstOverlapWinter_addZero\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_3f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.MutableDateTime"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestMutableDateTime_Adds::testAddYears_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAddDays_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAddWeeks_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAdd_DurationFieldType_int_dstOverlapWinter_addZero",
+          "org.joda.time.TestMutableDateTime_Adds::testAddMonths_int_dstOverlapWinter_addZero"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_3",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.MutableDateTime"
+      ]
+    },
+    "processed_at": "2025-12-01T08:58:14.496423",
+    "language": "java"
+  },
+  {
+    "id": "Time_4",
+    "project": "Time",
+    "bug_id": 4,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_4b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.Partial"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPartial_Basics::testWith3"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestPartial_Basics::testWith3\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_4f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.Partial"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPartial_Basics::testWith3"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_4",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.Partial"
+      ]
+    },
+    "processed_at": "2025-12-01T08:58:45.061324",
+    "language": "java"
+  },
+  {
+    "id": "Time_5",
+    "project": "Time",
+    "bug_id": 5,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_5b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.Period"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_months1",
+          "org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_months2",
+          "org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_monthsWeeks"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 3\n  - org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_months1\n  - org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_months2\n  - org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_monthsWeeks\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_5f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.Period"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_months1",
+          "org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_months2",
+          "org.joda.time.TestPeriod_Basics::testNormalizedStandard_periodType_monthsWeeks"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_5",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.Period"
+      ]
+    },
+    "processed_at": "2025-12-01T08:59:16.120665",
+    "language": "java"
+  },
+  {
+    "id": "Time_6",
+    "project": "Time",
+    "bug_id": 6,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_6b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.GJChronology"
+        ],
+        "tests.trigger": [
+          "org.joda.time.chrono.TestGJDate::test_cutoverPreZero",
+          "org.joda.time.chrono.TestGJDate::test_plusWeekyears_positiveToNegative_crossCutover",
+          "org.joda.time.chrono.TestGJDate::test_plusYears_positiveToZero_crossCutover",
+          "org.joda.time.chrono.TestGJDate::test_plusYears_positiveToNegative_crossCutover",
+          "org.joda.time.chrono.TestGJDate::test_plusWeekyears_positiveToZero_crossCutover"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 5\n  - org.joda.time.chrono.TestGJDate::test_cutoverPreZero\n  - org.joda.time.chrono.TestGJDate::test_plusWeekyears_positiveToNegative_crossCutover\n  - org.joda.time.chrono.TestGJDate::test_plusYears_positiveToZero_crossCutover\n  - org.joda.time.chrono.TestGJDate::test_plusYears_positiveToNegative_crossCutover\n  - org.joda.time.chrono.TestGJDate::test_plusWeekyears_positiveToZero_crossCutover\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_6f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.GJChronology"
+        ],
+        "tests.trigger": [
+          "org.joda.time.chrono.TestGJDate::test_cutoverPreZero",
+          "org.joda.time.chrono.TestGJDate::test_plusWeekyears_positiveToNegative_crossCutover",
+          "org.joda.time.chrono.TestGJDate::test_plusYears_positiveToZero_crossCutover",
+          "org.joda.time.chrono.TestGJDate::test_plusYears_positiveToNegative_crossCutover",
+          "org.joda.time.chrono.TestGJDate::test_plusWeekyears_positiveToZero_crossCutover"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_6",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.chrono.GJChronology"
+      ]
+    },
+    "processed_at": "2025-12-01T08:59:49.486008",
+    "language": "java"
+  },
+  {
+    "id": "Time_7",
+    "project": "Time",
+    "bug_id": 7,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_7b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeFormatter"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_newYork_startOfYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_tokyo_endOfYear"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_newYork_startOfYear\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_tokyo_endOfYear\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_7f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeFormatter"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_newYork_startOfYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_tokyo_endOfYear"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_7",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.format.DateTimeFormatter"
+      ]
+    },
+    "processed_at": "2025-12-01T09:00:22.171839",
+    "language": "java"
+  },
+  {
+    "id": "Time_8",
+    "project": "Time",
+    "bug_id": 8,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_8b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZone::testForOffsetHoursMinutes_int_int"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestDateTimeZone::testForOffsetHoursMinutes_int_int\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_8f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZone::testForOffsetHoursMinutes_int_int"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_8",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.DateTimeZone"
+      ]
+    },
+    "processed_at": "2025-12-01T09:00:55.145151",
+    "language": "java"
+  },
+  {
+    "id": "Time_9",
+    "project": "Time",
+    "bug_id": 9,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_9b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZone::testForOffsetHoursMinutes_int_int"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestDateTimeZone::testForOffsetHoursMinutes_int_int\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_9f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZone::testForOffsetHoursMinutes_int_int"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_9",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.DateTimeZone"
+      ]
+    },
+    "processed_at": "2025-12-01T09:01:29.485721",
+    "language": "java"
+  },
+  {
+    "id": "Time_10",
+    "project": "Time",
+    "bug_id": 10,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_10b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.base.BaseSingleFieldPeriod"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDays::testFactory_daysBetween_RPartial_MonthDay",
+          "org.joda.time.TestMonths::testFactory_monthsBetween_RPartial_MonthDay"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.joda.time.TestDays::testFactory_daysBetween_RPartial_MonthDay\n  - org.joda.time.TestMonths::testFactory_monthsBetween_RPartial_MonthDay\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_10f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.base.BaseSingleFieldPeriod"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDays::testFactory_daysBetween_RPartial_MonthDay",
+          "org.joda.time.TestMonths::testFactory_monthsBetween_RPartial_MonthDay"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_10",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.base.BaseSingleFieldPeriod"
+      ]
+    },
+    "processed_at": "2025-12-01T09:02:02.912841",
+    "language": "java"
+  },
+  {
+    "id": "Time_11",
+    "project": "Time",
+    "bug_id": 11,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_11b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.tz.ZoneInfoCompiler"
+        ],
+        "tests.trigger": [
+          "org.joda.time.tz.TestCompiler::testDateTimeZoneBuilder"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.tz.TestCompiler::testDateTimeZoneBuilder\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_11f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.tz.ZoneInfoCompiler"
+        ],
+        "tests.trigger": [
+          "org.joda.time.tz.TestCompiler::testDateTimeZoneBuilder"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_11",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.tz.ZoneInfoCompiler"
+      ]
+    },
+    "processed_at": "2025-12-01T09:02:36.411713",
+    "language": "java"
+  },
+  {
+    "id": "Time_12",
+    "project": "Time",
+    "bug_id": 12,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_12b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.LocalDate",
+          "org.joda.time.LocalDateTime"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromDateFields_beforeYearZero1",
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromDateFields_beforeYearZero3",
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromCalendarFields_beforeYearZero1",
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromCalendarFields_beforeYearZero3",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromDateFields_beforeYearZero1",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromDateFields_beforeYearZero3",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromCalendarFields_beforeYearZero1",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromCalendarFields_beforeYearZero3"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 8\n  - org.joda.time.TestLocalDateTime_Constructors::testFactory_fromDateFields_beforeYearZero1\n  - org.joda.time.TestLocalDateTime_Constructors::testFactory_fromDateFields_beforeYearZero3\n  - org.joda.time.TestLocalDateTime_Constructors::testFactory_fromCalendarFields_beforeYearZero1\n  - org.joda.time.TestLocalDateTime_Constructors::testFactory_fromCalendarFields_beforeYearZero3\n  - org.joda.time.TestLocalDate_Constructors::testFactory_fromDateFields_beforeYearZero1\n  - org.joda.time.TestLocalDate_Constructors::testFactory_fromDateFields_beforeYearZero3\n  - org.joda.time.TestLocalDate_Constructors::testFactory_fromCalendarFields_beforeYearZero1\n  - org.joda.time.TestLocalDate_Constructors::testFactory_fromCalendarFields_beforeYearZero3\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_12f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.LocalDate",
+          "org.joda.time.LocalDateTime"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromDateFields_beforeYearZero1",
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromDateFields_beforeYearZero3",
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromCalendarFields_beforeYearZero1",
+          "org.joda.time.TestLocalDateTime_Constructors::testFactory_fromCalendarFields_beforeYearZero3",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromDateFields_beforeYearZero1",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromDateFields_beforeYearZero3",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromCalendarFields_beforeYearZero1",
+          "org.joda.time.TestLocalDate_Constructors::testFactory_fromCalendarFields_beforeYearZero3"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_12",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.joda.time.LocalDate",
+        "org.joda.time.LocalDateTime"
+      ]
+    },
+    "processed_at": "2025-12-01T09:03:10.291542",
+    "language": "java"
+  },
+  {
+    "id": "Time_13",
+    "project": "Time",
+    "bug_id": 13,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_13b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.PeriodFormatterBuilder"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestISOPeriodFormat::testFormatStandard_negative"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.format.TestISOPeriodFormat::testFormatStandard_negative\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_13f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.PeriodFormatterBuilder"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestISOPeriodFormat::testFormatStandard_negative"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_13",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.format.PeriodFormatterBuilder"
+      ]
+    },
+    "processed_at": "2025-12-01T09:03:44.958724",
+    "language": "java"
+  },
+  {
+    "id": "Time_14",
+    "project": "Time",
+    "bug_id": 14,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_14b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.BasicMonthOfYearDateTimeField"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestMonthDay_Basics::testPlusMonths_int_negativeFromLeap",
+          "org.joda.time.TestMonthDay_Basics::testMinusDays_int_negativeFromLeap",
+          "org.joda.time.TestMonthDay_Basics::testPlusMonths_int_fromLeap",
+          "org.joda.time.TestMonthDay_Basics::testPlusMonths_int_negativeEndOfMonthAdjust",
+          "org.joda.time.TestMonthDay_Basics::testMinusMonths_int_endOfMonthAdjust",
+          "org.joda.time.TestMonthDay_Basics::testMinusMonths_int_negativeFromLeap",
+          "org.joda.time.TestMonthDay_Basics::testMinusMonths_int_fromLeap",
+          "org.joda.time.TestMonthDay_Basics::testPlusDays_int_fromLeap"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 8\n  - org.joda.time.TestMonthDay_Basics::testPlusMonths_int_negativeFromLeap\n  - org.joda.time.TestMonthDay_Basics::testMinusDays_int_negativeFromLeap\n  - org.joda.time.TestMonthDay_Basics::testPlusMonths_int_fromLeap\n  - org.joda.time.TestMonthDay_Basics::testPlusMonths_int_negativeEndOfMonthAdjust\n  - org.joda.time.TestMonthDay_Basics::testMinusMonths_int_endOfMonthAdjust\n  - org.joda.time.TestMonthDay_Basics::testMinusMonths_int_negativeFromLeap\n  - org.joda.time.TestMonthDay_Basics::testMinusMonths_int_fromLeap\n  - org.joda.time.TestMonthDay_Basics::testPlusDays_int_fromLeap\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_14f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.BasicMonthOfYearDateTimeField"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestMonthDay_Basics::testPlusMonths_int_negativeFromLeap",
+          "org.joda.time.TestMonthDay_Basics::testMinusDays_int_negativeFromLeap",
+          "org.joda.time.TestMonthDay_Basics::testPlusMonths_int_fromLeap",
+          "org.joda.time.TestMonthDay_Basics::testPlusMonths_int_negativeEndOfMonthAdjust",
+          "org.joda.time.TestMonthDay_Basics::testMinusMonths_int_endOfMonthAdjust",
+          "org.joda.time.TestMonthDay_Basics::testMinusMonths_int_negativeFromLeap",
+          "org.joda.time.TestMonthDay_Basics::testMinusMonths_int_fromLeap",
+          "org.joda.time.TestMonthDay_Basics::testPlusDays_int_fromLeap"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_14",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.chrono.BasicMonthOfYearDateTimeField"
+      ]
+    },
+    "processed_at": "2025-12-01T09:04:17.721368",
+    "language": "java"
+  },
+  {
+    "id": "Time_15",
+    "project": "Time",
+    "bug_id": 15,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_15b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.field.FieldUtils"
+        ],
+        "tests.trigger": [
+          "org.joda.time.field.TestFieldUtils::testSafeMultiplyLongInt"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.field.TestFieldUtils::testSafeMultiplyLongInt\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_15f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.field.FieldUtils"
+        ],
+        "tests.trigger": [
+          "org.joda.time.field.TestFieldUtils::testSafeMultiplyLongInt"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_15",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.field.FieldUtils"
+      ]
+    },
+    "processed_at": "2025-12-01T09:04:49.675228",
+    "language": "java"
+  },
+  {
+    "id": "Time_16",
+    "project": "Time",
+    "bug_id": 16,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_16b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeFormatter"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_baseStartYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_parseStartYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_baseEndYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_withDefaultYear_feb29",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_parseEndYear"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 7\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_baseStartYear\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_parseStartYear\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_baseEndYear\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_withDefaultYear_feb29\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29\n  - org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_parseEndYear\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_16f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeFormatter"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_baseStartYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_parseStartYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_baseEndYear",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_withDefaultYear_feb29",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29",
+          "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthOnly_parseEndYear"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_16",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.format.DateTimeFormatter"
+      ]
+    },
+    "processed_at": "2025-12-01T09:05:23.122200",
+    "language": "java"
+  },
+  {
+    "id": "Time_17",
+    "project": "Time",
+    "bug_id": 17,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_17b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::testBug3476684_adjustOffset"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestDateTimeZoneCutover::testBug3476684_adjustOffset\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_17f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::testBug3476684_adjustOffset"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_17",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.DateTimeZone"
+      ]
+    },
+    "processed_at": "2025-12-01T09:05:57.571246",
+    "language": "java"
+  },
+  {
+    "id": "Time_18",
+    "project": "Time",
+    "bug_id": 18,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_18b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.GJChronology"
+        ],
+        "tests.trigger": [
+          "org.joda.time.chrono.TestGJChronology::testLeapYearRulesConstruction"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.chrono.TestGJChronology::testLeapYearRulesConstruction\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_18f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.GJChronology"
+        ],
+        "tests.trigger": [
+          "org.joda.time.chrono.TestGJChronology::testLeapYearRulesConstruction"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_18",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.chrono.GJChronology"
+      ]
+    },
+    "processed_at": "2025-12-01T09:06:32.124802",
+    "language": "java"
+  },
+  {
+    "id": "Time_19",
+    "project": "Time",
+    "bug_id": 19,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_19b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::testDateTimeCreation_london"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestDateTimeZoneCutover::testDateTimeCreation_london\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_19f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::testDateTimeCreation_london"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_19",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.DateTimeZone"
+      ]
+    },
+    "processed_at": "2025-12-01T09:07:07.620878",
+    "language": "java"
+  },
+  {
+    "id": "Time_20",
+    "project": "Time",
+    "bug_id": 20,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_20b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeFormatterBuilder"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatterBuilder::test_printParseZoneDawsonCreek"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.format.TestDateTimeFormatterBuilder::test_printParseZoneDawsonCreek\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_20f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeFormatterBuilder"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatterBuilder::test_printParseZoneDawsonCreek"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_20",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.format.DateTimeFormatterBuilder"
+      ]
+    },
+    "processed_at": "2025-12-01T09:07:41.002804",
+    "language": "java"
+  },
+  {
+    "id": "Time_22",
+    "project": "Time",
+    "bug_id": 22,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_22b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.base.BasePeriod"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDuration_Basics::testToPeriod_fixedZone",
+          "org.joda.time.TestPeriod_Constructors::testConstructor_long_fixedZone"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.joda.time.TestDuration_Basics::testToPeriod_fixedZone\n  - org.joda.time.TestPeriod_Constructors::testConstructor_long_fixedZone\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_22f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.base.BasePeriod"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDuration_Basics::testToPeriod_fixedZone",
+          "org.joda.time.TestPeriod_Constructors::testConstructor_long_fixedZone"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_22",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.base.BasePeriod"
+      ]
+    },
+    "processed_at": "2025-12-01T09:08:15.211942",
+    "language": "java"
+  },
+  {
+    "id": "Time_23",
+    "project": "Time",
+    "bug_id": 23,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_23b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZone::testForID_String_old"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.TestDateTimeZone::testForID_String_old\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_23f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZone::testForID_String_old"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_23",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.DateTimeZone"
+      ]
+    },
+    "processed_at": "2025-12-01T09:08:51.180495",
+    "language": "java"
+  },
+  {
+    "id": "Time_24",
+    "project": "Time",
+    "bug_id": 24,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_24b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeParserBucket"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2010",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2011",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2012",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2010",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2011",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2012",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2016"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 7\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2010\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2011\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2012\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2010\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2011\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2012\n  - org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2016\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_24f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.DateTimeParserBucket"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2010",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2011",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_weekyear_month_week_2012",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2010",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2011",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2012",
+          "org.joda.time.format.TestDateTimeFormatter::testParseLocalDate_year_month_week_2016"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_24",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.format.DateTimeParserBucket"
+      ]
+    },
+    "processed_at": "2025-12-01T09:09:26.338328",
+    "language": "java"
+  },
+  {
+    "id": "Time_25",
+    "project": "Time",
+    "bug_id": 25,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_25b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::test_DateTime_constructor_Moscow_Autumn",
+          "org.joda.time.TestDateTimeZoneCutover::test_getOffsetFromLocal_Moscow_Autumn_overlap_mins",
+          "org.joda.time.TestDateTimeZoneCutover::test_getOffsetFromLocal_Moscow_Autumn"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 3\n  - org.joda.time.TestDateTimeZoneCutover::test_DateTime_constructor_Moscow_Autumn\n  - org.joda.time.TestDateTimeZoneCutover::test_getOffsetFromLocal_Moscow_Autumn_overlap_mins\n  - org.joda.time.TestDateTimeZoneCutover::test_getOffsetFromLocal_Moscow_Autumn\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_25f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.DateTimeZone"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::test_DateTime_constructor_Moscow_Autumn",
+          "org.joda.time.TestDateTimeZoneCutover::test_getOffsetFromLocal_Moscow_Autumn_overlap_mins",
+          "org.joda.time.TestDateTimeZoneCutover::test_getOffsetFromLocal_Moscow_Autumn"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_25",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.DateTimeZone"
+      ]
+    },
+    "processed_at": "2025-12-01T09:10:00.949905",
+    "language": "java"
+  },
+  {
+    "id": "Time_26",
+    "project": "Time",
+    "bug_id": 26,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_26b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.ZonedChronology",
+          "org.joda.time.DateTimeZone",
+          "org.joda.time.field.LenientDateTimeField"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::testWithSecondOfMinuteInDstChange",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMinuteOfHourInDstChange",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMinuteOfHourInDstChange_mockZone",
+          "org.joda.time.TestDateTimeZoneCutover::testBug2182444_usCentral",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMillisOfSecondInDstChange_Paris_summer",
+          "org.joda.time.TestDateTimeZoneCutover::testWithHourOfDayInDstChange",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMillisOfSecondInDstChange_NewYork_winter",
+          "org.joda.time.TestDateTimeZoneCutover::testBug2182444_ausNSW"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 8\n  - org.joda.time.TestDateTimeZoneCutover::testWithSecondOfMinuteInDstChange\n  - org.joda.time.TestDateTimeZoneCutover::testWithMinuteOfHourInDstChange\n  - org.joda.time.TestDateTimeZoneCutover::testWithMinuteOfHourInDstChange_mockZone\n  - org.joda.time.TestDateTimeZoneCutover::testBug2182444_usCentral\n  - org.joda.time.TestDateTimeZoneCutover::testWithMillisOfSecondInDstChange_Paris_summer\n  - org.joda.time.TestDateTimeZoneCutover::testWithHourOfDayInDstChange\n  - org.joda.time.TestDateTimeZoneCutover::testWithMillisOfSecondInDstChange_NewYork_winter\n  - org.joda.time.TestDateTimeZoneCutover::testBug2182444_ausNSW\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_26f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.chrono.ZonedChronology",
+          "org.joda.time.DateTimeZone",
+          "org.joda.time.field.LenientDateTimeField"
+        ],
+        "tests.trigger": [
+          "org.joda.time.TestDateTimeZoneCutover::testWithSecondOfMinuteInDstChange",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMinuteOfHourInDstChange",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMinuteOfHourInDstChange_mockZone",
+          "org.joda.time.TestDateTimeZoneCutover::testBug2182444_usCentral",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMillisOfSecondInDstChange_Paris_summer",
+          "org.joda.time.TestDateTimeZoneCutover::testWithHourOfDayInDstChange",
+          "org.joda.time.TestDateTimeZoneCutover::testWithMillisOfSecondInDstChange_NewYork_winter",
+          "org.joda.time.TestDateTimeZoneCutover::testBug2182444_ausNSW"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_26",
+      "buggy_files_extracted": 3,
+      "fixed_files_extracted": 3,
+      "modified_classes": [
+        "org.joda.time.chrono.ZonedChronology",
+        "org.joda.time.DateTimeZone",
+        "org.joda.time.field.LenientDateTimeField"
+      ]
+    },
+    "processed_at": "2025-12-01T09:10:37.234062",
+    "language": "java"
+  },
+  {
+    "id": "Time_27",
+    "project": "Time",
+    "bug_id": 27,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Time_27b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.PeriodFormatterBuilder"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestPeriodFormatterBuilder::testBug2495455"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.joda.time.format.TestPeriodFormatterBuilder::testBug2495455\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Time_27f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.joda.time.format.PeriodFormatterBuilder"
+        ],
+        "tests.trigger": [
+          "org.joda.time.format.TestPeriodFormatterBuilder::testBug2495455"
+        ],
+        "dir.src.classes": [
+          "src/main/java"
+        ],
+        "dir.bin.classes": [
+          "build/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Time_27",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.joda.time.format.PeriodFormatterBuilder"
+      ]
+    },
+    "processed_at": "2025-12-01T09:11:11.779823",
+    "language": "java"
+  }
+]

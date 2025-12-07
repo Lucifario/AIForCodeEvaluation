@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"issue\": \"Infinite Loop in inverseCumulativeProbability\",\n    \"description\": \"The method inverseCumulativeProbability is not properly handling the case when p is not within the range (0, 1). It's calling super.inverseCumulativeProbability(p) which may lead to an infinite loop as it's not checking for the base cases (p == 0 or p == 1) again.\",\n    \"line\": \"return super.inverseCumulativeProbability(p);\"\n  },\n\n  {\n    \"issue\": \"Incorrect Domain Bounds in getDomainLowerBound and getDomainUpperBound\",\n    \"description\": \"In getDomainLowerBound and getDomainUpperBound methods, the bounds are not correctly calculated. For p < 0.5, the lower bound should be the mean minus a large number (like -Double.MAX_VALUE), and the upper bound should be the mean. For p >= 0.5, the lower bound should be the mean, and the upper bound should be the mean plus a large number (like Double.MAX_VALUE).\",\n    \"lines\": [\n      \"if (p < .5) {\",\n      \"  ret = -Double.MAX_VALUE;\",\n      \"} else {\",\n      \"  ret = getMean();\",\n      \"}\",\n      \"\",\n      \"if (p < .5) {\",\n      \"  ret = getMean();\",\n      \"} else {\",\n      \"  ret = Double.MAX_VALUE;\"\n    ]\n  },\n\n  {\n    \"issue\": \"Lack of Input Validation in setStandardDeviation\",\n    \"description\": \"The method setStandardDeviation does not validate that the input is not NaN. It should add a check for Double.isNaN(sd) to throw an IllegalArgumentException if the input is NaN.\",\n    \"line\": \"standardDeviation = sd;\"\n  }\n\n]}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 3,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and provides clear, actionable suggestions. It offers deep insights into the issues and suggests improvements rather than just criticism. The review adheres to the constraints and does not comment on style issues. However, it does not explicitly address security risks, hence the lower score in security awareness."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies several valid issues. The infinite loop concern in `inverseCumulativeProbability` is plausible given the potential behavior of the superclass method without proper bounds checking. The domain bound calculations are also correctly identified as needing adjustment to represent the infinite nature of the normal distribution. The NaN check for standard deviation is a good catch. The actionability is high as the issues are clearly pinpointed with line numbers. Analytical depth is moderate; it identifies *what* is wrong but doesn't deeply explore the consequences of the infinite loop or the impact of incorrect domain bounds on other calculations. Security awareness is low, as none of these issues directly relate to security vulnerabilities. The review is constructive, focusing on improvements rather than just pointing out flaws. It adheres to the implicit guideline of focusing on code quality and correctness."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 33.52718496322632,
+  "timestamp": "2025-12-02T04:57:47.041658",
+  "model_evaluated": "unknown"
+}

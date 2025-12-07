@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"The code does not handle the case where the method return type is an interface that has multiple implementations.\",\n         \"severity\": \"Medium\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a generic type with multiple type parameters.\",\n         \"severity\": \"Medium\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a parameterized type with a wildcard.\",\n         \"severity\": \"Medium\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is an array type.\",\n         \"severity\": \"Medium\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a primitive type (e.g. int, long, etc.).\",\n         \"severity\": \"Low\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a reference type (e.g. String, Object, etc.).\",\n         \"severity\": \"Low\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a void type.\",\n         \"severity\": \"Low\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a type parameter.\",\n         \"severity\": \"Low\"\n      },\n      {\n         \"message\": \"The code does not handle the case where the method return type is a type variable.\",\n         \"severity\": \"Low\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.905409812927246,
+  "timestamp": "2025-12-02T05:20:13.586100",
+  "model_evaluated": "unknown"
+}

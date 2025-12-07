@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"bug\": \"The constructor `VerificationOverTimeImpl(long pollingPeriodMillis, long durationMillis, VerificationMode delegate, boolean returnOnSuccess)` is not used anywhere in the class, it's a duplicate of the other constructor.\",\n         \"severity\": \"MEDIUM\",\n         \"location\": \"line 33\"\n      },\n      {\n         \"bug\": \"The `Timer` class is not thread-safe, which could lead to issues in a multi-threaded environment.\",\n         \"severity\": \"HIGH\",\n         \"location\": \"line 51\"\n      },\n      {\n         \"bug\": \"The `sleep` method is not thread-safe, it can cause the program to freeze if interrupted.\",\n         \"severity\": \"HIGH\",\n         \"location\": \"line 104\"\n      },\n      {\n         \"bug\": \"The `handleVerifyException` method does not handle all possible exceptions that could be thrown by the delegate verification mode.\",\n         \"severity\": \"MEDIUM\",\n         \"location\": \"line 78\"\n      },\n      {\n         \"bug\": \"The `canRecoverFromFailure` method does not handle null verification modes.\",\n         \"severity\": \"LOW\",\n         \"location\": \"line 92\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.934565782546997,
+  "timestamp": "2025-12-02T05:22:49.355470",
+  "model_evaluated": "unknown"
+}

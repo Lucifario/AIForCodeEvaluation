@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"code\": \"Missing constructor for OpenIntToDoubleHashMap\",\n         \"line\": 123,\n         \"column\": 15,\n         \"message\": \"The constructor OpenIntToDoubleHashMap(int, double) is missing in OpenIntToDoubleHashMap class.\"\n      },\n      {\n         \"code\": \"Potential NullPointerException\",\n         \"line\": 216,\n         \"column\": 17,\n         \"message\": \"In the constructor OpenMapRealVector(Double[] values), the values array may be null, causing a NullPointerException.\"\n      },\n      {\n         \"code\": \"Potential IndexOutOfBoundsException\",\n         \"line\": 219,\n         \"column\": 17,\n         \"message\": \"In the constructor OpenMapRealVector(Double[] values), if the values array is not empty, but the key is out of bounds of the array, an IndexOutOfBoundsException will be thrown.\"\n      },\n      {\n         \"code\": \"Missing null check for epsilon\",\n         \"line\": 245,\n         \"column\": 16,\n         \"message\": \"In the constructor OpenMapRealVector(int dimension, double epsilon), there is no null check for epsilon, which may cause a NullPointerException.\"\n      },\n      {\n         \"code\": \"Potential ArithmeticException\",\n         \"line\": 251,\n         \"column\": 16,\n         \"message\": \"In the constructor OpenMapRealVector(int dimension, double epsilon), if the epsilon is NaN or infinity, an ArithmeticException will be thrown.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.874056816101074,
+  "timestamp": "2025-12-02T05:21:41.147831",
+  "model_evaluated": "unknown"
+}

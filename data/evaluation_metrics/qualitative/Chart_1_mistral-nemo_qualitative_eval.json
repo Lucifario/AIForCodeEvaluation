@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"name\": \"bugs\", \"items\": []}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct as it accurately reflects the absence of bugs in the provided code context. However, it lacks actionable suggestions, analytical depth, and security awareness. The review is not constructive as it only points out the absence of bugs without providing any improvements or insights. It adheres to the guidelines by providing a valid JSON output."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is empty. It contains no feedback whatsoever. While it doesn't *violate* any guidelines (hence the 5 for adherence), it's utterly unhelpful in all other aspects. There's no factual assessment, no action items, no analysis, no security considerations, and no constructive input. It's essentially a null review."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 22.148069858551025,
+  "timestamp": "2025-12-02T07:02:59.706125",
+  "model_evaluated": "unknown"
+}

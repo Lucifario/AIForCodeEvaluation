@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n    {\n      \"type\": \"NullPointerException\",\n      \"description\": \"The `array` parameter in the `toString(Object array)` method can be `null`, which would lead to a `NullPointerException` when trying to invoke `toString(Object)` on it.\"\n    },\n    {\n      \"type\": \"Incorrect Behavior\",\n      \"description\": \"The `toString(Object array)` method does not handle multi-dimensional arrays correctly. It only works as expected for one-dimensional arrays or arrays of arrays. For arrays of arrays of arrays, it will not output the correct format.\"\n    },\n    {\n      \"type\": \"Incorrect Behavior\",\n      \"description\": \"The `toString(Object array, String nullText)` method does not use the provided `nullText` parameter when the input array is `null`. It always returns the default `nullText` '{}'.\"\n    }\n  ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.863491773605347,
+  "timestamp": "2025-12-02T05:21:46.566724",
+  "model_evaluated": "unknown"
+}

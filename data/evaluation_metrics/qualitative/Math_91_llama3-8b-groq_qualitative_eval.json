@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the Fraction class, the numerator and denominator are not checked for null before they are used. If a null value is passed to the Fraction constructor, a NullPointerException will be thrown.\",\n         \"location\": \"Fraction(double value) throws FractionConversionException\",\n         \"line\": 36,\n         \"column\": 0\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"description\": \"In the Fraction class, the denominator is not checked for zero before it is used. If a zero value is passed to the Fraction constructor, an ArithmeticException will be thrown.\",\n         \"location\": \"Fraction(double value, double epsilon, int maxDenominator, int maxIterations) throws FractionConversionException\",\n         \"line\": 73,\n         \"column\": 0\n      },\n      {\n         \"type\": \"Potential FractionConversionException\",\n         \"description\": \"In the Fraction class, the continued fraction method is not checked for convergence. If the continued fraction fails to converge, a FractionConversionException will be thrown.\",\n         \"location\": \"Fraction(double value, double epsilon, int maxDenominator, int maxIterations) throws FractionConversionException\",\n         \"line\": 83,\n         \"column\": 0\n      },\n      {\n         \"type\": \"Potential ClassCastException\",\n         \"description\": \"In the Fraction class, the numerator and denominator are not checked for being integers before they are used. If a non-integer value is passed to the Fraction constructor, a ClassCastException will be thrown.\",\n         \"location\": \"Fraction(double value, double epsilon, int maxDenominator, int maxIterations) throws FractionConversionException\",\n         \"line\": 93,\n         \"column\": 0\n      },\n      {\n         \"type\": \"Potential OutOfMemoryError\",\n         \"description\": \"In the Fraction class, the maxDenominator is not checked for being too large before it is used. If a large value is passed to the Fraction constructor, an OutOfMemoryError will be thrown.\",\n         \"location\": \"Fraction(double value, double epsilon, int maxDenominator, int maxIterations) throws FractionConversionException\",\n         \"line\": 95,\n         \"column\": 0\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.105314016342163,
+  "timestamp": "2025-12-02T05:17:43.492507",
+  "model_evaluated": "unknown"
+}

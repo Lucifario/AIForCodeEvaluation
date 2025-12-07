@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"public MockHandler(MockHandlerInterface<T> oldMockHandler) {\\n    this(oldMockHandler.getMockSettings());\\n}\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct as it accurately identifies the code snippet. However, it lacks actionable suggestions for improvement. The analytical depth is surface-level as it does not provide any root cause analysis or insights. There is no mention of security risks, which is not applicable in this context. The review is somewhat constructive but could be more helpful with suggestions. It adheres to the guidelines by focusing on the code without addressing style issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 5,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review consists of a single line of code. It's a constructor that delegates to another constructor, passing the `MockSettings` from the provided `oldMockHandler`. This is a perfectly valid and concise way to reuse logic and ensure consistency. It's factually correct, readily implementable, and demonstrates a good understanding of object initialization. The analytical depth is moderate as it doesn't explore alternative designs, but the code itself is straightforward. Security isn't addressed (which is acceptable for this snippet). It's constructive as it maintains code clarity and avoids duplication. Finally, it adheres to any implicit guidelines by simply presenting a correct and efficient implementation."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 23.483680963516235,
+  "timestamp": "2025-12-02T05:00:10.171812",
+  "model_evaluated": "unknown"
+}

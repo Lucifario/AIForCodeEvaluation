@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"bug\": \"Missing import for classes and interfaces in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for NodeTraversal class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Node class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Token class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Map class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Set class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Var class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for JSDocInfo class in the Normalize class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"TODO(nicksantos): assertOnChange should only be true if the tree is normalized.\",\n         \"line\": 44,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for AbstractPostOrderCallback class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for CompilerPass class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for NodeTraversal class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Node class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Token class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Map class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Set class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for Var class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      },\n      {\n         \"bug\": \"Missing import for JSDocInfo class in the PropagateConstantAnnotationsOverVars class\",\n         \"line\": 1,\n         \"column\": 1\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.920591115951538,
+  "timestamp": "2025-12-02T05:17:53.665127",
+  "model_evaluated": "unknown"
+}

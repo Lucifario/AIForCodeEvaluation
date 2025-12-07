@@ -1,0 +1,36 @@
+{
+  "original_review": "[]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review is empty, so it cannot be evaluated on any of the criteria."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {}
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 1,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 1,
+      "consensus_reasoning": "The review is empty, so it cannot be evaluated on any of the criteria."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 1,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 1,\n   \"consensus_reasoning\": \"The review is empty, so it cannot be evaluated on any of the criteria.\"\n}"
+  },
+  "duration_seconds": 2.7516589164733887,
+  "timestamp": "2025-12-02T07:05:44.904939",
+  "model_evaluated": "unknown"
+}

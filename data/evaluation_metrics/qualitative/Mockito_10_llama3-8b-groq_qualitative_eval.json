@@ -1,0 +1,36 @@
+{
+  "original_review": "{\n  \"bugs\":[\n      {\n         \"id\":1,\n         \"description\":\"Potential NPE in the `actualParameterizedType` method when `mockSettings` is null.\"\n      },\n      {\n         \"id\":2,\n         \"description\":\"The `ReturnsDeepStubsSerializationFallback` class is not serializable because it has a non-serializable field `returnTypeGenericMetadata`. This could lead to issues when serializing instances of this class.\"\n      },\n      {\n         \"id\":3,\n         \"description\":\"The `DeeplyStubbedAnswer` class is not serializable because it has a non-serializable field `mock`. This could lead to issues when serializing instances of this class.\"\n      },\n      {\n         \"id\":4,\n         \"description\":\"The `writeReplace` method in `ReturnsDeepStubsSerializationFallback` class does not handle the case where `returnTypeGenericMetadata` is null.\"\n      },\n      {\n         \"id\":5,\n         \"description\":\"The `newDeepStubMock` method does not handle the case where `returnTypeGenericMetadata` is null.\"\n      },\n      {\n         \"id\":6,\n         \"description\":\"The `withSettingsUsing` method does not handle the case where `returnTypeGenericMetadata` is null.\"\n      },\n      {\n         \"id\":7,\n         \"description\":\"The `returnsDeepStubsAnswerUsing` method does not handle the case where `returnTypeGenericMetadata` is null.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 3,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually accurate and adheres to the guidelines. It identifies several potential bugs, including null pointer exceptions and serialization issues. The suggestions are concrete and actionable, though they could be more specific in some cases. The review provides a good level of analytical depth by identifying root causes of potential issues. However, it does not explicitly address security risks, which could be improved. Overall, the review is constructive and helpful."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies several potential `NullPointerException` issues related to `returnTypeGenericMetadata` being null in various methods. While the *potential* for these issues exists, the review doesn't provide enough context to confirm they are actual bugs. It assumes nullability without showing where the variable could be null. The actionability is low because the review only points out potential problems without suggesting solutions or providing code snippets. The analytical depth is moderate; it identifies potential failure points but doesn't delve into the root causes of why `returnTypeGenericMetadata` might be null. Security awareness is very low as the review doesn't address any security concerns. Constructiveness is moderate; it identifies issues but doesn't offer suggestions for improvement. The review adheres to the constraints by providing a list of bugs."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 24.390305995941162,
+  "timestamp": "2025-12-02T07:05:18.477144",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"description\": \"The FastDatePrinter class is not thread-safe due to the use of a static final long serialVersionUID.\",\n         \"severity\": \"Critical\"\n      },\n      {\n         \"description\": \"The init() method is not synchronized, which can lead to concurrency issues if the class is used in a multi-threaded environment.\",\n         \"severity\": \"High\"\n      },\n      {\n         \"description\": \"The parsePattern() method does not handle null input, which can lead to a NullPointerException.\",\n         \"severity\": \"Medium\"\n      },\n      {\n         \"description\": \"The parsePattern() method does not handle invalid input, which can lead to an IllegalArgumentException.\",\n         \"severity\": \"Medium\"\n      },\n      {\n         \"description\": \"The init() method does not handle the case where the pattern is null, which can lead to a NullPointerException.\",\n         \"severity\": \"Medium\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.870078086853027,
+  "timestamp": "2025-12-02T05:22:24.711782",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"public Fraction parse(String source, ParsePosition pos) {\\n        // try to parse improper fraction\\n        Fraction ret = super.parse(source, pos);\\n        if (ret != null) {\\n            return ret;\\n        }\\n\\n        int initialIndex = pos.getIndex();\\n\\n        // parse whitespace\\n        parseAndIgnoreWhitespace(source, pos);\\n\\n        // parse whole\\n        Number whole = getWholeFormat().parse(source, pos);\\n        if (whole == null) {\\n            // invalid integer number\\n            // set index back to initial, error index should already be set\\n            // character examined.\\n            pos.setIndex(initialIndex);\\n            return null;\\n        }\\n\\n        // parse whitespace\\n        parseAndIgnoreWhitespace(source, pos);\\n\\n        // parse numerator\\n        Number num = getNumeratorFormat().parse(source, pos);\\n        if (num == null) {\\n            // invalid integer number\\n            // set index back to initial, error index should already be set\\n            // character examined.\\n            pos.setIndex(initialIndex);\\n            return null;\\n        }\\n\\n            // minus signs should be leading, invalid expression\\n\\n        // parse '/'\\n        int startIndex = pos.getIndex();\\n        char c = parseNextCharacter(source, pos);\\n        switch (c) {\\n        case 0 :\\n            // no '/'\\n            // return num as a fraction\\n            return new Fraction(num.intValue(), 1);\\n        case '/' :\\n            // found '/', continue parsing denominator\\n            break;\\n        default:\\n            // invalid character, set index back to start\\n            pos.setIndex(startIndex);\\n            return null;\\n        }\\n\\n        // parse denominator\\n        Number den = getDenominatorFormat().parse(source, pos);\\n        if (den == null) {\\n            // invalid integer number\\n            // set index back to start, error index should already be set\\n            // character examined.\\n            pos.setIndex(startIndex);\\n            return null;\\n        }\\n\\n        // create and return fraction\\n        int sign = whole.intValue() >= 0 ? 1 : -1;\\n        return new Fraction(sign * whole.intValue() * den.intValue() + num.intValue(), den.intValue());\\n    }\", \"bugs\": [\"The `parse` method does not handle the case where the whole number is negative and the numerator is also negative. In such cases, the sign of the fraction should be positive, but the current implementation will result in a negative fraction.\", \"The `parse` method does not check if the input string ends with a '/'. If the string does not end with a '/', it should throw a `ParseException`.\"]}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 2,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review accurately identifies two specific bugs in the code, providing clear and actionable suggestions for fixing them. It offers deep insight into the root causes of the issues, such as the handling of negative numbers and the validation of the input string. However, it does not address any security concerns, which is why the security awareness score is lower. The review is constructive, offering improvements rather than just criticism, and it adheres to the given constraints (e.g., ignoring style issues)."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies a potential bug related to negative whole and numerator values, which is a valid concern. The calculation of the fraction's numerator could be incorrect in certain negative scenarios. The second bug identified regarding a missing '/' is also valid. The actionability is moderate; while the bugs are described, specific code fixes aren't provided. The analytical depth is decent, pinpointing a logical flaw in the sign calculation. Security awareness is low, as the code doesn't deal with external inputs in a way that introduces security vulnerabilities. The review is constructive, focusing on potential issues rather than stylistic preferences. It adheres to any implicit guidelines by focusing on functional correctness."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 19.56128191947937,
+  "timestamp": "2025-12-02T04:53:25.120004",
+  "model_evaluated": "unknown"
+}

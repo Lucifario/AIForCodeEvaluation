@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [\n\n      {\n        \"description\": \"The `addValue(Object v)` method is deprecated and should be avoided. It is recommended to use `addValue(Comparable<?> v)` instead.\",\n        \"lineNumber\": 56\n      },\n\n      {\n        \"description\": \"The `addValue(int v)` method is not necessary as it simply calls `addValue(Long.valueOf(v))`. It can be removed to simplify the code.\",\n        \"lineNumber\": 63\n      },\n\n      {\n        \"description\": \"The `addValue(Integer v)` method is deprecated and should be removed. It is recommended to use `addValue(Long.valueOf(v.longValue()))` instead.\",\n        \"lineNumber\": 68\n      },\n\n      {\n        \"description\": \"The `addValue(char c)` method is missing. It should be added to support char values, converting them to Character instances before adding to the frequency table.\",\n        \"lineNumber\": 73\n      },\n\n      {\n        \"description\": \"The `getCount(Object v)` method is missing. It should be added to retrieve the frequency count for a given value, handling both Comparable and Object inputs.\",\n        \"lineNumber\": 81\n      },\n\n      {\n        \"description\": \"The `getPct(Object v)` method is missing. It should be added to retrieve the percentage of the total frequency for a given value, handling both Comparable and Object inputs.\",\n        \"lineNumber\": 89\n      },\n\n      {\n        \"description\": \"The `getCumPct(Object v)` method is missing. It should be added to retrieve the cumulative percentage of the total frequency for a given value, handling both Comparable and Object inputs.\",\n        \"lineNumber\": 97\n      },\n\n      {\n        \"description\": \"The `getMode()` method is missing. It should be added to retrieve the most frequent value(s) in the frequency distribution.\",\n        \"lineNumber\": 105\n      },\n\n      {\n        \"description\": \"The `getModeValues()` method is missing. It should be added to retrieve an array of the most frequent value(s) in the frequency distribution.\",\n        \"lineNumber\": 113\n      },\n\n      {\n        \"description\": \"The `getMean()` method is missing. It should be added to calculate the mean (average) value of the frequency distribution.\",\n        \"lineNumber\": 121\n      },\n\n      {\n        \"description\": \"The `getVariance()` method is missing. It should be added to calculate the variance of the frequency distribution.\",\n        \"lineNumber\": 129\n      },\n\n      {\n        \"description\": \"The `getStandardDeviation()` method is missing. It should be added to calculate the standard deviation of the frequency distribution.\",\n        \"lineNumber\": 137\n      },\n\n      {\n        \"description\": \"The `getMedian()` method is missing. It should be added to calculate the median value of the frequency distribution.\",\n        \"lineNumber\": 145\n      },\n\n      {\n        \"description\": \"The `getQuantile(double p)` method is missing. It should be added to calculate the quantile value of the frequency distribution at the given probability `p`.\",\n        \"lineNumber\": 153\n      },\n\n      {\n        \"description\": \"The `getGeometricMean()` method is missing. It should be added to calculate the geometric mean of the frequency distribution.\",\n        \"lineNumber\": 161\n      },\n\n      {\n        \"description\": \"The `getHarmonicMean()` method is missing. It should be added to calculate the harmonic mean of the frequency distribution.\",\n        \"lineNumber\": 169\n      },\n\n      {\n        \"description\": \"The `getSkewness()` method is missing. It should be added to calculate the skewness of the frequency distribution.\",\n        \"lineNumber\": 177\n      },\n\n      {\n        \"description\": \"The `getKurtosis()` method is missing. It should be added to calculate the kurtosis of the frequency distribution.\",\n        \"lineNumber\": 185\n      },\n\n      {\n        \"description\": \"The `getRange()` method is missing. It should be added to calculate the range of the frequency distribution.\",\n        \"lineNumber\": 193\n      },\n\n      {\n        \"description\": \"The `getVarianceScaled()` method is missing. It should be added to calculate the variance scaled by the sample size of the frequency distribution.\",\n        \"lineNumber\": 201\n      },\n\n      {\n        \"description\": \"The `getStandardDeviationScaled()` method is missing. It should be added to calculate the standard deviation scaled by the square root of the sample size of the frequency distribution.\",\n        \"lineNumber\": 209\n      },\n\n      {\n        \"description\": \"The `getMeanOfSquares()` method is missing. It should be added to calculate the mean of the squares of the frequency distribution.\",\n        \"lineNumber\": 217\n      },\n\n      {\n        \"description\": \"The `getModeOfSquares()` method is missing. It should be added to retrieve the most frequent square value(s) in the frequency distribution.\",\n        \"lineNumber\": 225\n      },\n\n      {\n        \"description\": \"The `getModeValuesOfSquares()` method is missing. It should be added to retrieve an array of the most frequent square value(s) in the frequency distribution.\",\n        \"lineNumber\": 233\n      }\n\n    ] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review provides accurate and actionable feedback, suggesting specific methods to add or remove. It offers deep insights into the functionality that should be added to the class. However, it does not address security concerns, which is a significant oversight. The review is constructive and adheres to the guidelines provided, focusing on functionality rather than style."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review correctly identifies numerous missing methods that would be expected in a comprehensive `Frequency` class. The suggestions regarding deprecated methods are also accurate. However, the review is almost entirely a list of 'missing method' observations. While factually correct, it lacks depth in *why* these methods are important for a Frequency class beyond simply stating they are missing. The actionability is low because it just states what's missing, not *how* to implement them. There's no discussion of potential algorithms or edge cases. Security is not addressed at all. Constructiveness is moderate; it points out what *should* be there, but doesn't offer guidance on implementation. The review adheres to any implicit guidelines (no style comments were requested)."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 31.007909774780273,
+  "timestamp": "2025-12-02T05:07:10.845375",
+  "model_evaluated": "unknown"
+}

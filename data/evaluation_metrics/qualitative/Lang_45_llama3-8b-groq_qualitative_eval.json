@@ -1,0 +1,28 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"Method wrapText(String str, int lineLength) is not implemented\",\n         \"line\": 17,\n         \"column\": 0\n      },\n      {\n         \"message\": \"Method wrapText(String str, String newLineChars, int lineLength) is not implemented\",\n         \"line\": 29,\n         \"column\": 0\n      },\n      {\n         \"message\": \"Method wrapText(String str, String newLineChars, int lineLength) has a potential NullPointerException\",\n         \"line\": 36,\n         \"column\": 0\n      },\n      {\n         \"message\": \"Method wrapLine(String line, String newLineChars, int lineLength, boolean ignoreEmptyLines) is not implemented\",\n         \"line\": 45,\n         \"column\": 0\n      },\n      {\n         \"message\": \"Method wrap(String str, int wrapLength) is calling another method with different parameters\",\n         \"line\": 63,\n         \"column\": 0\n      },\n      {\n         \"message\": \"Method wrap(String str, int wrapLength) is not checking for negative wrapLength\",\n         \"line\": 69,\n         \"column\": 0\n      },\n      {\n         \"message\": \"Method wrap(String str, int wrapLength, String newLineChars, boolean ignoreEmptyLines) is not implemented\",\n         \"line\": 73,\n         \"column\": 0\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 2,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct in identifying missing methods and potential issues. However, it lacks actionable suggestions and deep analytical insights. It does not address security risks explicitly and provides only basic constructive feedback. The review adheres to the guidelines by focusing on the code's functionality and structure."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.175841093063354,
+  "timestamp": "2025-12-02T05:13:11.767797",
+  "model_evaluated": "unknown"
+}

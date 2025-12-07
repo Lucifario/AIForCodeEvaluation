@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"    // create a matrix of the correct size\\n    List<LinearConstraint> constraints = getNormalizedConstraints();\\n    int width = numDecisionVariables + numSlackVariables +\\n        numArtificialVariables + getNumObjectiveFunctions() + 1; // + 1 is for RHS\\n    int height = constraints.size() + getNumObjectiveFunctions();\\n    double[][] matrix = new double[height][width];\\n\\n    // initialize the objective function rows\\n    if (getNumObjectiveFunctions() == 2) {\\n        matrix[0][0] = -1;\\n    }\\n    int zIndex = (getNumObjectiveFunctions() == 1) ? 0 : 1;\\n    matrix[zIndex][zIndex] = maximize ? 1 : -1;\\n    RealVector objectiveCoefficients =\\n        maximize ? f.getCoefficients().mapMultiply(-1) : f.getCoefficients();\\n    copyArray(objectiveCoefficients.getData(), matrix[zIndex], getNumObjectiveFunctions());\\n    matrix[zIndex][width - 1] =\\n        maximize ? f.getConstantTerm() : -1 * f.getConstantTerm();\\n\\n    if (!restrictToNonNegative) {\\n        matrix[zIndex][numDecisionVariables + numSlackVariables + numArtificialVariables] = 1;\\n    }\\n\\n    // initialize the constraint rows\\n    int rowIndex = (getNumObjectiveFunctions() == 1) ? 1 : 2;\\n    for (LinearConstraint constraint : constraints) {\\n        Relationship relationship = constraint.getRelationship();\\n        int constraintTypeCount =\\n            getConstraintTypeCounts(relationship) - (relationship == Relationship.EQ ? 1 : 0);\\n        int startIndex = rowIndex + constraintTypeCount;\\n        copyArray(constraint.getCoefficients().getData(), matrix[rowIndex], getNumVariables());\\n        if (relationship == Relationship.GEQ || relationship == Relationship.EQ) {\\n            matrix[rowIndex][startIndex] = 1;\\n        }\\n        matrix[rowIndex][width - 1] = constraint.getConstantTerm();\\n        rowIndex++;\\n    }\\n\\n    return matrix;\"}, {\"code\": \"    // create a matrix of the correct size\\n    List<LinearConstraint> constraints = getNormalizedConstraints();\\n    int width = numDecisionVariables + numSlackVariables +\\n        numArtificialVariables + getNumObjectiveFunctions() + 1; // + 1 is for RHS\\n    int height = constraints.size() + getNumObjectiveFunctions();\\n    double[][] matrix = new double[height][width];\\n\\n    // initialize the objective function rows\\n    if (getNumObjectiveFunctions() == 2) {\\n        matrix[0][0] = -1;\\n    }\\n    int zIndex = (getNumObjectiveFunctions() == 1) ? 0 : 1;\\n    matrix[zIndex][zIndex] = maximize ? 1 : -1;\\n    RealVector objectiveCoefficients =\\n        maximize ? f.getCoefficients().mapMultiply(-1) : f.getCoefficients();\\n    copyArray(objectiveCoefficients.getData(), matrix[zIndex], getNumObjectiveFunctions());\\n    matrix[zIndex][width - 1] =\\n        maximize ? f.getConstantTerm() : -1 * f.getConstantTerm();\\n\\n    if (!restrictToNonNegative) {\\n        matrix[zIndex][numDecisionVariables + numSlackVariables + numArtificialVariables] = 1;\\n    }\\n\\n    // initialize the constraint rows\\n    int rowIndex = (getNumObjectiveFunctions() == 1) ? 1 : 2;\\n    for (LinearConstraint constraint : constraints) {\\n        Relationship relationship = constraint.getRelationship();\\n        int constraintTypeCount =\\n            getConstraintTypeCounts(relationship) - (relationship == Relationship.EQ ? 1 : 0);\\n        int startIndex = rowIndex + constraintTypeCount;\\n        copyArray(constraint.getCoefficients().getData(), matrix[rowIndex], getNumVariables());\\n        if (relationship == Relationship.GEQ || relationship == Relationship.EQ) {\\n            matrix[rowIndex][startIndex] = 1;\\n        }\\n        matrix[rowIndex][width - 1] = constraint.getConstantTerm();\\n        rowIndex++;\\n    }\\n\\n    return matrix;\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and provides concrete suggestions for improving the code. It offers a deep understanding of the code's structure and logic, but it does not delve into the root cause of potential issues. The review does not address security concerns, which is a significant oversight. However, it is constructive and adheres to the guidelines provided."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is essentially a duplicate of the code, which isn't a review at all. However, the code itself is factually correct and implements the tableau construction logic as described in the comments. The suggestions are actionable as they are the code itself. The analytical depth is moderate; it correctly implements the algorithm but doesn't offer insights into alternative approaches or potential optimizations. Security awareness is absent. The review is constructive in that it doesn't introduce errors or negative feedback, but it doesn't *add* anything either. It perfectly adheres to any implicit guidelines (e.g., no style issues were requested to be checked). Because the 'review' is just a copy of the code, it's hard to evaluate it as a review, but the code itself is well-written."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 33.6610541343689,
+  "timestamp": "2025-12-02T05:02:43.272701",
+  "model_evaluated": "unknown"
+}

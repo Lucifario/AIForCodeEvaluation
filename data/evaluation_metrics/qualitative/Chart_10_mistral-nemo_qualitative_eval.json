@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"description\": \"Lack of input validation\",\n    \"severity\": \"Low\",\n    \"reason\": \"The `generateToolTipFragment` method accepts a `toolTipText` parameter without any validation. This could lead to potential security issues if the input is controlled by an untrusted source, as it's directly included in the generated HTML without any sanitization.\"\n  },\n\n  {\n    \"description\": \"Potential XSS vulnerability\",\n    \"severity\": \"Medium\",\n    \"reason\": \"The method concatenates the `toolTipText` directly into the HTML string, which could make the application vulnerable to Cross-Site Scripting (XSS) attacks if the `toolTipText` comes from an untrusted source.\"\n  },\n\n  {\n    \"description\": \"Hardcoded string concatenation\",\n    \"severity\": \"Low\",\n    \"reason\": \"The method uses string concatenation to build the HTML fragment. While this is not a critical issue, using a StringBuilder or String.format could make the code more readable and maintainable.\"\n  },\n\n  {\n    \"description\": \"Missing javadoc for constructor\",\n    \"severity\": \"Low\",\n    \"reason\": \"The constructor `StandardToolTipTagFragmentGenerator()` lacks a Javadoc comment explaining its purpose and functionality.\"\n  }\n\n]}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 4,
+        "security_awareness": 5,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and identifies critical security issues. It provides a good level of analytical depth, especially in pointing out potential XSS vulnerabilities. However, it lacks specific actionable suggestions for fixing the issues, which is why actionability is scored lower. The review is constructive and adheres to the guidelines provided."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 5,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is excellent. The identified issues are factually correct and highlight a real security concern (XSS) due to the lack of input validation and sanitization. The severity levels are appropriate. The suggestions are actionable - a developer could readily implement input validation and use StringBuilder. The analysis goes beyond surface level by identifying the root cause of the XSS vulnerability. The review is constructive, pointing out areas for improvement without being overly critical. Finally, there were no constraints given, so adherence is perfect."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 21.02030110359192,
+  "timestamp": "2025-12-02T06:17:09.325752",
+  "model_evaluated": "unknown"
+}

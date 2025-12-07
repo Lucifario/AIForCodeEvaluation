@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"public static int stringToInt(String str, int defaultValue) {\\n    return toInt(str, defaultValue);\\n}\"}, {\"code\": \"public static int toInt(String str, int defaultValue) {\\n    return StringUtils.isEmpty(str) ? defaultValue : Integer.parseInt(str);\\n}\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and provides a clear suggestion to refactor the code by removing the redundant method. However, it lacks specific details on how to handle potential exceptions or security risks, such as invalid input or integer overflow. The review is constructive and adheres to the guidelines provided."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 5,
+        "analytical_depth": 3,
+        "security_awareness": 3,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review presents a straightforward and correct implementation. The code directly leverages `StringUtils.isEmpty` and `Integer.parseInt`, which are standard and appropriate. The use of a default value provides a safe fallback. The analytical depth is moderate; it doesn't explore potential NumberFormatExceptions beyond the isEmpty check, but that's acceptable for this level of code. Security awareness is present because `Integer.parseInt` could throw a NumberFormatException if the string isn't a valid integer, but the code handles the empty string case. Constructiveness is high as it's a simple, effective solution. It adheres to any implicit guidelines of conciseness and clarity."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.79315996170044,
+  "timestamp": "2025-12-02T05:03:01.432870",
+  "model_evaluated": "unknown"
+}

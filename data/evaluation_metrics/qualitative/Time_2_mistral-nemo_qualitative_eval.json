@@ -1,0 +1,28 @@
+{
+  "original_review": "{ \"bugs\": [] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct as it identifies no bugs, which is accurate. However, it lacks actionable suggestions, analytical depth, and security awareness. The review is not constructive as it does not offer any improvements. It adheres to the guideline of ignoring style issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.046488046646118,
+  "timestamp": "2025-12-02T05:12:28.134013",
+  "model_evaluated": "unknown"
+}

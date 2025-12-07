@@ -1,0 +1,20 @@
+{
+  "original_review": "{ \"bugs\": [\n        {\n            \"description\": \"The 'residualsWeights' array is initialized but never used in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'targetValues' array is initialized but never used in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'jF' (MultivariateMatrixFunction) is never initialized or used in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'function' (DifferentiableMultivariateVectorialFunction) is never used in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'jacobian' matrix is never updated or used in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'cost' variable is calculated but never used in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'point', 'objective', and 'residuals' arrays are never used or updated in the provided code.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: None\"\n        },\n        {\n            \"description\": \"The 'updateJacobian()' method is declared abstract, but no implementation is provided in the AbstractLeastSquaresOptimizer class.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: updateJacobian()\"\n        },\n        {\n            \"description\": \"The 'optimize()' method is declared abstract, but no implementation is provided in the AbstractLeastSquaresOptimizer class.\",\n            \"location\": \"Class: AbstractLeastSquaresOptimizer, Method: optimize()\"\n        }\n    ] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.940558671951294,
+  "timestamp": "2025-12-02T05:23:13.498059",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "[{\"code\": \"isSameDay\", \"bug\": \"The method isSameDay(Date, Date) and isSameDay(Calendar, Calendar) do not correctly check if the two dates are the same day. The comparison should also take into account the AM/PM field to ensure that dates like 12:00 PM and 12:00 AM are not considered the same day.\"}, {\"code\": \"parseDate\", \"bug\": \"The parseDate(String, String) method does not handle malformed dates correctly. It should throw a ParseException with a meaningful error message when the input date string does not match the specified pattern.\"}, {\"code\": \"setHours\", \"bug\": \"The setHours(Date, int) method does not validate the input hour value. It should throw an IllegalArgumentException if the hour is less than 0 or greater than or equal to 24.\"}, {\"code\": \"round\", \"bug\": \"The round(Around, Date) method does not handle dates with a time component correctly. It should round the date to the nearest multiple of the specified rounding unit, taking into account the time component of the date.\"}, {\"code\": \"truncate\", \"bug\": \"The truncate(TemporalUnit, Date) method does not handle dates with a time component correctly. It should truncate the date to the nearest multiple of the specified temporal unit, taking into account the time component of the date.\"}, {\"code\": \"getFragment\", \"bug\": \"The getFragment(String, String, Date) method does not correctly handle dates with a time component. It should return the time component of the date as a string, if the specified pattern includes a time component.\"}, {\"code\": \"setMinutes\", \"bug\": \"The setMinutes(Date, int) method does not validate the input minute value. It should throw an IllegalArgumentException if the minute is less than 0 or greater than or equal to 60.\"}, {\"code\": \"setSeconds\", \"bug\": \"The setSeconds(Date, int) method does not validate the input second value. It should throw an IllegalArgumentException if the second is less than 0 or greater than or equal to 60.\"}, {\"code\": \"setMilliseconds\", \"bug\": \"The setMilliseconds(Date, int) method does not validate the input millisecond value. It should throw an IllegalArgumentException if the millisecond is less than 0 or greater than or equal to 1000.\"}, {\"code\": \"setDate\", \"bug\": \"The setDate(Date, int) method does not validate the input day of month value. It should throw an IllegalArgumentException if the day of month is less than 1 or greater than the number of days in the month for the specified date.\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.835360765457153,
+  "timestamp": "2025-12-02T05:21:46.584253",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"description\": \"The license header is missing the year 2011 in the copyright statement.\",\n    \"line\": 1\n  },\n\n  {\n    \"description\": \"The Javadoc comment for the class does not mention the author Brian S O'Neill, although he is listed in the class header.\",\n    \"line\": 38\n  },\n\n  {\n    \"description\": \"The method toFormatter() does not check if both printing and parsing are supported before creating the DateTimeFormatter. It should throw an UnsupportedOperationException if neither is supported.\",\n    \"line\": 56\n  },\n\n  {\n    \"description\": \"The methods toPrinter() and toParser() should check if the formatter supports printing or parsing respectively, before creating the DateTimePrinter or DateTimeParser. They currently do not check and may throw an UnsupportedOperationException unnecessarily.\",\n    \"line\": 74,  \"fmt\": \"toPrinter()\", \"line\": 88\n  },\n\n  {\n    \"description\": \"The method canBuildFormatter() only checks if a formatter can be built, but it does not check if both printing and parsing are supported. It should return false if neither is supported.\",\n    \"line\": 102\n  },\n\n  {\n    \"description\": \"The method isFormatter() is not documented in the Javadoc. It should be documented to explain what it does and how it is used.\",\n    \"line\": 115\n  },\n\n  {\n    \"description\": \"The method isPrinter() and isParser() are not documented in the Javadoc. They should be documented to explain what they do and how they are used.\",\n    \"line\": 120,  \"fmt\": \"isPrinter()\", \"line\": 125\n  },\n\n  {\n    \"description\": \"The method getFormatter() is not documented in the Javadoc. It should be documented to explain what it does and how it is used.\",\n    \"line\": 130\n  },\n\n  {\n    \"description\": \"The method isFormatter() is not a standard Java naming convention. It should be renamed to something more descriptive, such as isFormatterSupported() or hasFormatter()\",\n    \"line\": 115\n  },\n\n  {\n    \"description\": \"The method getFormatter() is not a standard Java naming convention. It should be renamed to something more descriptive, such as getFormatterInstance() or getFormatterObject()\",\n    \"line\": 130\n  },\n\n  {\n    \"description\": \"The method toFormatter() does not handle the case where both printing and parsing are supported, but the formatter is null. It should create a new formatter in this case.\",\n    \"line\": 56\n  },\n\n  {\n    \"description\": \"The method toPrinter() does not handle the case where printing is supported, but the formatter is null. It should create a new printer in this case.\",\n    \"line\": 74\n  },\n\n  {\n    \"description\": \"The method toParser() does not handle the case where parsing is supported, but the formatter is null. It should create a new parser in this case.\",\n    \"line\": 88\n  }\n\n]}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.135272979736328,
+  "timestamp": "2025-12-02T05:16:21.141699",
+  "model_evaluated": "unknown"
+}

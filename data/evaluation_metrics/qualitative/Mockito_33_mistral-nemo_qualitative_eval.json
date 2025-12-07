@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n    {\n      \"description\": \"Typo in interface name\",\n      \"line_number\": 16,\n      \"reason\": \"The interface name 'CapturesArgumensFromInvocation' has a typo. It should be 'CapturesArgumentsFromInvocation'.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in getMatchers()\",\n      \"line_number\": 22,\n      \"reason\": \"If the 'matchers' list is empty, it calls 'invocation.argumentsToMatchers()', which could return null. This could lead to a NullPointerException when trying to access 'matchers.toArray()' in 'toString()'.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in getMethod()\",\n      \"line_number\": 34,\n      \"reason\": \"If the 'invocation' object is null, calling 'invocation.getMethod()' will throw a NullPointerException.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in hasSimilarMethod()\",\n      \"line_number\": 60,\n      \"reason\": \"If 'candidate' is null, calling 'candidate.getMethod().getName()' will throw a NullPointerException.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in hasSameMethod()\",\n      \"line_number\": 73,\n      \"reason\": \"If 'invocation' or 'candidate' is null, calling 'invocation.getMethod()' or 'candidate.getMethod()' will throw a NullPointerException.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in getLocation()\",\n      \"line_number\": 97,\n      \"reason\": \"If 'invocation' is null, calling 'invocation.getLocation()' will throw a NullPointerException.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in toString(PrintSettings)\",\n      \"line_number\": 106,\n      \"reason\": \"If 'printSettings' is null, it calls 'invocation.toString(matchers, printSettings)', which could throw a NullPointerException.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in captureArgumentsFrom()\",\n      \"line_number\": 119,\n      \"reason\": \"If 'i' (the Invocation object) is null, calling 'i.getArguments()[k]' will throw a NullPointerException.\"\n    },\n    {\n      \"description\": \"Potential NullPointerException in createFrom()\",\n      \"line_number\": 133,\n      \"reason\": \"If 'invocations' is null, or any of the 'Invocation' objects in the list are null, it will throw a NullPointerException when creating a new 'InvocationMatcher'.\"\n    }\n  ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.137712001800537,
+  "timestamp": "2025-12-02T05:15:18.132327",
+  "model_evaluated": "unknown"
+}

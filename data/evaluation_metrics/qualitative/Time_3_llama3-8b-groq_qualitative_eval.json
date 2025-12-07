@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"Zone must not be null\",\n         \"location\": \"now(DateTimeZone zone)\",\n         \"line\": 63\n      },\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"Chronology must not be null\",\n         \"location\": \"now(Chronology chronology)\",\n         \"line\": 72\n      },\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"Parser must not be null\",\n         \"location\": \"parse(String str)\",\n         \"line\": 81\n      },\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"Formatter must not be null\",\n         \"location\": \"parse(String str, DateTimeFormatter formatter)\",\n         \"line\": 91\n      },\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"str must not be null\",\n         \"location\": \"parse(String str)\",\n         \"line\": 81\n      },\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"str must not be null\",\n         \"location\": \"parse(String str, DateTimeFormatter formatter)\",\n         \"line\": 91\n      },\n      {\n         \"type\": \"NullPointerException\",\n         \"description\": \"formatter must not be null\",\n         \"location\": \"parse(String str, DateTimeFormatter formatter)\",\n         \"line\": 91\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.848654747009277,
+  "timestamp": "2025-12-02T05:24:11.341868",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"The method addAndCheck(long a, long b) does not handle the case when a and b are both negative and their sum is greater than Long.MAX_VALUE.\",\n         \"severity\": \"critical\"\n      },\n      {\n         \"id\": 2,\n         \"description\": \"The method addAndCheck(long a, long b) does not handle the case when a and b are both positive and their sum is less than Long.MIN_VALUE.\",\n         \"severity\": \"critical\"\n      },\n      {\n         \"id\": 3,\n         \"description\": \"The method addAndCheck(int x, int y) does not handle the case when x and y are both negative and their sum is greater than Integer.MAX_VALUE.\",\n         \"severity\": \"critical\"\n      },\n      {\n         \"id\": 4,\n         \"description\": \"The method addAndCheck(int x, int y) does not handle the case when x and y are both positive and their sum is less than Integer.MIN_VALUE.\",\n         \"severity\": \"critical\"\n      },\n      {\n         \"id\": 5,\n         \"description\": \"The variable FACTORIALS is not used in the class.\",\n         \"severity\": \"minor\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.10530996322632,
+  "timestamp": "2025-12-02T05:15:08.121412",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"line\": 34,\n         \"description\": \"The method 'registerTypeVariablesOn' does not handle the case when 'classType' is null.\"\n      },\n      {\n         \"line\": 43,\n         \"description\": \"The method 'registerTypeParametersOn' does not handle the case when 'typeParameters' is null.\"\n      },\n      {\n         \"line\": 52,\n         \"description\": \"The method 'registerTypeVariableIfNotPresent' does not handle the case when 'typeVariable' is null.\"\n      },\n      {\n         \"line\": 64,\n         \"description\": \"The method 'boundsOf' does not handle the case when 'typeParameter' is null.\"\n      },\n      {\n         \"line\": 73,\n         \"description\": \"The method 'boundsOf' does not handle the case when 'wildCard' is null.\"\n      },\n      {\n         \"line\": 84,\n         \"description\": \"The method 'rawType' is declared as abstract, but it is not clear what it should return in the context of this class.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.898458242416382,
+  "timestamp": "2025-12-02T05:17:14.384582",
+  "model_evaluated": "unknown"
+}

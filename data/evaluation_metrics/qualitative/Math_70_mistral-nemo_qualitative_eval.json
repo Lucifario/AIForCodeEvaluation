@@ -1,0 +1,28 @@
+{
+  "original_review": "[{\"code\": \"package org.apache.commons.math.analysis.solvers;\\n\\nimport org.apache.commons.math.FunctionEvaluationException;\\nimport org.apache.commons.math.MaxIterationsExceededException;\\nimport org.apache.commons.math.analysis.UnivariateRealFunction;\\n\\n/**\\n * Implements the <a href=\\\"http://mathworld.wolfram.com/Bisection.html\\\">\\n * bisection algorithm</a> for finding zeros of univariate real functions.\\n * <p>\\n * The function should be continuous but not necessarily smooth.</p>\\n *\\n * @version $Revision$ $Date$\\n */\\npublic class BisectionSolver extends UnivariateRealSolverImpl {\\n\\n    /**\\n     * Construct a solver for the given function.\\n     *\\n     * @param f function to solve.\\n     * @deprecated as of 2.0 the function to solve is passed as an argument\\n     * to the {@link #solve(UnivariateRealFunction, double, double)} or\\n     * {@link UnivariateRealSolverImpl#solve(UnivariateRealFunction, double, double, double)}\\n     * method.\\n     */\\n    @Deprecated\\n    public BisectionSolver(UnivariateRealFunction f) {\\n        super(f, 100, 1E-6);\\n    }\\n\\n    /**\\n     * Construct a solver.\\n     *\\n     */\\n    public BisectionSolver() {\\n        super(100, 1E-6);\\n    }\\n\\n    /** {@inheritDoc} */\\n    @Deprecated\\n    public double solve(double min, double max, double initial)\\n        throws MaxIterationsExceededException, FunctionEvaluationException {\\n        return solve(f, min, max);\\n    }\\n\\n    /** {@inheritDoc} */\\n    @Deprecated\\n    public double solve(double min, double max)\\n        throws MaxIterationsExceededException, FunctionEvaluationException {\\n        return solve(f, min, max);\\n    }\\n\\n    /** {@inheritDoc} */\\n    public double solve(final UnivariateRealFunction f, double min, double max, double initial)\\n        throws MaxIterationsExceededException, FunctionEvaluationException {\\n        return solve(min, max);\\n    }\\n\\n    /** {@inheritDoc} */\\n    public double solve(final UnivariateRealFunction f, double min, double max)\\n        throws MaxIterationsExceededException, FunctionEvaluationException {\\n\\n        clearResult();\\n        verifyInterval(min,max);\\n        double m;\\n        double fm;\\n        double fmin;\\n\\n        int i = 0;\\n        while (i < maximalIterationCount) {\\n            m = UnivariateRealSolverUtils.midpoint(min, max);\\n            fmin = f.value(min);\\n            fm = f.value(m);\\n\\n            if (fm * fmin > 0.0) {\\n                // max and m bracket the root.\\n                min = m;\\n            } else {\\n                // min and m bracket the root.\\n                max = m;\\n            }\\n\\n            if (Math.abs(max - min) <= absoluteAccuracy) {\\n                m = UnivariateRealSolverUtils.midpoint(min, max);\\n                setResult(m, i);\\n                return m;\\n            }\\n            ++i;\\n        }\\n\\n        throw new MaxIterationsExceededException(maximalIterationCount);\\n    }\\n}\\n\", \"bugs\": []}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review provided is technically accurate and adheres to the guidelines by not addressing style issues. However, it lacks actionable suggestions, deep analytical insights, and security awareness. The review is also not constructive as it does not offer improvements or positive feedback."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 31.0605309009552,
+  "timestamp": "2025-12-02T05:01:51.211842",
+  "model_evaluated": "unknown"
+}

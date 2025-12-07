@@ -1,0 +1,44 @@
+{
+  "original_review": "{\n            }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review is empty and does not provide any feedback, making it impossible to evaluate on the given criteria."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is empty. It provides no feedback on the code. While it adheres to any implicit guideline of 'do nothing', it fails on all other criteria because there is no actual review content. It's not factually correct (because it doesn't state facts about the code), not actionable, lacks analytical depth, ignores security, is not constructive, and doesn't demonstrate any evaluation."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 1,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 3,
+      "consensus_reasoning": "The review is empty, providing no feedback on the code, thus scoring low on all criteria except adherence to guidelines, where it averages between the judges' scores of 1 and 5."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 1,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 3,\n   \"consensus_reasoning\": \"The review is empty, providing no feedback on the code, thus scoring low on all criteria except adherence to guidelines, where it averages between the judges' scores of 1 and 5.\"\n}"
+  },
+  "duration_seconds": 57.48585891723633,
+  "timestamp": "2025-12-02T04:51:53.049361",
+  "model_evaluated": "unknown"
+}

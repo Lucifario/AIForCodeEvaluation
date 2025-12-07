@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"location\": \"Partial(Chronology chrono) method\",\n         \"description\": \"If chrono is null, DateTimeUtils.getChronology(chrono) will throw a NullPointerException.\"\n      },\n      {\n         \"type\": \"Potential IllegalArgumentException\",\n         \"location\": \"Partial(DateTimeFieldType type, int value) method\",\n         \"description\": \"If type or value is invalid, an IllegalArgumentException will be thrown.\"\n      },\n      {\n         \"type\": \"Potential ArrayIndexOutOfBoundsException\",\n         \"location\": \"Partial(DateTimeFieldType type, int value, Chronology chronology) method\",\n         \"description\": \"If type is null, an ArrayIndexOutOfBoundsException will be thrown when trying to access the 0th element of the iTypes array.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.374504327774048,
+  "timestamp": "2025-12-02T05:18:52.272626",
+  "model_evaluated": "unknown"
+}

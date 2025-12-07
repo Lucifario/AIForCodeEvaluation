@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 143,\n         \"message\": \"Potential bug: Dropping of trailing whitespace when updating length\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 155,\n         \"message\": \"Potential bug: No handling for invalid index in append method\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 161,\n         \"message\": \"Potential bug: No handling for null input in append method\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 166,\n         \"message\": \"Potential bug: No handling for invalid index in delete method\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 174,\n         \"message\": \"Potential bug: No handling for null input in replace method\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 181,\n         \"message\": \"Potential bug: No handling for invalid index in leftString method\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 188,\n         \"message\": \"Potential bug: No handling for invalid index in rightString method\",\n         \"type\": \"Potential Bug\"\n      },\n      {\n         \"code\": \"StrBuilder.java\",\n         \"line\": 195,\n         \"message\": \"Potential bug: No handling for invalid index in midString method\",\n         \"type\": \"Potential Bug\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.435210943222046,
+  "timestamp": "2025-12-02T05:25:15.361913",
+  "model_evaluated": "unknown"
+}

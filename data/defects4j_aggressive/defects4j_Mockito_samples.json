@@ -1,0 +1,2504 @@
+[
+  {
+    "id": "Mockito_1",
+    "project": "Mockito",
+    "bug_id": 1,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_1b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationMatcherTest::should_capture_arguments_when_args_count_does_NOT_match",
+          "org.mockito.internal.util.reflection.FieldInitializerTest::can_instantiate_class_with_parameterized_constructor",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_report_failure_if_constructor_throws_exception",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_fail_if_an_argument_instance_type_do_not_match_wanted_type",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_instantiate_type_with_vararg_constructor",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_instantiate_type_if_resolver_provide_matching_types",
+          "org.mockitousage.basicapi.ResetTest::shouldRemoveAllStubbing",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyWithNullVarArgArray",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyWithAnyObject",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubBooleanVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldMatchEasilyEmptyVararg",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyBooleanVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubCorrectlyWhenMixedVarargsUsed",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubStringVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubCorrectlyWhenDoubleStringAndMixedVarargsUsed",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyStringVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyObjectVarargs",
+          "org.mockitousage.bugs.VarargsErrorWhenCallingRealMethodTest::shouldNotThrowAnyException",
+          "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyWithAnyVarargs",
+          "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyNumberOfInvocationsUsingAnyVarargAndEqualArgument",
+          "org.mockitousage.bugs.varargs.VarargsNotPlayingWithAnyObjectTest::shouldStubUsingAnyVarargs",
+          "org.mockitousage.matchers.VerificationAndStubbingUsingMatchersTest::shouldVerifyUsingMatchers",
+          "org.mockitousage.stubbing.BasicStubbingTest::test_stub_only_not_verifiable",
+          "org.mockitousage.stubbing.BasicStubbingTest::should_evaluate_latest_stubbing_first",
+          "org.mockitousage.stubbing.DeprecatedStubbingTest::shouldEvaluateLatestStubbingFirst",
+          "org.mockitousage.verification.VerificationInOrderMixedWithOrdiraryVerificationTest::shouldUseEqualsToVerifyMethodVarargs"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 26\n  - org.mockito.internal.invocation.InvocationMatcherTest::should_capture_arguments_when_args_count_does_NOT_match\n  - org.mockito.internal.util.reflection.FieldInitializerTest::can_instantiate_class_with_parameterized_constructor\n  - org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_report_failure_if_constructor_throws_exception\n  - org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_fail_if_an_argument_instance_type_do_not_match_wanted_type\n  - org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_instantiate_type_with_vararg_constructor\n  - org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_instantiate_type_if_resolver_provide_matching_types\n  - org.mockitousage.basicapi.ResetTest::shouldRemoveAllStubbing\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyWithNullVarArgArray\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyWithAnyObject\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldStubBooleanVarargs\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldMatchEasilyEmptyVararg\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyBooleanVarargs\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldStubCorrectlyWhenMixedVarargsUsed\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldStubStringVarargs\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldStubCorrectlyWhenDoubleStringAndMixedVarargsUsed\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyStringVarargs\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyObjectVarargs\n  - org.mockitousage.bugs.VarargsErrorWhenCallingRealMethodTest::shouldNotThrowAnyException\n  - org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyWithAnyVarargs\n  - org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyNumberOfInvocationsUsingAnyVarargAndEqualArgument\n  - org.mockitousage.bugs.varargs.VarargsNotPlayingWithAnyObjectTest::shouldStubUsingAnyVarargs\n  - org.mockitousage.matchers.VerificationAndStubbingUsingMatchersTest::shouldVerifyUsingMatchers\n  - org.mockitousage.stubbing.BasicStubbingTest::test_stub_only_not_verifiable\n  - org.mockitousage.stubbing.BasicStubbingTest::should_evaluate_latest_stubbing_first\n  - org.mockitousage.stubbing.DeprecatedStubbingTest::shouldEvaluateLatestStubbingFirst\n  - org.mockitousage.verification.VerificationInOrderMixedWithOrdiraryVerificationTest::shouldUseEqualsToVerifyMethodVarargs\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_1f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationMatcherTest::should_capture_arguments_when_args_count_does_NOT_match",
+          "org.mockito.internal.util.reflection.FieldInitializerTest::can_instantiate_class_with_parameterized_constructor",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_report_failure_if_constructor_throws_exception",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_fail_if_an_argument_instance_type_do_not_match_wanted_type",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_instantiate_type_with_vararg_constructor",
+          "org.mockito.internal.util.reflection.ParameterizedConstructorInstantiatorTest::should_instantiate_type_if_resolver_provide_matching_types",
+          "org.mockitousage.basicapi.ResetTest::shouldRemoveAllStubbing",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyWithNullVarArgArray",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyWithAnyObject",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubBooleanVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldMatchEasilyEmptyVararg",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyBooleanVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubCorrectlyWhenMixedVarargsUsed",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubStringVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldStubCorrectlyWhenDoubleStringAndMixedVarargsUsed",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyStringVarargs",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldVerifyObjectVarargs",
+          "org.mockitousage.bugs.VarargsErrorWhenCallingRealMethodTest::shouldNotThrowAnyException",
+          "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyWithAnyVarargs",
+          "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyNumberOfInvocationsUsingAnyVarargAndEqualArgument",
+          "org.mockitousage.bugs.varargs.VarargsNotPlayingWithAnyObjectTest::shouldStubUsingAnyVarargs",
+          "org.mockitousage.matchers.VerificationAndStubbingUsingMatchersTest::shouldVerifyUsingMatchers",
+          "org.mockitousage.stubbing.BasicStubbingTest::test_stub_only_not_verifiable",
+          "org.mockitousage.stubbing.BasicStubbingTest::should_evaluate_latest_stubbing_first",
+          "org.mockitousage.stubbing.DeprecatedStubbingTest::shouldEvaluateLatestStubbingFirst",
+          "org.mockitousage.verification.VerificationInOrderMixedWithOrdiraryVerificationTest::shouldUseEqualsToVerifyMethodVarargs"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_1",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.invocation.InvocationMatcher"
+      ]
+    },
+    "processed_at": "2025-12-01T09:14:20.592189",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_2",
+    "project": "Mockito",
+    "bug_id": 2,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_2b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.Timer"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.util.TimerTest::should_throw_friendly_reminder_exception_when_duration_is_negative",
+          "org.mockito.verification.NegativeDurationTest::should_throw_exception_when_duration_is_negative_for_timeout_method",
+          "org.mockito.verification.NegativeDurationTest::should_throw_exception_when_duration_is_negative_for_after_method"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 3\n  - org.mockito.internal.util.TimerTest::should_throw_friendly_reminder_exception_when_duration_is_negative\n  - org.mockito.verification.NegativeDurationTest::should_throw_exception_when_duration_is_negative_for_timeout_method\n  - org.mockito.verification.NegativeDurationTest::should_throw_exception_when_duration_is_negative_for_after_method\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_2f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.Timer"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.util.TimerTest::should_throw_friendly_reminder_exception_when_duration_is_negative",
+          "org.mockito.verification.NegativeDurationTest::should_throw_exception_when_duration_is_negative_for_timeout_method",
+          "org.mockito.verification.NegativeDurationTest::should_throw_exception_when_duration_is_negative_for_after_method"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_2",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.util.Timer"
+      ]
+    },
+    "processed_at": "2025-12-01T09:16:53.672859",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_3",
+    "project": "Mockito",
+    "bug_id": 3,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_3b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationMatcherTest::should_capture_varargs_as_vararg",
+          "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyNumberOfInvocationsWithVarargs",
+          "org.mockitousage.bugs.varargs.VarargsNotPlayingWithAnyObjectTest::shouldMatchAnyVararg",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_all_vararg",
+          "org.mockitousage.matchers.CapturingArgumentsTest::captures_correctly_when_captor_used_multiple_times",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_vararg",
+          "org.mockitousage.matchers.CapturingArgumentsTest::captures_correctly_when_captor_used_on_pure_vararg_method",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_byte_vararg_by_creating_captor_with_primitive_wrapper",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_byte_vararg_by_creating_captor_with_primitive"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 9\n  - org.mockito.internal.invocation.InvocationMatcherTest::should_capture_varargs_as_vararg\n  - org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyNumberOfInvocationsWithVarargs\n  - org.mockitousage.bugs.varargs.VarargsNotPlayingWithAnyObjectTest::shouldMatchAnyVararg\n  - org.mockitousage.matchers.CapturingArgumentsTest::should_capture_all_vararg\n  - org.mockitousage.matchers.CapturingArgumentsTest::captures_correctly_when_captor_used_multiple_times\n  - org.mockitousage.matchers.CapturingArgumentsTest::should_capture_vararg\n  - org.mockitousage.matchers.CapturingArgumentsTest::captures_correctly_when_captor_used_on_pure_vararg_method\n  - org.mockitousage.matchers.CapturingArgumentsTest::should_capture_byte_vararg_by_creating_captor_with_primitive_wrapper\n  - org.mockitousage.matchers.CapturingArgumentsTest::should_capture_byte_vararg_by_creating_captor_with_primitive\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_3f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationMatcherTest::should_capture_varargs_as_vararg",
+          "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest::shouldVerifyCorrectlyNumberOfInvocationsWithVarargs",
+          "org.mockitousage.bugs.varargs.VarargsNotPlayingWithAnyObjectTest::shouldMatchAnyVararg",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_all_vararg",
+          "org.mockitousage.matchers.CapturingArgumentsTest::captures_correctly_when_captor_used_multiple_times",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_vararg",
+          "org.mockitousage.matchers.CapturingArgumentsTest::captures_correctly_when_captor_used_on_pure_vararg_method",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_byte_vararg_by_creating_captor_with_primitive_wrapper",
+          "org.mockitousage.matchers.CapturingArgumentsTest::should_capture_byte_vararg_by_creating_captor_with_primitive"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_3",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.invocation.InvocationMatcher"
+      ]
+    },
+    "processed_at": "2025-12-01T09:19:53.793701",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_4",
+    "project": "Mockito",
+    "bug_id": 4,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_4b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.exceptions.Reporter"
+        ],
+        "tests.trigger": [
+          "org.mockito.exceptions.ReporterTest::can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted_in_order",
+          "org.mockito.exceptions.ReporterTest::can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_injection_failure",
+          "org.mockito.exceptions.ReporterTest::can_use_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted",
+          "org.mockitousage.bugs.ClassCastExOnVerifyZeroInteractionsTest::should_not_throw_a_ClassCastException"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 4\n  - org.mockito.exceptions.ReporterTest::can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted_in_order\n  - org.mockito.exceptions.ReporterTest::can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_injection_failure\n  - org.mockito.exceptions.ReporterTest::can_use_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted\n  - org.mockitousage.bugs.ClassCastExOnVerifyZeroInteractionsTest::should_not_throw_a_ClassCastException\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_4f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.exceptions.Reporter"
+        ],
+        "tests.trigger": [
+          "org.mockito.exceptions.ReporterTest::can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted_in_order",
+          "org.mockito.exceptions.ReporterTest::can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_injection_failure",
+          "org.mockito.exceptions.ReporterTest::can_use_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted",
+          "org.mockitousage.bugs.ClassCastExOnVerifyZeroInteractionsTest::should_not_throw_a_ClassCastException"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_4",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.exceptions.Reporter"
+      ]
+    },
+    "processed_at": "2025-12-01T09:22:32.180070",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_5",
+    "project": "Mockito",
+    "bug_id": 5,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_5b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.verification.VerificationOverTimeImpl"
+        ],
+        "tests.trigger": [
+          "org.mockitointegration.NoJUnitDependenciesTest::pure_mockito_should_not_depend_JUnit"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitointegration.NoJUnitDependenciesTest::pure_mockito_should_not_depend_JUnit\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_5f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.verification.VerificationOverTimeImpl"
+        ],
+        "tests.trigger": [
+          "org.mockitointegration.NoJUnitDependenciesTest::pure_mockito_should_not_depend_JUnit"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_5",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.verification.VerificationOverTimeImpl"
+      ]
+    },
+    "processed_at": "2025-12-01T09:25:09.141056",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_6",
+    "project": "Mockito",
+    "bug_id": 6,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_6b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.Matchers"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.matchers.AnyXMatchersAcceptNullsTest::shouldNotAcceptNullInAllAnyPrimitiveWrapperMatchers",
+          "org.mockitousage.matchers.AnyXMatchersAcceptNullsTest::shouldNotAcceptNullInAnyXMatchers",
+          "org.mockitousage.matchers.MatchersTest::anyStringMatcher",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyCollection",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyList",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyMap",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnySet"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 7\n  - org.mockitousage.matchers.AnyXMatchersAcceptNullsTest::shouldNotAcceptNullInAllAnyPrimitiveWrapperMatchers\n  - org.mockitousage.matchers.AnyXMatchersAcceptNullsTest::shouldNotAcceptNullInAnyXMatchers\n  - org.mockitousage.matchers.MatchersTest::anyStringMatcher\n  - org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyCollection\n  - org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyList\n  - org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyMap\n  - org.mockitousage.matchers.NewMatchersTest::shouldAllowAnySet\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_6f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.Matchers"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.matchers.AnyXMatchersAcceptNullsTest::shouldNotAcceptNullInAllAnyPrimitiveWrapperMatchers",
+          "org.mockitousage.matchers.AnyXMatchersAcceptNullsTest::shouldNotAcceptNullInAnyXMatchers",
+          "org.mockitousage.matchers.MatchersTest::anyStringMatcher",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyCollection",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyList",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnyMap",
+          "org.mockitousage.matchers.NewMatchersTest::shouldAllowAnySet"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_6",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.Matchers"
+      ]
+    },
+    "processed_at": "2025-12-01T09:27:48.453667",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_7",
+    "project": "Mockito",
+    "bug_id": 7,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_7b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.reflection.GenericMetadataSupport"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.deepstubs.DeepStubFailingWhenGenricNestedAsRawTypeTest::discoverDeepMockingOfGenerics"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.deepstubs.DeepStubFailingWhenGenricNestedAsRawTypeTest::discoverDeepMockingOfGenerics\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_7f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.reflection.GenericMetadataSupport"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.deepstubs.DeepStubFailingWhenGenricNestedAsRawTypeTest::discoverDeepMockingOfGenerics"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_7",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.util.reflection.GenericMetadataSupport"
+      ]
+    },
+    "processed_at": "2025-12-01T09:30:17.548472",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_8",
+    "project": "Mockito",
+    "bug_id": 8,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_8b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.reflection.GenericMetadataSupport"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.util.reflection.GenericMetadataSupportTest::typeVariable_of_self_type"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockito.internal.util.reflection.GenericMetadataSupportTest::typeVariable_of_self_type\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_8f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.reflection.GenericMetadataSupport"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.util.reflection.GenericMetadataSupportTest::typeVariable_of_self_type"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_8",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.util.reflection.GenericMetadataSupport"
+      ]
+    },
+    "processed_at": "2025-12-01T09:32:38.922778",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_9",
+    "project": "Mockito",
+    "bug_id": 9,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_9b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.answers.CallsRealMethods"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::abstractMethodStubbed",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::testCallsRealInterfaceMethod",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::abstractMethodReturnsDefault"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 3\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::abstractMethodStubbed\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::testCallsRealInterfaceMethod\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::abstractMethodReturnsDefault\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_9f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.answers.CallsRealMethods"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::abstractMethodStubbed",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::testCallsRealInterfaceMethod",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::abstractMethodReturnsDefault"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_9",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.answers.CallsRealMethods"
+      ]
+    },
+    "processed_at": "2025-12-01T09:35:11.527691",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_10",
+    "project": "Mockito",
+    "bug_id": 10,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_10b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.DeepStubsWronglyReportsSerializationProblemsTest::should_not_raise_a_mockito_exception_about_serialization_when_accessing_deep_stub"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.DeepStubsWronglyReportsSerializationProblemsTest::should_not_raise_a_mockito_exception_about_serialization_when_accessing_deep_stub\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_10f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.DeepStubsWronglyReportsSerializationProblemsTest::should_not_raise_a_mockito_exception_about_serialization_when_accessing_deep_stub"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_10",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+      ]
+    },
+    "processed_at": "2025-12-01T09:37:46.895420",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_11",
+    "project": "Mockito",
+    "bug_id": 11,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_11b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.DelegatingMethod"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.creation.DelegatingMethodTest::equals_should_return_true_when_equal",
+          "org.mockito.internal.creation.DelegatingMethodTest::equals_should_return_true_when_self"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockito.internal.creation.DelegatingMethodTest::equals_should_return_true_when_equal\n  - org.mockito.internal.creation.DelegatingMethodTest::equals_should_return_true_when_self\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_11f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.DelegatingMethod"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.creation.DelegatingMethodTest::equals_should_return_true_when_equal",
+          "org.mockito.internal.creation.DelegatingMethodTest::equals_should_return_true_when_self"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_11",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.creation.DelegatingMethod"
+      ]
+    },
+    "processed_at": "2025-12-01T09:40:19.796756",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_12",
+    "project": "Mockito",
+    "bug_id": 12,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_12b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.reflection.GenericMaster"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.util.reflection.GenericMasterTest::shouldDealWithNestedGenerics",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseAnnotatedCaptor",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseCaptorInOrdinaryWay",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldCaptureGenericList",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseGenericlessAnnotatedCaptor",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenWrongTypeForCaptor",
+          "org.mockitousage.annotation.CaptorAnnotationTest::testNormalUsage",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenMoreThanOneMockitoAnnotaton",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenInitializingCaptorsForNullClass",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldLookForAnnotatedCaptorsInSuperClasses"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 10\n  - org.mockito.internal.util.reflection.GenericMasterTest::shouldDealWithNestedGenerics\n  - org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseAnnotatedCaptor\n  - org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseCaptorInOrdinaryWay\n  - org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldCaptureGenericList\n  - org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseGenericlessAnnotatedCaptor\n  - org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenWrongTypeForCaptor\n  - org.mockitousage.annotation.CaptorAnnotationTest::testNormalUsage\n  - org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenMoreThanOneMockitoAnnotaton\n  - org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenInitializingCaptorsForNullClass\n  - org.mockitousage.annotation.CaptorAnnotationTest::shouldLookForAnnotatedCaptorsInSuperClasses\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_12f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.reflection.GenericMaster"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.util.reflection.GenericMasterTest::shouldDealWithNestedGenerics",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseAnnotatedCaptor",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseCaptorInOrdinaryWay",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldCaptureGenericList",
+          "org.mockitousage.annotation.CaptorAnnotationBasicTest::shouldUseGenericlessAnnotatedCaptor",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenWrongTypeForCaptor",
+          "org.mockitousage.annotation.CaptorAnnotationTest::testNormalUsage",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenMoreThanOneMockitoAnnotaton",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldScreamWhenInitializingCaptorsForNullClass",
+          "org.mockitousage.annotation.CaptorAnnotationTest::shouldLookForAnnotatedCaptorsInSuperClasses"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_12",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.util.reflection.GenericMaster"
+      ]
+    },
+    "processed_at": "2025-12-01T09:41:09.526859",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_13",
+    "project": "Mockito",
+    "bug_id": 13,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_13b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.MockHandler"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest::shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest::shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_13f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.MockHandler"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest::shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_13",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.MockHandler"
+      ]
+    },
+    "processed_at": "2025-12-01T09:41:58.750854",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_14",
+    "project": "Mockito",
+    "bug_id": 14,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_14b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.MockHandler",
+          "org.mockito.internal.MockitoCore"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest::shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest::shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_14f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.MockHandler",
+          "org.mockito.internal.MockitoCore"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest::shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_14",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.mockito.internal.MockHandler",
+        "org.mockito.internal.MockitoCore"
+      ]
+    },
+    "processed_at": "2025-12-01T09:42:46.198454",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_15",
+    "project": "Mockito",
+    "bug_id": 15,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_15b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.injection.FinalMockCandidateFilter"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.InjectMocksShouldTryPropertySettersFirstBeforeFieldAccessTest::shouldInjectUsingPropertySetterIfAvailable"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.InjectMocksShouldTryPropertySettersFirstBeforeFieldAccessTest::shouldInjectUsingPropertySetterIfAvailable\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_15f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.injection.FinalMockCandidateFilter"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.InjectMocksShouldTryPropertySettersFirstBeforeFieldAccessTest::shouldInjectUsingPropertySetterIfAvailable"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_15",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.configuration.injection.FinalMockCandidateFilter"
+      ]
+    },
+    "processed_at": "2025-12-01T09:43:36.292031",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_16",
+    "project": "Mockito",
+    "bug_id": 16,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_16b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.MockitoCore",
+          "org.mockito.Mockito"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.StubbingMocksThatAreConfiguredToReturnMocksTest::shouldAllowStubbingMocksConfiguredWithRETURNS_MOCKS"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.StubbingMocksThatAreConfiguredToReturnMocksTest::shouldAllowStubbingMocksConfiguredWithRETURNS_MOCKS\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_16f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.MockitoCore",
+          "org.mockito.Mockito"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.StubbingMocksThatAreConfiguredToReturnMocksTest::shouldAllowStubbingMocksConfiguredWithRETURNS_MOCKS"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_16",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.mockito.internal.MockitoCore",
+        "org.mockito.Mockito"
+      ]
+    },
+    "processed_at": "2025-12-01T09:44:20.811010",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_17",
+    "project": "Mockito",
+    "bug_id": 17,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_17b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.MockSettingsImpl",
+          "org.mockito.internal.util.MockUtil"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.basicapi.MocksSerializationTest::shouldBeSerializeAndHaveExtraInterfaces"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.basicapi.MocksSerializationTest::shouldBeSerializeAndHaveExtraInterfaces\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_17f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.MockSettingsImpl",
+          "org.mockito.internal.util.MockUtil"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.basicapi.MocksSerializationTest::shouldBeSerializeAndHaveExtraInterfaces"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_17",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.mockito.internal.creation.MockSettingsImpl",
+        "org.mockito.internal.util.MockUtil"
+      ]
+    },
+    "processed_at": "2025-12-01T09:45:07.038589",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_18",
+    "project": "Mockito",
+    "bug_id": 18,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_18b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_empty_iterable"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_empty_iterable\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_18f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_empty_iterable"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_18",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues"
+      ]
+    },
+    "processed_at": "2025-12-01T09:47:57.211161",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_19",
+    "project": "Mockito",
+    "bug_id": 19,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_19b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.injection.filter.FinalMockCandidateFilter",
+          "org.mockito.internal.configuration.injection.filter.MockCandidateFilter",
+          "org.mockito.internal.configuration.injection.filter.NameBasedCandidateFilter",
+          "org.mockito.internal.configuration.injection.filter.TypeBasedCandidateFilter",
+          "org.mockito.internal.configuration.injection.PropertyAndSetterInjection"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.annotation.MockInjectionUsingSetterOrPropertyTest::shouldInsertFieldWithCorrectNameWhenMultipleTypesAvailable"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.annotation.MockInjectionUsingSetterOrPropertyTest::shouldInsertFieldWithCorrectNameWhenMultipleTypesAvailable\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_19f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.injection.filter.FinalMockCandidateFilter",
+          "org.mockito.internal.configuration.injection.filter.MockCandidateFilter",
+          "org.mockito.internal.configuration.injection.filter.NameBasedCandidateFilter",
+          "org.mockito.internal.configuration.injection.filter.TypeBasedCandidateFilter",
+          "org.mockito.internal.configuration.injection.PropertyAndSetterInjection"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.annotation.MockInjectionUsingSetterOrPropertyTest::shouldInsertFieldWithCorrectNameWhenMultipleTypesAvailable"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_19",
+      "buggy_files_extracted": 5,
+      "fixed_files_extracted": 5,
+      "modified_classes": [
+        "org.mockito.internal.configuration.injection.filter.FinalMockCandidateFilter",
+        "org.mockito.internal.configuration.injection.filter.MockCandidateFilter",
+        "org.mockito.internal.configuration.injection.filter.NameBasedCandidateFilter",
+        "org.mockito.internal.configuration.injection.filter.TypeBasedCandidateFilter",
+        "org.mockito.internal.configuration.injection.PropertyAndSetterInjection"
+      ]
+    },
+    "processed_at": "2025-12-01T09:50:45.936308",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_20",
+    "project": "Mockito",
+    "bug_id": 20,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_20b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.bytebuddy.ByteBuddyMockMaker"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.annotation.SpyAnnotationTest::should_spy_inner_class",
+          "org.mockitousage.annotation.SpyAnnotationTest::should_report_when_constructor_is_explosive",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_spy_abstract_classes",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::exception_message_when_constructor_not_found",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_create_mock_with_constructor",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_mock_inner_classes",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::mocking_inner_classes_with_wrong_outer_instance",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_mock_abstract_classes"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 8\n  - org.mockitousage.annotation.SpyAnnotationTest::should_spy_inner_class\n  - org.mockitousage.annotation.SpyAnnotationTest::should_report_when_constructor_is_explosive\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_spy_abstract_classes\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::exception_message_when_constructor_not_found\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_create_mock_with_constructor\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_mock_inner_classes\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::mocking_inner_classes_with_wrong_outer_instance\n  - org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_mock_abstract_classes\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_20f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.bytebuddy.ByteBuddyMockMaker"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.annotation.SpyAnnotationTest::should_spy_inner_class",
+          "org.mockitousage.annotation.SpyAnnotationTest::should_report_when_constructor_is_explosive",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_spy_abstract_classes",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::exception_message_when_constructor_not_found",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_create_mock_with_constructor",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_mock_inner_classes",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::mocking_inner_classes_with_wrong_outer_instance",
+          "org.mockitousage.constructor.CreatingMocksWithConstructorTest::can_mock_abstract_classes"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_20",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.creation.bytebuddy.ByteBuddyMockMaker"
+      ]
+    },
+    "processed_at": "2025-12-01T09:53:28.160791",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_21",
+    "project": "Mockito",
+    "bug_id": 21,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_21b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.instance.ConstructorInstantiator"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.creation.instance.ConstructorInstantiatorTest::creates_instances_of_inner_classes"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockito.internal.creation.instance.ConstructorInstantiatorTest::creates_instances_of_inner_classes\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_21f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.creation.instance.ConstructorInstantiator"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.creation.instance.ConstructorInstantiatorTest::creates_instances_of_inner_classes"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "build/classes/java/main"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_21",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.creation.instance.ConstructorInstantiator"
+      ]
+    },
+    "processed_at": "2025-12-01T09:55:59.082397",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_22",
+    "project": "Mockito",
+    "bug_id": 22,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_22b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.matchers.Equality"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.matchers.EqualityTest::shouldKnowIfObjectsAreEqual"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockito.internal.matchers.EqualityTest::shouldKnowIfObjectsAreEqual\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_22f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.matchers.Equality"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.matchers.EqualityTest::shouldKnowIfObjectsAreEqual"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_22",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.matchers.Equality"
+      ]
+    },
+    "processed_at": "2025-12-01T09:57:32.043784",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_23",
+    "project": "Mockito",
+    "bug_id": 23,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_23b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.stubbing.DeepStubsSerializableTest::should_serialize_and_deserialize_mock_created_by_deep_stubs"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.stubbing.DeepStubsSerializableTest::should_serialize_and_deserialize_mock_created_by_deep_stubs\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_23f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.stubbing.DeepStubsSerializableTest::should_serialize_and_deserialize_mock_created_by_deep_stubs"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_23",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+      ]
+    },
+    "processed_at": "2025-12-01T09:59:04.048676",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_24",
+    "project": "Mockito",
+    "bug_id": 24,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_24b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_zero_if_mock_is_compared_to_itself",
+          "org.mockitousage.bugs.ShouldMocksCompareToBeConsistentWithEqualsTest::should_compare_to_be_consistent_with_equals_when_comparing_the_same_reference"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_zero_if_mock_is_compared_to_itself\n  - org.mockitousage.bugs.ShouldMocksCompareToBeConsistentWithEqualsTest::should_compare_to_be_consistent_with_equals_when_comparing_the_same_reference\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_24f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_zero_if_mock_is_compared_to_itself",
+          "org.mockitousage.bugs.ShouldMocksCompareToBeConsistentWithEqualsTest::should_compare_to_be_consistent_with_equals_when_comparing_the_same_reference"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_24",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues"
+      ]
+    },
+    "processed_at": "2025-12-01T10:00:39.013927",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_25",
+    "project": "Mockito",
+    "bug_id": 25,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_25b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::will_return_default_value_on_non_mockable_nested_generic",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_typevar_that_is_referencing_a_typevar_on_class",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_return_types_declared_with_a_bounded_wildcard",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_parameterizedtype_that_is_referencing_a_typevar_on_class",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::generic_deep_mock_frenzy__look_at_these_chained_calls",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_method_return_type_is_referencing_a_typevar_on_class"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 7\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::will_return_default_value_on_non_mockable_nested_generic\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_typevar_that_is_referencing_a_typevar_on_class\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_return_types_declared_with_a_bounded_wildcard\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_parameterizedtype_that_is_referencing_a_typevar_on_class\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::generic_deep_mock_frenzy__look_at_these_chained_calls\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_method_return_type_is_referencing_a_typevar_on_class\n  - org.mockitousage.bugs.ConcurrentModificationExceptionOnMultiThreadedVerificationTest::testInvocationConcurrently\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_25f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::will_return_default_value_on_non_mockable_nested_generic",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_typevar_that_is_referencing_a_typevar_on_class",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_return_types_declared_with_a_bounded_wildcard",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_parameterizedtype_that_is_referencing_a_typevar_on_class",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::generic_deep_mock_frenzy__look_at_these_chained_calls",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsGenericDeepStubsTest::can_create_mock_from_multiple_type_variable_bounds_when_method_return_type_is_referencing_a_typevar_on_class"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_25",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs"
+      ]
+    },
+    "processed_at": "2025-12-01T10:01:51.309817",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_26",
+    "project": "Mockito",
+    "bug_id": 26,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_26b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.Primitives"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.progress.HandyReturnValuesTest::should_default_values_for_primitive",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_primitive",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsMocksTest::should_return_the_usual_default_values_for_primitives",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::should_return_the_usual_default_values_for_primitives"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 4\n  - org.mockito.internal.progress.HandyReturnValuesTest::should_default_values_for_primitive\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_primitive\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsMocksTest::should_return_the_usual_default_values_for_primitives\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::should_return_the_usual_default_values_for_primitives\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_26f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.Primitives"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.progress.HandyReturnValuesTest::should_default_values_for_primitive",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValuesTest::should_return_primitive",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsMocksTest::should_return_the_usual_default_values_for_primitives",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::should_return_the_usual_default_values_for_primitives"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_26",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.util.Primitives"
+      ]
+    },
+    "processed_at": "2025-12-01T10:03:02.618208",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_27",
+    "project": "Mockito",
+    "bug_id": 27,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_27b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.MockUtil"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.ListenersLostOnResetMockTest::listener"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.ListenersLostOnResetMockTest::listener\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_27f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.util.MockUtil"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.ListenersLostOnResetMockTest::listener"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_27",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.util.MockUtil"
+      ]
+    },
+    "processed_at": "2025-12-01T10:03:56.397180",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_28",
+    "project": "Mockito",
+    "bug_id": 28,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_28b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.DefaultInjectionEngine"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest::mock_should_be_injected_once_and_in_the_best_matching_type"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest::mock_should_be_injected_once_and_in_the_best_matching_type\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_28f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.DefaultInjectionEngine"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest::mock_should_be_injected_once_and_in_the_best_matching_type"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_28",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.configuration.DefaultInjectionEngine"
+      ]
+    },
+    "processed_at": "2025-12-01T10:04:47.838562",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_29",
+    "project": "Mockito",
+    "bug_id": 29,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_29b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.matchers.Same"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenNullPassedToSame"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenNullPassedToSame\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_29f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.matchers.Same"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenNullPassedToSame"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_29",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.matchers.Same"
+      ]
+    },
+    "processed_at": "2025-12-01T10:05:38.462998",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_30",
+    "project": "Mockito",
+    "bug_id": 30,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_30b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.exceptions.Reporter",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::shouldPrintTheParametersOnSmartNullPointerExceptionMessage"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::shouldPrintTheParametersOnSmartNullPointerExceptionMessage\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_30f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.exceptions.Reporter",
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::shouldPrintTheParametersOnSmartNullPointerExceptionMessage"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_30",
+      "buggy_files_extracted": 2,
+      "fixed_files_extracted": 2,
+      "modified_classes": [
+        "org.mockito.exceptions.Reporter",
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls"
+      ]
+    },
+    "processed_at": "2025-12-01T10:06:28.549638",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_31",
+    "project": "Mockito",
+    "bug_id": 31,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_31b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::shouldPrintTheParametersWhenCallingAMethodWithArgs"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::shouldPrintTheParametersWhenCallingAMethodWithArgs\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_31f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNullsTest::shouldPrintTheParametersWhenCallingAMethodWithArgs"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_31",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.defaultanswers.ReturnsSmartNulls"
+      ]
+    },
+    "processed_at": "2025-12-01T10:07:18.911604",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_32",
+    "project": "Mockito",
+    "bug_id": 32,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_32b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.SpyAnnotationEngine"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.SpyShouldHaveNiceNameTest::shouldPrintNiceName"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 1\n  - org.mockitousage.bugs.SpyShouldHaveNiceNameTest::shouldPrintNiceName\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_32f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.configuration.SpyAnnotationEngine"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.SpyShouldHaveNiceNameTest::shouldPrintNiceName"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_32",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.configuration.SpyAnnotationEngine"
+      ]
+    },
+    "processed_at": "2025-12-01T10:08:09.256309",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_33",
+    "project": "Mockito",
+    "bug_id": 33,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_33b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.InheritedGenericsPolimorphicCallTest::shouldStubbingWork",
+          "org.mockitousage.bugs.InheritedGenericsPolimorphicCallTest::shouldVerificationWorks"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockitousage.bugs.InheritedGenericsPolimorphicCallTest::shouldStubbingWork\n  - org.mockitousage.bugs.InheritedGenericsPolimorphicCallTest::shouldVerificationWorks\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_33f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.InheritedGenericsPolimorphicCallTest::shouldStubbingWork",
+          "org.mockitousage.bugs.InheritedGenericsPolimorphicCallTest::shouldVerificationWorks"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_33",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.invocation.InvocationMatcher"
+      ]
+    },
+    "processed_at": "2025-12-01T10:08:58.990754",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_34",
+    "project": "Mockito",
+    "bug_id": 34,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_34b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationMatcherTest::shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldMatchEasilyEmptyVararg"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockito.internal.invocation.InvocationMatcherTest::shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch\n  - org.mockitousage.basicapi.UsingVarargsTest::shouldMatchEasilyEmptyVararg\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_34f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.InvocationMatcher"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationMatcherTest::shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch",
+          "org.mockitousage.basicapi.UsingVarargsTest::shouldMatchEasilyEmptyVararg"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_34",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.invocation.InvocationMatcher"
+      ]
+    },
+    "processed_at": "2025-12-01T10:09:45.436649",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_35",
+    "project": "Mockito",
+    "bug_id": 35,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_35b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.Matchers"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntPassed",
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassed",
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassedToEq",
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassedToSame"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 4\n  - org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntPassed\n  - org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassed\n  - org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassedToEq\n  - org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassedToSame\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_35f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.Matchers"
+        ],
+        "tests.trigger": [
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntPassed",
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassed",
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassedToEq",
+          "org.mockitousage.bugs.NPEWithCertainMatchersTest::shouldNotThrowNPEWhenIntegerPassedToSame"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_35",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.Matchers"
+      ]
+    },
+    "processed_at": "2025-12-01T10:10:31.779531",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_36",
+    "project": "Mockito",
+    "bug_id": 36,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_36b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.Invocation"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationTest::shouldScreamWhenCallingRealMethodOnInterface",
+          "org.mockitousage.spies.SpyingOnInterfacesTest::shouldFailInRuntimeWhenCallingRealMethodOnInterface"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockito.internal.invocation.InvocationTest::shouldScreamWhenCallingRealMethodOnInterface\n  - org.mockitousage.spies.SpyingOnInterfacesTest::shouldFailInRuntimeWhenCallingRealMethodOnInterface\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_36f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.invocation.Invocation"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.invocation.InvocationTest::shouldScreamWhenCallingRealMethodOnInterface",
+          "org.mockitousage.spies.SpyingOnInterfacesTest::shouldFailInRuntimeWhenCallingRealMethodOnInterface"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_36",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.invocation.Invocation"
+      ]
+    },
+    "processed_at": "2025-12-01T10:11:16.877677",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_37",
+    "project": "Mockito",
+    "bug_id": 37,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_37b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.answers.AnswersValidator"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.answers.AnswersValidatorTest::shouldFailWhenCallingRealMethodOnIterface",
+          "org.mockitousage.spies.SpyingOnInterfacesTest::shouldFailFastWhenCallingRealMethodOnInterface"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockito.internal.stubbing.answers.AnswersValidatorTest::shouldFailWhenCallingRealMethodOnIterface\n  - org.mockitousage.spies.SpyingOnInterfacesTest::shouldFailFastWhenCallingRealMethodOnInterface\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_37f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.stubbing.answers.AnswersValidator"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.stubbing.answers.AnswersValidatorTest::shouldFailWhenCallingRealMethodOnIterface",
+          "org.mockitousage.spies.SpyingOnInterfacesTest::shouldFailFastWhenCallingRealMethodOnInterface"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_37",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.stubbing.answers.AnswersValidator"
+      ]
+    },
+    "processed_at": "2025-12-01T10:12:03.477113",
+    "language": "java"
+  },
+  {
+    "id": "Mockito_38",
+    "project": "Mockito",
+    "bug_id": 38,
+    "BEFORE": {
+      "path": "data/defects4j_bugs/Mockito_38b",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.verification.argumentmatching.ArgumentMatchingTool"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.verification.argumentmatching.ArgumentMatchingToolTest::shouldWorkFineWhenGivenArgIsNull",
+          "org.mockitousage.bugs.ActualInvocationHasNullArgumentNPEBugTest::shouldAllowPassingNullArgument"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 2\n  - org.mockito.internal.verification.argumentmatching.ArgumentMatchingToolTest::shouldWorkFineWhenGivenArgIsNull\n  - org.mockitousage.bugs.ActualInvocationHasNullArgumentNPEBugTest::shouldAllowPassingNullArgument\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "AFTER": {
+      "path": "data/defects4j_bugs/Mockito_38f",
+      "compiled": true,
+      "metadata": {
+        "classes.modified": [
+          "org.mockito.internal.verification.argumentmatching.ArgumentMatchingTool"
+        ],
+        "tests.trigger": [
+          "org.mockito.internal.verification.argumentmatching.ArgumentMatchingToolTest::shouldWorkFineWhenGivenArgIsNull",
+          "org.mockitousage.bugs.ActualInvocationHasNullArgumentNPEBugTest::shouldAllowPassingNullArgument"
+        ],
+        "dir.src.classes": [
+          "src"
+        ],
+        "dir.bin.classes": [
+          "target/classes"
+        ]
+      },
+      "test_results": {
+        "returncode": 0,
+        "stdout": "Failing tests: 0\n",
+        "stderr": "Running ant (compile.tests)................................................ OK\nRunning ant (run.dev.tests)................................................ OK\n"
+      }
+    },
+    "source_files": {
+      "directory": "data/defects4j_aggressive/sources_Mockito_38",
+      "buggy_files_extracted": 1,
+      "fixed_files_extracted": 1,
+      "modified_classes": [
+        "org.mockito.internal.verification.argumentmatching.ArgumentMatchingTool"
+      ]
+    },
+    "processed_at": "2025-12-01T10:12:44.705865",
+    "language": "java"
+  }
+]

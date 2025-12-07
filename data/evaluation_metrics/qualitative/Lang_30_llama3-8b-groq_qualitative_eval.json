@@ -1,0 +1,44 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"Typo in variable declaration\",\n         \"location\": {\n            \"file\": \"StringUtils.java\",\n            \"line\": 35,\n            \"column\": 5\n         }\n      },\n      {\n         \"message\": \"Missing import statement for Stri\",\n         \"location\": {\n            \"file\": \"StringUtils.java\",\n            \"line\": 53,\n            \"column\": 5\n         }\n      },\n      {\n         \"message\": \"Typo in method name\",\n         \"location\": {\n            \"file\": \"StringUtils.java\",\n            \"line\": 55,\n            \"column\": 5\n         }\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct in identifying specific issues but lacks depth in analysis and actionable suggestions. It does not address security concerns and is somewhat constructive but could be more helpful. It adheres to the guidelines by not violating any constraints."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 3,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies potential issues (typos and missing imports) but lacks detail. It doesn't provide the actual typo or the missing import, making it somewhat actionable but requiring the developer to investigate. The analytical depth is very low; it's purely surface-level observation. Security isn't addressed at all, which is expected given the context. Constructiveness is moderate; it points out problems but doesn't offer solutions. It adheres to any implicit guidelines (no style comments were given)."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 3,
+      "final_actionability": 2,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 2,
+      "final_adherence_to_guidelines": 5,
+      "consensus_reasoning": "The review is factually correct in identifying specific issues but lacks depth in analysis and actionable suggestions, with moderate constructiveness and adherence to guidelines."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 3,\n   \"final_actionability\": 2,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 2,\n   \"final_adherence_to_guidelines\": 5,\n   \"consensus_reasoning\": \"The review is factually correct in identifying specific issues but lacks depth in analysis and actionable suggestions, with moderate constructiveness and adherence to guidelines.\"\n}"
+  },
+  "duration_seconds": 13.942074298858643,
+  "timestamp": "2025-12-02T06:10:26.613224",
+  "model_evaluated": "unknown"
+}

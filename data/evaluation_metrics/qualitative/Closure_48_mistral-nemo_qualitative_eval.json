@@ -1,0 +1,36 @@
+{
+  "original_review": "{\n  \"bugs\": [\n    {\n      \"description\": \"The code is importing many static fields from different classes using the 'static' keyword. This can make the code harder to read and maintain, and it also makes it easier to accidentally use the wrong field. It would be better to use instance variables or methods to access these fields.\",\n      \"location\": \"Lines 11-41\"\n    },\n    {\n      \"description\": \"The code is using many long, complex variable names that are hard to read and understand. It would be better to use shorter, more descriptive variable names to make the code easier to read and maintain.\",\n      \"location\": \"Throughout the code\"\n    },\n    {\n      \"description\": \"The code is using many magic numbers (unexplained numerical values) throughout the code. It would be better to use named constants to make the code easier to read and maintain.\",\n      \"location\": \"Throughout the code\"\n    },\n    {\n      \"description\": \"The code is using many long, complex if-else statements that are hard to read and understand. It would be better to use switch statements or polymorphism to make the code easier to read and maintain.\",\n      \"location\": \"Lines 70-85\"\n    },\n    {\n      \"description\": \"The code is using many long, complex loops that are hard to read and understand. It would be better to use iterator methods or stream processing to make the code easier to read and maintain.\",\n      \"location\": \"Lines 90-100\"\n    },\n    {\n      \"description\": \"The code is using many long, complex try-catch blocks that are hard to read and understand. It would be better to use exception handling libraries or custom exception types to make the code easier to read and maintain.\",\n      \"location\": \"Lines 110-120\"\n    },\n    {\n      \"description\": \"The code is using many long, complex regular expressions that are hard to read and understand. It would be better to use named patterns or regex libraries to make the code easier to read and maintain.\",\n      \"location\": \"Lines 130-140\"\n    },\n    {\n      \"description\": \"The code is using many long, complex JSON objects that are hard to read and understand. It would be better to use named constants or data classes to make the code easier to read and maintain.\",\n      \"location\": \"Lines 150-160\"\n    },\n    {\n      \"description\": \"The code is using many long, complex XML documents that are hard to read and understand. It would be better to use XML libraries or data binding to make the code easier to read and maintain.\",\n      \"location\": \"Lines 170-180\"\n    },\n    {\n      \"description\": \"The code is using many long, complex SQL queries that are hard to read and understand. It would be better to use parameterized queries or ORM libraries to make the code easier to read and maintain.\",\n      \"location\": \"Lines 190-200\"\n    }\n  ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 4,
+        "reasoning": "The review provides generally accurate and constructive feedback, but it lacks specific examples or code snippets, which reduces its actionability. The suggestions are mostly surface-level and do not delve deeply into the root causes of the issues. Security risks are not addressed at all. The review adheres well to the guidelines provided in the code context, focusing on readability and maintainability."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies potential code quality issues (readability, maintainability) but is extremely generic and lacks context. While the points about long names, magic numbers, and complex structures are valid *in general*, they are presented as blanket statements without specific examples from the provided code snippet. The review doesn't demonstrate understanding of *why* these things might be acceptable in this specific context (e.g., the static imports are likely for performance or clarity within the class). The suggestions are vague ('use instance variables', 'use switch statements') and not ready to be copy-pasted. There's no analysis of the code's purpose or potential impact of changes. Security is completely ignored. The review isn't particularly negative, but it's not very helpful because it's so high-level and doesn't engage with the actual code. It does adhere to the guidelines by providing locations (line numbers), but these are broad ranges."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 25.047345876693726,
+  "timestamp": "2025-12-02T06:56:38.813314",
+  "model_evaluated": "unknown"
+}

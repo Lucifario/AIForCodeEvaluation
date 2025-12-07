@@ -1,0 +1,28 @@
+{
+  "original_review": "{\n  \"bugs\":[\n      {\n         \"category\":\"Potential NullPointerException\",\n         \"description\":\"The class does not handle the case where the input string is null in all methods. This can lead to a NullPointerException.\",\n         \"severity\":\"High\"\n      },\n      {\n         \"category\":\"Performance\",\n         \"description\":\"The class uses a Pattern object to recognize blocks of whitespace characters. This can be inefficient for large strings.\",\n         \"severity\":\"Medium\"\n      },\n      {\n         \"category\":\"Code Smell\",\n         \"description\":\"The class has a constructor that is public and not intended to be used. This is a code smell and should be removed.\",\n         \"severity\":\"Low\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 2,
+        "analytical_depth": 3,
+        "security_awareness": 3,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is mostly accurate in identifying potential issues, but it lacks specific suggestions for fixing the problems. It provides a good analysis of potential null pointer exceptions and performance issues, but does not delve deeply into the root causes. The review does not explicitly mention security risks, but the identified issues could have security implications. The review is constructive and adheres to the guidelines by not focusing on style issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.872353076934814,
+  "timestamp": "2025-12-02T05:13:50.890639",
+  "model_evaluated": "unknown"
+}

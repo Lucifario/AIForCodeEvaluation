@@ -1,0 +1,36 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": \"UNEXPECTED_TOKEN\",\n         \"description\": \"Internal Error: Don't know how to handle {0}\"\n      },\n      {\n         \"id\": \"BAD_DELETE\",\n         \"description\": \"delete operator needs a reference operand\"\n      },\n      {\n         \"id\": \"DETERMINISTIC_TEST\",\n         \"description\": \"condition always evaluates to {2}\\\\nleft : {0}\\\\nright: {1}\"\n      },\n      {\n         \"id\": \"DETERMINISTIC_TEST_NO_RESULT\",\n         \"description\": \"condition always evaluates to the same value\\\\nleft : {0}\\\\nright: {1}\"\n      },\n      {\n         \"id\": \"INEXISTENT_ENUM_ELEMENT\",\n         \"description\": \"element {0} does not exist on this enum\"\n      },\n      {\n         \"id\": \"INEXISTENT_PROPERTY\",\n         \"description\": \"Property {0} never defined on {1}\"\n      },\n      {\n         \"id\": \"NOT_A_CONSTRUCTOR\",\n         \"description\": \"cannot instantiate non-constructor\"\n      },\n      {\n         \"id\": \"BIT_OPERATION\",\n         \"description\": \"operator {0} cannot be applied to {1}\"\n      },\n      {\n         \"id\": \"NOT_CALLABLE\",\n         \"description\": \"{0} expressions are not callable\"\n      },\n      {\n         \"id\": \"CONSTRUCTOR_NOT_CALLABLE\",\n         \"description\": \"Constructor {0} should be called with the \\\\\\\"new\\\\\\\" keyword\"\n      },\n      {\n         \"id\": \"FUNCTION_MASKS_VARIABLE\",\n         \"description\": \"function {0} masks variable (IE bug)\"\n      },\n      {\n         \"id\": \"MULTIPLE_VAR_DEF\",\n         \"description\": \"declaration of multiple variables with shared type information\"\n      },\n      {\n         \"id\": \"ENUM_DUP\",\n         \"description\": \"enum element {0} already defined\"\n      },\n      {\n         \"id\": \"ENUM_NOT_CONSTANT\",\n         \"description\": \"enum key {0} must be a syntactic constant\"\n      },\n      {\n         \"id\": \"INVALID_INTERFACE_MEMBER_DECLARATION\",\n         \"description\": \"interface members can only be empty property declarations,\\\\nempty functions{0}\"\n      },\n      {\n         \"id\": \"INTERFACE_FUNCTION_NOT_EMPTY\",\n         \"description\": \"interface member functions must have an empty body\"\n      },\n      {\n         \"id\": \"CONFLICTING_EXTENDED_TYPE\",\n         \"description\": \"{1} cannot extend this type; {0}s can only\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 2,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct and adheres to the guidelines by not commenting on style. However, it lacks actionable suggestions and deep analytical insights. It also does not address security concerns or provide constructive improvements beyond identifying issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 5,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review provides a comprehensive list of diagnostic IDs and their corresponding descriptions. The descriptions are clear and concise, accurately reflecting potential issues in JavaScript code. The list is factually correct as it represents common error and warning conditions within a JavaScript compiler/type checker. The actionability is high because each ID directly points to a specific problem. Analytical depth is moderate; while the descriptions identify *what* is wrong, they don't delve into *why* these issues are problematic beyond the immediate error message. Security awareness is low; the review doesn't explicitly address security vulnerabilities, although some of the checks (e.g., `NOT_CALLABLE`, `BAD_DELETE`) could indirectly prevent certain exploits. The review is constructive as it focuses on identifying potential problems for improvement. Finally, there are no constraints mentioned, so adherence is perfect."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 20.42695188522339,
+  "timestamp": "2025-12-02T04:53:33.927850",
+  "model_evaluated": "unknown"
+}

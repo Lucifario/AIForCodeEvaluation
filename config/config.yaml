@@ -1,16 +1,23 @@
 github:
-  token: "GITHUBIID"  
+  # !!! IMPORTANT: PASTE YOUR TOKEN HERE !!!
+  token: "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"  
   repositories:
+    # --- Java Repos (Existing) ---
     - "apache/commons-lang"
     - "google/guava"
     - "spring-projects/spring-framework"
     - "elastic/elasticsearch"
+    - "alibaba/fastjson"
+    - "mockito/mockito"
+    - "square/okhttp"
+    - "apache/kafka"
+
   query_params:
     state: "closed"
     per_page: 100
     min_reviewers: 0 
-    max_pr_age_days: 90
-    max_prs_to_fetch_per_repo: 100 
+    max_pr_age_days: 730 # 2 years history
+    max_prs_to_fetch_per_repo: 150 # 150 * 20 repos = 3000 potential samples
 
 defects4j:
   base_path: "/Users/lucifario/Documents/Code/AIForCodeReview/defects4j"
@@ -19,28 +26,18 @@ defects4j:
     - "Math"
     - "Chart"
     - "Time"
-  max_bugs_per_project: 20
+    - "Mockito"
+    - "Closure"
+  max_bugs_per_project: 1000
   checkout_dir: "./data/defects4j_bugs"
-
-synthetic:
-  mutation_tools:
-    python: "mutpy"
-    java: "pit"
-  mutation_operators:
-    - "AOR"
-    - "ROR"
-    - "COR"
-    - "LCR"
-  max_mutants_per_file: 10
-  output_dir: "./data/synthetic_bugs"
 
 data:
   output_base: "./data"
-  version_file: "./data/metadata/dataset_version.json"
+  version_file: "./data/phase1_results/unified_dataset_clean.json"
   log_file: "./logs/pipeline.log"
 
 schedule:
-  enabled: true
+  enabled: false
   cron_expression: "0 0 * * 0"
 
 llm_providers:
@@ -52,22 +49,35 @@ llm_providers:
     base_url: "https://openrouter.ai/api/v1"
 
 llm_models:
+  # Generators
   - id: "llama3-8b-groq"
     provider: "groq"
     model_name: "llama-3.1-8b-instant" 
     role: "generator"
 
-  - id: "Mistral-Small-3.2-24B-Instruct-2506"
+  - id: "qwen-coder-32b"
+    provider: "openrouter"
+    model_name: "qwen/qwen-2.5-coder-32b-instruct"
+    role: "generator"
+
+  - id: "mistral-nemo"
+    provider: "openrouter"
+    model_name: "mistralai/mistral-nemo"
+    role: "generator"
+
+  # Judges
+  - id: "mistral-small"
     provider: "openrouter"
     model_name: "mistralai/mistral-small-24b-instruct-2501" 
     role: "judge"
 
-  - id: "gemma-27b-or"
+  - id: "gemma-27b"
     provider: "openrouter"
     model_name: "google/gemma-3-27b-it" 
     role: "judge"
 
-  - id: "llama3-70b-groq"
+  # Meta-Judge
+  - id: "llama3-70b-meta"
     provider: "groq"
     model_name: "llama-3.3-70b-versatile" 
     role: "meta-judge"
@@ -76,4 +86,4 @@ multi_judge_config:
   judge_roles: ["judge"]         
   meta_judge_roles: ["meta-judge"] 
   max_retries: 3                  
-  initial_delay: 2                
+  initial_delay: 2

@@ -1,0 +1,44 @@
+{
+  "original_review": "{ \"bugs\": [] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct as it accurately identifies that there are no bugs. However, it lacks actionability, analytical depth, and security awareness because it does not provide any suggestions, root cause analysis, or security checks. It is not constructive as it only states the absence of bugs without offering any improvements. It adheres to the guideline of ignoring style issues as there are no style-related comments."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is empty, indicating no issues were found. While this isn't *incorrect* (the code might genuinely be fine), it's not a helpful review. It provides zero actionable feedback, no analysis of potential problems, and doesn't address security concerns. It's constructively neutral, but lacks any substance. It adheres to any implicit guidelines (e.g., no style comments were requested). The lack of any feedback results in low scores for actionability and analytical depth."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 5,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 2,
+      "final_adherence_to_guidelines": 5,
+      "consensus_reasoning": "The review accurately states there are no bugs, adheres to guidelines, but lacks actionable feedback, analytical depth, and security awareness, resulting in low scores for these metrics."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 5,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 2,\n   \"final_adherence_to_guidelines\": 5,\n   \"consensus_reasoning\": \"The review accurately states there are no bugs, adheres to guidelines, but lacks actionable feedback, analytical depth, and security awareness, resulting in low scores for these metrics.\"\n}"
+  },
+  "duration_seconds": 9.561011791229248,
+  "timestamp": "2025-12-02T06:11:03.947134",
+  "model_evaluated": "unknown"
+}

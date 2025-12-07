@@ -1,0 +1,37 @@
+{
+  "total_bugs_found": 431,
+  "total_bugs_processed": 431,
+  "total_bugs_failed": 0,
+  "by_project": {
+    "Lang": {
+      "total": 61,
+      "processed": 61,
+      "failed": 0
+    },
+    "Math": {
+      "total": 106,
+      "processed": 106,
+      "failed": 0
+    },
+    "Chart": {
+      "total": 26,
+      "processed": 26,
+      "failed": 0
+    },
+    "Time": {
+      "total": 26,
+      "processed": 26,
+      "failed": 0
+    },
+    "Mockito": {
+      "total": 38,
+      "processed": 38,
+      "failed": 0
+    },
+    "Closure": {
+      "total": 174,
+      "processed": 174,
+      "failed": 0
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "original_review": "{\"bugs\": []}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review is completely empty and does not provide any feedback, making it impossible to evaluate on any of the criteria."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is empty (just `{\"bugs\": []}`). While technically not *incorrect* (there aren't any bugs identified, which may be accurate), it provides zero actionable feedback, no analytical depth, no security considerations, and minimal constructive input. It simply states there are no bugs. It does adhere to the constraint of providing a valid JSON response. A good review would at least confirm the code's basic correctness and adherence to style guidelines, even if no specific issues are found."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 22.998743772506714,
+  "timestamp": "2025-12-02T07:06:07.906576",
+  "model_evaluated": "unknown"
+}

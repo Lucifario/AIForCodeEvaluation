@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"public List<Rule> parsePattern() {\\n        DateFormatSymbols symbols = new DateFormatSymbols(mLocale);\\n        List<Rule> rules = new ArrayList<Rule>();\\n\\n        String[] ERAs = symbols.getEras();\\n        String[] months = symbols.getMonths()\\n        // ... rest of the code\\n    }\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is mostly accurate in identifying the issue with the missing semicolon and suggests a concrete fix. However, it lacks a deeper analysis of potential root causes or security implications. The review is constructive and adheres to the guidelines by not focusing on style issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review snippet is factually correct; it shows a valid method definition for parsing a date pattern. It's reasonably actionable, showing the start of the method and the retrieval of DateFormatSymbols. However, it's incomplete, so providing concrete suggestions beyond what's shown is difficult. The analytical depth is low as it only shows the beginning of the method and doesn't analyze the overall parsing logic. Security isn't addressed at all, which is common for this type of code but still a lack of awareness. The review is constructive as it presents code without criticism. It adheres to any implicit guidelines (no style constraints were given)."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 19.992599964141846,
+  "timestamp": "2025-12-02T04:51:08.713094",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n    {\n      \"type\": \"Potential Integer Overflow\",\n      \"description\": \"In the `addAndCheck` method, there's a potential integer overflow when adding two `int` values. While the method checks for overflow and throws an `ArithmeticException`, it's still a potential issue if the addition results in a value that exceeds the range of `int`.\",\n      \"line\": 34\n    },\n    {\n      \"type\": \"Potential Long Overflow\",\n      \"description\": \"In the `addAndCheck` method, there's a potential long overflow when adding two `long` values. The method checks for overflow and throws an `ArithmeticException`, but it's still a potential issue if the addition results in a value that exceeds the range of `long`.\",\n      \"line\": 44\n    },\n    {\n      \"type\": \"Unused Private Constructor\",\n      \"description\": \"The `MathUtils` class has a private constructor, which is unnecessary as the class is public and the constructor is not called anywhere in the code.\",\n      \"line\": 25\n    },\n    {\n      \"type\": \"Unused Final Fields\",\n      \"description\": \"The constants `NB`, `NS`, `PB`, `PS`, `ZB`, and `ZS` are declared as `final` but are never used in the code. They could be removed to reduce the size of the class.\",\n      \"line\": 28\n    },\n    {\n      \"type\": \"Potential NPE in Arrays\",\n      \"description\": \"The `FACTORIALS` array is initialized with a size of 24, but the largest value of `n` for which all coefficients are less than `Long.MAX_VALUE` is 66. If the method is used with `n > 23`, it may throw a `NullPointerException` when trying to access the array at an index greater than 23.\",\n      \"line\": 30\n    }\n  ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.043575763702393,
+  "timestamp": "2025-12-02T05:21:26.941700",
+  "model_evaluated": "unknown"
+}

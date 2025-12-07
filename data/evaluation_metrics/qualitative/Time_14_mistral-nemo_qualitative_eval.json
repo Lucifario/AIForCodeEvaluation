@@ -1,0 +1,28 @@
+{
+  "original_review": "{ \"bugs\": [] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct as it accurately reflects the absence of bugs. However, it lacks actionable suggestions, analytical depth, and security awareness. It is not constructive as it only states the absence of bugs without providing any improvements. It adheres to the guidelines by not commenting on style, but the overall review is minimal and does not provide any meaningful feedback."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.875229120254517,
+  "timestamp": "2025-12-02T05:13:03.853937",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"description\": \"Infinite loop in getImpureBooleanValue() method\",\n    \"line_number\": 34,\n    \"reason\": \"The method calls itself recursively without a base case, which can lead to an infinite loop. This happens when the node type is Token.HOOK and the trueValue equals falseValue.\"\n  },\n\n  {\n    \"description\": \"Null Pointer Exception in getPureBooleanValue() method\",\n    \"line_number\": 48,\n    \"reason\": \"The method tries to access the string value of a node using n.getString() without checking if the node is a NAME node. If the node is not a NAME node, this will throw a Null Pointer Exception.\"\n  },\n\n  {\n    \"description\": \"Inconsistent return types in getStringValue() method\",\n    \"line_number\": 61,\n    \"reason\": \"The method returns a String for some cases, but returns null for others. This inconsistency can lead to unexpected behavior in calling code.\"\n  },\n\n  {\n    \"description\": \"Unused local variable in NodeUtil class\",\n    \"line_number\": 15,\n    \"reason\": \"The variable MAX_POSITIVE_INTEGER_NUMBER is declared but never used. This can be removed to improve code readability and reduce memory usage.\"\n  },\n\n  {\n    \"description\": \"Dead code in getImpureBooleanValue() method\",\n    \"line_number\": 24,\n    \"reason\": \"The switch statement has a default case that does nothing. This can be removed to improve code readability.\"\n  },\n\n  {\n    \"description\": \"Magic number in getStringValue() method\",\n    \"line_number\": 65,\n    \"reason\": \"The method uses the number 3 as a magic number to determine the length of a string. This should be replaced with a named constant to improve code readability and maintainability.\"\n  }\n\n] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.047574996948242,
+  "timestamp": "2025-12-02T05:15:22.624300",
+  "model_evaluated": "unknown"
+}

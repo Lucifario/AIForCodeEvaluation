@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"```java\\npublic class BugReport {\\n    public static void main(String[] args) {\\n        System.out.println(\\\"No bugs found in the provided Java code.\\\");\\n    }\\n}\\n```\",\"bugs\": []}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct in stating that no bugs were found, but it lacks actionable suggestions, analytical depth, and security awareness. It is not constructive as it only states the absence of bugs without providing any improvements or insights. However, it adheres perfectly to the guidelines by not violating any constraints."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 5,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 5,
+      "consensus_reasoning": "The review is factually correct but lacks actionable suggestions, analytical depth, and security awareness, while adhering to guidelines."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 5,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 5,\n   \"consensus_reasoning\": \"The review is factually correct but lacks actionable suggestions, analytical depth, and security awareness, while adhering to guidelines.\"\n}"
+  },
+  "duration_seconds": 17.116002082824707,
+  "timestamp": "2025-12-02T05:01:53.007664",
+  "model_evaluated": "unknown"
+}

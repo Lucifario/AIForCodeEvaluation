@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"bug\": \"In the method addAndCheck(int, int), the cast to int can throw an ArithmeticException, but the method signature does not indicate this.\",\n         \"line\": 84,\n         \"column\": 5\n      },\n      {\n         \"bug\": \"In the method addAndCheck(long, long), the cast to long can throw an ArithmeticException, but the method signature does not indicate this.\",\n         \"line\": 101,\n         \"column\": 5\n      },\n      {\n         \"bug\": \"In the method addAndCheck(long, long, String), the cast to long can throw an ArithmeticException, but the method signature does not indicate this.\",\n         \"line\": 122,\n         \"column\": 5\n      },\n      {\n         \"bug\": \"In the method addAndCheck(long, long, String), the variable 'ret' is not initialized before being used.\",\n         \"line\": 136,\n         \"column\": 5\n      },\n      {\n         \"bug\": \"In the method addAndCheck(long, long, String), the variable 'ret' is not checked for overflow before being returned.\",\n         \"line\": 143,\n         \"column\": 5\n      },\n      {\n         \"bug\": \"In the method binomialCoefficient(int, int), the method signature does not indicate that it throws an IllegalArgumentException.\",\n         \"line\": 163,\n         \"column\": 5\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.552872896194458,
+  "timestamp": "2025-12-02T05:23:18.913524",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,44 @@
+{
+  "original_review": "true",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review is not actionable, lacks analytical depth, factual correctness, security awareness, and constructiveness. It also does not adhere to the guidelines as it does not provide any meaningful feedback."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review consists of a single word: \"true\". While technically adhering to any implicit guideline of simply acknowledging the code, it provides absolutely no useful feedback. It's factually correct in that it doesn't *state* anything incorrect, but it's entirely unactionable, lacks any analytical depth, ignores security considerations, is not constructive, and offers no insight whatsoever. It's essentially a null review. The score reflects this complete lack of evaluation."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 3,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 3,
+      "consensus_reasoning": "The review lacks meaningful feedback, is unactionable, lacks analytical depth, ignores security considerations, and is not constructive, but is technically factually correct and adheres to implicit guidelines."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 3,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 3,\n   \"consensus_reasoning\": \"The review lacks meaningful feedback, is unactionable, lacks analytical depth, ignores security considerations, and is not constructive, but is technically factually correct and adheres to implicit guidelines.\"\n}"
+  },
+  "duration_seconds": 10.045565843582153,
+  "timestamp": "2025-12-02T06:14:04.846793",
+  "model_evaluated": "unknown"
+}

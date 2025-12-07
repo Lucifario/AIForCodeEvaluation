@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"```java\\npublic double solve(int maxEval, UnivariateRealFunction f, double min, double max, double startValue, AllowedSolution allowedSolution) {\\n    this.allowed = allowedSolution;\\n    return super.solve(maxEval, f, min, max, startValue);\\n}\\n```\", \"language\": \"java\"}, {\"code\": \"```java\\n@Override\\npublic double solve(int maxEval, UnivariateRealFunction f, double min, double max, double startValue) {\\n    return solve(maxEval, f, min, max, startValue, AllowedSolution.ANY_SIDE);\\n}\\n```\", \"language\": \"java\"}, {\"code\": \"```java\\nprotected final double doSolve() {\\n    // Get initial solution\\n    double x0 = getMin();\\n    double x1 = getMax();\\n    double f0 = computeObjectiveValue(x0);\\n    double f1 = computeObjectiveValue(x1);\\n\\n    // If one of the bounds is the exact root, return it. Since these are\\n    // not under-approximations or over-approximations, we can return them\\n    // regardless of the allowed solutions.\\n    if (f0 == 0.0) {\\n        return x0;\\n    }\\n    if (f1 == 0.0) {\\n        return x1;\\n    }\\n\\n    // Verify bracketing of initial solution.\\n    verifyBracketing(x0, x1);\\n\\n    // Get accuracies.\\n    final double ftol = getFunctionValueAccuracy();\\n    final double atol = getAbsoluteAccuracy();\\n    final double rtol = getRelativeAccuracy();\\n\\n    // Keep track of inverted intervals, meaning that the left bound is\\n    // greater than the right bound.\\n    boolean inverted = false;\\n\\n    for (int i = 0; i < maxEval; i++) {\\n        double x2 = x1;\\n        double f2 = f1;\\n\\n        // Calculate new value using the chosen method.\\n        switch (method) {\\n            case REGULA_FALSI:\\n                x2 = x1 - f1 * (x1 - x0) / (f1 - f0);\\n                break;\\n            case ILLINOIS:\\n                x2 = x1 - f1 * (x1 - x0) / (f1 - f0) * (x1 - x0) / (f1 - f0);\\n                break;\\n            case PEGASUS:\\n                x2 = x1 - f1 * (x1 - x0) / (f1 - f0) * (x1 - x0) / (f1 - f0) * (x1 - x0) / (f1 - f0);\\n                break;\\n            default:\\n                throw new MathInternalError();\\n        }\\n\\n        f2 = computeObjectiveValue(x2);\\n\\n        // Check for convergence.\\n        if (Math.abs(f2) <= ftol || Math.abs(x2 - x1) <= atol ||\\n            Math.abs((x2 - x1) / x2) <= rtol) {\\n            return x2;\\n        }\\n\\n        // Update bounds.\\n        if (f2 * f0 < 0) {\\n            x1 = x2;\\n            f1 = f2;\\n            inverted = false;\\n        } else if (f2 * f1 < 0) {\\n            x0 = x2;\\n            f0 = f2;\\n            inverted = true;\\n        } else {\\n            // This should never happen.\\n            throw new MathInternalError();\\n        }\\n    }\\n\\n    // If we reach this point, we've failed to converge.\\n    throw new MathInternalError();\\n}\\n```\", \"language\": \"java\"}\n\n]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and provides concrete suggestions. It offers deep insights into the code's functionality and potential improvements. However, it does not explicitly address security risks, which is a notable omission. The review is constructive and adheres to guidelines."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review introduces a new `solve` method that accepts `AllowedSolution` and delegates to the superclass's `solve` method. It also provides an override for the existing `solve` method, defaulting to `AllowedSolution.ANY_SIDE`. The core `doSolve` method implements the secant method with different variations (Regula Falsi, Illinois, Pegasus). The code appears logically sound and correctly implements the described algorithms. The convergence criteria and bound updates are standard for this type of solver. The error handling (throwing `MathInternalError`) is appropriate for unexpected conditions. \n\n**Strengths:**\n*   The code is well-structured and readable.\n*   The implementation of the different secant methods is clear.\n*   The convergence criteria are well-defined.\n*   The inclusion of `AllowedSolution` provides flexibility.\n\n**Weaknesses:**\n*   The review lacks any security considerations. Numerical methods can be vulnerable to certain inputs, but this is not addressed.\n*   The analytical depth is moderate. While the code is correct, there's no discussion of potential issues like slow convergence or sensitivity to initial guesses.\n*   The actionability is good, but could be improved with suggestions for unit tests or documentation. The code is ready to copy, but some additional context would be helpful.\n*   The `MathInternalError` exceptions are very broad. More specific exceptions could provide better debugging information."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 31.88671064376831,
+  "timestamp": "2025-12-02T06:58:51.323869",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"description\": \"The code lacks side-effects. Is there a bug?\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 123,\n      \"column\": 5\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  },\n\n  {\n    \"description\": \"Is there a missing '+' on the previous line?\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 456,\n      \"column\": 10\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  },\n\n  {\n    \"description\": \"The result of the '+' operator is not being used.\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 789,\n      \"column\": 8\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  }\n\n]}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 4,
+        "reasoning": "The review is mostly factual, but it lacks specific details on how to fix the issues. It does not provide any root cause analysis or security considerations. The suggestions are somewhat constructive but could be more actionable. The review adheres to the guidelines by not focusing on style issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies potential issues that the `CheckSideEffects` class is designed to find (useless code, missing operators, unused results). However, the descriptions are very brief and lack context. While technically *possible* issues, they are presented as questions rather than assertions. The review doesn't provide any specific code examples or suggestions for fixing the problems, making it difficult to act upon. There's no analysis of *why* the code might be useless or what the intended behavior is. Security isn't addressed at all, which is reasonable given the code's purpose, but it's not actively considered. The tone is neutral, not particularly helpful or negative. Since no guidelines were specified, adherence is perfect."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 30.20455288887024,
+  "timestamp": "2025-12-02T04:57:09.976166",
+  "model_evaluated": "unknown"
+}

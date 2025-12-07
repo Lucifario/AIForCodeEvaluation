@@ -1,0 +1,36 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"VariableDeclaration\",\n         \"message\": \"Multiple variable declarations in a single statement are not allowed.\"\n      },\n      {\n         \"type\": \"MissingImport\",\n         \"message\": \"The import statement for com.google.javascript.rhino.jstype.JSTypeNative is missing.\"\n      },\n      {\n         \"type\": \"UnusedImport\",\n         \"message\": \"The import statement for com.google.javascript.rhino.jstype.JSTypeNative is unused.\"\n      },\n      {\n         \"type\": \"DuplicateImport\",\n         \"message\": \"The import statement for com.google.javascript.rhino.jstype.JSTypeNative is duplicated.\"\n      },\n      {\n         \"type\": \"MissingClass\",\n         \"message\": \"The class com.google.javascript.rhino.jstype.JSTypeNative is missing.\"\n      },\n      {\n         \"type\": \"UnusedClass\",\n         \"message\": \"The class com.google.javascript.rhino.jstype.JSTypeNative is unused.\"\n      },\n      {\n         \"type\": \"DuplicateClass\",\n         \"message\": \"The class com.google.javascript.rhino.jstype.JSTypeNative is duplicated.\"\n      },\n      {\n         \"type\": \"MissingMethod\",\n         \"message\": \"The method DiagnosticType.error is missing.\"\n      },\n      {\n         \"type\": \"UnusedMethod\",\n         \"message\": \"The method DiagnosticType.error is unused.\"\n      },\n      {\n         \"type\": \"DuplicateMethod\",\n         \"message\": \"The method DiagnosticType.error is duplicated.\"\n      },\n      {\n         \"type\": \"MissingField\",\n         \"message\": \"The field DiagnosticType.error is missing.\"\n      },\n      {\n         \"type\": \"UnusedField\",\n         \"message\": \"The field DiagnosticType.error is unused.\"\n      },\n      {\n         \"type\": \"DuplicateField\",\n         \"message\": \"The field DiagnosticType.error is duplicated.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review contains multiple contradictory and factually incorrect statements. For example, it claims that the import statement for com.google.javascript.rhino.jstype.JSTypeNative is both missing and duplicated, which is logically impossible. Additionally, it suggests that the class and methods are both missing and unused, which is also contradictory. The review lacks actionable suggestions and does not provide any root cause analysis or security awareness. It is purely critical without offering any constructive improvements."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "This review is almost entirely hallucinated. The code *already* has numerous static imports of `JSTypeNative`, `DiagnosticType`, etc. The review claims these are missing, unused, or duplicated, which is demonstrably false by simply looking at the code. The 'VariableDeclaration' bug is also nonsensical in the context of the provided code snippet. The review provides no useful feedback and is entirely inaccurate. It's a complete failure in code understanding and analysis."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 21.702983140945435,
+  "timestamp": "2025-12-02T07:05:57.343689",
+  "model_evaluated": "unknown"
+}

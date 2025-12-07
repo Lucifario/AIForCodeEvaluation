@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n    {\n      \"description\": \"Inconsistent handling of NaN and Infinity in getStringValue\",\n      \"location\": \"getStringValue(Node n)\",\n      \"severity\": \"Low\",\n      \"suggestion\": \"Update getStringValue to return 'NaN' and 'Infinity' for their respective Node types.\"\n    },\n    {\n      \"description\": \"Lack of error checking in getExpressionBooleanValue for certain node types\",\n      \"location\": \"getExpressionBooleanValue(Node n)\",\n      \"severity\": \"Medium\",\n      \"suggestion\": \"Add error checking and handling for node types that are not currently covered by the switch statement.\"\n    },\n    {\n      \"description\": \"Potential null pointer exception in getBooleanValue for Token.NAME\",\n      \"location\": \"getBooleanValue(Node n)\",\n      \"severity\": \"Low\",\n      \"suggestion\": \"Add null check for n.getString() before accessing it.\"\n    }\n  ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.162715911865234,
+  "timestamp": "2025-12-02T05:18:46.761773",
+  "model_evaluated": "unknown"
+}

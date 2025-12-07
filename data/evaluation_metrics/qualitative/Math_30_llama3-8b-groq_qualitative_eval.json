@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"The ensureDataConformance method does not check for null or zero-length arrays in the provided code. It is possible to pass an array with a single element, which would cause the method to throw a NoDataException.\",\n         \"location\": {\n            \"file\": \"MannWhitneyUTest.java\",\n            \"line\": 74,\n            \"column\": 5\n         }\n      },\n      {\n         \"message\": \"The concatenateSamples method does not check for null or zero-length arrays in the provided code. It is possible to pass an array with a single element, which would cause the method to throw an ArrayIndexOutOfBoundsException.\",\n         \"location\": {\n            \"file\": \"MannWhitneyUTest.java\",\n            \"line\": 108,\n            \"column\": 5\n         }\n      },\n      {\n         \"message\": \"The mannWhitneyU method does not handle the case where the provided arrays are not sorted. This could cause the ranking algorithm to produce incorrect results.\",\n         \"location\": {\n            \"file\": \"MannWhitneyUTest.java\",\n            \"line\": 157,\n            \"column\": 5\n         }\n      },\n      {\n         \"message\": \"The mannWhitneyU method does not handle the case where the provided arrays contain duplicate values. This could cause the ranking algorithm to produce incorrect results.\",\n         \"location\": {\n            \"file\": \"MannWhitneyUTest.java\",\n            \"line\": 157,\n            \"column\": 5\n         }\n      },\n      {\n         \"message\": \"The naturalRanking object is not thread-safe. This could cause issues if the MannWhitneyUTest object is used in a multi-threaded environment.\",\n         \"location\": {\n            \"file\": \"MannWhitneyUTest.java\",\n            \"line\": 36,\n            \"column\": 5\n         }\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.93859601020813,
+  "timestamp": "2025-12-02T05:19:50.700038",
+  "model_evaluated": "unknown"
+}

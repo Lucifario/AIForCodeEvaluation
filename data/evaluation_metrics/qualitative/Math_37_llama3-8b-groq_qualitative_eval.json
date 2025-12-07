@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"line\": 120,\n         \"description\": \"The method add(Complex addend) does not handle the case where addend is null. It throws a NullArgumentException, but the method signature does not indicate that this exception can be thrown.\"\n      },\n      {\n         \"line\": 123,\n         \"description\": \"The method add(Complex addend) does not handle the case where this or addend has NaN values in either part. It returns NaN, but the method description does not indicate that this is the expected behavior.\"\n      },\n      {\n         \"line\": 127,\n         \"description\": \"The method add(Complex addend) does not handle the case where this or addend has infinite values in either part. It returns Infinite and NaN values in the parts of the result, but the method description does not indicate that this is the expected behavior.\"\n      },\n      {\n         \"line\": 134,\n         \"description\": \"The method add(Complex addend) does not handle the case where the result of the addition is NaN. It returns NaN, but the method description does not indicate that this is the expected behavior.\"\n      },\n      {\n         \"line\": 143,\n         \"description\": \"The method add(Complex addend) does not handle the case where the result of the addition is Infinite. It returns Infinite and NaN values in the parts of the result, but the method description does not indicate that this is the expected behavior.\"\n      },\n      {\n         \"line\": 151,\n         \"description\": \"The method add(Complex addend) does not handle the case where the result of the addition is a complex number with a non-zero imaginary part and a zero real part. It returns the absolute value of the imaginary part, but the method description does not indicate that this is the expected behavior.\"\n      },\n      {\n         \"line\": 160,\n         \"description\": \"The method add(Complex addend) does not handle the case where the result of the addition is a complex number with a non-zero real part and a zero imaginary part. It returns the absolute value of the real part, but the method description does not indicate that this is the expected behavior.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.22075319290161,
+  "timestamp": "2025-12-02T05:24:45.921820",
+  "model_evaluated": "unknown"
+}

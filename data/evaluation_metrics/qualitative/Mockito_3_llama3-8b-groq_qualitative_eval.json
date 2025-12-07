@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"The class InvocationMatcher implements DescribedInvocation and CapturesArgumensFromInvocation but the methods from these interfaces are not implemented.\",\n         \"line\": 18\n      },\n      {\n         \"message\": \"The method ArgumentsProcessor.argumentsToMatchers() is not defined in the given code.\",\n         \"line\": 43\n      },\n      {\n         \"message\": \"The method ArgumentsComparator.argumentsMatch() is not defined in the given code.\",\n         \"line\": 84\n      },\n      {\n         \"message\": \"The method getMock() is not defined in the Invocation class.\",\n         \"line\": 91\n      },\n      {\n         \"message\": \"The method isVerified() is not defined in the Invocation class.\",\n         \"line\": 98\n      },\n      {\n         \"message\": \"The method getRawArguments() is not defined in the Invocation class.\",\n         \"line\": 110\n      },\n      {\n         \"message\": \"The method getArgumentAt() is not defined in the Invocation class.\",\n         \"line\": 113\n      },\n      {\n         \"message\": \"The class ArgumentsProcessor and ArgumentsComparator are not defined in the given code.\",\n         \"line\": 43\n      },\n      {\n         \"message\": \"The method print() from the PrintSettings class is not defined in the given code.\",\n         \"line\": 128\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.204099893569946,
+  "timestamp": "2025-12-02T05:24:40.549443",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"Potential null pointer exception in anyBoolean() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 28,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyByte() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 36,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyChar() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 44,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyDouble() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 52,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyFloat() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 60,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyInt() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 68,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyLong() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 76,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyShort() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 84,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyString() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 92,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyCollection() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 100,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyMap() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 108,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyIterable() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 116,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in anyArray() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 124,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in any() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 132,\n         \"columnNumber\": 13\n      },\n      {\n         \"message\": \"Potential null pointer exception in isA() method\",\n         \"severity\": \"WARNING\",\n         \"lineNumber\": 140,\n         \"columnNumber\": 13\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.18751573562622,
+  "timestamp": "2025-12-02T05:14:30.843100",
+  "model_evaluated": "unknown"
+}

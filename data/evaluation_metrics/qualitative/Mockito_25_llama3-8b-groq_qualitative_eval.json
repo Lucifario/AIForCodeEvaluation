@@ -1,0 +1,44 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"Potential NullPointerException when getting the mock handler\",\n         \"line\": 73,\n         \"column\": 13\n      },\n      {\n         \"id\": 2,\n         \"description\": \"Potential ClassCastException when casting the invocation container\",\n         \"line\": 76,\n         \"column\": 15\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review correctly identifies potential bugs (NullPointerException and ClassCastException) with accurate line and column numbers. However, it lacks suggestions for fixes (low actionability) and does not delve into the root cause of these issues (low analytical depth). Security is not considered in the review. While the review is constructive by pointing out issues, it could be more helpful by suggesting improvements. It adheres to the guidelines by focusing on bugs and ignoring style."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review correctly identifies potential `NullPointerException` and `ClassCastException` issues. These are valid concerns given the code's structure. The actionability is high because the line numbers are provided. The analytical depth is moderate; it identifies *what* could go wrong but doesn't deeply explore the conditions that would trigger these exceptions (e.g., why `getMockHandler` might return null, or why the invocation container might not be an `InvocationContainerImpl`). Security awareness is low as the review doesn't address any security vulnerabilities. The review is constructive, focusing on potential runtime errors rather than stylistic issues. It adheres to any implicit guidelines by focusing on functional correctness."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 5,
+      "final_actionability": 3,
+      "final_analytical_depth": 3,
+      "final_security_awareness": 1,
+      "final_constructiveness": 3,
+      "final_adherence_to_guidelines": 5,
+      "consensus_reasoning": "The review accurately identifies potential bugs with correct line and column numbers, but lacks depth in analysis and suggestions for fixes, and does not consider security. It is constructive and adheres to guidelines by focusing on functional issues."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 5,\n   \"final_actionability\": 3,\n   \"final_analytical_depth\": 3,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 3,\n   \"final_adherence_to_guidelines\": 5,\n   \"consensus_reasoning\": \"The review accurately identifies potential bugs with correct line and column numbers, but lacks depth in analysis and suggestions for fixes, and does not consider security. It is constructive and adheres to guidelines by focusing on functional issues.\"\n}"
+  },
+  "duration_seconds": 12.069906234741211,
+  "timestamp": "2025-12-02T06:14:28.789671",
+  "model_evaluated": "unknown"
+}

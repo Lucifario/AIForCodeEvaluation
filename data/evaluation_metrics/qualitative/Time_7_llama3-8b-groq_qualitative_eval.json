@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"code\": \"DateTimeFormatter.java:33\",\n         \"line\": 33,\n         \"message\": \"The constructor DateTimeFormatter(DateTimePrinter, DateTimeParser, Locale, boolean, Chronology, DateTimeZone, Integer, int) is private, but it is called from DateTimeFormatter(DateTimePrinter, DateTimeParser).\",\n         \"type\": \"Inconsistent constructor access modifier\"\n      },\n      {\n         \"code\": \"DateTimeFormatter.java:45\",\n         \"line\": 45,\n         \"message\": \"The constructor DateTimeFormatter(DateTimePrinter, DateTimeParser) does not call the superclass constructor.\",\n         \"type\": \"Missing superclass constructor call\"\n      },\n      {\n         \"code\": \"DateTimeFormatter.java:54\",\n         \"line\": 54,\n         \"message\": \"The method isPrinter() returns true if the printer is not null, but the method getPrinter() returns the printer object, which may be null.\",\n         \"type\": \"Inconsistent method behavior\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.052315950393677,
+  "timestamp": "2025-12-02T05:17:48.001526",
+  "model_evaluated": "unknown"
+}

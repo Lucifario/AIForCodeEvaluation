@@ -1,0 +1,760 @@
+2025-11-30 02:00:33,004 - __main__ - INFO - 
+======================================================================
+2025-11-30 02:00:33,004 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION
+2025-11-30 02:00:33,004 - __main__ - INFO - ======================================================================
+2025-11-30 02:00:34,188 - root - INFO - ✓ Defects4J installation verified
+2025-11-30 02:00:34,189 - root - INFO - 
+============================================================
+2025-11-30 02:00:34,189 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-11-30 02:00:34,189 - root - INFO - ============================================================
+2025-11-30 02:00:34,252 - root - INFO - 
+============================================================
+2025-11-30 02:00:34,253 - root - INFO - PROCESSING PROJECT: Lang
+2025-11-30 02:00:34,253 - root - INFO - ============================================================
+2025-11-30 02:00:34,330 - root - INFO - Project Lang: 61 total bugs available
+2025-11-30 02:37:32,321 - root - INFO - ✓ Saved 61 bugs for Lang
+2025-11-30 02:37:32,322 - root - INFO - 
+============================================================
+2025-11-30 02:37:32,322 - root - INFO - PROCESSING PROJECT: Math
+2025-11-30 02:37:32,322 - root - INFO - ============================================================
+2025-11-30 02:37:32,394 - root - INFO - Project Math: 106 total bugs available
+2025-11-30 03:06:19,740 - __main__ - INFO - 
+======================================================================
+2025-11-30 03:06:19,740 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-11-30 03:06:19,740 - __main__ - INFO - ======================================================================
+2025-11-30 03:06:19,904 - root - INFO - ✓ Defects4J installation verified
+2025-11-30 03:06:19,904 - root - INFO - 
+============================================================
+2025-11-30 03:06:19,904 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-11-30 03:06:19,904 - root - INFO - ============================================================
+2025-11-30 03:06:19,968 - root - INFO - 
+============================================================
+2025-11-30 03:06:19,968 - root - INFO - PROCESSING PROJECT: Lang
+2025-11-30 03:06:19,968 - root - INFO - ============================================================
+2025-11-30 03:06:20,034 - root - INFO - Project Lang: 61 total bugs available
+2025-11-30 03:36:06,692 - root - INFO - ✓ Saved 61 bugs for Lang
+2025-11-30 03:36:06,692 - root - INFO - 
+============================================================
+2025-11-30 03:36:06,692 - root - INFO - PROCESSING PROJECT: Math
+2025-11-30 03:36:06,692 - root - INFO - ============================================================
+2025-11-30 03:36:06,763 - root - INFO - Project Math: 106 total bugs available
+2025-11-30 05:26:50,515 - root - INFO - ✓ Saved 106 bugs for Math
+2025-11-30 05:26:50,516 - root - INFO - 
+============================================================
+2025-11-30 05:26:50,516 - root - INFO - PROCESSING PROJECT: Chart
+2025-11-30 05:26:50,516 - root - INFO - ============================================================
+2025-11-30 05:26:50,583 - root - INFO - Project Chart: 26 total bugs available
+2025-11-30 05:35:28,141 - root - INFO - ✓ Saved 26 bugs for Chart
+2025-11-30 05:35:28,142 - root - INFO - 
+============================================================
+2025-11-30 05:35:28,142 - root - INFO - PROCESSING PROJECT: Time
+2025-11-30 05:35:28,142 - root - INFO - ============================================================
+2025-11-30 05:35:28,235 - root - INFO - Project Time: 26 total bugs available
+2025-11-30 05:44:41,575 - root - INFO - ✓ Saved 26 bugs for Time
+2025-11-30 05:44:41,582 - root - INFO - 
+============================================================
+2025-11-30 05:44:41,583 - root - INFO - COLLECTION COMPLETE
+2025-11-30 05:44:41,583 - root - INFO - Total Bugs Found: 219
+2025-11-30 05:44:41,583 - root - INFO - Total Bugs Processed: 219
+2025-11-30 05:44:41,583 - root - INFO - Total Bugs Failed: 0
+2025-11-30 05:44:41,583 - root - INFO - Success Rate: 100.0%
+2025-11-30 05:44:41,583 - root - INFO - Output: data/defects4j_aggressive/defects4j_all_samples.json
+2025-11-30 05:44:41,583 - root - INFO - ============================================================
+
+2025-11-30 05:44:41,583 - __main__ - INFO - ✓ Defects4J: 219 total samples collected
+2025-11-30 05:44:41,583 - __main__ - INFO - 
+======================================================================
+2025-11-30 05:44:41,583 - __main__ - INFO - PHASE 1.2: GITHUB PR AGGRESSIVE COLLECTION
+2025-11-30 05:44:41,583 - __main__ - INFO - ======================================================================
+2025-11-30 05:44:41,583 - __main__ - ERROR - ✗ GitHub collection failed: GitHub token not configured
+2025-11-30 05:44:41,583 - __main__ - INFO - 
+======================================================================
+2025-11-30 05:44:41,583 - __main__ - INFO - PHASE 1.3: BUGSINPY AGGRESSIVE COLLECTION (Python)
+2025-11-30 05:44:41,583 - __main__ - INFO - ======================================================================
+2025-11-30 05:44:41,583 - root - WARNING - Projects list not found, will discover from directory
+2025-11-30 05:44:41,583 - root - INFO - Processing keras...
+2025-11-30 05:44:41,583 - root - INFO - Processing thefuck...
+2025-11-30 05:44:41,584 - root - INFO - Processing PySnooper...
+2025-11-30 05:44:41,584 - root - INFO - Processing luigi...
+2025-11-30 05:44:41,584 - root - INFO - Processing cookiecutter...
+2025-11-30 05:44:41,584 - root - INFO - Processing scrapy...
+2025-11-30 05:44:41,584 - root - INFO - Processing ansible...
+2025-11-30 05:44:41,584 - root - INFO - Processing tornado...
+2025-11-30 05:44:41,585 - root - INFO - Processing tqdm...
+2025-11-30 05:44:41,585 - root - INFO - Processing fastapi...
+2025-11-30 05:44:41,585 - root - INFO - Processing sanic...
+2025-11-30 05:44:41,585 - root - INFO - Processing matplotlib...
+2025-11-30 05:44:41,585 - root - INFO - Processing youtube-dl...
+2025-11-30 05:44:41,585 - root - INFO - Processing httpie...
+2025-11-30 05:44:41,585 - root - INFO - Processing spacy...
+2025-11-30 05:44:41,586 - root - INFO - Processing black...
+2025-11-30 05:44:41,586 - root - INFO - Processing pandas...
+2025-11-30 05:44:41,586 - root - INFO - BugsInPy collection complete: 0 samples
+2025-11-30 05:44:41,586 - __main__ - WARNING - ⚠ BugsInPy: No samples collected (may not be installed)
+2025-11-30 05:44:41,586 - __main__ - INFO - 
+======================================================================
+2025-11-30 05:44:41,586 - __main__ - INFO - PHASE 1.4: CREATING UNIFIED DATASET
+2025-11-30 05:44:41,586 - __main__ - INFO - ======================================================================
+2025-11-30 05:44:41,586 - __main__ - INFO - Added 219 Defects4J samples (Java)
+2025-11-30 05:44:41,586 - __main__ - INFO - Added 0 GitHub samples (Java/Python)
+2025-11-30 05:44:41,586 - __main__ - INFO - 
+✓ Total unified samples: 219
+2025-11-30 05:44:41,594 - __main__ - INFO - ✓ Saved unified dataset: data/phase1_results/unified_dataset.json
+2025-11-30 05:44:41,595 - __main__ - INFO - 
+======================================================================
+2025-11-30 05:44:41,595 - __main__ - INFO - FINAL STATISTICS REPORT
+2025-11-30 05:44:41,595 - __main__ - INFO - ======================================================================
+2025-11-30 05:44:41,595 - __main__ - INFO - ✓ Saved statistics report: data/phase1_results/collection_statistics.json
+2025-11-30 05:44:41,611 - __main__ - INFO - ✓ Saved detailed results: data/phase1_results/detailed_results.json
+2025-11-30 06:01:21,597 - __main__ - INFO - 
+======================================================================
+2025-11-30 06:01:21,598 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-11-30 06:01:21,598 - __main__ - INFO - ======================================================================
+2025-11-30 06:01:22,372 - root - INFO - ✓ Defects4J installation verified
+2025-11-30 06:01:22,373 - root - INFO - 
+============================================================
+2025-11-30 06:01:22,373 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-11-30 06:01:22,373 - root - INFO - ============================================================
+2025-11-30 06:01:22,438 - root - INFO - 
+============================================================
+2025-11-30 06:01:22,438 - root - INFO - PROCESSING PROJECT: Lang
+2025-11-30 06:01:22,438 - root - INFO - ============================================================
+2025-11-30 06:01:22,507 - root - INFO - Project Lang: 61 total bugs available
+2025-11-30 06:02:10,518 - __main__ - INFO - 
+======================================================================
+2025-11-30 06:02:10,518 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-11-30 06:02:10,518 - __main__ - INFO - ======================================================================
+2025-11-30 06:02:10,597 - root - INFO - ✓ Defects4J installation verified
+2025-11-30 06:02:10,597 - root - INFO - 
+============================================================
+2025-11-30 06:02:10,597 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-11-30 06:02:10,597 - root - INFO - ============================================================
+2025-11-30 06:02:10,662 - root - INFO - 
+============================================================
+2025-11-30 06:02:10,663 - root - INFO - PROCESSING PROJECT: Lang
+2025-11-30 06:02:10,663 - root - INFO - ============================================================
+2025-11-30 06:02:10,731 - root - INFO - Project Lang: 61 total bugs available
+2025-11-30 06:04:33,099 - __main__ - INFO - 
+======================================================================
+2025-11-30 06:04:33,099 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-11-30 06:04:33,099 - __main__ - INFO - ======================================================================
+2025-11-30 06:04:33,239 - root - INFO - ✓ Defects4J installation verified
+2025-11-30 06:04:33,239 - root - INFO - 
+============================================================
+2025-11-30 06:04:33,239 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-11-30 06:04:33,239 - root - INFO - ============================================================
+2025-11-30 06:04:33,302 - root - INFO - 
+============================================================
+2025-11-30 06:04:33,302 - root - INFO - PROCESSING PROJECT: Lang
+2025-11-30 06:04:33,302 - root - INFO - ============================================================
+2025-11-30 06:04:33,373 - root - INFO - Project Lang: 61 total bugs available
+2025-11-30 06:34:00,239 - root - INFO - ✓ Saved 61 bugs for Lang
+2025-11-30 06:34:00,240 - root - INFO - 
+============================================================
+2025-11-30 06:34:00,240 - root - INFO - PROCESSING PROJECT: Math
+2025-11-30 06:34:00,240 - root - INFO - ============================================================
+2025-11-30 06:34:00,336 - root - INFO - Project Math: 106 total bugs available
+2025-11-30 08:10:10,928 - root - INFO - ✓ Saved 106 bugs for Math
+2025-11-30 08:10:10,928 - root - INFO - 
+============================================================
+2025-11-30 08:10:10,929 - root - INFO - PROCESSING PROJECT: Chart
+2025-11-30 08:10:10,929 - root - INFO - ============================================================
+2025-11-30 08:10:10,996 - root - INFO - Project Chart: 26 total bugs available
+2025-11-30 08:16:42,216 - root - INFO - ✓ Saved 26 bugs for Chart
+2025-11-30 08:16:42,216 - root - INFO - 
+============================================================
+2025-11-30 08:16:42,217 - root - INFO - PROCESSING PROJECT: Time
+2025-11-30 08:16:42,217 - root - INFO - ============================================================
+2025-11-30 08:16:42,290 - root - INFO - Project Time: 26 total bugs available
+2025-11-30 08:24:05,985 - root - INFO - ✓ Saved 26 bugs for Time
+2025-11-30 08:24:05,985 - root - INFO - 
+============================================================
+2025-11-30 08:24:05,985 - root - INFO - PROCESSING PROJECT: Mockito
+2025-11-30 08:24:05,985 - root - INFO - ============================================================
+2025-11-30 08:24:06,055 - root - INFO - Project Mockito: 38 total bugs available
+2025-11-30 09:26:40,095 - root - INFO - ✓ Saved 38 bugs for Mockito
+2025-11-30 09:26:40,096 - root - INFO - 
+============================================================
+2025-11-30 09:26:40,096 - root - INFO - PROCESSING PROJECT: Closure
+2025-11-30 09:26:40,096 - root - INFO - ============================================================
+2025-11-30 09:26:40,173 - root - INFO - Project Closure: 174 total bugs available
+2025-11-30 13:45:51,838 - root - INFO - ✓ Saved 174 bugs for Closure
+2025-11-30 13:45:51,857 - root - INFO - 
+============================================================
+2025-11-30 13:45:51,857 - root - INFO - COLLECTION COMPLETE
+2025-11-30 13:45:51,857 - root - INFO - Total Bugs Found: 431
+2025-11-30 13:45:51,857 - root - INFO - Total Bugs Processed: 431
+2025-11-30 13:45:51,857 - root - INFO - Total Bugs Failed: 0
+2025-11-30 13:45:51,858 - root - INFO - Success Rate: 100.0%
+2025-11-30 13:45:51,858 - root - INFO - Output: data/defects4j_aggressive/defects4j_all_samples.json
+2025-11-30 13:45:51,858 - root - INFO - ============================================================
+
+2025-11-30 13:45:51,859 - __main__ - INFO - ✓ Defects4J: 431 total samples collected
+2025-11-30 13:45:51,859 - __main__ - INFO - 
+======================================================================
+2025-11-30 13:45:51,859 - __main__ - INFO - PHASE 1.2: GITHUB PR AGGRESSIVE COLLECTION
+2025-11-30 13:45:51,859 - __main__ - INFO - ======================================================================
+2025-11-30 13:45:52,398 - root - INFO - ✓ Connected to GitHub as: Lucifario
+2025-11-30 13:45:52,398 - root - INFO - 
+============================================================
+2025-11-30 13:45:52,398 - root - INFO - AGGRESSIVE GITHUB PR COLLECTION - MAXIMUM SCALE
+2025-11-30 13:45:52,398 - root - INFO - Attempting 36 repositories
+2025-11-30 13:45:52,398 - root - INFO - ============================================================
+
+2025-11-30 13:45:53,202 - root - INFO - 
+==================================================
+2025-11-30 13:45:53,202 - root - INFO - Mining: alibaba/fastjson
+2025-11-30 13:45:53,202 - root - INFO - Stars: 25738, Forks: 6471
+2025-11-30 13:45:54,351 - root - ERROR - Unexpected error mining alibaba/fastjson: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:45:54,765 - root - INFO - 
+==================================================
+2025-11-30 13:45:54,765 - root - INFO - Mining: google/gson
+2025-11-30 13:45:54,765 - root - INFO - Stars: 24247, Forks: 4360
+2025-11-30 13:45:55,736 - root - ERROR - Unexpected error mining google/gson: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:45:56,167 - root - INFO - 
+==================================================
+2025-11-30 13:45:56,167 - root - INFO - Mining: FasterXML/jackson-databind
+2025-11-30 13:45:56,167 - root - INFO - Stars: 3653, Forks: 1446
+2025-11-30 13:45:57,071 - root - ERROR - Unexpected error mining FasterXML/jackson-databind: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:45:57,408 - github.Requester - INFO - Following Github server redirection from /repos/google/protobuf to /repositories/23357588
+2025-11-30 13:45:57,813 - root - INFO - 
+==================================================
+2025-11-30 13:45:57,813 - root - INFO - Mining: google/protobuf
+2025-11-30 13:45:57,813 - root - INFO - Stars: 69730, Forks: 15946
+2025-11-30 13:45:58,602 - root - ERROR - Unexpected error mining google/protobuf: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:45:58,912 - root - ERROR - GitHub error mining ecomfe/ecomfe-json-lib: 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/repos/repos#get-a-repository", "status": "404"}
+2025-11-30 13:45:59,313 - root - INFO - 
+==================================================
+2025-11-30 13:45:59,313 - root - INFO - Mining: mockito/mockito
+2025-11-30 13:45:59,313 - root - INFO - Stars: 15327, Forks: 2645
+2025-11-30 13:46:00,671 - root - ERROR - Unexpected error mining mockito/mockito: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:01,085 - root - INFO - 
+==================================================
+2025-11-30 13:46:01,085 - root - INFO - Mining: junit-team/junit4
+2025-11-30 13:46:01,085 - root - INFO - Stars: 8523, Forks: 3286
+2025-11-30 13:46:02,275 - root - ERROR - Unexpected error mining junit-team/junit4: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:02,626 - github.Requester - INFO - Following Github server redirection from /repos/junit-team/junit5 to /repositories/29102367
+2025-11-30 13:46:03,058 - root - INFO - 
+==================================================
+2025-11-30 13:46:03,058 - root - INFO - Mining: junit-team/junit5
+2025-11-30 13:46:03,058 - root - INFO - Stars: 6906, Forks: 1619
+2025-11-30 13:46:03,869 - root - ERROR - Unexpected error mining junit-team/junit5: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:04,363 - root - INFO - 
+==================================================
+2025-11-30 13:46:04,363 - root - INFO - Mining: powermock/powermock
+2025-11-30 13:46:04,363 - root - INFO - Stars: 4192, Forks: 583
+2025-11-30 13:46:05,003 - root - ERROR - Unexpected error mining powermock/powermock: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:05,490 - root - INFO - 
+==================================================
+2025-11-30 13:46:05,490 - root - INFO - Mining: easymock/easymock
+2025-11-30 13:46:05,490 - root - INFO - Stars: 832, Forks: 313
+2025-11-30 13:46:06,708 - root - ERROR - Unexpected error mining easymock/easymock: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:07,135 - root - INFO - 
+==================================================
+2025-11-30 13:46:07,135 - root - INFO - Mining: square/okhttp
+2025-11-30 13:46:07,135 - root - INFO - Stars: 46775, Forks: 9260
+2025-11-30 13:46:07,980 - root - ERROR - Unexpected error mining square/okhttp: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:08,411 - root - INFO - 
+==================================================
+2025-11-30 13:46:08,411 - root - INFO - Mining: square/retrofit
+2025-11-30 13:46:08,411 - root - INFO - Stars: 43803, Forks: 7348
+2025-11-30 13:46:09,351 - root - ERROR - Unexpected error mining square/retrofit: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:09,687 - github.Requester - INFO - Following Github server redirection from /repos/Netflix/feign to /repositories/10981994
+2025-11-30 13:46:10,068 - root - INFO - 
+==================================================
+2025-11-30 13:46:10,068 - root - INFO - Mining: Netflix/feign
+2025-11-30 13:46:10,068 - root - INFO - Stars: 9768, Forks: 1950
+2025-11-30 13:46:11,440 - root - ERROR - Unexpected error mining Netflix/feign: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:11,864 - root - INFO - 
+==================================================
+2025-11-30 13:46:11,864 - root - INFO - Mining: apache/httpcomponents-client
+2025-11-30 13:46:11,864 - root - INFO - Stars: 1518, Forks: 982
+2025-11-30 13:46:13,112 - root - ERROR - Unexpected error mining apache/httpcomponents-client: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:13,521 - root - INFO - 
+==================================================
+2025-11-30 13:46:13,521 - root - INFO - Mining: AsyncHttpClient/async-http-client
+2025-11-30 13:46:13,521 - root - INFO - Stars: 6396, Forks: 1594
+2025-11-30 13:46:14,386 - root - ERROR - Unexpected error mining AsyncHttpClient/async-http-client: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:14,780 - root - INFO - 
+==================================================
+2025-11-30 13:46:14,781 - root - INFO - Mining: apache/commons-lang
+2025-11-30 13:46:14,781 - root - INFO - Stars: 2888, Forks: 1812
+2025-11-30 13:46:15,739 - root - ERROR - Unexpected error mining apache/commons-lang: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:16,169 - root - INFO - 
+==================================================
+2025-11-30 13:46:16,169 - root - INFO - Mining: apache/commons-collections
+2025-11-30 13:46:16,169 - root - INFO - Stars: 713, Forks: 503
+2025-11-30 13:46:17,034 - root - ERROR - Unexpected error mining apache/commons-collections: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:17,432 - root - INFO - 
+==================================================
+2025-11-30 13:46:17,433 - root - INFO - Mining: apache/commons-io
+2025-11-30 13:46:17,433 - root - INFO - Stars: 1051, Forks: 703
+2025-11-30 13:46:18,111 - root - ERROR - Unexpected error mining apache/commons-io: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:18,522 - root - INFO - 
+==================================================
+2025-11-30 13:46:18,522 - root - INFO - Mining: apache/commons-math
+2025-11-30 13:46:18,522 - root - INFO - Stars: 623, Forks: 373
+2025-11-30 13:46:19,519 - root - ERROR - Unexpected error mining apache/commons-math: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:19,915 - root - INFO - 
+==================================================
+2025-11-30 13:46:19,915 - root - INFO - Mining: apache/commons-codec
+2025-11-30 13:46:19,915 - root - INFO - Stars: 470, Forks: 253
+2025-11-30 13:46:20,786 - root - ERROR - Unexpected error mining apache/commons-codec: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:21,219 - root - INFO - 
+==================================================
+2025-11-30 13:46:21,219 - root - INFO - Mining: spring-projects/spring-framework
+2025-11-30 13:46:21,220 - root - INFO - Stars: 59277, Forks: 38851
+2025-11-30 13:46:21,904 - root - ERROR - Unexpected error mining spring-projects/spring-framework: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:22,320 - root - INFO - 
+==================================================
+2025-11-30 13:46:22,320 - root - INFO - Mining: spring-projects/spring-boot
+2025-11-30 13:46:22,320 - root - INFO - Stars: 79196, Forks: 41688
+2025-11-30 13:46:23,133 - root - ERROR - Unexpected error mining spring-projects/spring-boot: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:23,547 - root - INFO - 
+==================================================
+2025-11-30 13:46:23,547 - root - INFO - Mining: spring-projects/spring-security
+2025-11-30 13:46:23,547 - root - INFO - Stars: 9381, Forks: 6184
+2025-11-30 13:46:24,321 - root - ERROR - Unexpected error mining spring-projects/spring-security: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:24,742 - root - INFO - 
+==================================================
+2025-11-30 13:46:24,742 - root - INFO - Mining: google/guava
+2025-11-30 13:46:24,742 - root - INFO - Stars: 51307, Forks: 11109
+2025-11-30 13:46:25,807 - root - ERROR - Unexpected error mining google/guava: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:26,178 - root - INFO - 
+==================================================
+2025-11-30 13:46:26,178 - root - INFO - Mining: alibaba/arthas
+2025-11-30 13:46:26,178 - root - INFO - Stars: 36867, Forks: 7606
+2025-11-30 13:46:27,161 - root - ERROR - Unexpected error mining alibaba/arthas: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:27,571 - root - INFO - 
+==================================================
+2025-11-30 13:46:27,571 - root - INFO - Mining: google/error-prone
+2025-11-30 13:46:27,571 - root - INFO - Stars: 7094, Forks: 775
+2025-11-30 13:46:28,130 - root - ERROR - Unexpected error mining google/error-prone: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:28,416 - root - ERROR - GitHub error mining jd-com/jd-fastjson: 404 {"message": "Not Found", "documentation_url": "https://docs.github.com/rest/repos/repos#get-a-repository", "status": "404"}
+2025-11-30 13:46:28,843 - root - INFO - 
+==================================================
+2025-11-30 13:46:28,843 - root - INFO - Mining: Netflix/hystrix
+2025-11-30 13:46:28,843 - root - INFO - Stars: 24445, Forks: 4719
+2025-11-30 13:46:29,773 - root - ERROR - Unexpected error mining Netflix/hystrix: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:30,173 - root - INFO - 
+==================================================
+2025-11-30 13:46:30,173 - root - INFO - Mining: elastic/elasticsearch
+2025-11-30 13:46:30,173 - root - INFO - Stars: 75557, Forks: 25647
+2025-11-30 13:46:31,103 - root - ERROR - Unexpected error mining elastic/elasticsearch: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:31,506 - root - INFO - 
+==================================================
+2025-11-30 13:46:31,506 - root - INFO - Mining: apache/lucene-solr
+2025-11-30 13:46:31,506 - root - INFO - Stars: 4375, Forks: 2630
+2025-11-30 13:46:32,657 - root - ERROR - Unexpected error mining apache/lucene-solr: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:33,148 - root - INFO - 
+==================================================
+2025-11-30 13:46:33,148 - root - INFO - Mining: mongodb/mongo-java-driver
+2025-11-30 13:46:33,148 - root - INFO - Stars: 2651, Forks: 1489
+2025-11-30 13:46:34,224 - root - ERROR - Unexpected error mining mongodb/mongo-java-driver: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:34,644 - root - INFO - 
+==================================================
+2025-11-30 13:46:34,644 - root - INFO - Mining: apache/cassandra
+2025-11-30 13:46:34,644 - root - INFO - Stars: 9501, Forks: 3808
+2025-11-30 13:46:35,476 - root - ERROR - Unexpected error mining apache/cassandra: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:35,865 - root - INFO - 
+==================================================
+2025-11-30 13:46:35,865 - root - INFO - Mining: apache/maven
+2025-11-30 13:46:35,865 - root - INFO - Stars: 4856, Forks: 2798
+2025-11-30 13:46:36,613 - root - ERROR - Unexpected error mining apache/maven: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:37,076 - root - INFO - 
+==================================================
+2025-11-30 13:46:37,076 - root - INFO - Mining: gradle/gradle
+2025-11-30 13:46:37,076 - root - INFO - Stars: 18154, Forks: 5056
+2025-11-30 13:46:42,029 - root - ERROR - Unexpected error mining gradle/gradle: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:42,407 - root - INFO - 
+==================================================
+2025-11-30 13:46:42,407 - root - INFO - Mining: protostuff/protostuff
+2025-11-30 13:46:42,407 - root - INFO - Stars: 2089, Forks: 308
+2025-11-30 13:46:43,161 - root - ERROR - Unexpected error mining protostuff/protostuff: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:43,584 - root - INFO - 
+==================================================
+2025-11-30 13:46:43,584 - root - INFO - Mining: esotericsoftware/kryo
+2025-11-30 13:46:43,584 - root - INFO - Stars: 6447, Forks: 843
+2025-11-30 13:46:44,424 - root - ERROR - Unexpected error mining esotericsoftware/kryo: can't compare offset-naive and offset-aware datetimes
+2025-11-30 13:46:44,425 - root - INFO - 
+============================================================
+2025-11-30 13:46:44,425 - root - INFO - COLLECTION COMPLETE
+2025-11-30 13:46:44,425 - root - INFO - Repos Attempted: 36
+2025-11-30 13:46:44,425 - root - INFO - Repos Successful: 0
+2025-11-30 13:46:44,425 - root - INFO - Total PRs Found: 0
+2025-11-30 13:46:44,425 - root - INFO - Total PRs Collected: 0
+2025-11-30 13:46:44,425 - root - INFO - Total PRs Failed: 0
+2025-11-30 13:46:44,425 - root - INFO - Output: data/github_prs_aggressive/github_prs_all_samples.json
+2025-11-30 13:46:44,425 - root - INFO - ============================================================
+
+2025-11-30 13:46:44,425 - __main__ - INFO - ✓ GitHub: 0 total samples collected
+2025-11-30 13:46:44,427 - __main__ - INFO - 
+======================================================================
+2025-11-30 13:46:44,427 - __main__ - INFO - PHASE 1.3: BUGSINPY AGGRESSIVE COLLECTION (Python)
+2025-11-30 13:46:44,427 - __main__ - INFO - ======================================================================
+2025-11-30 13:46:44,427 - __main__ - INFO - BugsInPy collection disabled in config. Skipping.
+2025-11-30 13:46:44,427 - __main__ - INFO - 
+======================================================================
+2025-11-30 13:46:44,427 - __main__ - INFO - PHASE 1.4: CREATING UNIFIED DATASET
+2025-11-30 13:46:44,427 - __main__ - INFO - ======================================================================
+2025-11-30 13:46:44,427 - __main__ - INFO - Added 431 Defects4J samples (Java)
+2025-11-30 13:46:44,427 - __main__ - INFO - Added 0 GitHub samples (Java/Python)
+2025-11-30 13:46:44,427 - __main__ - INFO - 
+✓ Total unified samples: 431
+2025-11-30 13:46:44,443 - __main__ - INFO - ✓ Saved unified dataset: data/phase1_results/unified_dataset.json
+2025-11-30 13:46:44,443 - __main__ - INFO - 
+======================================================================
+2025-11-30 13:46:44,443 - __main__ - INFO - FINAL STATISTICS REPORT
+2025-11-30 13:46:44,443 - __main__ - INFO - ======================================================================
+2025-11-30 13:46:44,443 - __main__ - INFO - ✓ Saved statistics report: data/phase1_results/collection_statistics.json
+2025-11-30 13:46:44,475 - __main__ - INFO - ✓ Saved detailed results: data/phase1_results/detailed_results.json
+2025-11-30 15:47:37,499 - __main__ - INFO - 
+======================================================================
+2025-11-30 15:47:37,499 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-11-30 15:47:37,499 - __main__ - INFO - ======================================================================
+2025-11-30 15:47:38,169 - root - INFO - ✓ Defects4J installation verified
+2025-11-30 15:47:38,169 - root - INFO - 
+============================================================
+2025-11-30 15:47:38,169 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-11-30 15:47:38,170 - root - INFO - ============================================================
+2025-11-30 15:47:38,233 - root - INFO - 
+============================================================
+2025-11-30 15:47:38,233 - root - INFO - PROCESSING PROJECT: Lang
+2025-11-30 15:47:38,233 - root - INFO - ============================================================
+2025-11-30 15:47:38,300 - root - INFO - Project Lang: 61 total bugs available
+2025-11-30 16:17:38,192 - root - INFO - ✓ Saved 61 bugs for Lang
+2025-11-30 16:17:38,193 - root - INFO - 
+============================================================
+2025-11-30 16:17:38,193 - root - INFO - PROCESSING PROJECT: Math
+2025-11-30 16:17:38,193 - root - INFO - ============================================================
+2025-11-30 16:17:38,276 - root - INFO - Project Math: 106 total bugs available
+2025-11-30 17:57:24,028 - root - INFO - ✓ Saved 106 bugs for Math
+2025-11-30 17:57:24,029 - root - INFO - 
+============================================================
+2025-11-30 17:57:24,029 - root - INFO - PROCESSING PROJECT: Chart
+2025-11-30 17:57:24,029 - root - INFO - ============================================================
+2025-11-30 17:57:24,095 - root - INFO - Project Chart: 26 total bugs available
+2025-11-30 18:04:02,666 - root - INFO - ✓ Saved 26 bugs for Chart
+2025-11-30 18:04:02,667 - root - INFO - 
+============================================================
+2025-11-30 18:04:02,667 - root - INFO - PROCESSING PROJECT: Time
+2025-11-30 18:04:02,667 - root - INFO - ============================================================
+2025-11-30 18:04:02,739 - root - INFO - Project Time: 26 total bugs available
+2025-11-30 18:11:49,542 - root - INFO - ✓ Saved 26 bugs for Time
+2025-11-30 18:11:49,542 - root - INFO - 
+============================================================
+2025-11-30 18:11:49,542 - root - INFO - PROCESSING PROJECT: Mockito
+2025-11-30 18:11:49,542 - root - INFO - ============================================================
+2025-11-30 18:11:49,610 - root - INFO - Project Mockito: 38 total bugs available
+2025-11-30 19:13:15,744 - root - INFO - ✓ Saved 38 bugs for Mockito
+2025-11-30 19:13:15,745 - root - INFO - 
+============================================================
+2025-11-30 19:13:15,745 - root - INFO - PROCESSING PROJECT: Closure
+2025-11-30 19:13:15,745 - root - INFO - ============================================================
+2025-11-30 19:13:15,826 - root - INFO - Project Closure: 174 total bugs available
+2025-11-30 21:51:46,736 - root - INFO - ✓ Saved 174 bugs for Closure
+2025-11-30 21:51:46,752 - root - INFO - 
+============================================================
+2025-11-30 21:51:46,752 - root - INFO - COLLECTION COMPLETE
+2025-11-30 21:51:46,752 - root - INFO - Total Bugs Found: 431
+2025-11-30 21:51:46,752 - root - INFO - Total Bugs Processed: 431
+2025-11-30 21:51:46,752 - root - INFO - Total Bugs Failed: 0
+2025-11-30 21:51:46,752 - root - INFO - Success Rate: 100.0%
+2025-11-30 21:51:46,752 - root - INFO - Output: data/defects4j_aggressive/defects4j_all_samples.json
+2025-11-30 21:51:46,752 - root - INFO - ============================================================
+
+2025-11-30 21:51:46,752 - __main__ - INFO - ✓ Defects4J: 431 total samples collected
+2025-11-30 21:51:46,752 - __main__ - INFO - 
+======================================================================
+2025-11-30 21:51:46,752 - __main__ - INFO - PHASE 1.2: GITHUB PR AGGRESSIVE COLLECTION
+2025-11-30 21:51:46,752 - __main__ - INFO - ======================================================================
+2025-11-30 21:51:47,192 - root - INFO - ✓ Connected to GitHub as: Lucifario
+2025-11-30 21:51:47,192 - root - INFO - 
+============================================================
+2025-11-30 21:51:47,192 - root - INFO - AGGRESSIVE GITHUB PR COLLECTION - MAXIMUM SCALE
+2025-11-30 21:51:47,192 - root - INFO - Attempting 36 repositories
+2025-11-30 21:51:47,192 - root - INFO - ============================================================
+
+2025-11-30 21:51:47,955 - root - INFO - 
+==================================================
+2025-11-30 21:51:47,955 - root - INFO - Mining: alibaba/fastjson
+2025-11-30 21:51:47,955 - root - INFO - Stars: 25738, Forks: 6471
+2025-11-30 21:53:30,730 - root - INFO - ✓ Mined 10 PRs (found: 10, skipped: 15)
+2025-11-30 21:53:31,135 - root - INFO - 
+==================================================
+2025-11-30 21:53:31,135 - root - INFO - Mining: google/gson
+2025-11-30 21:53:31,135 - root - INFO - Stars: 24247, Forks: 4360
+2025-11-30 22:19:01,790 - root - INFO - ✓ Mined 229 PRs (found: 229, skipped: 53)
+2025-11-30 22:19:02,309 - root - INFO - 
+==================================================
+2025-11-30 22:19:02,309 - root - INFO - Mining: FasterXML/jackson-databind
+2025-11-30 22:19:02,309 - root - INFO - Stars: 3653, Forks: 1446
+2025-11-30 23:07:26,587 - root - WARNING - Rate limit check failed: can't compare offset-naive and offset-aware datetimes
+2025-11-30 23:07:36,932 - root - ERROR - GitHub error mining FasterXML/jackson-databind: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81AC8:22386B2:692D3EAE and timestamp 2025-12-01 07:07:36 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:37,294 - root - ERROR - GitHub error mining google/protobuf: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81B49:2238727:692D3EB8 and timestamp 2025-12-01 07:07:37 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:37,644 - root - ERROR - GitHub error mining ecomfe/ecomfe-json-lib: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81B9A:2238770:692D3EB9 and timestamp 2025-12-01 07:07:37 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:37,988 - root - ERROR - GitHub error mining mockito/mockito: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81BEB:22387EA:692D3EB9 and timestamp 2025-12-01 07:07:37 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:38,274 - root - ERROR - GitHub error mining junit-team/junit4: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81C5B:2238851:692D3EBA and timestamp 2025-12-01 07:07:38 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:38,573 - root - ERROR - GitHub error mining junit-team/junit5: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81CA1:22388A2:692D3EBA and timestamp 2025-12-01 07:07:38 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:38,874 - root - ERROR - GitHub error mining powermock/powermock: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81CF8:2238909:692D3EBA and timestamp 2025-12-01 07:07:38 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:39,169 - root - ERROR - GitHub error mining easymock/easymock: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81D59:2238970:692D3EBA and timestamp 2025-12-01 07:07:39 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:39,484 - root - ERROR - GitHub error mining square/okhttp: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81DB0:22389C6:692D3EBB and timestamp 2025-12-01 07:07:39 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:39,811 - root - ERROR - GitHub error mining square/retrofit: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81E08:2238A11:692D3EBB and timestamp 2025-12-01 07:07:39 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:40,107 - root - ERROR - GitHub error mining Netflix/feign: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81E5C:2238A76:692D3EBB and timestamp 2025-12-01 07:07:40 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:40,408 - root - ERROR - GitHub error mining apache/httpcomponents-client: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81EA6:2238AD3:692D3EBC and timestamp 2025-12-01 07:07:40 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:40,710 - root - ERROR - GitHub error mining AsyncHttpClient/async-http-client: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81EF9:2238B24:692D3EBC and timestamp 2025-12-01 07:07:40 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:41,126 - root - ERROR - GitHub error mining apache/commons-lang: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81F50:2238B75:692D3EBC and timestamp 2025-12-01 07:07:40 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:41,452 - root - ERROR - GitHub error mining apache/commons-collections: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A81FC1:2238BF5:692D3EBD and timestamp 2025-12-01 07:07:41 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:41,776 - root - ERROR - GitHub error mining apache/commons-io: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A8200E:2238C53:692D3EBD and timestamp 2025-12-01 07:07:41 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:42,072 - root - ERROR - GitHub error mining apache/commons-math: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82067:2238CB3:692D3EBD and timestamp 2025-12-01 07:07:41 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:42,457 - root - ERROR - GitHub error mining apache/commons-codec: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A820BE:2238CF7:692D3EBE and timestamp 2025-12-01 07:07:42 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:42,822 - root - ERROR - GitHub error mining spring-projects/spring-framework: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A8211B:2238D5E:692D3EBE and timestamp 2025-12-01 07:07:42 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:43,174 - root - ERROR - GitHub error mining spring-projects/spring-boot: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82174:2238DC0:692D3EBE and timestamp 2025-12-01 07:07:43 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:43,481 - root - ERROR - GitHub error mining spring-projects/spring-security: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A821C7:2238E1F:692D3EBF and timestamp 2025-12-01 07:07:43 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:43,788 - root - ERROR - GitHub error mining google/guava: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82208:2238E6E:692D3EBF and timestamp 2025-12-01 07:07:43 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:44,082 - root - ERROR - GitHub error mining alibaba/arthas: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82255:2238ECC:692D3EBF and timestamp 2025-12-01 07:07:43 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:44,404 - root - ERROR - GitHub error mining google/error-prone: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A822A6:2238F18:692D3EC0 and timestamp 2025-12-01 07:07:44 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:44,694 - root - ERROR - GitHub error mining jd-com/jd-fastjson: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A822F2:2238F6F:692D3EC0 and timestamp 2025-12-01 07:07:44 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:44,990 - root - ERROR - GitHub error mining Netflix/hystrix: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82340:2238FDB:692D3EC0 and timestamp 2025-12-01 07:07:44 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:45,325 - root - ERROR - GitHub error mining elastic/elasticsearch: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A8238D:2239033:692D3EC1 and timestamp 2025-12-01 07:07:45 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:45,630 - root - ERROR - GitHub error mining apache/lucene-solr: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A823DB:2239092:692D3EC1 and timestamp 2025-12-01 07:07:45 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:45,926 - root - ERROR - GitHub error mining mongodb/mongo-java-driver: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82424:22390E3:692D3EC1 and timestamp 2025-12-01 07:07:45 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:46,246 - root - ERROR - GitHub error mining apache/cassandra: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82470:223912F:692D3EC1 and timestamp 2025-12-01 07:07:46 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:46,544 - root - ERROR - GitHub error mining apache/maven: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A824BE:2239195:692D3EC2 and timestamp 2025-12-01 07:07:46 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:46,859 - root - ERROR - GitHub error mining gradle/gradle: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A8250C:22391E6:692D3EC2 and timestamp 2025-12-01 07:07:46 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:47,167 - root - ERROR - GitHub error mining protostuff/protostuff: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A82557:2239232:692D3EC2 and timestamp 2025-12-01 07:07:47 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:47,467 - root - ERROR - GitHub error mining esotericsoftware/kryo: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID CC5B:1F6E47:1A825A7:2239291:692D3EC3 and timestamp 2025-12-01 07:07:47 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-11-30 23:07:47,570 - root - INFO - 
+============================================================
+2025-11-30 23:07:47,570 - root - INFO - COLLECTION COMPLETE
+2025-11-30 23:07:47,570 - root - INFO - Repos Attempted: 36
+2025-11-30 23:07:47,570 - root - INFO - Repos Successful: 2
+2025-11-30 23:07:47,570 - root - INFO - Total PRs Found: 239
+2025-11-30 23:07:47,570 - root - INFO - Total PRs Collected: 239
+2025-11-30 23:07:47,570 - root - INFO - Total PRs Failed: 0
+2025-11-30 23:07:47,570 - root - INFO - Output: data/github_prs_aggressive/github_prs_all_samples.json
+2025-11-30 23:07:47,570 - root - INFO - ============================================================
+
+2025-11-30 23:07:47,570 - __main__ - INFO - ✓ GitHub: 552 total samples collected
+2025-11-30 23:07:47,570 - __main__ - INFO - 
+======================================================================
+2025-11-30 23:07:47,570 - __main__ - INFO - PHASE 1.3: BUGSINPY AGGRESSIVE COLLECTION (Python)
+2025-11-30 23:07:47,570 - __main__ - INFO - ======================================================================
+2025-11-30 23:07:47,570 - __main__ - INFO - BugsInPy collection disabled in config. Skipping.
+2025-11-30 23:07:47,570 - __main__ - INFO - 
+======================================================================
+2025-11-30 23:07:47,570 - __main__ - INFO - PHASE 1.4: CREATING UNIFIED DATASET
+2025-11-30 23:07:47,570 - __main__ - INFO - ======================================================================
+2025-11-30 23:07:47,570 - __main__ - INFO - Added 431 Defects4J samples (Java)
+2025-11-30 23:07:47,571 - __main__ - INFO - Added 552 GitHub samples (Java/Python)
+2025-11-30 23:07:47,571 - __main__ - INFO - 
+✓ Total unified samples: 983
+2025-11-30 23:07:47,643 - __main__ - INFO - ✓ Saved unified dataset: data/phase1_results/unified_dataset.json
+2025-11-30 23:07:47,643 - __main__ - INFO - 
+======================================================================
+2025-11-30 23:07:47,643 - __main__ - INFO - FINAL STATISTICS REPORT
+2025-11-30 23:07:47,643 - __main__ - INFO - ======================================================================
+2025-11-30 23:07:47,644 - __main__ - INFO - ✓ Saved statistics report: data/phase1_results/collection_statistics.json
+2025-11-30 23:07:47,800 - __main__ - INFO - ✓ Saved detailed results: data/phase1_results/detailed_results.json
+2025-12-01 05:00:45,331 - __main__ - INFO - 
+======================================================================
+2025-12-01 05:00:45,331 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-12-01 05:00:45,331 - __main__ - INFO - ======================================================================
+2025-12-01 05:00:45,926 - root - INFO - ✓ Defects4J installation verified
+2025-12-01 05:00:45,926 - root - INFO - 
+============================================================
+2025-12-01 05:00:45,926 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-12-01 05:00:45,926 - root - INFO - ============================================================
+2025-12-01 05:00:45,990 - root - INFO - 
+============================================================
+2025-12-01 05:00:45,990 - root - INFO - PROCESSING PROJECT: Lang
+2025-12-01 05:00:45,990 - root - INFO - ============================================================
+2025-12-01 05:00:46,055 - root - INFO - Project Lang: 61 total bugs available
+2025-12-01 05:03:54,887 - __main__ - INFO - 
+======================================================================
+2025-12-01 05:03:54,887 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-12-01 05:03:54,887 - __main__ - INFO - ======================================================================
+2025-12-01 05:03:54,964 - root - INFO - ✓ Defects4J installation verified
+2025-12-01 05:03:54,965 - root - INFO - 
+============================================================
+2025-12-01 05:03:54,965 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-12-01 05:03:54,965 - root - INFO - ============================================================
+2025-12-01 05:03:55,028 - root - INFO - 
+============================================================
+2025-12-01 05:03:55,028 - root - INFO - COLLECTION COMPLETE
+2025-12-01 05:03:55,028 - root - INFO - Total Bugs Found: 0
+2025-12-01 05:03:55,028 - root - INFO - Total Bugs Processed: 0
+2025-12-01 05:03:55,028 - root - INFO - Total Bugs Failed: 0
+2025-12-01 05:03:55,028 - root - INFO - Success Rate: 0.0%
+2025-12-01 05:03:55,028 - root - INFO - Output: data/defects4j_aggressive/defects4j_all_samples.json
+2025-12-01 05:03:55,029 - root - INFO - ============================================================
+
+2025-12-01 05:03:55,029 - __main__ - INFO - ✓ Defects4J: 0 total samples collected
+2025-12-01 05:03:55,029 - __main__ - INFO - 
+======================================================================
+2025-12-01 05:03:55,029 - __main__ - INFO - PHASE 1.2: GITHUB PR AGGRESSIVE COLLECTION
+2025-12-01 05:03:55,029 - __main__ - INFO - ======================================================================
+2025-12-01 05:03:55,473 - root - INFO - ✓ Connected to GitHub as: Lucifario
+2025-12-01 05:03:55,473 - root - INFO - 
+============================================================
+2025-12-01 05:03:55,474 - root - INFO - AGGRESSIVE GITHUB PR COLLECTION - MAXIMUM SCALE
+2025-12-01 05:03:55,474 - root - INFO - Attempting 36 repositories
+2025-12-01 05:03:55,474 - root - INFO - ============================================================
+
+2025-12-01 05:03:56,214 - root - INFO - 
+==================================================
+2025-12-01 05:03:56,214 - root - INFO - Mining: alibaba/fastjson
+2025-12-01 05:03:56,214 - root - INFO - Stars: 25738, Forks: 6471
+2025-12-01 05:05:42,724 - root - INFO - ✓ Mined 10 PRs (found: 10, skipped: 15)
+2025-12-01 05:05:43,188 - root - INFO - 
+==================================================
+2025-12-01 05:05:43,188 - root - INFO - Mining: google/gson
+2025-12-01 05:05:43,189 - root - INFO - Stars: 24249, Forks: 4362
+2025-12-01 06:13:30,471 - __main__ - INFO - 
+======================================================================
+2025-12-01 06:13:30,472 - __main__ - INFO - PHASE 1.1: DEFECTS4J AGGRESSIVE COLLECTION (Java)
+2025-12-01 06:13:30,472 - __main__ - INFO - ======================================================================
+2025-12-01 06:13:31,275 - root - INFO - ✓ Defects4J installation verified
+2025-12-01 06:13:31,275 - root - INFO - 
+============================================================
+2025-12-01 06:13:31,275 - root - INFO - AGGRESSIVE DEFECTS4J DATA COLLECTION - NO LIMITS
+2025-12-01 06:13:31,275 - root - INFO - ============================================================
+2025-12-01 06:13:31,340 - root - INFO - 
+============================================================
+2025-12-01 06:13:31,340 - root - INFO - PROCESSING PROJECT: Lang
+2025-12-01 06:13:31,340 - root - INFO - ============================================================
+2025-12-01 06:13:31,411 - root - INFO - Project Lang: 61 total bugs available
+2025-12-01 06:56:10,790 - root - INFO - ✓ Saved 61 bugs for Lang
+2025-12-01 06:56:10,791 - root - INFO - 
+============================================================
+2025-12-01 06:56:10,791 - root - INFO - PROCESSING PROJECT: Math
+2025-12-01 06:56:10,791 - root - INFO - ============================================================
+2025-12-01 06:56:10,865 - root - INFO - Project Math: 106 total bugs available
+2025-12-01 08:43:16,513 - root - INFO - ✓ Saved 106 bugs for Math
+2025-12-01 08:43:16,514 - root - INFO - 
+============================================================
+2025-12-01 08:43:16,514 - root - INFO - PROCESSING PROJECT: Chart
+2025-12-01 08:43:16,514 - root - INFO - ============================================================
+2025-12-01 08:43:16,583 - root - INFO - Project Chart: 26 total bugs available
+2025-12-01 08:56:41,769 - root - INFO - ✓ Saved 26 bugs for Chart
+2025-12-01 08:56:41,770 - root - INFO - 
+============================================================
+2025-12-01 08:56:41,770 - root - INFO - PROCESSING PROJECT: Time
+2025-12-01 08:56:41,770 - root - INFO - ============================================================
+2025-12-01 08:56:41,845 - root - INFO - Project Time: 26 total bugs available
+2025-12-01 09:11:11,781 - root - INFO - ✓ Saved 26 bugs for Time
+2025-12-01 09:11:11,782 - root - INFO - 
+============================================================
+2025-12-01 09:11:11,782 - root - INFO - PROCESSING PROJECT: Mockito
+2025-12-01 09:11:11,782 - root - INFO - ============================================================
+2025-12-01 09:11:11,853 - root - INFO - Project Mockito: 38 total bugs available
+2025-12-01 10:12:44,708 - root - INFO - ✓ Saved 38 bugs for Mockito
+2025-12-01 10:12:44,708 - root - INFO - 
+============================================================
+2025-12-01 10:12:44,709 - root - INFO - PROCESSING PROJECT: Closure
+2025-12-01 10:12:44,709 - root - INFO - ============================================================
+2025-12-01 10:12:44,798 - root - INFO - Project Closure: 174 total bugs available
+2025-12-01 14:42:05,078 - root - INFO - ✓ Saved 174 bugs for Closure
+2025-12-01 14:42:05,095 - root - INFO - 
+============================================================
+2025-12-01 14:42:05,095 - root - INFO - COLLECTION COMPLETE
+2025-12-01 14:42:05,095 - root - INFO - Total Bugs Found: 431
+2025-12-01 14:42:05,095 - root - INFO - Total Bugs Processed: 431
+2025-12-01 14:42:05,095 - root - INFO - Total Bugs Failed: 0
+2025-12-01 14:42:05,095 - root - INFO - Success Rate: 100.0%
+2025-12-01 14:42:05,095 - root - INFO - Output: data/defects4j_aggressive/defects4j_all_samples.json
+2025-12-01 14:42:05,095 - root - INFO - ============================================================
+
+2025-12-01 14:42:05,096 - __main__ - INFO - ✓ Defects4J: 431 total samples collected
+2025-12-01 14:42:05,097 - __main__ - INFO - 
+======================================================================
+2025-12-01 14:42:05,097 - __main__ - INFO - PHASE 1.2: GITHUB PR AGGRESSIVE COLLECTION
+2025-12-01 14:42:05,097 - __main__ - INFO - ======================================================================
+2025-12-01 14:42:05,849 - root - INFO - ✓ Connected to GitHub as: Lucifario
+2025-12-01 14:42:05,849 - root - INFO - 
+============================================================
+2025-12-01 14:42:05,849 - root - INFO - AGGRESSIVE GITHUB PR COLLECTION - MAXIMUM SCALE
+2025-12-01 14:42:05,849 - root - INFO - Attempting 36 repositories
+2025-12-01 14:42:05,849 - root - INFO - ============================================================
+
+2025-12-01 14:42:07,073 - root - INFO - 
+==================================================
+2025-12-01 14:42:07,073 - root - INFO - Mining: alibaba/fastjson
+2025-12-01 14:42:07,073 - root - INFO - Stars: 25737, Forks: 6471
+2025-12-01 14:44:32,525 - root - INFO - ✓ Mined 10 PRs (found: 10, skipped: 15)
+2025-12-01 14:44:33,103 - root - INFO - 
+==================================================
+2025-12-01 14:44:33,108 - root - INFO - Mining: google/gson
+2025-12-01 14:44:33,108 - root - INFO - Stars: 24251, Forks: 4363
+2025-12-01 15:20:20,672 - root - INFO - ✓ Mined 229 PRs (found: 229, skipped: 52)
+2025-12-01 15:20:21,641 - root - INFO - 
+==================================================
+2025-12-01 15:20:21,641 - root - INFO - Mining: FasterXML/jackson-databind
+2025-12-01 15:20:21,642 - root - INFO - Stars: 3653, Forks: 1447
+2025-12-01 16:57:32,377 - root - WARNING - Rate limit check failed: can't compare offset-naive and offset-aware datetimes
+2025-12-01 16:58:06,124 - root - ERROR - GitHub error mining FasterXML/jackson-databind: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C063:86F3EB:692E399D and timestamp 2025-12-02 00:58:05 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:06,738 - root - ERROR - GitHub error mining google/protobuf: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C07D:86F414:692E399D and timestamp 2025-12-02 00:58:06 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:07,352 - root - ERROR - GitHub error mining ecomfe/ecomfe-json-lib: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C094:86F435:692E399E and timestamp 2025-12-02 00:58:06 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:07,967 - root - ERROR - GitHub error mining mockito/mockito: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0A5:86F45A:692E399F and timestamp 2025-12-02 00:58:07 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:08,581 - root - ERROR - GitHub error mining junit-team/junit4: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0B8:86F480:692E399F and timestamp 2025-12-02 00:58:08 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:09,196 - root - ERROR - GitHub error mining junit-team/junit5: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0D5:86F4AA:692E39A0 and timestamp 2025-12-02 00:58:08 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:09,809 - root - ERROR - GitHub error mining powermock/powermock: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C0F3:86F4DA:692E39A0 and timestamp 2025-12-02 00:58:09 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:10,424 - root - ERROR - GitHub error mining easymock/easymock: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C110:86F505:692E39A1 and timestamp 2025-12-02 00:58:10 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:11,038 - root - ERROR - GitHub error mining square/okhttp: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C12B:86F52D:692E39A2 and timestamp 2025-12-02 00:58:10 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:11,653 - root - ERROR - GitHub error mining square/retrofit: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C13A:86F554:692E39A2 and timestamp 2025-12-02 00:58:11 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:12,033 - root - ERROR - GitHub error mining Netflix/feign: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C152:86F573:692E39A3 and timestamp 2025-12-02 00:58:11 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:12,379 - root - ERROR - GitHub error mining apache/httpcomponents-client: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C15F:86F590:692E39A3 and timestamp 2025-12-02 00:58:12 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:12,703 - root - ERROR - GitHub error mining AsyncHttpClient/async-http-client: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C16C:86F5A5:692E39A4 and timestamp 2025-12-02 00:58:12 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:13,038 - root - ERROR - GitHub error mining apache/commons-lang: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C176:86F5B4:692E39A4 and timestamp 2025-12-02 00:58:12 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:13,378 - root - ERROR - GitHub error mining apache/commons-collections: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C183:86F5CD:692E39A5 and timestamp 2025-12-02 00:58:13 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:13,803 - root - ERROR - GitHub error mining apache/commons-io: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C18F:86F5E4:692E39A5 and timestamp 2025-12-02 00:58:13 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:14,418 - root - ERROR - GitHub error mining apache/commons-math: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C19C:86F5FB:692E39A5 and timestamp 2025-12-02 00:58:13 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:15,032 - root - ERROR - GitHub error mining apache/commons-codec: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1BA:86F630:692E39A6 and timestamp 2025-12-02 00:58:14 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:15,462 - root - ERROR - GitHub error mining spring-projects/spring-framework: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1DA:86F661:692E39A6 and timestamp 2025-12-02 00:58:15 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:15,985 - root - ERROR - GitHub error mining spring-projects/spring-boot: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1EA:86F67B:692E39A7 and timestamp 2025-12-02 00:58:15 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:16,492 - root - ERROR - GitHub error mining spring-projects/spring-security: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C1FA:86F698:692E39A7 and timestamp 2025-12-02 00:58:16 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:16,986 - root - ERROR - GitHub error mining google/guava: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C20C:86F6B7:692E39A8 and timestamp 2025-12-02 00:58:16 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:17,374 - root - ERROR - GitHub error mining alibaba/arthas: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C225:86F6E0:692E39A8 and timestamp 2025-12-02 00:58:17 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:17,811 - root - ERROR - GitHub error mining google/error-prone: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C235:86F6FB:692E39A9 and timestamp 2025-12-02 00:58:17 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:18,172 - root - ERROR - GitHub error mining jd-com/jd-fastjson: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C24C:86F719:692E39A9 and timestamp 2025-12-02 00:58:18 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:18,525 - root - ERROR - GitHub error mining Netflix/hystrix: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C259:86F72F:692E39AA and timestamp 2025-12-02 00:58:18 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:18,979 - root - ERROR - GitHub error mining elastic/elasticsearch: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C267:86F744:692E39AA and timestamp 2025-12-02 00:58:18 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:19,322 - root - ERROR - GitHub error mining apache/lucene-solr: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C27B:86F769:692E39AA and timestamp 2025-12-02 00:58:19 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:19,652 - root - ERROR - GitHub error mining mongodb/mongo-java-driver: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C28C:86F7A9:692E39AB and timestamp 2025-12-02 00:58:19 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:19,978 - root - ERROR - GitHub error mining apache/cassandra: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C29E:86F7C4:692E39AB and timestamp 2025-12-02 00:58:19 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:20,469 - root - ERROR - GitHub error mining apache/maven: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2BA:86F7DB:692E39AB and timestamp 2025-12-02 00:58:20 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:20,802 - root - ERROR - GitHub error mining gradle/gradle: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2CB:86F7FA:692E39AC and timestamp 2025-12-02 00:58:20 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:21,222 - root - ERROR - GitHub error mining protostuff/protostuff: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2DD:86F815:692E39AC and timestamp 2025-12-02 00:58:20 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:21,576 - root - ERROR - GitHub error mining esotericsoftware/kryo: 403 {"message": "API rate limit exceeded for user ID 145567804. If you reach out to GitHub Support for help, please include the request ID 8848:117B4C:70C2EA:86F841:692E39AD and timestamp 2025-12-02 00:58:21 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)", "documentation_url": "https://docs.github.com/rest/overview/rate-limits-for-the-rest-api", "status": "403"}
+2025-12-01 16:58:21,691 - root - INFO - 
+============================================================
+2025-12-01 16:58:21,691 - root - INFO - COLLECTION COMPLETE
+2025-12-01 16:58:21,691 - root - INFO - Repos Attempted: 36
+2025-12-01 16:58:21,691 - root - INFO - Repos Successful: 2
+2025-12-01 16:58:21,691 - root - INFO - Total PRs Found: 239
+2025-12-01 16:58:21,691 - root - INFO - Total PRs Collected: 239
+2025-12-01 16:58:21,691 - root - INFO - Total PRs Failed: 0
+2025-12-01 16:58:21,691 - root - INFO - Output: data/github_prs_aggressive/github_prs_all_samples.json
+2025-12-01 16:58:21,691 - root - INFO - ============================================================
+
+2025-12-01 16:58:21,691 - __main__ - INFO - ✓ GitHub: 659 total samples collected
+2025-12-01 16:58:21,691 - __main__ - INFO - 
+======================================================================
+2025-12-01 16:58:21,692 - __main__ - INFO - PHASE 1.3: BUGSINPY AGGRESSIVE COLLECTION (Python)
+2025-12-01 16:58:21,692 - __main__ - INFO - ======================================================================
+2025-12-01 16:58:21,692 - __main__ - INFO - BugsInPy collection disabled in config. Skipping.
+2025-12-01 16:58:21,692 - __main__ - INFO - 
+======================================================================
+2025-12-01 16:58:21,692 - __main__ - INFO - PHASE 1.4: CREATING UNIFIED DATASET
+2025-12-01 16:58:21,692 - __main__ - INFO - ======================================================================
+2025-12-01 16:58:21,692 - __main__ - INFO - Added 431 Defects4J samples (Java)
+2025-12-01 16:58:21,692 - __main__ - INFO - Added 659 GitHub samples (Java/Python)
+2025-12-01 16:58:21,692 - __main__ - INFO - 
+✓ Total unified samples: 1090
+2025-12-01 16:58:21,780 - __main__ - INFO - ✓ Saved unified dataset: data/phase1_results/unified_dataset.json
+2025-12-01 16:58:21,780 - __main__ - INFO - 
+======================================================================
+2025-12-01 16:58:21,780 - __main__ - INFO - FINAL STATISTICS REPORT
+2025-12-01 16:58:21,780 - __main__ - INFO - ======================================================================
+2025-12-01 16:58:21,781 - __main__ - INFO - ✓ Saved statistics report: data/phase1_results/collection_statistics.json
+2025-12-01 16:58:21,967 - __main__ - INFO - ✓ Saved detailed results: data/phase1_results/detailed_results.json

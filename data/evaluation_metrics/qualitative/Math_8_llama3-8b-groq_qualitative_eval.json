@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the probability method, if the input 'x' is null and the list 'singletons' contains non-null elements, a NullPointerException will be thrown.\",\n         \"location\": \"DiscreteDistribution.java:probability method\"\n      },\n      {\n         \"type\": \"Potential ClassCastException\",\n         \"description\": \"In the probability method, if the input 'x' is not of type T, a ClassCastException will be thrown.\",\n         \"location\": \"DiscreteDistribution.java:probability method\"\n      },\n      {\n         \"type\": \"Potential IndexOutOfBoundsException\",\n         \"description\": \"In the getSamples method, if the 'probabilities' array is empty, an IndexOutOfBoundsException will be thrown.\",\n         \"location\": \"DiscreteDistribution.java:getSamples method\"\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"description\": \"In the sample method, if the 'randomValue' is 0, an ArithmeticException will be thrown.\",\n         \"location\": \"DiscreteDistribution.java:sample method\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the reseedRandomGenerator method, if the 'seed' is null, a NullPointerException will be thrown.\",\n         \"location\": \"DiscreteDistribution.java:reseedRandomGenerator method\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.91973090171814,
+  "timestamp": "2025-12-02T05:19:30.936386",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the getPivotColumn method, if the tableau object is null, a NullPointerException will be thrown when trying to access its methods.\",\n         \"location\": \"SimplexSolver.java:62\"\n      },\n      {\n         \"type\": \"Potential IndexOutOfBoundsException\",\n         \"description\": \"In the getPivotColumn method, if the tableau object's width is less than or equal to the number of objective functions, an IndexOutOfBoundsException will be thrown when trying to access the tableau's entries.\",\n         \"location\": \"SimplexSolver.java:67\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the getPivotRow method, if the tableau object is null, a NullPointerException will be thrown when trying to access its methods.\",\n         \"location\": \"SimplexSolver.java:97\"\n      },\n      {\n         \"type\": \"Potential IndexOutOfBoundsException\",\n         \"description\": \"In the getPivotRow method, if the tableau object's height is less than or equal to the number of objective functions, an IndexOutOfBoundsException will be thrown when trying to access the tableau's entries.\",\n         \"location\": \"SimplexSolver.java:104\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the getPivotRow method, if the tableau object's entries are null, a NullPointerException will be thrown when trying to access their values.\",\n         \"location\": \"SimplexSolver.java:109\"\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"description\": \"In the getPivotRow method, if the entry value is zero, an ArithmeticException will be thrown when trying to divide by zero.\",\n         \"location\": \"SimplexSolver.java:115\"\n      },\n      {\n         \"type\": \"Potential ClassCastException\",\n         \"description\": \"In the getPivotRow method, if the entry value is not a number, a ClassCastException will be thrown when trying to compare it with a number.\",\n         \"location\": \"SimplexSolver.java:116\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.863173007965088,
+  "timestamp": "2025-12-02T05:23:22.656378",
+  "model_evaluated": "unknown"
+}

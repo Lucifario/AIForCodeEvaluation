@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"The constructor PoissonDistributionImpl(double p) does not check if p is positive\",\n         \"severity\": \"MEDIUM\",\n         \"location\": \"PoissonDistributionImpl.java:44\"\n      },\n      {\n         \"id\": 2,\n         \"description\": \"The constructor PoissonDistributionImpl(double p, double epsilon, int maxIterations) does not check if epsilon and maxIterations are valid\",\n         \"severity\": \"LOW\",\n         \"location\": \"PoissonDistributionImpl.java:65\"\n      },\n      {\n         \"id\": 3,\n         \"description\": \"The method cumulativeProbability(int x) does not handle the case where x is NaN or Infinity\",\n         \"severity\": \"HIGH\",\n         \"location\": \"PoissonDistributionImpl.java:134\"\n      },\n      {\n         \"id\": 4,\n         \"description\": \"The method cumulativeProbability(int x) does not handle the case where x is too large and Gamma.regularizedGammaQ() throws an exception\",\n         \"severity\": \"HIGH\",\n         \"location\": \"PoissonDistributionImpl.java:139\"\n      },\n      {\n         \"id\": 5,\n         \"description\": \"The class PoissonDistributionImpl does not implement the equals() and hashCode() methods\",\n         \"severity\": \"MEDIUM\",\n         \"location\": \"PoissonDistributionImpl.java:20\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.936983823776245,
+  "timestamp": "2025-12-02T05:19:21.759413",
+  "model_evaluated": "unknown"
+}

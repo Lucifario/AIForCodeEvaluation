@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": \"1\",\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"The parse method does not check if the input string is null before calling ISOPeriodFormat.standard().parsePeriod() method. This could potentially throw a NullPointerException if the input string is null.\",\n         \"location\": \"Period.parse(String str)\"\n      },\n      {\n         \"id\": \"2\",\n         \"type\": \"Potential IndexOutOfBoundsException\",\n         \"description\": \"The years, months, weeks and days methods do not check if the input value is within the valid range for the corresponding field. This could potentially throw an IndexOutOfBoundsException if the input value is out of range.\",\n         \"location\": \"Period.years(int years), Period.months(int months), Period.weeks(int weeks), Period.days(int days)\"\n      },\n      {\n         \"id\": \"3\",\n         \"type\": \"Potential ClassCastException\",\n         \"description\": \"The parse method does not check if the input string can be parsed to a Period object. If the input string cannot be parsed, a ClassCastException could be thrown.\",\n         \"location\": \"Period.parse(String str)\"\n      },\n      {\n         \"id\": \"4\",\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"The parse method does not check if the input formatter is null before calling formatter.parsePeriod(str) method. This could potentially throw a NullPointerException if the input formatter is null.\",\n         \"location\": \"Period.parse(String str, PeriodFormatter formatter)\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.075565099716187,
+  "timestamp": "2025-12-02T05:22:53.790237",
+  "model_evaluated": "unknown"
+}

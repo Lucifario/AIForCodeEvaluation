@@ -1,0 +1,20 @@
+{
+  "original_review": "[{\"code\": \"package org.apache.commons.lang3.text.translate;\\n\\nimport java.io.IOException;\\nimport java.io.StringWriter;\\nimport java.io.Writer;\\nimport java.util.Locale;\\n\\npublic abstract class CharSequenceTranslator {\\n\\n    public abstract int translate(CharSequence input, int index, Writer out) throws IOException;\\n\\n    public final String translate(CharSequence input) {\\n        if (input == null) {\\n            return null;\\n        }\\n        try {\\n            StringWriter writer = new StringWriter(input.length() * 2);\\n            translate(input, writer);\\n            return writer.toString();\\n        } catch (IOException ioe) {\\n            throw new RuntimeException(ioe);\\n        }\\n    }\\n\\n    public final void translate(CharSequence input, Writer out) throws IOException {\\n        if (out == null) {\\n            throw new IllegalArgumentException(\\\"The Writer must not be null\\\");\\n        }\\n        if (input == null) {\\n            return;\\n        }\\n        int pos = 0;\\n        int len = input.length();\\n        while (pos < len) {\\n            int consumed = translate(input, pos, out);\\n            if (consumed == 0) {\\n                char[] c = Character.toChars(Character.codePointAt(input, pos));\\n                out.write(c);\\n                pos+= c.length;\\n                continue;\\n            }\\n            for (int pt = 0; pt < consumed; pt++) {\\n                pos += Character.charCount(Character.codePointAt(input, pos));\\n            }\\n        }\\n    }\\n\\n    public final CharSequenceTranslator with(CharSequenceTranslator... translators) {\\n        CharSequenceTranslator[] newArray = new CharSequenceTranslator[translators.length + 1];\\n        newArray[0] = this;\\n        System.arraycopy(translators, 0, newArray, 1, translators.length);\\n        return new AggregateTranslator(newArray);\\n    }\\n\\n    public static String hex(int codepoint) {\\n        return Integer.toHexString(codepoint).toUpperCase(Locale.ENGLISH);\\n    }\\n}\\n\", \"bugs\": []}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.93610906600952,
+  "timestamp": "2025-12-02T05:23:13.496893",
+  "model_evaluated": "unknown"
+}

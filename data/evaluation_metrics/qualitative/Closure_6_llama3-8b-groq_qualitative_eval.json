@@ -1,0 +1,28 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": \"NullPointerException\",\n         \"description\": \"The compiler will throw a NullPointerException when trying to access a null object reference.\"\n      },\n      {\n         \"id\": \"Missing @extends tag\",\n         \"description\": \"The compiler will throw a warning when a class is missing the @extends tag.\"\n      },\n      {\n         \"id\": \"Duplicated variable declaration\",\n         \"description\": \"The compiler will throw a warning when a variable is redeclared with a different type.\"\n      },\n      {\n         \"id\": \"Hidden property type mismatch\",\n         \"description\": \"The compiler will throw a warning when a property's type does not match the type of the property it overrides.\"\n      },\n      {\n         \"id\": \"Interface method not implemented\",\n         \"description\": \"The compiler will throw a warning when a class does not implement an interface method.\"\n      },\n      {\n         \"id\": \"Hidden interface property type mismatch\",\n         \"description\": \"The compiler will throw a warning when a property's type does not match the type of the property it overrides from an interface.\"\n      },\n      {\n         \"id\": \"Unknown typeof value\",\n         \"description\": \"The compiler will throw a warning when trying to access a property with an unknown type.\"\n      },\n      {\n         \"id\": \"Illegal property access\",\n         \"description\": \"The compiler will throw a warning when trying to access a property that does not exist or is not accessible.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 2,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is mostly accurate in identifying potential issues (factual correctness: 4). However, it lacks concrete suggestions for fixing the issues (actionability: 2) and does not provide deep insights into the root causes of the problems (analytical depth: 2). Security awareness is not explicitly addressed (security awareness: 2). The review is somewhat constructive, offering warnings and potential issues (constructiveness: 3). It adheres perfectly to the guidelines, as it does not violate any constraints (adherence to guidelines: 5)."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.166059017181396,
+  "timestamp": "2025-12-02T05:10:39.180569",
+  "model_evaluated": "unknown"
+}

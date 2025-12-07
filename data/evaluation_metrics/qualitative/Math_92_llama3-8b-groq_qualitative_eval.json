@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NPE\",\n         \"location\": \"MathUtils.addAndCheck(long, long, String)\",\n         \"message\": \"The parameters 'a' and 'b' are not checked for null before being used.\"\n      },\n      {\n         \"type\": \"Potential NPE\",\n         \"location\": \"MathUtils.binomialCoefficient(int, int)\",\n         \"message\": \"The parameters 'n' and 'k' are not checked for null before being used.\"\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"location\": \"MathUtils.addAndCheck(long, long, String)\",\n         \"message\": \"The method does not check if the parameters 'a' and 'b' are equal to Long.MIN_VALUE and Long.MAX_VALUE respectively before throwing an ArithmeticException.\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"location\": \"MathUtils.addAndCheck(int, int)\",\n         \"message\": \"The method does not check for null before using the parameters 'x' and 'y'.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.89847707748413,
+  "timestamp": "2025-12-02T05:19:10.723916",
+  "model_evaluated": "unknown"
+}

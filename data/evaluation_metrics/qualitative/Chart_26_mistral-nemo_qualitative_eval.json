@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"Axis.java\", \"language\": \"java\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review provided is incomplete and lacks any actual feedback or suggestions. It does not contain any technical details, actionable suggestions, or security considerations. Therefore, it scores low on all criteria."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review consists of only the filename. It provides no feedback whatsoever. It's not factually correct (it doesn't *state* anything incorrect, but it doesn't state anything correct either), not actionable, lacks analytical depth, ignores security, is not constructive, and doesn't adhere to any guidelines because there are no guidelines being followed or violated. It's essentially a null review."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 23.579957008361816,
+  "timestamp": "2025-12-02T05:04:34.100634",
+  "model_evaluated": "unknown"
+}

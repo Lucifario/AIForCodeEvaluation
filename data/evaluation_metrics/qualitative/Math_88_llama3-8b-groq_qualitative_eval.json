@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"location\": \"createTableau\",\n         \"description\": \"The getNormalizedConstraints() method is called without checking if it returns null. If it returns null, a NullPointerException will be thrown.\"\n      },\n      {\n         \"type\": \"Potential IndexOutOfBoundsException\",\n         \"location\": \"createTableau\",\n         \"description\": \"The copyArray(objectiveCoefficients.getData(), matrix[zIndex], getNumObjectiveFunctions()) method is called without checking if getNumObjectiveFunctions() is within the bounds of the matrix. If it is not, an IndexOutOfBoundsException will be thrown.\"\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"location\": \"createTableau\",\n         \"description\": \"The matrix[zIndex][width - 1] = maximize ? f.getConstantTerm() : -1 * f.getConstantTerm(); line of code can potentially cause an ArithmeticException if f.getConstantTerm() is zero and maximize is true.\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"location\": \"initialize\",\n         \"description\": \"The tableau object is initialized without checking if it is null. If it is null, a NullPointerException will be thrown.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.8260657787323,
+  "timestamp": "2025-12-02T05:16:26.695068",
+  "model_evaluated": "unknown"
+}

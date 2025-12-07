@@ -1,0 +1,28 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  ] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 1,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 1,
+      "consensus_reasoning": "Both judges (gemma-27b and mistral-small) reported Failed/Invalid Output, indicating a lack of reliability in the original review. As a result, the consensus score for each metric is the lowest possible score, reflecting the inability to evaluate the review's quality due to the absence of valid output."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 1,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 1,\n   \"consensus_reasoning\": \"Both judges (gemma-27b and mistral-small) reported Failed/Invalid Output, indicating a lack of reliability in the original review. As a result, the consensus score for each metric is the lowest possible score, reflecting the inability to evaluate the review's quality due to the absence of valid output.\"\n}"
+  },
+  "duration_seconds": 14.982829093933105,
+  "timestamp": "2025-12-02T05:15:52.002625",
+  "model_evaluated": "unknown"
+}

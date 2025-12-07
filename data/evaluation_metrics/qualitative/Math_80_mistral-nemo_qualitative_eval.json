@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"private static final double TOLERANCE = 100 * MathUtils.EPSILON;\\n    private static final double TOLERANCE_2 = TOLERANCE * TOLERANCE;\\n    private double splitTolerance;\\n\\n    private double[] main;\\n    private double[] secondary;\\n    private double[] squaredSecondary;\\n\\n    private TriDiagonalTransformer transformer;\\n\\n    private double lowerSpectra;\\n    private double upperSpectra;\\n    private double minPivot;\\n\\n    private double sigma;\\n    private double sigmaLow;\\n    private double tau;\\n\\n    private double[] work;\\n    private int pingPong;\\n    private double qMax;\\n    private double eMin;\\n\\n    private int tType;\\n    private double dMin;\\n    private double dMin1;\\n    private double dMin2;\\n    private double dN;\\n    private double dN1;\\n    private double dN2;\\n    private double g;\\n\\n    private double[] realEigenvalues;\\n    private double[] imagEigenvalues;\\n\\n    private ArrayRealVector[] eigenvectors;\\n\\n    private RealMatrix cachedV;\\n    private RealMatrix cachedD;\\n    private RealMatrix cachedVt;\\n\\n    public EigenDecompositionImpl(RealMatrix matrix, double splitTolerance) {\\n        this.splitTolerance = splitTolerance;\\n        this.transformer = new TriDiagonalTransformer(matrix, splitTolerance);\\n        this.main = transformer.getMainDiagonal();\\n        this.secondary = transformer.getSecondaryDiagonal();\\n        this.squaredSecondary = new double[secondary.length];\\n        for (int i = 0; i < secondary.length; i++) {\\n            this.squaredSecondary[i] = secondary[i] * secondary[i];\\n        }\\n    }\\n\\n    private void calculateEigenvalues() {\\n        // ...\\n    }\\n\\n    private void calculateEigenvectors() {\\n        // ...\\n    }\\n\\n    public RealMatrix getV() {\\n        if (cachedV == null) {\\n            calculateEigenvectors();\\n            cachedV = MatrixUtils.createRealMatrix(eigenvectors);\\n        }\\n        return cachedV;\\n    }\\n\\n    public RealMatrix getD() {\\n        if (cachedD == null) {\\n            calculateEigenvectors();\\n            cachedD = MatrixUtils.createRealMatrix(realEigenvalues, realEigenvalues.length);\\n        }\\n        return cachedD;\\n    }\\n\\n    public RealMatrix getVT() {\\n        if (cachedVt == null) {\\n            calculateEigenvectors();\\n            cachedVt = getV().transpose();\\n        }\\n        return cachedVt;\\n    }\\n\\n    public RealMatrix getMatrix() {\\n        return transformer.getMatrix();\\n    }\\n\\n    public double[] getRealEigenvalues() {\\n        if (realEigenvalues == null) {\\n            calculateEigenvalues();\\n        }\\n        return realEigenvalues;\\n    }\\n\\n    public double[] getImagEigenvalues() {\\n        if (imagEigenvalues == null) {\\n            calculateEigenvalues();\\n        }\\n        return imagEigenvalues;\\n    }\\n\\n    public ArrayRealVector getEigenvector(int i) {\\n        if (eigenvectors == null) {\\n            calculateEigenvectors();\\n        }\\n        return eigenvectors[i];\\n    }\\n\\n    public double getRealEigenvalue(int i) {\\n        return getRealEigenvalues()[i];\\n    }\\n\\n    public double getImagEigenvalue(int i) {\\n        return getImagEigenvalues()[i];\\n    }\\n\\n    public RealMatrix getSolver() {\\n        return new LUDecomposition(getV()).getSolver();\\n    }\\n}\\n\", \"bugs\": []}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually accurate and adheres to the guidelines. It provides a clear and concise overview of the code. However, it lacks detailed suggestions for improvements and does not address security aspects. The analytical depth is moderate, focusing on the structure and functionality of the code without delving deeply into potential optimizations or alternative approaches."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is empty (bugs: []). This isn't necessarily *bad*, as the code appears well-structured and follows established numerical methods (as indicated by the comments referencing Dhillon's thesis and LAPACK routines). \n\n* **Factual Correctness (5):**  The code itself doesn't present any immediately obvious factual errors. The comments suggest a solid foundation in established algorithms.\n* **Actionability (4):** While there are no bugs reported, the code is generally well-written and easy to understand. Suggestions could be made about adding more comments to explain the purpose of each variable, but that's more about readability than correctness.\n* **Analytical Depth (3):** The code implements a complex algorithm. A deeper review would involve analyzing the numerical stability and performance characteristics, but that's beyond the scope of a simple code review without specific performance concerns.\n* **Security Awareness (1):** There's no apparent security vulnerability in this code, but the review doesn't mention security at all.  Numerical code can be susceptible to issues like overflow or underflow, which *could* be exploited, but this isn't a primary concern here.\n* **Constructiveness (4):** The lack of bugs doesn't mean the review is unhelpful. It implicitly acknowledges that the code is well-written. More constructive feedback could be provided, but the code is already in good shape.\n* **Adherence to Guidelines (5):** The code adheres to standard Java coding conventions and the provided Apache license header."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.14279794692993,
+  "timestamp": "2025-12-02T06:57:54.979234",
+  "model_evaluated": "unknown"
+}

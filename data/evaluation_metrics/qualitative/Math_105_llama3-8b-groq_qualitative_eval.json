@@ -1,0 +1,36 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential bug in addData method\",\n         \"description\": \"The method updates the sumXX, sumYY and sumXY with the wrong formula. The correct formula should be sumXX += (n+1)*dx^2 - n*dxbar^2, sumYY += (n+1)*dy^2 - n*dybar^2, sumXY += (n+1)*dx*dy - n*dxbar*dybar.\",\n         \"location\": \"org.apache.commons.math.stat.regression.SimpleRegression.addData(double, double)\"\n      },\n      {\n         \"type\": \"Potential bug in addData method\",\n         \"description\": \"The method updates the xbar and ybar with the wrong formula. The correct formula should be xbar = (n*xbar + dx)/(n+1), ybar = (n*ybar + dy)/(n+1).\",\n         \"location\": \"org.apache.commons.math.stat.regression.SimpleRegression.addData(double, double)\"\n      },\n      {\n         \"type\": \"Potential bug in predict method\",\n         \"description\": \"The method does not handle the case when there are fewer than two observations in the model or when there is no variation in the x values. It should return Double.NaN in these cases.\",\n         \"location\": \"org.apache.commons.math.stat.regression.SimpleRegression.predict(double)\"\n      },\n      {\n         \"type\": \"Potential bug in getN method\",\n         \"description\": \"The method does not handle the case when the model is not initialized. It should return 0 in this case.\",\n         \"location\": \"org.apache.commons.math.stat.regression.SimpleRegression.getN()\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 3,
+        "constructiveness": 5,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and provides clear, actionable suggestions for improvements. It demonstrates a good understanding of the underlying statistical concepts and potential issues. However, it does not explicitly address security concerns, but this may not be relevant for the given code context. The review is constructive and adheres to the given constraints."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 4,
+        "analytical_depth": 4,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies several potential bugs related to the incremental update formulas in `addData`, the handling of edge cases in `predict`, and initialization in `getN`. The descriptions are generally accurate and point to specific issues with the update logic for statistical calculations. The suggested corrections (though not providing exact code) are clear enough to understand the intended fix. The analytical depth is good, as it identifies potential inaccuracies in the incremental calculation approach. Security awareness is low, as the code doesn't appear to have any direct security vulnerabilities. The review is constructive, focusing on potential bugs and how to address them. It doesn't include any nitpicks or negative comments. The review adheres to any implicit guidelines (no style issues were mentioned)."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 23.178868055343628,
+  "timestamp": "2025-12-02T04:58:19.857885",
+  "model_evaluated": "unknown"
+}

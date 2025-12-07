@@ -1,0 +1,28 @@
+{
+  "original_review": "[{\"code\": \"public static int toInt(String str) {\\n    return toInt(str, 0);\\n}\", \"bug\": false}, {\"code\": \"public static int toInt(String str, int defaultValue) {\\n    if(str == null) {\\n        return defaultValue;\\n    }\\n    try {\\n        return Integer.parseInt(str);\\n    } catch (NumberFormatException nfe) {\\n        return defaultValue;\\n    }\\n}\", \"bug\": false}, {\"code\": \"public static long toLong(String str) {\\n    return toLong(str, 0L);\\n}\", \"bug\": false}, {\"code\": \"public static long toLong(String str, long defaultValue) {\\n    if(str == null) {\\n        return defaultValue;\\n    }\\n    try {\\n        return Long.parseLong(str);\\n    } catch (NumberFormatException nfe) {\\n        return defaultValue;\\n    }\\n}\", \"bug\": false}, {\"code\": \"public static float toFloat(String str) {\\n    return toFloat(str, 0f);\\n}\", \"bug\": false}, {\"code\": \"public static float toFloat(String str, float defaultValue) {\\n    if(str == null) {\\n        return defaultValue;\\n    }\\n    try {\\n        return Float.parseFloat(str);\\n    } catch (NumberFormatException nfe) {\\n        return defaultValue;\\n    }\\n}\", \"bug\": false}, {\"code\": \"public static double toDouble(String str) {\\n    return toDouble(str, 0.0d);\\n}\", \"bug\": false}, {\"code\": \"public static double toDouble(String str, double defaultValue) {\\n    if(str == null) {\\n        return defaultValue;\\n    }\\n    try {\\n        return Double.parseDouble(str);\\n    } catch (NumberFormatException nfe) {\\n        return defaultValue;\\n    }\\n}\", \"bug\": false}, {\"code\": \"public static BigDecimal toBigDecimal(String str) {\\n    return toBigDecimal(str, null);\\n}\", \"bug\": false}, {\"code\": \"public static BigDecimal toBigDecimal(String str, BigDecimal defaultValue) {\\n    if(str == null) {\\n        return defaultValue;\\n    }\\n    try {\\n        return new BigDecimal(str);\\n    } catch (NumberFormatException nfe) {\\n        return defaultValue;\\n    }\\n}\", \"bug\": false}, {\"code\": \"public static BigInteger toBigInteger(String str) {\\n    return toBigInteger(str, null);\\n}\", \"bug\": false}, {\"code\": \"public static BigInteger toBigInteger(String str, BigInteger defaultValue) {\\n    if(str == null) {\\n        return defaultValue;\\n    }\\n    try {\\n        return new BigInteger(str);\\n    } catch (NumberFormatException nfe) {\\n        return defaultValue;\\n    }\\n}\", \"bug\": false}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is technically accurate and provides concrete suggestions for improving the code. It offers actionable advice, such as handling null values and using default values, which are ready-to-copy. However, it lacks deep analytical insights into potential root causes of issues and does not explicitly address security risks. The review is constructive and offers improvements rather than just criticism. It adheres perfectly to the given constraints, such as ignoring style issues."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.891965866088867,
+  "timestamp": "2025-12-02T05:11:59.085092",
+  "model_evaluated": "unknown"
+}

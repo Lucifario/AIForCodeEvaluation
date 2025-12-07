@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"description\": \"The code lacks side-effects. Is there a bug?\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 123,\n      \"column\": 5\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  },\n\n  {\n    \"description\": \"Is there a missing '+' on the previous line?\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 456,\n      \"column\": 10\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  },\n\n  {\n    \"description\": \"The result of the '===' operator is not being used.\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 789,\n      \"column\": 20\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  },\n\n  {\n    \"description\": \"Probably just a stray semicolon. Doesn't hurt to check though\",\n    \"location\": {\n      \"file\": \"your_file.js\",\n      \"line\": 321,\n      \"column\": 15\n    },\n    \"type\": \"JSC_USELESS_CODE\"\n  }\n\n]}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 3,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 4,
+        "reasoning": "The review identifies potential issues related to side effects and code quality, which is factually correct in the context of the code provided. However, it lacks concrete suggestions for fixing the issues, making it less actionable. The review does not delve deeply into the root causes of the issues, and it does not address any security concerns. The feedback is somewhat constructive but could be more helpful with specific improvements. The review adheres to the guidelines by focusing on the specified constraints."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review correctly identifies potential issues that the `CheckSideEffects` pass is designed to catch, as described in the code's documentation (useless code, missing operators, unused results, stray semicolons). The `factual_correctness` is high because the descriptions align with the intended functionality. `Actionability` is moderate; while the issues are identified, the review doesn't offer specific fixes, just flags. The `analytical_depth` is low; it points out *what* is suspicious but doesn't delve into *why* it might be a problem beyond the initial observation. `Security_awareness` is very low, as the code review doesn't consider security implications. `Constructiveness` is moderate; it's not overly negative, but it doesn't offer suggestions for improvement. The review adheres to any implicit guidelines (no style concerns were mentioned)."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 23.70598292350769,
+  "timestamp": "2025-12-02T06:20:31.540388",
+  "model_evaluated": "unknown"
+}

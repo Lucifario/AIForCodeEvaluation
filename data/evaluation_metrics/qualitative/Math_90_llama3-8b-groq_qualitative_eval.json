@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"severity\": \"low\",\n         \"description\": \"The deprecated method addValue(Object v) does not contain any body, it should either be removed or the @Deprecated annotation should be removed.\"\n      },\n      {\n         \"severity\": \"medium\",\n         \"description\": \"The method addValue(int v) does not check if the input is within the range of int, it should be checked to prevent overflow.\"\n      },\n      {\n         \"severity\": \"high\",\n         \"description\": \"The method addValue(char v) does not handle Unicode characters correctly, it should be handled as a Character instance instead of a char.\"\n      },\n      {\n         \"severity\": \"low\",\n         \"description\": \"The method toString() does not handle the case where the frequency table is empty, it should return a message indicating that the table is empty.\"\n      },\n      {\n         \"severity\": \"low\",\n         \"description\": \"The class Frequency does not implement the Cloneable interface, it should be implemented if the class needs to be cloned.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.0992488861084,
+  "timestamp": "2025-12-02T05:14:10.103871",
+  "model_evaluated": "unknown"
+}

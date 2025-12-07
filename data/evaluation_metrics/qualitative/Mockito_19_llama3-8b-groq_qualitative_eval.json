@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\":[\n      {\n         \"id\":1,\n         \"type\":\"Potential NullPointerException\",\n         \"description\":\"In the initializeInjectMocksField method, the report object is not checked for null before being returned. If an exception occurs during field initialization, the report object may be null, causing a NullPointerException when returned.\",\n         \"location\":\"initializeInjectMocksField method\"\n      },\n      {\n         \"id\":2,\n         \"type\":\"Potential NullPointerException\",\n         \"description\":\"In the processInjection method, the mockCandidates set is not checked for null before being passed to the newMockSafeHashSet method. If the set is null, a NullPointerException will be thrown.\",\n         \"location\":\"processInjection method\"\n      },\n      {\n         \"id\":3,\n         \"type\":\"Potential ClassCastException\",\n         \"description\":\"In the injectMockCandidatesOnFields method, the injected object is not checked for null before being removed from the mocks set. If the injected object is null, a ClassCastException will be thrown when trying to remove it from the set.\",\n         \"location\":\"injectMockCandidatesOnFields method\"\n      },\n      {\n         \"id\":4,\n         \"type\":\"Potential IndexOutOfBoundsException\",\n         \"description\":\"In the injectMockCandidatesOnFields method, the iterator is not checked for hasNext() before calling next() on it. If the iterator is exhausted, an IndexOutOfBoundsException will be thrown.\",\n         \"location\":\"injectMockCandidatesOnFields method\"\n      },\n      {\n         \"id\":5,\n         \"type\":\"Potential ClassCastException\",\n         \"description\":\"In the orderedInstanceFieldsFrom method, the declaredFields list is not checked for null before being passed to the filter method. If the list is null, a ClassCastException will be thrown.\",\n         \"location\":\"orderedInstanceFieldsFrom method\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.20526885986328,
+  "timestamp": "2025-12-02T05:22:05.436096",
+  "model_evaluated": "unknown"
+}

@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the constructor SimplexTableau, the method getConstraintTypeCounts(Relationship.EQ) is called without checking if the constraints collection is null.\",\n         \"location\": \"SimplexTableau.java:143\"\n      },\n      {\n         \"type\": \"Potential NullPointerException\",\n         \"description\": \"In the constructor SimplexTableau, the method normalizeConstraints(constraints) is called without checking if the constraints collection is null.\",\n         \"location\": \"SimplexTableau.java:128\"\n      },\n      {\n         \"type\": \"Potential ArithmeticException\",\n         \"description\": \"In the constructor SimplexTableau, the parameter epsilon is used in a floating-point comparison without checking for NaN or Infinity.\",\n         \"location\": \"SimplexTableau.java:151\"\n      },\n      {\n         \"type\": \"Potential ClassCastException\",\n         \"description\": \"In the constructor SimplexTableau, the parameter constraints is checked to be a Collection<LinearConstraint> without checking if the constraints are actually LinearConstraint objects.\",\n         \"location\": \"SimplexTableau.java:128\"\n      },\n      {\n         \"type\": \"Potential ClassCastException\",\n         \"description\": \"In the constructor SimplexTableau, the parameter f is checked to be a LinearObjectiveFunction without checking if the coefficients are actually a RealVector.\",\n         \"location\": \"SimplexTableau.java:121\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.890533208847046,
+  "timestamp": "2025-12-02T05:16:50.034534",
+  "model_evaluated": "unknown"
+}

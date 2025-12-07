@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"code\": \"checkedExceptionInvalid\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"cannotStubWithNullThrowable\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"unfinishedStubbing\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"incorrectUseOfApi\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"missingMethodInvocation\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"unfinishedVerificationException\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"notAMockPassedToVerify\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      },\n      {\n         \"code\": \"nullPassedToVerify\",\n         \"description\": \"This method is not called anywhere in the provided code. It's a good practice to remove unused code to keep it clean and maintainable.\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 29.132174968719482,
+  "timestamp": "2025-12-02T05:19:39.859699",
+  "model_evaluated": "unknown"
+}

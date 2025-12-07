@@ -1,0 +1,36 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"message\": \"Missing 'public' access modifier in method 'publ'\",\n         \"line\": 246,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'publ' should be 'public'\",\n         \"line\": 246,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'getDomainDescription' should return a non-null value\",\n         \"line\": 174,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'setDomainDescription' does not check for null input\",\n         \"line\": 188,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'firePropertyChange' should be called with a non-null property name\",\n         \"line\": 194,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'firePropertyChange' should be called with a non-null old value\",\n         \"line\": 194,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'firePropertyChange' should be called with a non-null new value\",\n         \"line\": 194,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'getRangeDescription' is missing\",\n         \"line\": 164,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'setRangeDescription' is missing\",\n         \"line\": 178,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'fireChange' is missing in 'add' method\",\n         \"line\": 220,\n         \"column\": 5\n      },\n      {\n         \"message\": \"Method 'equals' should be overridden\",\n         \"line\": 58,\n         \"column\": 5\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is mostly accurate in identifying issues (factual correctness: 4). It provides specific lines and columns for each issue, making it actionable (actionability: 3). However, it lacks root cause analysis (analytical depth: 2) and does not address security concerns (security awareness: 1). The suggestions are constructive but could be more detailed (constructiveness: 3). The review adheres to the guidelines by focusing on bugs and not style issues (adherence to guidelines: 5)."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 4,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is highly factually correct, identifying potential issues with null handling, missing methods, and access modifiers. The suggestions are generally actionable, pointing to specific lines and issues. The analytical depth is moderate; it identifies *what* is wrong but doesn't always delve into *why* it's a problem beyond basic correctness (e.g., why a null return is bad). Security awareness is very low, as the review doesn't consider any security implications. The review is constructive, offering suggestions for improvement rather than just pointing out flaws. It also appears to adhere to any implicit guidelines (no style complaints, focused on functionality). The 'publ' messages are a bit odd, likely a tooling issue, but the underlying point about missing access modifiers is valid. The suggestion to override `equals` is good practice."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.882596969604492,
+  "timestamp": "2025-12-02T05:01:20.145249",
+  "model_evaluated": "unknown"
+}

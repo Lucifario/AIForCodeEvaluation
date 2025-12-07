@@ -1,0 +1,36 @@
+{
+  "original_review": "[{\"code\": \"```java\\n// Your Java code here\\n```\"}]",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 1,
+        "reasoning": "The review provided is not applicable to the given code context. It does not offer any feedback, suggestions, or analysis related to the provided Java code. Therefore, it scores low on all criteria."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 1,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is empty. It contains only a code block comment indicating where Java code should be, but no actual review content. Therefore, it receives the lowest possible scores for all criteria except guideline adherence, which is perfect because there were no guidelines to violate. It's not factual, actionable, analytical, constructive, or security-aware because it *is* nothing."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 22.971467971801758,
+  "timestamp": "2025-12-02T05:05:57.935431",
+  "model_evaluated": "unknown"
+}

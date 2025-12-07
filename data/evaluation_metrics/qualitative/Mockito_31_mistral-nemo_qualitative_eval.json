@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct in identifying that there are no bugs. However, it lacks actionable suggestions, analytical depth, and security awareness. It does not provide any constructive feedback or improvements, making it more of a simple observation rather than a comprehensive review. It adheres to the guidelines by not violating any constraints."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 5,
+        "analytical_depth": 3,
+        "security_awareness": 1,
+        "constructiveness": 4,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review correctly identifies that there are no bugs. The code appears sound and follows best practices for Mockito's internal workings. The analytical depth is moderate; while the code is well-structured, a deeper analysis might explore potential performance implications of the `ClassImposterizer` or edge cases with complex return types. Security awareness is low, as the review doesn't consider potential security vulnerabilities (though this code doesn't appear to have any obvious ones). The review is constructive, simply stating the absence of bugs is helpful. It adheres to the guidelines by providing a valid JSON output."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 23.556276082992554,
+  "timestamp": "2025-12-02T07:05:40.523458",
+  "model_evaluated": "unknown"
+}

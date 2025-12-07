@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [] }",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 5,
+        "actionability": 1,
+        "analytical_depth": 1,
+        "security_awareness": 1,
+        "constructiveness": 1,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review is factually correct as it accurately identifies that there are no bugs. However, it lacks actionability, analytical depth, and security awareness. It does not provide any suggestions for improvement, root cause analysis, or security considerations. The review is constructive in the sense that it does not criticize, but it does not offer any improvements. It adheres to the guidelines by not commenting on style, which was a constraint."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": {
+      "final_factual_correctness": 5,
+      "final_actionability": 1,
+      "final_analytical_depth": 1,
+      "final_security_awareness": 1,
+      "final_constructiveness": 1,
+      "final_adherence_to_guidelines": 5,
+      "consensus_reasoning": "The review is factually correct as it accurately identifies that there are no bugs, but lacks actionability, analytical depth, and security awareness, while adhering to guidelines."
+    },
+    "raw_output": "{\n  \"final_factual_correctness\": 5,\n   \"final_actionability\": 1,\n   \"final_analytical_depth\": 1,\n   \"final_security_awareness\": 1,\n   \"final_constructiveness\": 1,\n   \"final_adherence_to_guidelines\": 5,\n   \"consensus_reasoning\": \"The review is factually correct as it accurately identifies that there are no bugs, but lacks actionability, analytical depth, and security awareness, while adhering to guidelines.\"\n}"
+  },
+  "duration_seconds": 14.925455808639526,
+  "timestamp": "2025-12-02T05:11:54.682689",
+  "model_evaluated": "unknown"
+}

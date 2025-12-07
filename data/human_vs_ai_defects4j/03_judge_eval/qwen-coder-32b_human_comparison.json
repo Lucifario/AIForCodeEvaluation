@@ -1,0 +1,16 @@
+[
+  {
+    "id": "math_1_buggy",
+    "model": "qwen-coder-32b",
+    "human_after_length": 20,
+    "ai_after_length": 2219,
+    "factual_correctness": 4.2,
+    "actionability": 4.0,
+    "analytical_depth": 3.9,
+    "security_awareness": 2.1,
+    "constructiveness": 4.1,
+    "adherence_to_guidelines": 4.8,
+    "fix_similarity": 0.78,
+    "overall_quality": 4.0
+  }
+]

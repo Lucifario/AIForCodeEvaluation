@@ -1,0 +1,20 @@
+{
+  "original_review": "{\n  \"bugs\": [\n      {\n         \"id\": 1,\n         \"description\": \"The translate method does not handle null input correctly. It should throw an IllegalArgumentException instead of returning null.\",\n         \"location\": \"translate(CharSequence input) method\"\n      },\n      {\n         \"id\": 2,\n         \"description\": \"The translate method does not handle IOException properly. It should not throw a RuntimeException but instead rethrow the original IOException.\",\n         \"location\": \"translate(CharSequence input) method\"\n      },\n      {\n         \"id\": 3,\n         \"description\": \"The translate method does not handle the case where the input is an empty string correctly. It should return an empty string instead of throwing an IOException.\",\n         \"location\": \"translate(CharSequence input) method\"\n      },\n      {\n         \"id\": 4,\n         \"description\": \"The translate method does not handle the case where the input is a single surrogate pair correctly. It should write the pair as a single character instead of writing two separate characters.\",\n         \"location\": \"translate(CharSequence input, Writer out) method\"\n      },\n      {\n         \"id\": 5,\n         \"description\": \"The with method does not handle the case where the input array is null correctly. It should throw a NullPointerException instead of returning a null array.\",\n         \"location\": \"with(CharSequenceTranslator... translators) method\"\n      }\n   ]\n}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": null
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": null
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 28.90439486503601,
+  "timestamp": "2025-12-02T05:23:42.403876",
+  "model_evaluated": "unknown"
+}

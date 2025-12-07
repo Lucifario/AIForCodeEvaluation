@@ -1,0 +1,36 @@
+{
+  "original_review": "{ \"bugs\": [\n\n  {\n    \"description\": \"Null Argument Exception not thrown when one of the arrays is null\",\n    \"code\": \"ensureDataConformance(null, y);\"\n  },\n\n  {\n    \"description\": \"NoDataException not thrown when one of the arrays is empty\",\n    \"code\": \"ensureDataConformance(new double[0], y);\"\n  },\n\n  {\n    \"description\": \"In the `mannWhitneyU` method, the `ensureDataConformance` method is not called with the concatenated samples\",\n    \"code\": \"public double mannWhitneyU(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"In the `mannWhitneyU` method, the `ensurDataConformance` method is not called at all\",\n    \"code\": \"public double mannWhitneyU(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `mannWhitneyU` method does not handle cases where the samples have different lengths\",\n    \"code\": \"public double mannWhitneyU(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `mannWhitneyU` method does not handle cases where the samples contain NaN values\",\n    \"code\": \"public double mannWhitneyU(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `mannWhitneyU` method does not handle cases where the samples contain negative values\",\n    \"code\": \"public double mannWhitneyU(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `mannWhitneyU` method does not handle cases where the samples contain non-numeric values\",\n    \"code\": \"public double mannWhitneyU(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `mannWhitneyUTest` constructor does not throw an exception when invalid `NaNStrategy` or `TiesStrategy` is provided\",\n    \"code\": \"public MannWhitneyUTest(final NaNStrategy nanStrategy, final TiesStrategy tiesStrategy) { ... }\"\n  },\n\n  {\n    \"description\": \"The `mannWhitneyUTest` constructor does not validate the provided `NaNStrategy` and `TiesStrategy`\",\n    \"code\": \"public MannWhitneyUTest(final NaNStrategy nanStrategy, final TiesStrategy tiesStrategy) { ... }\"\n  },\n\n  {\n    \"description\": \"The `concatenateSamples` method does not check if the input arrays are null or have zero length\",\n    \"code\": \"private double[] concatenateSamples(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `concatenateSamples` method does not handle cases where the input arrays have different lengths\",\n    \"code\": \"private double[] concatenateSamples(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `concatenateSamples` method does not handle cases where the input arrays contain non-numeric values\",\n    \"code\": \"private double[] concatenateSamples(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `concatenateSamples` method does not handle cases where the input arrays contain NaN values\",\n    \"code\": \"private double[] concatenateSamples(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `concatenateSamples` method does not handle cases where the input arrays contain negative values\",\n    \"code\": \"private double[] concatenateSamples(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `ensureDataConformance` method does not throw a specific exception when the input arrays are not of the same length\",\n    \"code\": \"private void ensureDataConformance(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `ensureDataConformance` method does not throw a specific exception when the input arrays contain non-numeric values\",\n    \"code\": \"private void ensureDataConformance(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `ensureDataConformance` method does not throw a specific exception when the input arrays contain NaN values\",\n    \"code\": \"private void ensureDataConformance(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `ensureDataConformance` method does not throw a specific exception when the input arrays contain negative values\",\n    \"code\": \"private void ensureDataConformance(final double[] x, final double[] y) { ... }\"\n  },\n\n  {\n    \"description\": \"The `ensureDataConformance` method does not handle cases where the input arrays have different lengths\",\n    \"code\": \"private void ensureDataConformance(final double[] x, final double[] y) { ... }\"\n  }\n\n]}",
+  "judges": [
+    {
+      "judge_id": "mistral-small",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 3,
+        "analytical_depth": 3,
+        "security_awareness": 2,
+        "constructiveness": 3,
+        "adherence_to_guidelines": 4,
+        "reasoning": "The review is mostly accurate in identifying issues, but it lacks specific code examples for fixes. It provides a good level of detail in identifying potential problems but does not delve deeply into the root causes. Security concerns are not explicitly addressed, and the review could benefit from more constructive suggestions and specific code examples for improvements. The review adheres well to the constraints of the code context provided."
+      }
+    },
+    {
+      "judge_id": "gemma-27b",
+      "parsed_result": {
+        "factual_correctness": 4,
+        "actionability": 2,
+        "analytical_depth": 2,
+        "security_awareness": 1,
+        "constructiveness": 2,
+        "adherence_to_guidelines": 5,
+        "reasoning": "The review identifies a large number of potential issues, and most of them are likely correct given the limited code provided. The reviewer correctly points out missing null checks, empty array checks, and the need for input validation. However, the review is extremely repetitive, listing the same concerns for multiple methods (e.g., NaN handling, negative values) without providing specific guidance on *how* to address them in each context. It's a laundry list of 'what could be wrong' rather than a focused analysis. The actionability is low because the 'code' field simply points to the method signature; it doesn't suggest fixes. Analytical depth is also low; it identifies potential problems but doesn't explain *why* these are critical issues for the Mann-Whitney U test. Security awareness is minimal; while input validation is important, the review doesn't highlight any specific security vulnerabilities. Constructiveness is low due to the purely negative nature of the feedback. The review adheres to the guidelines in that it focuses on the code provided and doesn't introduce external concerns."
+      }
+    }
+  ],
+  "meta_judge": {
+    "parsed_result": null,
+    "raw_output": null
+  },
+  "duration_seconds": 27.02996826171875,
+  "timestamp": "2025-12-02T07:04:42.096710",
+  "model_evaluated": "unknown"
+}

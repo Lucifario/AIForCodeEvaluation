@@ -1,0 +1,16 @@
+[
+  {
+    "id": "math_1_buggy",
+    "model": "mistral-nemo",
+    "human_after_length": 20,
+    "ai_after_length": 2217,
+    "factual_correctness": 3.8,
+    "actionability": 3.2,
+    "analytical_depth": 3.0,
+    "security_awareness": 2.1,
+    "constructiveness": 3.4,
+    "adherence_to_guidelines": 4.8,
+    "fix_similarity": 0.65,
+    "overall_quality": 3.4
+  }
+]
